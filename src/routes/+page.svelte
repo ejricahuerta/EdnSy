@@ -341,7 +341,7 @@
       await tick();
       await new Promise((r) => setTimeout(r, 48));
     }
-    await new Promise((r) => setTimeout(r, 1200));
+    await new Promise((r) => setTimeout(r, 2400));
     for (let i = phrase.length; i >= 0; i--) {
       typedPhrase = phrase.slice(0, i);
       await tick();
@@ -359,24 +359,21 @@
 
 <!-- Add top padding to first section so content is not hidden behind navbar -->
 <section
-  class="pt-28 bg-gradient-to-br from-blue-600 to-purple-500 text-white py-20"
+  class="pt-28 bg-gradient-to-br from-blue-600 to-purple-500 text-white py-20 pt-40"
 >
-  <div
-    class="container mx-auto flex flex-col md:flex-row items-center gap-10 px-4"
-  >
+  <div class="container mx-auto flex flex-col md:flex-row gap-10 px-4">
     <div class="flex-1 text-center md:text-left">
       <h1 class="text-5xl font-extrabold mb-6">AI Automation Made Simple</h1>
-      <div class="text-xl mb-6">
+      <div class="text-xl mb-6 text-left">
         <span class="font-bold text-white"
-          >We make business <span
+          >Make business <span
             class="sm:inline-block text-white font-bold bg-green-500 bg-opacity-90 px-2 py-1 rounded"
-            >{typedPhrase}|</span
-          ></span
+            >{typedPhrase}<span class="blinking-cursor">|</span></span></span
         >
         <div class="my-3"></div>
         <span class="block mb-6 text-base md:text-xl"
-          >We help you automate the tools you already use. Perfect for
-          non-technical teams and experienced business owners.</span
+          >Automate the tools you already use. Perfect for non-technical teams
+          and experienced business owners.</span
         >
       </div>
       <div
@@ -844,3 +841,13 @@
     </div>
   </div>
 </section>
+
+<style>
+  .blinking-cursor {
+    animation: blink 1s steps(2, start) infinite;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+</style>
