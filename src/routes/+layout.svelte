@@ -10,8 +10,6 @@
   }
   // Footer links
   const footerLinks = [
-    { href: "/about", label: "About" },
-    { href: "/contact", label: "Contact" },
     {
       href: "https://purple-moonflower-026.notion.site/Privacy-20194cc9908280c4a2f9dc4e73864328",
       label: "Privacy",
@@ -101,17 +99,17 @@
   {#if mobileNavOpen}
     <div class="md:hidden bg-white border-t shadow-lg animate-slide-down">
       <a
-        href="#"
+        href="/"
         class="block px-8 py-4 text-lg font-semibold text-gray-700 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
         onclick={closeMobileNav}>Home</a
       >
       <a
-        href="#pricing"
+        href="/#pricing"
         class="block px-8 py-4 text-lg font-semibold text-gray-700 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
         onclick={closeMobileNav}>Pricing</a
       >
       <a
-        href="#team"
+        href="/#team"
         class="block px-8 py-4 text-lg font-semibold text-gray-700 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
         onclick={closeMobileNav}>Meet Ed & Sy</a
       >
@@ -120,10 +118,14 @@
         class="block px-8 py-4 text-lg font-semibold text-gray-700 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
         onclick={closeMobileNav}>Contact</a
       >
-      <a
-        href="/signup"
+      <button
+        data-tally-open="3NQ6pB"
+        data-tally-overlay="1"
+        data-tally-emoji-text="👋"
+        data-tally-emoji-animation="wave"
+        data-tally-auto-close="3000"
         class="block px-8 py-4 bg-blue-600 text-white font-bold text-lg rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2 mb-4 mx-4 text-center"
-        onclick={closeMobileNav}>Get Started</a
+        onclick={closeMobileNav}>Get Started</button
       >
     </div>
   {/if}
