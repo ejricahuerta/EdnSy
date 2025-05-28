@@ -2,7 +2,6 @@
   // Import icons as needed (Lucide or custom SVGs)
   import {
     Github,
-    Users,
     Zap,
     ShieldCheck,
     Code2,
@@ -30,6 +29,7 @@
     WandSparkles,
     Plus,
     MapPin,
+    Users,
   } from "@lucide/svelte";
   // Trust logos (replace with your own or use placeholders)
   const trustLogos = [
@@ -198,22 +198,6 @@
       ],
       cta: "Contact Sales",
       highlight: false,
-    },
-  ];
-  // Footer links
-  const footerLinks = [
-    { href: "/about", label: "About" },
-    { href: "/contact", label: "Contact" },
-    { href: "/privacy", label: "Privacy" },
-    { href: "/terms", label: "Terms" },
-  ];
-  // Social links (placeholder)
-  const socialLinks = [
-    { href: "https://twitter.com/yourcompany", icon: Star, label: "Twitter" },
-    {
-      href: "https://linkedin.com/company/yourcompany",
-      icon: Users,
-      label: "LinkedIn",
     },
   ];
   import { scatteredAppLogos } from "$lib/app-logos";
@@ -821,39 +805,3 @@
     </div>
   </div>
 </section>
-
-<!-- 10. FOOTER -->
-<footer
-  class="w-full py-10 bg-gray-900 border-t text-center text-white text-lg font-sans"
-  role="contentinfo"
->
-  <div class="mb-2 font-bold text-xl">Ed & Sy</div>
-  <div class="mb-2">
-    &copy; {new Date().getFullYear()} Ed & Sy. All rights reserved.
-  </div>
-  <nav
-    class="flex flex-wrap justify-center gap-4 mt-2 text-base mb-4"
-    aria-label="Footer navigation"
-  >
-    {#each footerLinks as link}
-      <a
-        href={link.href}
-        class="hover:underline focus:outline-none focus:ring-2 focus:ring-blue-600"
-        >{link.label}</a
-      >
-    {/each}
-  </nav>
-  <div class="flex justify-center gap-4">
-    {#each socialLinks as s}
-      <a
-        href={s.href}
-        class="hover:underline focus:outline-none focus:ring-2 focus:ring-blue-600 flex items-center gap-1"
-        aria-label={s.label}
-        target="_blank"
-        rel="noopener"
-      >
-        <svelte:component this={s.icon} class="w-5 h-5" aria-hidden="true" />
-      </a>
-    {/each}
-  </div>
-</footer>

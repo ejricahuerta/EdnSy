@@ -1,12 +1,35 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import "../app.css";
+  import { Star, Users } from "@lucide/svelte";
 
   let { children } = $props();
-  let mobileNavOpen = false;
+  let mobileNavOpen = $state(false);
   function closeMobileNav() {
     mobileNavOpen = false;
   }
+  // Footer links
+  const footerLinks = [
+    { href: "/about", label: "About" },
+    { href: "/contact", label: "Contact" },
+    {
+      href: "https://purple-moonflower-026.notion.site/Privacy-20194cc9908280c4a2f9dc4e73864328",
+      label: "Privacy",
+    },
+    {
+      href: "https://purple-moonflower-026.notion.site/Terms-20194cc990828002a3befb22a94a00a3?pvs=73",
+      label: "Terms",
+    },
+  ];
+  // Social links (placeholder)
+  const socialLinks = [
+    { href: "https://twitter.com/yourcompany", icon: Star, label: "Twitter" },
+    {
+      href: "https://linkedin.com/company/yourcompany",
+      icon: Users,
+      label: "LinkedIn",
+    },
+  ];
 </script>
 
 <!-- NAVBAR -->
@@ -47,8 +70,7 @@
         data-tally-overlay="1"
         data-tally-emoji-text="👋"
         data-tally-emoji-animation="wave"
-        data-tally-auto-close="3000"
-      >Get Started</button
+        data-tally-auto-close="3000">Get Started</button
       >
     </div>
     <!-- Mobile Hamburger -->
@@ -115,8 +137,43 @@
   data-tally-emoji-animation="wave"
   data-tally-auto-close="3000"
   class="fixed bottom-6 right-6 z-50 bg-blue-600 text-white text-lg font-bold px-6 py-4 rounded-full shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
->Hi!👋</button
+  >Hi!👋</button
 >
+
+<footer
+  class="w-full py-10 bg-gray-900 border-t text-center text-white text-lg font-sans"
+  role="contentinfo"
+>
+  <div class="mb-2 font-bold text-xl">Ed & Sy</div>
+  <div class="mb-2">
+    &copy; {new Date().getFullYear()} Ed & Sy. All rights reserved.
+  </div>
+  <nav
+    class="flex flex-wrap justify-center gap-4 mt-2 text-base mb-4"
+    aria-label="Footer navigation"
+  >
+    {#each footerLinks as link}
+      <a
+        href={link.href}
+        class="hover:underline focus:outline-none focus:ring-2 focus:ring-blue-600"
+        >{link.label}</a
+      >
+    {/each}
+  </nav>
+  <div class="flex justify-center gap-4">
+    {#each socialLinks as s}
+      <a
+        href={s.href}
+        class="hover:underline focus:outline-none focus:ring-2 focus:ring-blue-600 flex items-center gap-1"
+        aria-label={s.label}
+        target="_blank"
+        rel="noopener"
+      >
+        <svelte:component this={s.icon} class="w-5 h-5" aria-hidden="true" />
+      </a>
+    {/each}
+  </div>
+</footer>
 
 <style>
   @keyframes slide-down {
