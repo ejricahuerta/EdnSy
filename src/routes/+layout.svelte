@@ -30,6 +30,37 @@
   ];
 </script>
 
+<svelte:head>
+  <title>Ed & Sy: Local Business Automation Experts</title>
+  <meta
+    name="description"
+    content="Organize, automate, and grow your business with Ed & Sy. Simple, human-friendly automation for local businesses. Accessible, older-generation friendly, and personal service."
+  />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta
+    property="og:title"
+    content="Ed & Sy: Local Business Automation Experts"
+  />
+  <meta
+    property="og:description"
+    content="Organize, automate, and grow your business with Ed & Sy. Simple, human-friendly automation for local businesses."
+  />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://ednsy.ca" />
+  <meta property="og:image" content="/edsy-og.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta
+    name="twitter:title"
+    content="Ed & Sy: Local Business Automation Experts"
+  />
+  <meta
+    name="twitter:description"
+    content="Organize, automate, and grow your business with Ed & Sy. Simple, human-friendly automation for local businesses."
+  />
+  <meta name="twitter:image" content="/edsy-og.png" />
+  <link rel="canonical" href="https://ednsy.ca" />
+</svelte:head>
+
 <!-- NAVBAR -->
 <nav class="fixed top-0 left-0 w-full z-50 bg-white/80 backdrop-blur shadow-md">
   <div class="container mx-auto flex items-center justify-between px-4 py-3">
@@ -97,7 +128,7 @@
   </div>
   <!-- Mobile Nav Menu -->
   {#if mobileNavOpen}
-    <div class="md:hidden bg-white border-t shadow-lg animate-slide-down">
+    <div class="md:hidden bg-white border-t shadow-lg animate-slide-down pb-4">
       <a
         href="/"
         class="block px-8 py-4 text-lg font-semibold text-gray-700 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"

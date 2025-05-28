@@ -201,7 +201,7 @@
     },
   ];
   import { scatteredAppLogos } from "$lib/app-logos";
-  import { onMount, onDestroy } from "svelte";
+  import { onMount, onDestroy, tick } from "svelte";
 
   // Scatter logos randomly within the hero area, no overlap, random each load
   const containerSize = 320; // px (for both width and height)
@@ -323,6 +323,38 @@
     const y = center + Math.sin(angle) * logoRingRadius;
     return `left: ${x - 24}px; top: ${y - 24}px;`;
   }
+
+  const phrases = [
+    "automation easy",
+    "growth simple",
+    "tasks effortless",
+    "success automatic",
+  ];
+  let phraseIndex = 0;
+  let typedPhrase = "";
+  let typing = true;
+  let intervalId: any;
+
+  async function typePhrase(phrase: string) {
+    for (let i = 0; i <= phrase.length; i++) {
+      typedPhrase = phrase.slice(0, i);
+      await tick();
+      await new Promise((r) => setTimeout(r, 48));
+    }
+    await new Promise((r) => setTimeout(r, 1200));
+    for (let i = phrase.length; i >= 0; i--) {
+      typedPhrase = phrase.slice(0, i);
+      await tick();
+      await new Promise((r) => setTimeout(r, 24));
+    }
+  }
+
+  onMount(async () => {
+    while (true) {
+      await typePhrase(phrases[phraseIndex]);
+      phraseIndex = (phraseIndex + 1) % phrases.length;
+    }
+  });
 </script>
 
 <!-- Add top padding to first section so content is not hidden behind navbar -->
@@ -333,15 +365,22 @@
     class="container mx-auto flex flex-col md:flex-row items-center gap-10 px-4"
   >
     <div class="flex-1 text-center md:text-left">
-      <h1 class="text-5xl font-extrabold mb-4">
-        Your AI-Powered Business Assistant
-      </h1>
-      <p class="text-xl mb-6">
-        Organize, automate, and grow your business with Ed & Sy's simple,
-        human-friendly automation.
-      </p>
+      <h1 class="text-5xl font-extrabold mb-6">AI Automation Made Simple</h1>
+      <div class="text-xl mb-6">
+        <span class="font-bold text-white"
+          >We make business <span
+            class="sm:inline-block text-white font-bold bg-green-500 bg-opacity-90 px-2 py-1 rounded"
+            >{typedPhrase}|</span
+          ></span
+        >
+        <div class="my-3"></div>
+        <span class="block mb-6 text-base md:text-xl"
+          >We help you automate the tools you already use. Perfect for
+          non-technical teams and experienced business owners.</span
+        >
+      </div>
       <div
-        class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start"
+        class="flex flex-col sm:flex-row gap-6 justify-center md:justify-start"
       >
         <button
           data-tally-open="3NQ6pB"
@@ -412,7 +451,7 @@
       Simple solutions that work with your style
     </h2>
     <p class="text-lg text-gray-700 mb-12 text-center">
-      We adapt to your preferences – no computer expertise needed
+      We adapt to your preferences. No computer expertise needed.
     </p>
     <div
       class="flex flex-col md:flex-row gap-12 md:gap-20 items-center justify-center"
@@ -482,7 +521,7 @@
   </div>
 </section>
 
-<!-- WE WORK YOUR WAY SECTION (Inspired by v0-new-project-ilofrbxjvqs.vercel.app) -->
+<!-- WE WORK YOUR WAY SECTION-->
 <section class="py-20 bg-gray-50">
   <div class="container mx-auto max-w-3xl px-4">
     <div class="flex flex-col items-center mb-6">
@@ -650,12 +689,12 @@
 </section>
 
 <!-- TEAM SECTION -->
-<section id="team" class="py-16 bg-white">
-  <div class="container mx-auto max-w-2xl">
-    <h2 class="text-3xl font-bold mb-8 text-center">Meet Ed & Sy</h2>
-    <div class="grid md:grid-cols-2 gap-8">
+<section id="team" class="py-12 md:py-16 bg-white">
+  <div class="container mx-auto max-w-2xl px-4">
+    <h2 class="text-3xl font-bold mb-6 text-center">Meet Ed & Sy</h2>
+    <div class="grid md:grid-cols-2 gap-6 md:gap-8">
       <div
-        class="p-6 flex flex-col items-center border rounded-xl shadow bg-white"
+        class="w-full max-w-sm mx-auto mb-6 md:mb-0 p-6 flex flex-col items-center border rounded-xl shadow bg-white"
       >
         <img
           src="https://media.licdn.com/dms/image/v2/C4D03AQE0faqui5GEzQ/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1517429424712?e=1753920000&v=beta&t=0VtMz0wg580LRDk1pIc1PbP-SXIpIFQ0gtddI7Qpbhg"
@@ -681,7 +720,7 @@
         </div>
       </div>
       <div
-        class="p-6 flex flex-col items-center border rounded-xl shadow bg-white"
+        class="w-full max-w-sm mx-auto p-6 flex flex-col items-center border rounded-xl shadow bg-white"
       >
         <img
           src="https://media.licdn.com/dms/image/v2/D5603AQHneUVdF6c2Ig/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1675783722369?e=1753920000&v=beta&t=eYVOXdRKdLjcBTOqEEjCaIh4ePSOjeozovt97ws8BpI"
