@@ -11,26 +11,18 @@
     Layers,
     Settings2,
     Calendar,
-    Bell,
-    CheckCircle,
-    ArrowRight,
     Star,
     User,
-    CreditCard,
-    Hammer,
-    Stethoscope,
-    Scissors,
-    Briefcase,
-    BookOpen,
-    ShoppingBag,
     Mail,
     Linkedin,
-    ArrowDown,
-    WandSparkles,
     Plus,
     MapPin,
     Users,
   } from "@lucide/svelte";
+
+  import * as Carousel from "$lib/components/ui/carousel";
+  import * as Card from "$lib/components/ui/card";
+
   // Trust logos (replace with your own or use placeholders)
   const trustLogos = [
     { src: "/logos/google.svg", alt: "Google" },
@@ -125,21 +117,31 @@
     },
   ];
   // How it works steps
-  const howSteps = [
+  const flowSteps = [
     {
-      icon: Settings2,
-      title: "Connect Your Tools",
-      desc: "Link your calendar, chat, and business apps in seconds.",
+      icon: "✅",
+      title: "Connect Existing Tools",
+      desc: "Connect your Google Calendar, Gmail, WhatsApp, and SMS—no new apps needed.",
     },
     {
-      icon: Zap,
-      title: "Let Ed & Sy Automate",
-      desc: "We set up reminders, follow-ups, and more—no tech skills needed.",
+      icon: "🤖",
+      title: "Automate Repetitive Tasks",
+      desc: "Let Ed & Sy handle reminders, follow-ups, and client messages automatically.",
     },
     {
-      icon: CheckCircle,
-      title: "Grow Effortlessly",
-      desc: "Enjoy more time, happier clients, and a business that runs itself.",
+      icon: "📦",
+      title: "Lightweight, No-Code Setup",
+      desc: "Get started fast with a simple, no-code setup for any business.",
+    },
+    {
+      icon: "💼",
+      title: "Continuous Engagement",
+      desc: "Messages go out at the perfect time—after calls, appointments, or invoices.",
+    },
+    {
+      icon: "🧠",
+      title: "Human-like Communication",
+      desc: "Clients get friendly, personalized messages that feel human, not robotic.",
     },
   ];
   // Testimonials
@@ -355,6 +357,8 @@
       phraseIndex = (phraseIndex + 1) % phrases.length;
     }
   });
+
+  let currentStep = 0;
 </script>
 
 <!-- Add top padding to first section so content is not hidden behind navbar -->
@@ -368,7 +372,8 @@
         <span class="font-bold text-white"
           >Make business <span
             class="sm:inline-block text-white font-bold bg-green-500 bg-opacity-90 px-2 py-1 rounded"
-            >{typedPhrase}<span class="blinking-cursor">|</span></span></span
+            >{typedPhrase}<span class="blinking-cursor">|</span></span
+          ></span
         >
         <div class="my-3"></div>
         <span class="block mb-6 text-base md:text-xl"
@@ -441,79 +446,37 @@
   </div>
 </section>
 
-<!-- CUSTOMER COMMUNICATION SECTION (Inspired by v0-new-project-ilofrbxjvqs.vercel.app) -->
+<!-- CUSTOMER COMMUNICATION SECTION (Animated Stepper Card) -->
 <section id="how" class="py-20 bg-white">
-  <div class="container mx-auto max-w-5xl px-4">
+  <div class="mx-auto px-4 container-lg max-w-6xl">
     <h2 class="text-3xl md:text-4xl font-bold mb-3 text-center">
-      Simple solutions that work with your style
+      How Ed & Sy Works
     </h2>
     <p class="text-lg text-gray-700 mb-12 text-center">
-      We adapt to your preferences. No computer expertise needed.
+      See how we automate your business, step by step.
     </p>
-    <div
-      class="flex flex-col md:flex-row gap-12 md:gap-20 items-center justify-center"
-    >
-      <!-- Feature List -->
-      <div class="flex-1 w-full max-w-md">
-        <h3 class="text-2xl font-bold mb-6">Never miss a customer again</h3>
-        <p class="text-base text-gray-700 mb-8">
-          Simple appointment reminders and follow-ups that work the way you
-          prefer. We handle the technical details so you can focus on serving
-          your customers.
-        </p>
-        <ul class="space-y-8">
-          <li class="flex items-start gap-4">
-            <Calendar class="w-7 h-7 text-blue-600 mt-1 flex-shrink-0" />
-            <div>
-              <div class="font-semibold text-lg mb-1">
-                Appointment reminders
-              </div>
-              <div class="text-gray-700">
-                Gentle reminders sent the way your customers prefer
-              </div>
-            </div>
-          </li>
-          <li class="flex items-start gap-4">
-            <Users class="w-7 h-7 text-green-600 mt-1 flex-shrink-0" />
-            <div>
-              <div class="font-semibold text-lg mb-1">Customer follow-up</div>
-              <div class="text-gray-700">
-                Stay in touch without the extra work
-              </div>
-            </div>
-          </li>
-          <li class="flex items-start gap-4">
-            <CheckCircle class="w-7 h-7 text-purple-600 mt-1 flex-shrink-0" />
-            <div>
-              <div class="font-semibold text-lg mb-1">
-                Professional communication
-              </div>
-              <div class="text-gray-700">
-                Consistent, polite messages that represent your business well
-              </div>
-            </div>
-          </li>
-        </ul>
-      </div>
-      <!-- Message Card -->
-      <div class="flex-1 w-full flex justify-center">
-        <div
-          class="bg-white border border-gray-200 rounded-xl shadow-lg max-w-md w-full p-8 flex flex-col justify-center"
-        >
-          <div class="font-bold text-lg mb-2 text-blue-700">
-            Appointment Confirmed
-          </div>
-          <div class="mb-4 text-gray-800">
-            Hi John! Just confirming your plumbing appointment tomorrow at 2 PM.
-            Looking forward to helping you.<span class="block mt-2"
-              >- Mike's Plumbing</span
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center justify-center w-full">
+      {#each flowSteps as step, i}
+        <div class="p-2 flex h-full">
+          <Card.Root
+            class="overflow-hidden rounded-2xl shadow-lg bg-white transition-all duration-500 h-full flex flex-col items-center px-8 py-5 border-0"
+          >
+            <div
+              class="flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 text-3xl mb-2"
             >
-          </div>
-          <div class="text-xs text-gray-500 border-t pt-2">
-            Sent automatically, sounds like you wrote it
-          </div>
+              {step.icon}
+            </div>
+            <div class="font-bold text-lg mb-3 text-center">
+              {i + 1}. {step.title}
+            </div>
+            <Card.Content
+              class="text-gray-700 whitespace-pre-line text-base leading-relaxed text-center min-h-[96px] flex items-center justify-center"
+            >
+              {step.desc}
+            </Card.Content>
+          </Card.Root>
         </div>
-      </div>
+      {/each}
     </div>
   </div>
 </section>
@@ -592,7 +555,7 @@
     <div class="grid md:grid-cols-3 gap-10">
       <!-- Starter Plan -->
       <div
-        class="border rounded-2xl p-8 flex flex-col items-start bg-gray-50 shadow relative h-full"
+        class=" rounded-2xl p-8 flex flex-col items-start bg-gray-50 shadow relative h-full"
       >
         <h3 class="text-2xl font-bold mb-2">Starter</h3>
         <div class="text-xl font-semibold mb-1">
@@ -620,7 +583,7 @@
       </div>
       <!-- Growth Plan (Most Popular) -->
       <div
-        class="border rounded-2xl p-8 flex flex-col items-start bg-white shadow relative ring-2 ring-blue-500 h-full"
+        class=" rounded-2xl p-8 flex flex-col items-start bg-white shadow relative ring-2 ring-blue-500 h-full"
       >
         <div
           class="absolute -top-5 left-1/2 -translate-x-1/2 text-base font-bold px-4 py-1 rounded-full shadow bg-blue-600 text-white pointer-events-none select-none"
@@ -654,7 +617,7 @@
       </div>
       <!-- Full Service Plan -->
       <div
-        class="border rounded-2xl p-8 flex flex-col items-start bg-gray-50 shadow relative h-full"
+        class=" rounded-2xl p-8 flex flex-col items-start bg-gray-50 shadow relative h-full"
       >
         <h3 class="text-2xl font-bold mb-2">Full Service</h3>
         <div class="text-xl font-semibold mb-1">
@@ -691,7 +654,7 @@
     <h2 class="text-3xl font-bold mb-6 text-center">Meet Ed & Sy</h2>
     <div class="grid md:grid-cols-2 gap-6 md:gap-8">
       <div
-        class="w-full max-w-sm mx-auto mb-6 md:mb-0 p-6 flex flex-col items-center border rounded-xl shadow bg-white"
+        class="w-full max-w-sm mx-auto mb-6 md:mb-0 p-6 flex flex-col items-center rounded-xl shadow bg-white"
       >
         <img
           src="https://media.licdn.com/dms/image/v2/C4D03AQE0faqui5GEzQ/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1517429424712?e=1753920000&v=beta&t=0VtMz0wg580LRDk1pIc1PbP-SXIpIFQ0gtddI7Qpbhg"
@@ -717,7 +680,7 @@
         </div>
       </div>
       <div
-        class="w-full max-w-sm mx-auto p-6 flex flex-col items-center border rounded-xl shadow bg-white"
+        class="w-full max-w-sm mx-auto p-6 flex flex-col items-center rounded-xl shadow bg-white"
       >
         <img
           src="https://media.licdn.com/dms/image/v2/D5603AQHneUVdF6c2Ig/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1675783722369?e=1753920000&v=beta&t=eYVOXdRKdLjcBTOqEEjCaIh4ePSOjeozovt97ws8BpI"
@@ -847,7 +810,12 @@
     animation: blink 1s steps(2, start) infinite;
   }
   @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
   }
 </style>
