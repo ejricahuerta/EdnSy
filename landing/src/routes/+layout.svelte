@@ -175,7 +175,6 @@
 
 <footer
   class="w-full py-10 bg-gray-900 border-t text-center text-white text-lg font-sans"
-  role="contentinfo"
 >
   <div class="mb-2 font-bold text-xl">Ed & Sy</div>
   <div class="mb-2">
@@ -202,7 +201,9 @@
         target="_blank"
         rel="noopener"
       >
-        <svelte:component this={s.icon} class="w-5 h-5" aria-hidden="true" />
+        {#if s.icon}
+          <s.icon class="w-5 h-5" aria-hidden="true" />
+        {/if}
       </a>
     {/each}
   </div>

@@ -668,7 +668,7 @@
         </div>
         <div class="flex gap-2">
           <a
-            href="mailto:ed@example.com"
+            href="mailto:edmel@ednsy.com"
             class="btn btn-outline flex items-center gap-1"
             ><Mail class="w-4 h-4" /> Email</a
           >
@@ -695,7 +695,7 @@
         </div>
         <div class="flex gap-2">
           <a
-            href="mailto:sy@example.com"
+            href="mailto:syron@ednsy.com"
             class="btn btn-outline flex items-center gap-1"
             ><Mail class="w-4 h-4" /> Email</a
           >
@@ -781,7 +781,7 @@
           </div>
           <div class="mb-2 text-center md:text-left">
             <span class="font-semibold">Email</span>
-            <a href="mailto:hello@edsy.ca" class="underline">hello@edsy.ca</a
+            <a href="mailto:hello@ednsy.com" class="underline">hello@ednsy.com</a
             ><span class="ml-2">We respond within 24 hours</span>
           </div>
           <div class="mb-2 text-center md:text-left">
