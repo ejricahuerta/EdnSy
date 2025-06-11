@@ -30,6 +30,7 @@
     { src: "/logos/airbnb.svg", alt: "Airbnb" },
     { src: "/logos/uber.svg", alt: "Uber" },
     { src: "/logos/shopify.svg", alt: "Shopify" },
+    { src: "/logos/gmail.svg", alt: "Gmail" },
   ];
   // Feature highlights
   const features = [
@@ -206,10 +207,10 @@
   import { onMount, onDestroy, tick } from "svelte";
 
   // Scatter logos randomly within the hero area, no overlap, random each load
-  const containerSize = 320; // px (for both width and height)
+  const containerSize = 400; // px (for both width and height)
   const logoSize = 48; // px (w-12/h-12)
   const logoGap = 20; // px, extra space between logos for touch targets
-  const centerRadius = 64; // px, keep center clear for blur
+  const centerRadius = 96; // px, keep center clear for blur
   const minRadius = centerRadius + 10; // px, minimum distance from center
   const maxRadius = containerSize / 2 - logoSize / 2 - 10; // px, max from center
 
@@ -455,7 +456,9 @@
     <p class="text-lg text-gray-700 mb-12 text-center">
       See how we automate your business, step by step.
     </p>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center justify-center w-full">
+    <div
+      class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center justify-center w-full"
+    >
       {#each flowSteps as step, i}
         <div class="p-2 flex h-full">
           <Card.Root
@@ -775,13 +778,13 @@
           </h4>
           <div class="mb-2 text-center md:text-left">
             <span class="font-semibold">Call</span>
-            <a href="tel:+14165551234" class="underline">+1 (416) 555-1234</a><span
-              class="ml-2">Any time during business hours</span
-            >
+            <a href="tel:+14165551234" class="underline">+1 (416) 555-1234</a
+            ><span class="ml-2">Any time during business hours</span>
           </div>
           <div class="mb-2 text-center md:text-left">
             <span class="font-semibold">Email</span>
-            <a href="mailto:hello@ednsy.com" class="underline">hello@ednsy.com</a
+            <a href="mailto:hello@ednsy.com" class="underline"
+              >hello@ednsy.com</a
             ><span class="ml-2">We respond within 24 hours</span>
           </div>
           <div class="mb-2 text-center md:text-left">
