@@ -775,7 +775,7 @@
           </h4>
           <div class="mb-2 text-center md:text-left">
             <span class="font-semibold">Call</span>
-            <a href="tel:4165551234" class="underline">(416) 555-1234</a><span
+            <a href="tel:+14165551234" class="underline">+1 (416) 555-1234</a><span
               class="ml-2">Any time during business hours</span
             >
           </div>
