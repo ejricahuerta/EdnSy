@@ -31,32 +31,21 @@
 </script>
 
 <svelte:head>
-  <title>Ed & Sy: Local Business Automation Experts</title>
+  <title>Ed&Sy: AI Automation Made Simple for Local Businesses</title>
   <meta
     name="description"
-    content="Organize, automate, and grow your business with Ed & Sy. Simple, human-friendly automation for local businesses. Accessible, older-generation friendly, and personal service."
+    content="Ed&Sy helps small and medium businesses automate admin, scheduling, lead capture, reviews, marketing, dashboards, and training with easy-to-use AI tools. Designed for non-technical teams and older business owners."
   />
+  <meta name="keywords" content="AI automation, business automation, admin automation, appointment booking, lead capture, online reviews, local SEO, dashboards, SOPs, training, small business, non-technical, Ed&Sy, Toronto, Google Business, Zapier, Notion, ChatGPT, Twilio, Calendly, Gmail, Google Sheets, Wave, Framer, Buffer, Tally.so, Loom" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta
-    property="og:title"
-    content="Ed & Sy: Local Business Automation Experts"
-  />
-  <meta
-    property="og:description"
-    content="Organize, automate, and grow your business with Ed & Sy. Simple, human-friendly automation for local businesses."
-  />
+  <meta property="og:title" content="Ed&Sy: AI Automation Made Simple for Local Businesses" />
+  <meta property="og:description" content="Automate admin, scheduling, lead capture, reviews, marketing, dashboards, and training. Ed&Sy makes AI easy for non-technical and older business owners. See our services!" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://ednsy.ca" />
   <meta property="og:image" content="/edsy-og.png" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta
-    name="twitter:title"
-    content="Ed & Sy: Local Business Automation Experts"
-  />
-  <meta
-    name="twitter:description"
-    content="Organize, automate, and grow your business with Ed & Sy. Simple, human-friendly automation for local businesses."
-  />
+  <meta name="twitter:title" content="Ed&Sy: AI Automation Made Simple for Local Businesses" />
+  <meta name="twitter:description" content="Automate admin, scheduling, lead capture, reviews, marketing, dashboards, and training. Ed&Sy makes AI easy for non-technical and older business owners. See our services!" />
   <meta name="twitter:image" content="/edsy-og.png" />
   <link rel="canonical" href="https://ednsy.ca" />
 </svelte:head>
