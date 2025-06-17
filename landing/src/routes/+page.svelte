@@ -574,7 +574,6 @@
         <ul class="text-lg mb-6 space-y-2 list-disc list-inside">
           <li class="font-bold">Up to 7 automations</li>
           <li>All Time Saver features</li>
-          <li>Missed call follow-up</li>
           <li>Personalized messages</li>
           <li>Connect 5 tools</li>
           <li>Priority support</li>
