@@ -25,3 +25,9 @@ vite.config.ts.timestamp-*
 .cursor/mcp.json
 scripts/prd.txt
 .cursor/rules/*
+
+
+#keys
+.keys/
+.keys/*
+
