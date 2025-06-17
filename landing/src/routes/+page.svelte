@@ -493,8 +493,8 @@
         We Work Your Way
       </h2>
       <p class="text-base text-gray-700 text-center max-w-xl">
-        We adapt to your style – whether you prefer face-to-face meetings, phone
-        calls, or printed materials. No computer expertise needed.
+        We adapt to your style! Whether you prefer face-to-face meetings, phone
+        calls, or printed materials, we've got you covered.
       </p>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-10">
@@ -540,112 +540,81 @@
   </div>
 </section>
 
-<!-- PRICING SECTION (Inspired by v0-new-project-ilofrbxjvqs.vercel.app) -->
+<!-- PRICING SECTION (Accessible) -->
 <section id="pricing" class="py-20 bg-white">
   <div class="container mx-auto max-w-5xl px-4">
-    <h2 class="text-3xl md:text-4xl font-bold mb-3 text-center">
-      Clear, honest pricing
+    <h2 class="text-4xl md:text-5xl font-bold mb-10 text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-purple-500 to-pink-500 leading-tight pb-2">
+      Transparent Pricing
     </h2>
-    <p class="text-lg text-gray-700 mb-6 text-center">
-      No contracts, no hidden fees. You'll know exactly what you're paying for.
-    </p>
-    <div class="text-center mb-10">
-      <span
-        class="inline-block bg-yellow-100 text-yellow-800 font-semibold rounded-full px-4 py-2 text-base"
-        >🎉 New Client Special: 50% Off Setup</span
-      >
-    </div>
-    <div class="grid md:grid-cols-3 gap-10">
-      <!-- Starter Plan -->
-      <div
-        class=" rounded-2xl p-8 flex flex-col items-start bg-gray-50 shadow relative h-full"
-      >
-        <h3 class="text-2xl font-bold mb-2">Starter</h3>
-        <div class="text-xl font-semibold mb-1">
-          $299 <span class="text-base font-normal">setup</span>
-        </div>
-        <div class="text-3xl font-extrabold mb-1">
-          <span class="line-through text-gray-400 mr-2">$199</span>
-          $99<span class="text-lg font-normal">/month</span>
-        </div>
-        <ul class="text-base mb-6 space-y-2 text-left w-full mt-4">
-          <li>Simple appointment reminders</li>
-          <li>Customer follow-up messages</li>
+    <div class="grid md:grid-cols-3 gap-10 mt-10">
+      <!-- Time Saver Plan -->
+      <div class="rounded-2xl p-8 flex flex-col items-start bg-gray-50 shadow h-full">
+        <h3 class="text-2xl font-bold mb-2">Time Saver</h3>
+        <div class="text-lg text-gray-700 mb-3">Automate reminders & follow-ups</div>
+        <div class="text-3xl font-extrabold mb-2">$129<span class="text-xl font-normal">/mo</span></div>
+        <div class="text-base text-gray-500 mb-4">$99 setup</div>
+        <ul class="text-lg mb-6 space-y-2 list-disc list-inside">
+          <li class="font-bold">Up to 3 automations</li>
+          <li>Auto reminders (appts, payments)</li>
+          <li>Customer check-ins</li>
+          <li>Review requests</li>
+          <li>Connect 3 tools</li>
+          <li>Personal setup</li>
           <li>Monthly check-in call</li>
-          <li>Personal setup assistance</li>
         </ul>
-        <button
-          data-tally-open="3NQ6pB"
-          data-tally-overlay="1"
-          data-tally-emoji-text="👋"
-          data-tally-emoji-animation="wave"
-          data-tally-auto-close="3000"
-          class="w-full block bg-blue-600 text-white font-bold text-lg px-8 py-4 rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-center mt-auto"
-          >Get Started</button
-        >
+        <button data-tally-open="3NQ6pB" class="w-full block bg-blue-600 text-white font-bold text-lg px-8 py-4 rounded-lg shadow hover:bg-blue-700 transition mt-auto">Get Started</button>
       </div>
-      <!-- Growth Plan (Most Popular) -->
-      <div
-        class=" rounded-2xl p-8 flex flex-col items-start bg-white shadow relative ring-2 ring-blue-500 h-full"
-      >
-        <div
-          class="absolute -top-5 left-1/2 -translate-x-1/2 text-base font-bold px-4 py-1 rounded-full shadow bg-blue-600 text-white pointer-events-none select-none"
-        >
-          Most Popular
-        </div>
-        <h3 class="text-2xl font-bold mb-2">Growth</h3>
-        <div class="text-xl font-semibold mb-1">
-          $599 <span class="text-base font-normal">setup</span>
-        </div>
-        <div class="text-3xl font-extrabold mb-1">
-          <span class="line-through text-gray-400 mr-2">$299</span>
-          $199<span class="text-lg font-normal">/month</span>
-        </div>
-        <ul class="text-base mb-6 space-y-2 text-left w-full mt-4">
-          <li>Everything in Starter</li>
-          <li>Customer review requests</li>
+      <!-- Growth Booster Plan -->
+      <div class="rounded-2xl p-8 flex flex-col items-start bg-white shadow ring-2 ring-blue-500 h-full relative">
+        <div class="absolute -top-5 left-1/2 -translate-x-1/2 text-base font-bold px-4 py-1 rounded-full shadow bg-blue-600 text-white">Most Popular</div>
+        <h3 class="text-2xl font-bold mb-2">Growth Booster</h3>
+        <div class="text-lg text-gray-700 mb-3">Smarter messages & more integrations</div>
+        <div class="text-3xl font-extrabold mb-2">$299<span class="text-xl font-normal">/mo</span></div>
+        <div class="text-base text-gray-500 mb-4">$199 setup</div>
+        <ul class="text-lg mb-6 space-y-2 list-disc list-inside">
+          <li class="font-bold">Up to 7 automations</li>
+          <li>All Time Saver features</li>
           <li>Missed call follow-up</li>
-          <li>Bi-weekly support calls</li>
-          <li>Printed reports available</li>
-        </ul>
-        <button
-          data-tally-open="3NQ6pB"
-          data-tally-overlay="1"
-          data-tally-emoji-text="👋"
-          data-tally-emoji-animation="wave"
-          data-tally-auto-close="3000"
-          class="w-full block bg-blue-600 text-white font-bold text-lg px-8 py-4 rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-center mt-auto"
-          >Get Started</button
-        >
-      </div>
-      <!-- Full Service Plan -->
-      <div
-        class=" rounded-2xl p-8 flex flex-col items-start bg-gray-50 shadow relative h-full"
-      >
-        <h3 class="text-2xl font-bold mb-2">Full Service</h3>
-        <div class="text-xl font-semibold mb-1">
-          $999 <span class="text-base font-normal">setup</span>
-        </div>
-        <div class="text-3xl font-extrabold mb-1">
-          <span class="line-through text-gray-400 mr-2">$599</span>
-          $399<span class="text-lg font-normal">/month</span>
-        </div>
-        <ul class="text-base mb-6 space-y-2 text-left w-full mt-4">
-          <li>Everything in Growth</li>
-          <li>Custom business workflows</li>
-          <li>Weekly strategy calls</li>
-          <li>In-person meetings available</li>
+          <li>Personalized messages</li>
+          <li>Connect 5 tools</li>
           <li>Priority support</li>
+          <li>Bi-weekly strategy calls</li>
+          <li>Progress reports</li>
         </ul>
-        <button
-          data-tally-open="3NQ6pB"
-          data-tally-overlay="1"
-          data-tally-emoji-text="👋"
-          data-tally-emoji-animation="wave"
-          data-tally-auto-close="3000"
-          class="w-full block bg-blue-600 text-white font-bold text-lg px-8 py-4 rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-center mt-auto"
-          >Get Started</button
-        >
+        <button data-tally-open="3NQ6pB" class="w-full block bg-blue-600 text-white font-bold text-lg px-8 py-4 rounded-lg shadow hover:bg-blue-700 transition mt-auto">Get Started</button>
+      </div>
+      <!-- Business Transformer Plan -->
+      <div class="rounded-2xl p-8 flex flex-col items-start bg-gray-50 shadow h-full">
+        <h3 class="text-2xl font-bold mb-2">Business Transformer</h3>
+        <div class="text-lg text-gray-700 mb-3">Custom AI & full automation</div>
+        <div class="text-3xl font-extrabold mb-2">from $599<span class="text-xl font-normal">/mo</span></div>
+        <div class="text-base text-gray-500 mb-4">$499 setup</div>
+        <ul class="text-lg mb-6 space-y-2 list-disc list-inside">
+          <li class="font-bold">Unlimited automations</li>
+          <li>All Growth Booster features</li>
+          <li>Custom AI workflows</li>
+          <li>Unlimited tool connections</li>
+          <li>Dedicated AI partner</li>
+          <li>Weekly strategy sessions</li>
+          <li>Performance reviews</li>
+        </ul>
+        <button data-tally-open="3NQ6pB" class="w-full block bg-blue-600 text-white font-bold text-lg px-8 py-4 rounded-lg shadow hover:bg-blue-700 transition mt-auto">Get Started</button>
+      </div>
+    </div>
+    <!-- One-time Fee & Add-ons -->
+    <div class="mt-16 max-w-2xl mx-auto grid md:grid-cols-2 gap-8">
+      <div class="bg-blue-50 rounded-xl p-6 shadow text-base">
+        <div class="font-bold mb-2 text-blue-800">Why a setup fee?</div>
+        <div>It covers expert setup so your automation works right from day one.</div>
+      </div>
+      <div class="bg-white rounded-xl p-6 shadow text-base">
+        <div class="font-bold mb-2 text-blue-800">Add-Ons</div>
+        <ul class="list-disc list-inside space-y-2">
+          <li>Ad-hoc consults ($150/hr)</li>
+          <li>Advanced analytics integration</li>
+          <li>On-site training</li>
+          <li>Emergency support SLA</li>
+        </ul>
       </div>
     </div>
   </div>
@@ -665,7 +634,7 @@
           class="mb-2 w-16 h-16 rounded-full bg-gray-200"
         />
         <div class="text-xl font-bold">Edmel Ricahuerta</div>
-        <div class="text-sm text-gray-600 mb-2">Systems & Technology</div>
+        <div class="text-sm text-gray-600 mb-2">Founder / Systems & Technology</div>
         <div class="mb-2 text-center">
           Makes technology simple and reliable for traditional business owners.
         </div>
@@ -691,7 +660,7 @@
           class="mb-2 w-16 h-16 rounded-full bg-gray-200"
         />
         <div class="text-xl font-bold">Syron Suerte</div>
-        <div class="text-sm text-gray-600 mb-2">Client Success & Support</div>
+        <div class="text-sm text-gray-600 mb-2">Founder / Client Success & Support</div>
         <div class="mb-2 text-center">
           Helps business owners save time while maintaining their personal touch
           with customers.
