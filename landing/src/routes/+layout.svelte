@@ -2,7 +2,8 @@
   import { goto } from "$app/navigation";
   import "../app.css";
   import { Star, Users } from "@lucide/svelte";
-
+  import { injectAnalytics } from "@vercel/analytics/sveltekit";
+  injectAnalytics({ mode: "production" });
   let { children } = $props();
   let mobileNavOpen = $state(false);
   function closeMobileNav() {
