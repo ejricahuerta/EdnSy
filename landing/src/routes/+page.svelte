@@ -122,7 +122,7 @@
     {
       icon: "✅",
       title: "Connect Existing Tools",
-      desc: "Connect your Google Calendar, Gmail, WhatsApp, and SMS—no new apps needed.",
+      desc: "Connect your Google Calendar, Gmail, WhatsApp, and SMS no new apps needed.",
     },
     {
       icon: "🤖",
@@ -137,7 +137,7 @@
     {
       icon: "💼",
       title: "Continuous Engagement",
-      desc: "Messages go out at the perfect time—after calls, appointments, or invoices.",
+      desc: "Messages go out at the perfect time after calls, appointments, or invoices.",
     },
     {
       icon: "🧠",
@@ -167,42 +167,64 @@
       quote: "The setup was easy and now I can focus on teaching, not admin.",
     },
   ];
-  // Pricing plans
+  // Pricing plans (monthly and yearly, always show per month, yearly = discounted per month, 1 year commitment)
   const plans = [
     {
-      name: "Starter",
-      price: "$0",
-      period: "/mo",
-      features: ["Up to 5 clients", "Basic reminders", "Email support"],
-      cta: "Get Started",
+      name: "Time Saver",
+      monthly: 199,
+      yearly: 129, // $100 off per month for yearly commitment
+      setupMonthly: 199,
+      setupYearly: 149,
+      features: [
+        "Auto reminders (appts, payments)",
+        "Customer check-ins",
+        "Review requests",
+        "Connect 3 tools",
+        "Personal setup",
+      ],
       highlight: false,
     },
     {
-      name: "Pro",
-      price: "$29",
-      period: "/mo",
+      name: "Growth Booster",
+      monthly: 399,
+      yearly: 299, // $100 off per month for yearly commitment
+      setupMonthly: 299,
+      setupYearly: 249,
       features: [
-        "Unlimited clients",
-        "All automations",
-        "Integrations",
+        "Up to 7 automations",
+        "All Time Saver features",
+        "Personalized messages",
+        "Connect 5 tools",
         "Priority support",
+        "Quarterly strategy calls",
+        "Progress reports",
       ],
-      cta: "Start Free Trial",
       highlight: true,
     },
     {
-      name: "Enterprise",
-      price: "Contact",
-      period: "",
+      name: "Business Transformer",
+      monthly: 699,
+      yearly: 599, // $100 off per month for yearly commitment
+      setupMonthly: 699,
+      setupYearly: 599,
       features: [
-        "Custom integrations",
-        "Dedicated manager",
-        "Advanced security",
+        "Unlimited automations",
+        "All Growth Booster features",
+        "Custom AI workflows",
+        "Unlimited tool connections",
+        "Dedicated AI partner",
+        "Monthly strategy sessions",
+        "Performance reviews",
       ],
-      cta: "Contact Sales",
       highlight: false,
     },
   ];
+  let billingPeriod: "monthly" | "yearly" = "monthly";
+
+  function formatPrice(amount: number) {
+    return `$${amount.toLocaleString()}`;
+  }
+
   import { scatteredAppLogos } from "$lib/app-logos";
   import { onMount, onDestroy, tick } from "svelte";
 
@@ -546,59 +568,79 @@
     <h2 class="text-4xl md:text-5xl font-bold mb-10 text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-purple-500 to-pink-500 leading-tight pb-2">
       Transparent Pricing
     </h2>
+    <!-- Billing Period Toggle -->
+    <div class="flex justify-center mb-8">
+      <div class="inline-flex rounded-lg bg-gray-100 p-1">
+        <button
+          class="px-5 py-2 rounded-lg font-semibold transition text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:z-10"
+          class:bg-white={billingPeriod === 'monthly'}
+          class:text-blue-700={billingPeriod === 'monthly'}
+          class:text-gray-600={billingPeriod !== 'monthly'}
+          on:click={() => (billingPeriod = 'monthly')}
+          aria-pressed={billingPeriod === 'monthly'}
+        >
+          Monthly
+        </button>
+        <button
+          class="px-5 py-2 rounded-lg font-semibold transition text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:z-10"
+          class:bg-white={billingPeriod === 'yearly'}
+          class:text-blue-700={billingPeriod === 'yearly'}
+          class:text-gray-600={billingPeriod !== 'yearly'}
+          on:click={() => (billingPeriod = 'yearly')}
+          aria-pressed={billingPeriod === 'yearly'}
+        >
+          Yearly
+        </button>
+      </div>
+    </div>
+    <div class="text-center text-gray-600 text-sm mb-6">
+      {#if billingPeriod === 'monthly'}
+        <span>No commitment, cancel anytime.</span>
+      {:else}
+        <span>Billed monthly, <span class="font-semibold">1 year minimum commitment</span>.</span>
+      {/if}
+    </div>
     <div class="grid md:grid-cols-3 gap-10 mt-10">
-      <!-- Time Saver Plan -->
-      <div class="rounded-2xl p-8 flex flex-col items-start bg-gray-50 shadow h-full">
-        <h3 class="text-2xl font-bold mb-2">Time Saver</h3>
-        <div class="text-lg text-gray-700 mb-3">Automate reminders & follow-ups</div>
-        <div class="text-3xl font-extrabold mb-2">$129<span class="text-xl font-normal">/mo</span></div>
-        <div class="text-base text-gray-500 mb-4">$99 setup</div>
-        <ul class="text-lg mb-6 space-y-2 list-disc list-inside">
-          <li class="font-bold">Up to 3 automations</li>
-          <li>Auto reminders (appts, payments)</li>
-          <li>Customer check-ins</li>
-          <li>Review requests</li>
-          <li>Connect 3 tools</li>
-          <li>Personal setup</li>
-          <li>Monthly check-in call</li>
-        </ul>
-        <button data-tally-open="3NQ6pB" class="w-full block bg-blue-600 text-white font-bold text-lg px-8 py-4 rounded-lg shadow hover:bg-blue-700 transition mt-auto">Get Started</button>
-      </div>
-      <!-- Growth Booster Plan -->
-      <div class="rounded-2xl p-8 flex flex-col items-start bg-white shadow ring-2 ring-blue-500 h-full relative">
-        <div class="absolute -top-5 left-1/2 -translate-x-1/2 text-base font-bold px-4 py-1 rounded-full shadow bg-blue-600 text-white">Most Popular</div>
-        <h3 class="text-2xl font-bold mb-2">Growth Booster</h3>
-        <div class="text-lg text-gray-700 mb-3">Smarter messages & more integrations</div>
-        <div class="text-3xl font-extrabold mb-2">$299<span class="text-xl font-normal">/mo</span></div>
-        <div class="text-base text-gray-500 mb-4">$199 setup</div>
-        <ul class="text-lg mb-6 space-y-2 list-disc list-inside">
-          <li class="font-bold">Up to 7 automations</li>
-          <li>All Time Saver features</li>
-          <li>Personalized messages</li>
-          <li>Connect 5 tools</li>
-          <li>Priority support</li>
-          <li>Bi-weekly strategy calls</li>
-          <li>Progress reports</li>
-        </ul>
-        <button data-tally-open="3NQ6pB" class="w-full block bg-blue-600 text-white font-bold text-lg px-8 py-4 rounded-lg shadow hover:bg-blue-700 transition mt-auto">Get Started</button>
-      </div>
-      <!-- Business Transformer Plan -->
-      <div class="rounded-2xl p-8 flex flex-col items-start bg-gray-50 shadow h-full">
-        <h3 class="text-2xl font-bold mb-2">Business Transformer</h3>
-        <div class="text-lg text-gray-700 mb-3">Custom AI & full automation</div>
-        <div class="text-3xl font-extrabold mb-2">from $599<span class="text-xl font-normal">/mo</span></div>
-        <div class="text-base text-gray-500 mb-4">$499 setup</div>
-        <ul class="text-lg mb-6 space-y-2 list-disc list-inside">
-          <li class="font-bold">Unlimited automations</li>
-          <li>All Growth Booster features</li>
-          <li>Custom AI workflows</li>
-          <li>Unlimited tool connections</li>
-          <li>Dedicated AI partner</li>
-          <li>Weekly strategy sessions</li>
-          <li>Performance reviews</li>
-        </ul>
-        <button data-tally-open="3NQ6pB" class="w-full block bg-blue-600 text-white font-bold text-lg px-8 py-4 rounded-lg shadow hover:bg-blue-700 transition mt-auto">Get Started</button>
-      </div>
+      {#each plans as plan, i}
+        <div
+          class="rounded-2xl p-8 flex flex-col items-start h-full shadow"
+          class:bg-white={plan.highlight}
+          class:ring-2={plan.highlight}
+          class:ring-blue-500={plan.highlight}
+          class:relative={plan.highlight}
+          class:bg-gray-50={!plan.highlight}
+        >
+          {#if plan.highlight}
+            <div class="absolute -top-5 left-1/2 -translate-x-1/2 text-base font-bold px-4 py-1 rounded-full shadow bg-blue-600 text-white">Most Popular</div>
+          {/if}
+          <h3 class="text-2xl font-bold mb-2">{plan.name}</h3>
+          <div class="text-lg text-gray-700 mb-3">
+            {#if plan.name === 'Time Saver'}Automate reminders & follow-ups{/if}
+            {#if plan.name === 'Growth Booster'}Smarter messages & more integrations{/if}
+            {#if plan.name === 'Business Transformer'}Custom AI & full automation{/if}
+          </div>
+          <div class="text-3xl font-extrabold mb-2">
+            {#if billingPeriod === 'monthly'}
+              {formatPrice(plan.monthly)}<span class="text-xl font-normal">/mo</span>
+            {:else}
+              {formatPrice(plan.yearly)}<span class="text-xl font-normal">/mo</span>
+            {/if}
+          </div>
+          <div class="text-base text-gray-500 mb-4">
+            {#if billingPeriod === 'monthly'}
+              starting at {formatPrice(plan.setupMonthly)} setup
+            {:else}
+              starting at {formatPrice(plan.setupYearly)} setup
+            {/if}
+          </div>
+          <ul class="text-lg mb-6 space-y-2 list-disc list-inside">
+            {#each plan.features as feature}
+              <li>{feature}</li>
+            {/each}
+          </ul>
+          <button data-tally-open="3NQ6pB" class="w-full block bg-blue-600 text-white font-bold text-lg px-8 py-4 rounded-lg shadow hover:bg-blue-700 transition mt-auto">Get Started</button>
+        </div>
+      {/each}
     </div>
     <!-- One-time Fee & Add-ons -->
     <div class="mt-16 max-w-2xl mx-auto grid md:grid-cols-2 gap-8">
