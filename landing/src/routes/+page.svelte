@@ -418,7 +418,7 @@
           Get Started Free
         </button>
         <a
-          href="#how"
+          href="/#how-it-works"
           class="btn btn-outline border-white text-white font-bold px-8 py-4 rounded-lg hover:bg-white/10 transition"
           >See How It Works</a
         >
@@ -469,193 +469,91 @@
   </div>
 </section>
 
-<!-- CUSTOMER COMMUNICATION SECTION (Animated Stepper Card) -->
-<section id="how" class="py-20 bg-white">
-  <div class="mx-auto px-4 container-lg max-w-6xl">
-    <h2 class="text-3xl md:text-4xl font-bold mb-3 text-center">
-      How Ed & Sy Works
-    </h2>
-    <p class="text-lg text-gray-700 mb-12 text-center">
-      See how we automate your business, step by step.
-    </p>
-    <div
-      class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center justify-center w-full"
-    >
-      {#each flowSteps as step, i}
-        <div class="p-2 flex h-full">
-          <Card.Root
-            class="overflow-hidden rounded-2xl shadow-lg bg-white transition-all duration-500 h-full flex flex-col items-center px-8 py-5 border-0"
-          >
-            <div
-              class="flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 text-3xl mb-2"
-            >
-              {step.icon}
-            </div>
-            <div class="font-bold text-lg mb-3 text-center">
-              {i + 1}. {step.title}
-            </div>
-            <Card.Content
-              class="text-gray-700 whitespace-pre-line text-base leading-relaxed text-center min-h-[96px] flex items-center justify-center"
-            >
-              {step.desc}
-            </Card.Content>
-          </Card.Root>
-        </div>
-      {/each}
-    </div>
-  </div>
-</section>
-
-<!-- WE WORK YOUR WAY SECTION-->
-<section class="py-20 bg-gray-50">
-  <div class="container mx-auto max-w-3xl px-4">
-    <div class="flex flex-col items-center mb-6">
-      <span class="text-5xl mb-2">💡</span>
-      <h2 class="text-2xl md:text-3xl font-bold mb-2 text-center">
-        We Work Your Way
+<!-- HOW IT WORKS SECTION -->
+<section
+  id="how-it-works"
+  class="w-full min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50"
+>
+  <div class="w-full flex flex-col h-full max-h-full">
+    <div class="pt-12 pb-6">
+      <h2 class="text-5xl font-extrabold text-center mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-purple-500 to-pink-500 tracking-tight">
+        Your Automation Journey
       </h2>
-      <p class="text-base text-gray-700 text-center max-w-xl">
-        We adapt to your style! Whether you prefer face-to-face meetings, phone
-        calls, or printed materials, we've got you covered.
+      <p class="text-xl text-center text-gray-700 max-w-3xl mx-auto mb-0">
+        Transform your business step by step. Each phase delivers real results quickly.
       </p>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-10">
-      <div class="flex items-start gap-4">
-        <ShieldCheck class="w-7 h-7 text-blue-600 mt-1 flex-shrink-0" />
-        <div>
-          <div class="font-semibold text-lg mb-1">
-            Reliable &amp; Trustworthy
-          </div>
-          <div class="text-gray-700">
-            Your information stays private and secure
-          </div>
-        </div>
-      </div>
-      <div class="flex items-start gap-4">
-        <User class="w-7 h-7 text-green-600 mt-1 flex-shrink-0" />
-        <div>
-          <div class="font-semibold text-lg mb-1">Personal Service</div>
-          <div class="text-gray-700">
-            Real people you can talk to when you need help
-          </div>
-        </div>
-      </div>
-      <div class="flex items-start gap-4">
-        <Plus class="w-7 h-7 text-purple-600 mt-1 flex-shrink-0" />
-        <div>
-          <div class="font-semibold text-lg mb-1">Grows With You</div>
-          <div class="text-gray-700">
-            Start simple, add more as you're comfortable
-          </div>
-        </div>
-      </div>
-      <div class="flex items-start gap-4">
-        <MapPin class="w-7 h-7 text-yellow-600 mt-1 flex-shrink-0" />
-        <div>
-          <div class="font-semibold text-lg mb-1">Local Toronto Team</div>
-          <div class="text-gray-700">
-            We understand your community and customers
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- PRICING SECTION (Accessible) -->
-<section id="pricing" class="py-20 bg-white">
-  <div class="container mx-auto max-w-5xl px-4">
-    <h2 class="text-4xl md:text-5xl font-bold mb-10 text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-purple-500 to-pink-500 leading-tight pb-2">
-      Transparent Pricing
-    </h2>
-    <!-- Billing Period Toggle -->
-    <div class="flex justify-center mb-8">
-      <div class="inline-flex rounded-lg bg-gray-100 p-1">
-        <button
-          class="px-5 py-2 rounded-lg font-semibold transition text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:z-10"
-          class:bg-white={billingPeriod === 'monthly'}
-          class:text-blue-700={billingPeriod === 'monthly'}
-          class:text-gray-600={billingPeriod !== 'monthly'}
-          on:click={() => (billingPeriod = 'monthly')}
-          aria-pressed={billingPeriod === 'monthly'}
-        >
-          Monthly
-        </button>
-        <button
-          class="px-5 py-2 rounded-lg font-semibold transition text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:z-10"
-          class:bg-white={billingPeriod === 'yearly'}
-          class:text-blue-700={billingPeriod === 'yearly'}
-          class:text-gray-600={billingPeriod !== 'yearly'}
-          on:click={() => (billingPeriod = 'yearly')}
-          aria-pressed={billingPeriod === 'yearly'}
-        >
-          Yearly
-        </button>
-      </div>
-    </div>
-    <div class="text-center text-gray-600 text-sm mb-6">
-      {#if billingPeriod === 'monthly'}
-        <span>No commitment, cancel anytime.</span>
-      {:else}
-        <span>Billed monthly, <span class="font-semibold">1 year minimum commitment</span>.</span>
-      {/if}
-    </div>
-    <div class="grid md:grid-cols-3 gap-10 mt-10">
-      {#each plans as plan, i}
-        <div
-          class="rounded-2xl p-8 flex flex-col items-start h-full shadow"
-          class:bg-white={plan.highlight}
-          class:ring-2={plan.highlight}
-          class:ring-blue-500={plan.highlight}
-          class:relative={plan.highlight}
-          class:bg-gray-50={!plan.highlight}
-        >
-          {#if plan.highlight}
-            <div class="absolute -top-5 left-1/2 -translate-x-1/2 text-base font-bold px-4 py-1 rounded-full shadow bg-blue-600 text-white">Most Popular</div>
-          {/if}
-          <h3 class="text-2xl font-bold mb-2">{plan.name}</h3>
-          <div class="text-lg text-gray-700 mb-3">
-            {#if plan.name === 'Time Saver'}Automate reminders & follow-ups{/if}
-            {#if plan.name === 'Growth Booster'}Smarter messages & more integrations{/if}
-            {#if plan.name === 'Business Transformer'}Custom AI & full automation{/if}
-          </div>
-          <div class="text-3xl font-extrabold mb-2">
-            {#if billingPeriod === 'monthly'}
-              {formatPrice(plan.monthly)}<span class="text-xl font-normal">/mo</span>
-            {:else}
-              {formatPrice(plan.yearly)}<span class="text-xl font-normal">/mo</span>
-            {/if}
-          </div>
-          <div class="text-base text-gray-500 mb-4">
-            {#if billingPeriod === 'monthly'}
-              starting at {formatPrice(plan.setupMonthly)} setup
-            {:else}
-              starting at {formatPrice(plan.setupYearly)} setup
-            {/if}
-          </div>
-          <ul class="text-lg mb-6 space-y-2 list-disc list-inside">
-            {#each plan.features as feature}
-              <li>{feature}</li>
-            {/each}
-          </ul>
-          <button data-tally-open="3NQ6pB" class="w-full block bg-blue-600 text-white font-bold text-lg px-8 py-4 rounded-lg shadow hover:bg-blue-700 transition mt-auto">Get Started</button>
-        </div>
-      {/each}
-    </div>
-    <!-- One-time Fee & Add-ons -->
-    <div class="mt-16 max-w-2xl mx-auto grid md:grid-cols-2 gap-8">
-      <div class="bg-blue-50 rounded-xl p-6 shadow text-base">
-        <div class="font-bold mb-2 text-blue-800">Why a setup fee?</div>
-        <div>It covers expert setup so your automation works right from day one.</div>
-      </div>
-      <div class="bg-white rounded-xl p-6 shadow text-base">
-        <div class="font-bold mb-2 text-blue-800">Add-Ons</div>
-        <ul class="list-disc list-inside space-y-2">
-          <li>Ad-hoc consults ($150/hr)</li>
-          <li>Advanced analytics integration</li>
-          <li>On-site training</li>
-          <li>Emergency support SLA</li>
+    <div
+      class="flex-1 grid grid-cols-1 grid-rows-4 md:grid-cols-2 md:grid-rows-2 gap-2 md:gap-4 px-4 md:px-12 max-w-none overflow-y-auto"
+      style="min-height:0;"
+    >
+      <!-- Phase 1 -->
+      <div class="flex flex-col justify-between bg-white/70 p-8 group relative z-10">
+        <h3 class="text-2xl font-bold mb-2 text-blue-800">Foundation and Quick Wins</h3>
+        <div class="text-sm text-blue-700 font-semibold mb-2">0 to 30 days, Immediate Impact</div>
+        <ul class="mb-4 text-gray-800 space-y-1 text-base">
+          <li>✔️ Audit your biggest bottleneck</li>
+          <li>✔️ Launch your first automation</li>
+          <li>✔️ Team training and instant results</li>
         </ul>
+        <div class="text-blue-700 font-bold mb-2">Outcomes</div>
+        <ul class="text-gray-700 text-sm mb-4 space-y-1">
+          <li>5 to 15 hours per week saved</li>
+          <li>Major error prone task automated</li>
+          <li>Team confidence in automation</li>
+        </ul>
+        <div class="text-xs italic text-blue-900">Best for testing automation impact</div>
+      </div>
+      <!-- Phase 2 -->
+      <div class="flex flex-col justify-between bg-white/70 p-8 group relative z-10">
+        <h3 class="text-2xl font-bold mb-2 text-purple-800">Core Operations Transformation</h3>
+        <div class="text-sm text-purple-700 font-semibold mb-2">30 to 90 days, Systematic Improvement</div>
+        <ul class="mb-4 text-gray-800 space-y-1 text-base">
+          <li>✔️ Redesign three to five core workflows</li>
+          <li>✔️ Staged rollout, minimal disruption</li>
+          <li>✔️ Team mastery and optimization</li>
+        </ul>
+        <div class="text-purple-700 font-bold mb-2">Outcomes</div>
+        <ul class="text-gray-700 text-sm mb-4 space-y-1">
+          <li>30 to 50 percent faster processes</li>
+          <li>Customer response times soar</li>
+          <li>Manual errors nearly gone</li>
+        </ul>
+        <div class="text-xs italic text-purple-900">Best for scaling without extra staff</div>
+      </div>
+      <!-- Phase 3 -->
+      <div class="flex flex-col justify-between bg-white/70 p-8 group relative z-10">
+        <h3 class="text-2xl font-bold mb-2 text-pink-800">Strategic Integration and Optimization</h3>
+        <div class="text-sm text-pink-700 font-semibold mb-2">90 days and beyond, Competitive Advantage</div>
+        <ul class="mb-4 text-gray-800 space-y-1 text-base">
+          <li>✔️ AI powered decision making</li>
+          <li>✔️ Predictive analytics and dashboards</li>
+          <li>✔️ Cross platform integration</li>
+        </ul>
+        <div class="text-pink-700 font-bold mb-2">Outcomes</div>
+        <ul class="text-gray-700 text-sm mb-4 space-y-1">
+          <li>60 to 80 percent efficiency boost</li>
+          <li>Two to five times more volume, same team</li>
+          <li>Industry leading customer experience</li>
+        </ul>
+        <div class="text-xs italic text-pink-900">Best for market leaders and fast growers</div>
+      </div>
+      <!-- Phase 4 -->
+      <div class="flex flex-col justify-between bg-white/70 p-8 group relative z-10">
+        <h3 class="text-2xl font-bold mb-2 text-gray-800">Innovation and Evolution</h3>
+        <div class="text-sm text-gray-700 font-semibold mb-2">Ongoing, Market Leadership</div>
+        <ul class="mb-4 text-gray-800 space-y-1 text-base">
+          <li>✔️ Proactive optimization</li>
+          <li>✔️ Tech evolution and new AI</li>
+          <li>✔️ Strategic expansion</li>
+        </ul>
+        <div class="text-gray-700 font-bold mb-2">Ongoing Benefits</div>
+        <ul class="text-gray-700 text-sm mb-4 space-y-1">
+          <li>Always ahead of competitors</li>
+          <li>Continuous improvement</li>
+          <li>Early access to new tools</li>
+        </ul>
+        <div class="text-xs italic text-gray-900">Best for ambitious, future focused teams</div>
       </div>
     </div>
   </div>

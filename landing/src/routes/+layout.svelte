@@ -140,9 +140,9 @@
         >Home</a
       >
       <a
-        href="/#pricing"
+        href="/#how-it-works"
         class="text-lg font-semibold text-gray-700 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-        >Pricing</a
+        >How It Works</a
       >
       <a
         href="/#team"
@@ -197,9 +197,9 @@
         onclick={closeMobileNav}>Home</a
       >
       <a
-        href="/#pricing"
+        href="/#how-it-works"
         class="block px-8 py-4 text-lg font-semibold text-gray-700 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        onclick={closeMobileNav}>Pricing</a
+        onclick={closeMobileNav}>How It Works</a
       >
       <a
         href="/#team"
