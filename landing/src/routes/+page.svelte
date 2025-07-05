@@ -425,45 +425,74 @@
       </div>
     </div>
     <div class="flex-1 flex items-center justify-center">
-      <div class="relative w-80 h-80">
-        <span
-          class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 rounded-full bg-gradient-to-br from-blue-400 via-purple-400 to-pink-400 opacity-60 blur-2xl"
-        ></span>
-        <!-- SVG lines connecting each logo to each other, behind the logos -->
-        <svg
-          class="absolute left-0 top-0 w-80 h-80 pointer-events-none"
-          width="320"
-          height="320"
-          style="z-index:1;"
-          fill="none"
-        >
-          {#each scatteredAppLogos as _, i}
-            {#each scatteredAppLogos as __, j}
-              {#if i < j}
-                {#if logoScatterPositions[i] && logoScatterPositions[j]}
-                  <line
-                    x1={logoScatterPositions[i].x}
-                    y1={logoScatterPositions[i].y}
-                    x2={logoScatterPositions[j].x}
-                    y2={logoScatterPositions[j].y}
-                    stroke="#fff"
-                    stroke-opacity="0.18"
-                    stroke-width="1"
-                    stroke-dasharray="4 4"
-                  />
-                {/if}
-              {/if}
-            {/each}
-          {/each}
-        </svg>
-        {#each scatteredAppLogos as logo, i}
-          <img
-            src={logo.src}
-            alt={logo.alt}
-            class="absolute w-12 h-12"
-            style={getLogoScatterStyle(i)}
-          />
-        {/each}
+      <div class="flex flex-col gap-8 items-center w-full max-w-xl">
+        <!-- Appointment Chat Bubble -->
+        <div class="chat-bubble">
+          <div class="ai-avatar">🎙️</div>
+          <div class="message-content voice-message-content">
+            <div class="ai-badge">
+              📞 AI Appointment Assistant
+            </div>
+            <!-- Transcript conversation -->
+            <div class="space-y-3 voice-transcript">
+              <div><span class="font-semibold">AI:</span> Hi! I see you're looking to book an appointment with Dr. Sarah Johnson. May I know your preferred date and time?</div>
+              <div><span class="font-semibold">User:</span> Tomorrow afternoon would be great.</div>
+              <div><span class="font-semibold">AI:</span> Perfect! I have a slot available at 2:30 PM tomorrow. Would you like to confirm this appointment?</div>
+              <div><span class="font-semibold">User:</span> Yes, please book it.</div>
+              <div><span class="font-semibold">AI:</span> Your appointment is confirmed for tomorrow at 2:30 PM with Dr. Sarah Johnson. You'll receive a reminder an hour before. Is there anything else I can help you with?</div>
+            </div>
+            <div class="message-time">Today 3:15 PM</div>
+          </div>
+        </div>
+        <!-- CRM Chat Bubble -->
+        <div class="chat-bubble-crm flex flex-col items-stretch space-y-3">
+          <!-- Message 1: Owner (right) -->
+          <div class="flex justify-end">
+            <div class="owner-bubble">
+              <span class="font-semibold">Owner:</span> Can you show me today's appointments and help confirm them?
+            </div>
+          </div>
+          <!-- Message 2: AI (left) -->
+          <div class="flex items-start gap-2">
+            <div class="ai-avatar-crm">
+              <img src="/logos/icons8-whatsapp.svg" alt="WhatsApp" class="w-6 h-6" />
+            </div>
+            <div class="ai-bubble">
+              <span class="font-semibold">AI:</span> You have 5 appointments today. The first is with Sarah Lee at 10:00 AM. Would you like to send a confirmation message?
+            </div>
+          </div>
+          <!-- Message 3: Owner (right) -->
+          <div class="flex justify-end">
+            <div class="owner-bubble">
+              <span class="font-semibold">Owner:</span> Yes, please confirm with Sarah and ask if she has any special requests.
+            </div>
+          </div>
+          <!-- Message 4: AI (left) -->
+          <div class="flex items-start gap-2">
+            <div class="ai-avatar-crm">
+              <img src="/logos/icons8-whatsapp.svg" alt="WhatsApp" class="w-6 h-6" />
+            </div>
+            <div class="ai-bubble">
+              <span class="font-semibold">AI:</span> Confirmation sent to Sarah Lee. She replied: "No special requests, see you then!" Would you like to review the next appointment?
+            </div>
+          </div>
+          <!-- Message 5: Owner (right) -->
+          <div class="flex justify-end">
+            <div class="owner-bubble">
+              <span class="font-semibold">Owner:</span> Yes, show me the next one.
+            </div>
+          </div>
+          <!-- Message 6: AI (left) -->
+          <div class="flex items-start gap-2">
+            <div class="ai-avatar-crm">
+              <img src="/logos/icons8-whatsapp.svg" alt="WhatsApp" class="w-6 h-6" />
+            </div>
+            <div class="ai-bubble">
+              <span class="font-semibold">AI:</span> Next is John Smith at 11:30 AM. Would you like to confirm this appointment as well?
+            </div>
+          </div>
+          <div class="message-time self-end pt-2">Today 8:45 AM</div>
+        </div>
       </div>
     </div>
   </div>
@@ -728,5 +757,152 @@
     50% {
       opacity: 0;
     }
+  }
+  .chat-bubble {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    max-width: 650px;
+    animation: fadeIn 0.6s ease-out;
+    width: 100%;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .ai-avatar {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(45deg, #2563eb, #1d4ed8);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+    animation: pulse 2s infinite;
+    flex-shrink: 0;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  .message-content {
+    background: linear-gradient(145deg, #ffffff, #f8fafc);
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+    color: #334155;
+    position: relative;
+    backdrop-filter: blur(10px);
+    width: 100%;
+  }
+  .message-content::before {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 20px;
+    width: 0;
+    height: 0;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-right: 10px solid #ffffff;
+  }
+  .message-time {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 15px;
+    text-align: right;
+  }
+  .ai-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(45deg, #2563eb, #1d4ed8);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 15px;
+  }
+
+  /* CRM Chat Bubble Styles */
+  .chat-bubble-crm {
+    max-width: 600px;
+    width: 100%;
+    background: none;
+    box-shadow: none;
+    border: none;
+    padding: 0;
+  }
+  .ai-avatar-crm {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(45deg, #4facfe, #00f2fe);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: white;
+    box-shadow: 0 2px 8px rgba(79, 172, 254, 0.18);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .ai-bubble {
+    background: linear-gradient(145deg, #ffffff, #f8fafc);
+    border-radius: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border: 1px solid #e2e8f0;
+    color: #334155;
+    padding: 14px 18px;
+    max-width: 80%;
+    font-size: 13px;
+    position: relative;
+  }
+  .ai-bubble::before {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 18px;
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-right: 10px solid #ffffff;
+    filter: drop-shadow(0 0 1px #e2e8f0);
+  }
+  .owner-bubble {
+    background: linear-gradient(145deg, #e0f2fe, #bae6fd);
+    border-radius: 18px;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.08);
+    border: 1px solid #7dd3fc;
+    color: #0c4a6e;
+    padding: 14px 18px;
+    max-width: 80%;
+    font-size: 13px;
+    position: relative;
+    text-align: right;
+  }
+  .owner-bubble::after {
+    content: '';
+    position: absolute;
+    right: -10px;
+    top: 18px;
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 10px solid #e0f2fe;
+    filter: drop-shadow(0 0 1px #7dd3fc);
+  }
+  .voice-message-content {
+    font-size: 13px;
+  }
+  .voice-transcript {
+    font-size: 13px;
   }
 </style>
