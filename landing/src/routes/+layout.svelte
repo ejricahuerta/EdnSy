@@ -12,12 +12,16 @@
   // Footer links
   const footerLinks = [
     {
-      href: "https://purple-moonflower-026.notion.site/Privacy-20194cc9908280c4a2f9dc4e73864328",
+      href: "/privacy",
       label: "Privacy",
     },
     {
-      href: "https://purple-moonflower-026.notion.site/Terms-20194cc990828002a3befb22a94a00a3?pvs=73",
+      href: "/terms",
       label: "Terms",
+    },
+    {
+      href: "/cookies",
+      label: "Cookies",
     },
   ];
   // Social links (placeholder)
