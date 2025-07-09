@@ -1,908 +1,577 @@
 <script lang="ts">
-  // Import icons as needed (Lucide or custom SVGs)
-  import {
-    Github,
-    Zap,
-    ShieldCheck,
-    Code2,
-    Repeat,
-    Globe,
-    MessageCircle,
-    Layers,
-    Settings2,
-    Calendar,
-    Star,
-    User,
-    Mail,
-    Linkedin,
-    Plus,
-    MapPin,
-    Users,
-  } from "@lucide/svelte";
-
-  import * as Carousel from "$lib/components/ui/carousel";
-  import * as Card from "$lib/components/ui/card";
-
-  // Trust logos (replace with your own or use placeholders)
-  const trustLogos = [
-    { src: "/logos/google.svg", alt: "Google" },
-    { src: "/logos/stripe.svg", alt: "Stripe" },
-    { src: "/logos/airbnb.svg", alt: "Airbnb" },
-    { src: "/logos/uber.svg", alt: "Uber" },
-    { src: "/logos/shopify.svg", alt: "Shopify" },
-    { src: "/logos/gmail.svg", alt: "Gmail" },
-  ];
-  // Feature highlights
-  const features = [
-    {
-      icon: Zap,
-      title: "No-code automation",
-      desc: "Build automations visually, no coding required.",
-    },
-    {
-      icon: ShieldCheck,
-      title: "Open source & secure",
-      desc: "Self-host or use our cloud. SOC 2 Type II compliant.",
-    },
-    {
-      icon: Code2,
-      title: "AI-powered builder",
-      desc: "Let AI write code for you and unlock new automation potential.",
-    },
-    {
-      icon: Repeat,
-      title: "Reliable execution",
-      desc: "Auto-retry, versioning, and solid reliability for your flows.",
-    },
-    {
-      icon: Layers,
-      title: "Management tools",
-      desc: "Whitelabel, hide pieces, custom templates, and more.",
-    },
-  ];
-  // Logic/AI blocks
-  const logicBlocks = [
-    {
-      icon: Settings2,
-      title: "If-this-then-that logic",
-      desc: "Add logic blocks to make powerful automations.",
-    },
-    {
-      icon: Code2,
-      title: "AI code generation",
-      desc: "Let the AI write code for you to unlock all the automation potential.",
-    },
-    {
-      icon: Repeat,
-      title: "Repeat actions",
-      desc: "Repeat your actions for each item in a list.",
-    },
-    {
-      icon: Globe,
-      title: "Multi-language support",
-      desc: "Switch the builder to one of the many languages it can speak.",
-    },
-  ];
-  // Integrations (replace with your own or use placeholders)
-  const integrations = [
-    { src: "/logos/gmail.svg", alt: "Gmail" },
-    { src: "/logos/slack.svg", alt: "Slack" },
-    { src: "/logos/openai.svg", alt: "OpenAI" },
-    { src: "/logos/dropbox.svg", alt: "Dropbox" },
-    { src: "/logos/monday.svg", alt: "Monday.com" },
-    { src: "/logos/hubspot.svg", alt: "HubSpot" },
-    { src: "/logos/linear.svg", alt: "Linear" },
-    { src: "/logos/sharepoint.svg", alt: "SharePoint" },
-  ];
-  // Core benefits
-  const benefits = [
-    {
-      icon: Calendar,
-      title: "Never Miss a Client",
-      desc: "Automated reminders and follow-ups keep your schedule full.",
-    },
-    {
-      icon: Star,
-      title: "Save Hours Every Week",
-      desc: "No more manual follow-ups or admin work.",
-    },
-    {
-      icon: MessageCircle,
-      title: "Keep It Personal",
-      desc: "Messages sound like you, not a robot.",
-    },
-    {
-      icon: Users,
-      title: "Works With Your Favorite Apps",
-      desc: "Integrates with WhatsApp, Google Calendar, Gmail, and more.",
-    },
-  ];
-  // How it works steps
-  const flowSteps = [
-    {
-      icon: "✅",
-      title: "Connect Existing Tools",
-      desc: "Connect your Google Calendar, Gmail, WhatsApp, and SMS no new apps needed.",
-    },
-    {
-      icon: "🤖",
-      title: "Automate Repetitive Tasks",
-      desc: "Let Ed & Sy handle reminders, follow-ups, and client messages automatically.",
-    },
-    {
-      icon: "📦",
-      title: "Lightweight, No-Code Setup",
-      desc: "Get started fast with a simple, no-code setup for any business.",
-    },
-    {
-      icon: "💼",
-      title: "Continuous Engagement",
-      desc: "Messages go out at the perfect time after calls, appointments, or invoices.",
-    },
-    {
-      icon: "🧠",
-      title: "Human-like Communication",
-      desc: "Clients get friendly, personalized messages that feel human, not robotic.",
-    },
-  ];
-  // Testimonials
-  const testimonials = [
-    {
-      name: "Jane D.",
-      company: "Salon Owner",
-      img: "/avatars/jane.png",
-      quote:
-        "Ed & Sy made my business run smoother than ever. I never worry about missed appointments!",
-    },
-    {
-      name: "Mike P.",
-      company: "Plumber",
-      img: "/avatars/mike.png",
-      quote: "I save hours every week and my customers love the reminders.",
-    },
-    {
-      name: "Lisa T.",
-      company: "Tutor",
-      img: "/avatars/lisa.png",
-      quote: "The setup was easy and now I can focus on teaching, not admin.",
-    },
-  ];
-  // Pricing plans (monthly and yearly, always show per month, yearly = discounted per month, 1 year commitment)
-  const plans = [
-    {
-      name: "Time Saver",
-      monthly: 199,
-      yearly: 129, // $100 off per month for yearly commitment
-      setupMonthly: 199,
-      setupYearly: 149,
-      features: [
-        "Auto reminders (appts, payments)",
-        "Customer check-ins",
-        "Review requests",
-        "Connect 3 tools",
-        "Personal setup",
-      ],
-      highlight: false,
-    },
-    {
-      name: "Growth Booster",
-      monthly: 399,
-      yearly: 299, // $100 off per month for yearly commitment
-      setupMonthly: 299,
-      setupYearly: 249,
-      features: [
-        "Up to 7 automations",
-        "All Time Saver features",
-        "Personalized messages",
-        "Connect 5 tools",
-        "Priority support",
-        "Quarterly strategy calls",
-        "Progress reports",
-      ],
-      highlight: true,
-    },
-    {
-      name: "Business Transformer",
-      monthly: 699,
-      yearly: 599, // $100 off per month for yearly commitment
-      setupMonthly: 699,
-      setupYearly: 599,
-      features: [
-        "Unlimited automations",
-        "All Growth Booster features",
-        "Custom AI workflows",
-        "Unlimited tool connections",
-        "Dedicated AI partner",
-        "Monthly strategy sessions",
-        "Performance reviews",
-      ],
-      highlight: false,
-    },
-  ];
-  let billingPeriod: "monthly" | "yearly" = "monthly";
-
-  function formatPrice(amount: number) {
-    return `$${amount.toLocaleString()}`;
-  }
-
-  import { scatteredAppLogos } from "$lib/app-logos";
-  import { onMount, onDestroy, tick } from "svelte";
-
-  // Scatter logos randomly within the hero area, no overlap, random each load
-  const containerSize = 400; // px (for both width and height)
-  const logoSize = 48; // px (w-12/h-12)
-  const logoGap = 20; // px, extra space between logos for touch targets
-  const centerRadius = 96; // px, keep center clear for blur
-  const minRadius = centerRadius + 10; // px, minimum distance from center
-  const maxRadius = containerSize / 2 - logoSize / 2 - 10; // px, max from center
-
-  function polarToXY(angle: number, radius: number, center: number) {
-    return {
-      x: center + Math.cos(angle) * radius,
-      y: center + Math.sin(angle) * radius,
-    };
-  }
-
-  function isLogoOverlapping(
-    newLogo: { x: number; y: number },
-    placed: { x: number; y: number }[]
-  ) {
-    for (const p of placed) {
-      const dx = newLogo.x - p.x;
-      const dy = newLogo.y - p.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < logoSize + logoGap) return true;
-    }
-    return false;
-  }
-
-  function generateLogoScatterPositions(count: number) {
-    const center = containerSize / 2;
-    const placed = [];
-    const positions = [];
-    for (let i = 0; i < count; i++) {
-      let tries = 0;
-      let pos;
-      do {
-        const angle = Math.random() * 2 * Math.PI;
-        const radius = minRadius + Math.random() * (maxRadius - minRadius);
-        pos = polarToXY(angle, radius, center);
-        tries++;
-      } while (isLogoOverlapping(pos, placed) && tries < 50);
-      placed.push(pos);
-      positions.push(pos);
-    }
-    return positions;
-  }
-
-  let logoScatterPositions = generateLogoScatterPositions(
-    scatteredAppLogos.length
-  );
-
-  function getLogoScatterStyle(i: number) {
-    const pos = logoScatterPositions[i];
-    if (!pos) return "display: none;";
-    return `left: ${pos.x - logoSize / 2}px; top: ${pos.y - logoSize / 2}px;`;
-  }
-
-  let wandRef: HTMLSpanElement | null = null;
-  let containerRef: HTMLDivElement | null = null;
-  let wandCenter = { x: 0, y: 0 };
-
-  let wandResizeObserver: ResizeObserver;
-  let containerResizeObserver: ResizeObserver;
-
-  function updateWandCenter() {
-    if (wandRef && containerRef) {
-      const wandRect = wandRef.getBoundingClientRect();
-      const containerRect = containerRef.getBoundingClientRect();
-      wandCenter.x = wandRect.left + wandRect.width / 2 - containerRect.left;
-      wandCenter.y = wandRect.top + wandRect.height / 2 - containerRect.top;
-    }
-  }
-
-  onMount(() => {
-    if (typeof window !== "undefined") {
-      updateWandCenter();
-      if (wandRef) {
-        wandResizeObserver = new ResizeObserver(updateWandCenter);
-        wandResizeObserver.observe(wandRef);
-      }
-      if (containerRef) {
-        containerResizeObserver = new ResizeObserver(updateWandCenter);
-        containerResizeObserver.observe(containerRef);
-      }
-      window.addEventListener("resize", updateWandCenter);
-    }
-  });
-
-  onDestroy(() => {
-    if (typeof window !== "undefined") {
-      if (wandResizeObserver && wandRef) wandResizeObserver.unobserve(wandRef);
-      if (containerResizeObserver && containerRef)
-        containerResizeObserver.unobserve(containerRef);
-      window.removeEventListener("resize", updateWandCenter);
-    }
-  });
-
-  // Arrange logos in a ring around the wand, but randomize their order and starting angle each load
-  function shuffleArray<T>(array: T[]): T[] {
-    // Fisher-Yates shuffle
-    const arr = array.slice();
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
-  }
-
-  const logoRingRadius = 110; // px, distance from center
-  const logoCount = scatteredAppLogos.length;
-  const shuffledLogos = shuffleArray(scatteredAppLogos);
-  const startAngle = Math.random() * 2 * Math.PI;
-
-  function getLogoRingStyle(i: number) {
-    const angle = startAngle + (2 * Math.PI * i) / logoCount;
-    const center = 160; // px (half of 320px container height)
-    const x = center + Math.cos(angle) * logoRingRadius;
-    const y = center + Math.sin(angle) * logoRingRadius;
-    return `left: ${x - 24}px; top: ${y - 24}px;`;
-  }
-
-  const phrases = [
-    "automation easy",
-    "growth simple",
-    "tasks effortless",
-    "success automatic",
-  ];
-  let phraseIndex = 0;
-  let typedPhrase = "";
-  let typing = true;
-  let intervalId: any;
-
-  async function typePhrase(phrase: string) {
-    for (let i = 0; i <= phrase.length; i++) {
-      typedPhrase = phrase.slice(0, i);
-      await tick();
-      await new Promise((r) => setTimeout(r, 48));
-    }
-    await new Promise((r) => setTimeout(r, 2400));
-    for (let i = phrase.length; i >= 0; i--) {
-      typedPhrase = phrase.slice(0, i);
-      await tick();
-      await new Promise((r) => setTimeout(r, 24));
-    }
-  }
-
-  onMount(async () => {
-    while (true) {
-      await typePhrase(phrases[phraseIndex]);
-      phraseIndex = (phraseIndex + 1) % phrases.length;
-    }
-  });
-
-  let currentStep = 0;
+  let navOpen = false;
 </script>
 
-<!-- Add top padding to first section so content is not hidden behind navbar -->
-<section
-  class="pt-28 bg-gradient-to-br from-blue-600 to-purple-500 text-white py-20 pt-40"
->
-  <div class="container mx-auto flex flex-col md:flex-row gap-10 px-4">
-    <div class="flex-1 text-center md:text-left">
-      <h1 class="text-5xl font-extrabold mb-6">AI Automation Made Simple</h1>
-      <div class="text-xl mb-6 text-left">
-        <span class="font-bold text-white"
-          >Make business <span
-            class="sm:inline-block text-white font-bold bg-green-500 bg-opacity-90 px-2 py-1 rounded"
-            >{typedPhrase}<span class="blinking-cursor">|</span></span
-          ></span
-        >
-        <div class="my-3"></div>
-        <span class="block mb-6 text-base md:text-xl"
-          >Automate the tools you already use. Perfect for non-technical teams
-          and experienced business owners.</span
-        >
-      </div>
-      <div
-        class="flex flex-col sm:flex-row gap-6 justify-center md:justify-start"
-      >
-        <button
-          data-tally-open="3NQ6pB"
-          data-tally-overlay="1"
-          data-tally-emoji-text="👋"
-          data-tally-emoji-animation="wave"
-          data-tally-auto-close="3000"
-          class="btn btn-primary bg-white text-blue-700 font-bold px-8 py-4 rounded-lg shadow hover:bg-blue-100 transition"
-        >
-          Get Started Free
-        </button>
-        <a
-          href="/#how-it-works"
-          class="btn btn-outline border-white text-white font-bold px-8 py-4 rounded-lg hover:bg-white/10 transition"
-          >See How It Works</a
-        >
-      </div>
-    </div>
-    <div class="flex-1 flex items-center justify-center">
-      <div class="flex flex-col gap-8 items-center w-full max-w-xl">
-        <!-- Appointment Chat Bubble -->
-        <div class="chat-bubble">
-          <div class="ai-avatar">🎙️</div>
-          <div class="message-content voice-message-content">
-            <div class="ai-badge">
-              📞 AI Appointment Assistant
-            </div>
-            <!-- Transcript conversation -->
-            <div class="space-y-3 voice-transcript">
-              <div><span class="font-semibold">AI:</span> Hi! I see you're looking to book an appointment with Dr. Sarah Johnson. May I know your preferred date and time?</div>
-              <div><span class="font-semibold">User:</span> Tomorrow afternoon would be great.</div>
-              <div><span class="font-semibold">AI:</span> Perfect! I have a slot available at 2:30 PM tomorrow. Would you like to confirm this appointment?</div>
-              <div><span class="font-semibold">User:</span> Yes, please book it.</div>
-              <div><span class="font-semibold">AI:</span> Your appointment is confirmed for tomorrow at 2:30 PM with Dr. Sarah Johnson. You'll receive a reminder an hour before. Is there anything else I can help you with?</div>
-            </div>
-            <div class="message-time">Today 3:15 PM</div>
-          </div>
-        </div>
-        <!-- CRM Chat Bubble -->
-        <div class="chat-bubble-crm flex flex-col items-stretch space-y-3">
-          <!-- Message 1: Owner (right) -->
-          <div class="flex justify-end">
-            <div class="owner-bubble">
-              <span class="font-semibold">Owner:</span> Can you show me today's appointments and help confirm them?
-            </div>
-          </div>
-          <!-- Message 2: AI (left) -->
-          <div class="flex items-start gap-2">
-            <div class="ai-avatar-crm">
-              <img src="/logos/icons8-whatsapp.svg" alt="WhatsApp" class="w-6 h-6" />
-            </div>
-            <div class="ai-bubble">
-              <span class="font-semibold">AI:</span> You have 5 appointments today. The first is with Sarah Lee at 10:00 AM. Would you like to send a confirmation message?
-            </div>
-          </div>
-          <!-- Message 3: Owner (right) -->
-          <div class="flex justify-end">
-            <div class="owner-bubble">
-              <span class="font-semibold">Owner:</span> Yes, please confirm with Sarah and ask if she has any special requests.
-            </div>
-          </div>
-          <!-- Message 4: AI (left) -->
-          <div class="flex items-start gap-2">
-            <div class="ai-avatar-crm">
-              <img src="/logos/icons8-whatsapp.svg" alt="WhatsApp" class="w-6 h-6" />
-            </div>
-            <div class="ai-bubble">
-              <span class="font-semibold">AI:</span> Confirmation sent to Sarah Lee. She replied: "No special requests, see you then!" Would you like to review the next appointment?
-            </div>
-          </div>
-          <!-- Message 5: Owner (right) -->
-          <div class="flex justify-end">
-            <div class="owner-bubble">
-              <span class="font-semibold">Owner:</span> Yes, show me the next one.
-            </div>
-          </div>
-          <!-- Message 6: AI (left) -->
-          <div class="flex items-start gap-2">
-            <div class="ai-avatar-crm">
-              <img src="/logos/icons8-whatsapp.svg" alt="WhatsApp" class="w-6 h-6" />
-            </div>
-            <div class="ai-bubble">
-              <span class="font-semibold">AI:</span> Next is John Smith at 11:30 AM. Would you like to confirm this appointment as well?
-            </div>
-          </div>
-          <div class="message-time self-end pt-2">Today 8:45 AM</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+<svelte:head>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    body,
+    .font-sans {
+      font-family: "Inter", sans-serif;
+    }
+    .font-heading,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    button {
+      font-family:
+        Mona Sans,
+        ui-sans-serif,
+        system-ui,
+        sans-serif,
+        "Apple Color Emoji",
+        "Segoe UI Emoji",
+        "Segoe UI Symbol",
+        "Noto Color Emoji";
+    }
+    body {
+      background: #f4f4f4;
+    }
+    @keyframes sparkle {
+      0%,
+      100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.3) rotate(20deg);
+        opacity: 0.7;
+      }
+    }
+    .animate-sparkle {
+      animation: sparkle 0.8s ease-in-out;
+    }
+  </style>
+</svelte:head>
 
-<!-- HOW IT WORKS SECTION -->
-<section
-  id="how-it-works"
-  class="w-full min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50"
->
-  <div class="w-full flex flex-col h-full max-h-full">
-    <div class="pt-12 pb-6">
-      <h2 class="text-5xl font-extrabold text-center mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-purple-500 to-pink-500 tracking-tight">
-        Your Automation Journey
-      </h2>
-      <p class="text-xl text-center text-gray-700 max-w-3xl mx-auto mb-0">
-        Transform your business step by step. Each phase delivers real results quickly.
-      </p>
-    </div>
-    <div
-      class="flex-1 grid grid-cols-1 grid-rows-4 md:grid-cols-2 md:grid-rows-2 gap-2 md:gap-4 px-4 md:px-12 max-w-none overflow-y-auto"
-      style="min-height:0;"
+<!-- NAVIGATION BAR REMOVED: now in layout -->
+
+{#if navOpen}
+  <div
+    class="sm:hidden bg-white border-t border-neutral-200 px-6 sm:px-16 pb-4"
+  >
+    <button
+      data-tally-open="3NQ6pB"
+      data-tally-overlay="1"
+      class="block py-2 text-black font-heading font-semibold cursor-pointer"
+      >Contact us</button
     >
-      <!-- Phase 1 -->
-      <div class="flex flex-col justify-between bg-white/70 p-8 group relative z-10">
-        <h3 class="text-2xl font-bold mb-2 text-blue-800">Foundation and Quick Wins</h3>
-        <div class="text-sm text-blue-700 font-semibold mb-2">0 to 30 days, Immediate Impact</div>
-        <ul class="mb-4 text-gray-800 space-y-1 text-base">
-          <li>✔️ Audit your biggest bottleneck</li>
-          <li>✔️ Launch your first automation</li>
-          <li>✔️ Team training and instant results</li>
-        </ul>
-        <div class="text-blue-700 font-bold mb-2">Outcomes</div>
-        <ul class="text-gray-700 text-sm mb-4 space-y-1">
-          <li>5 to 15 hours per week saved</li>
-          <li>Major error prone task automated</li>
-          <li>Team confidence in automation</li>
-        </ul>
-        <div class="text-xs italic text-blue-900">Best for testing automation impact</div>
+  </div>
+{/if}
+
+<!-- HERO SECTION -->
+<section
+  class="max-w-7xl mx-auto px-6 sm:px-16 flex flex-col justify-center h-full min-h-[60vh]"
+>
+  <div class="relative z-10">
+    <h1
+      class="font-display text-5xl font-medium tracking-tight text-balance text-neutral-700 sm:text-7xl mb-8"
+    >
+      AI Automation Made <span class="text-blue-500">Simple</span>
+    </h1>
+    <p
+      class="text-lg sm:text-xl text-neutral-500 text-left max-w-2xl font-sans"
+    >
+      Automate the tools you already use. Perfect for non-technical teams <span
+        class="text-blue-600">&</span
+      >
+      experienced business owners.
+    </p>
+    <!--tools icons-->
+    <span class="flex gap-4 mt-4">
+      <span class="relative group inline-block">
+        <img
+          src="/logos/icons8-whatsapp.svg"
+          alt="WhatsApp"
+          class="w-10 h-10"
+        />
+        <svg
+          class="pointer-events-none absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 group-hover:animate-sparkle transition-opacity duration-300"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+        >
+          <g>
+            <circle cx="12" cy="12" r="2" fill="#FDE68A" />
+            <circle cx="6" cy="6" r="1" fill="#FDE68A" />
+            <circle cx="18" cy="6" r="1" fill="#FDE68A" />
+            <circle cx="6" cy="18" r="1" fill="#FDE68A" />
+            <circle cx="18" cy="18" r="1" fill="#FDE68A" />
+          </g>
+        </svg>
+      </span>
+      <span class="relative group inline-block">
+        <img
+          src="/logos/icons8-telegram-app.svg"
+          alt="Telegram"
+          class="w-10 h-10"
+        />
+        <svg
+          class="pointer-events-none absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 group-hover:animate-sparkle transition-opacity duration-300"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+        >
+          <g>
+            <circle cx="12" cy="12" r="2" fill="#FDE68A" />
+            <circle cx="6" cy="6" r="1" fill="#FDE68A" />
+            <circle cx="18" cy="6" r="1" fill="#FDE68A" />
+            <circle cx="6" cy="18" r="1" fill="#FDE68A" />
+            <circle cx="18" cy="18" r="1" fill="#FDE68A" />
+          </g>
+        </svg>
+      </span>
+      <span class="relative group inline-block">
+        <img
+          src="/logos/icons8-facebook-circled.svg"
+          alt="Facebook"
+          class="w-10 h-10"
+        />
+        <svg
+          class="pointer-events-none absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 group-hover:animate-sparkle transition-opacity duration-300"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+        >
+          <g>
+            <circle cx="12" cy="12" r="2" fill="#FDE68A" />
+            <circle cx="6" cy="6" r="1" fill="#FDE68A" />
+            <circle cx="18" cy="6" r="1" fill="#FDE68A" />
+            <circle cx="6" cy="18" r="1" fill="#FDE68A" />
+            <circle cx="18" cy="18" r="1" fill="#FDE68A" />
+          </g>
+        </svg>
+      </span>
+      <span class="relative group inline-block">
+        <img src="/logos/icons8-gmail.svg" alt="Gmail" class="w-10 h-10" />
+        <svg
+          class="pointer-events-none absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 group-hover:animate-sparkle transition-opacity duration-300"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+        >
+          <g>
+            <circle cx="12" cy="12" r="2" fill="#FDE68A" />
+            <circle cx="6" cy="6" r="1" fill="#FDE68A" />
+            <circle cx="18" cy="6" r="1" fill="#FDE68A" />
+            <circle cx="6" cy="18" r="1" fill="#FDE68A" />
+            <circle cx="18" cy="18" r="1" fill="#FDE68A" />
+          </g>
+        </svg>
+      </span>
+      <span class="relative group inline-block">
+        <img
+          src="/logos/icons8-google-calendar.svg"
+          alt="Google Calendar"
+          class="w-10 h-10"
+        />
+        <svg
+          class="pointer-events-none absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 group-hover:animate-sparkle transition-opacity duration-300"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+        >
+          <g>
+            <circle cx="12" cy="12" r="2" fill="#FDE68A" />
+            <circle cx="6" cy="6" r="1" fill="#FDE68A" />
+            <circle cx="18" cy="6" r="1" fill="#FDE68A" />
+            <circle cx="6" cy="18" r="1" fill="#FDE68A" />
+            <circle cx="18" cy="18" r="1" fill="#FDE68A" />
+          </g>
+        </svg>
+      </span>
+      <span class="relative group inline-block">
+        <img
+          src="/logos/icons8-google-drive.svg"
+          alt="Google Drive"
+          class="w-10 h-10"
+        />
+        <svg
+          class="pointer-events-none absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 group-hover:animate-sparkle transition-opacity duration-300"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+        >
+          <g>
+            <circle cx="12" cy="12" r="2" fill="#FDE68A" />
+            <circle cx="6" cy="6" r="1" fill="#FDE68A" />
+            <circle cx="18" cy="6" r="1" fill="#FDE68A" />
+            <circle cx="6" cy="18" r="1" fill="#FDE68A" />
+            <circle cx="18" cy="18" r="1" fill="#FDE68A" />
+          </g>
+        </svg>
+      </span>
+      <span class="relative group inline-block">
+        <img
+          src="/logos/icons8-google-maps.svg"
+          alt="Google Maps"
+          class="w-10 h-10"
+        />
+        <svg
+          class="pointer-events-none absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 group-hover:animate-sparkle transition-opacity duration-300"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+        >
+          <g>
+            <circle cx="12" cy="12" r="2" fill="#FDE68A" />
+            <circle cx="6" cy="6" r="1" fill="#FDE68A" />
+            <circle cx="18" cy="6" r="1" fill="#FDE68A" />
+            <circle cx="6" cy="18" r="1" fill="#FDE68A" />
+            <circle cx="18" cy="18" r="1" fill="#FDE68A" />
+          </g>
+        </svg>
+      </span>
+      <span class="relative group inline-block">
+        <img
+          src="/logos/icons8-google-sheets.svg"
+          alt="Google Sheets"
+          class="w-10 h-10"
+        />
+        <svg
+          class="pointer-events-none absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 group-hover:animate-sparkle transition-opacity duration-300"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+        >
+          <g>
+            <circle cx="12" cy="12" r="2" fill="#FDE68A" />
+            <circle cx="6" cy="6" r="1" fill="#FDE68A" />
+            <circle cx="18" cy="6" r="1" fill="#FDE68A" />
+            <circle cx="6" cy="18" r="1" fill="#FDE68A" />
+            <circle cx="18" cy="18" r="1" fill="#FDE68A" />
+          </g>
+        </svg>
+      </span>
+      <span class="relative group inline-block">
+        <img src="/logos/icons8-notion.svg" alt="Notion" class="w-10 h-10" />
+        <svg
+          class="pointer-events-none absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 group-hover:animate-sparkle transition-opacity duration-300"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+        >
+          <g>
+            <circle cx="12" cy="12" r="2" fill="#FDE68A" />
+            <circle cx="6" cy="6" r="1" fill="#FDE68A" />
+            <circle cx="18" cy="6" r="1" fill="#FDE68A" />
+            <circle cx="6" cy="18" r="1" fill="#FDE68A" />
+            <circle cx="18" cy="18" r="1" fill="#FDE68A" />
+          </g>
+        </svg>
+      </span>
+    </span>
+  </div>
+</section>
+<!-- VALUE PROPOSITION SECTION -->
+<section id="value"
+  class=" mx-auto px-6 sm:px-16 min-h-[60vh] bg-slate-900 text-neutral-200 py-16 flex flex-col items-center justify-center"
+>
+  <h2
+    class="font-display text-2xl font-semibold tracking-tight text-balance sm:text-4xl mb-4 text-center"
+  >
+    Why Partner with Ed <span class="text-blue-600">&</span> Sy?
+  </h2>
+  <span
+    class="rounded-full bg-gradient-to-r from-blue-400 to-blue-200 px-4 py-2 text-neutral-700 font-display font-semibold tracking-tight mb-10 text-center text-sm shadow"
+    >Your Success is Our Focus</span
+  >
+  <div
+    class="grid grid-cols-1 md:grid-cols-3 gap-10 text-center items-center justify-between py-10 max-w-7xl mx-auto"
+  >
+    <div class="flex flex-col items-center py-10">
+      <div class="font-display text-6xl sm:text-7xl text-blue-200 mb-2">
+        20+ <span class="text-3xl text-neutral-200">hrs</span>
       </div>
-      <!-- Phase 2 -->
-      <div class="flex flex-col justify-between bg-white/70 p-8 group relative z-10">
-        <h3 class="text-2xl font-bold mb-2 text-purple-800">Core Operations Transformation</h3>
-        <div class="text-sm text-purple-700 font-semibold mb-2">30 to 90 days, Systematic Improvement</div>
-        <ul class="mb-4 text-gray-800 space-y-1 text-base">
-          <li>✔️ Redesign three to five core workflows</li>
-          <li>✔️ Staged rollout, minimal disruption</li>
-          <li>✔️ Team mastery and optimization</li>
-        </ul>
-        <div class="text-purple-700 font-bold mb-2">Outcomes</div>
-        <ul class="text-gray-700 text-sm mb-4 space-y-1">
-          <li>30 to 50 percent faster processes</li>
-          <li>Customer response times soar</li>
-          <li>Manual errors nearly gone</li>
-        </ul>
-        <div class="text-xs italic text-purple-900">Best for scaling without extra staff</div>
+      <div class="text-base text-neutral-400">
+        Saved per week on daily tasks
       </div>
-      <!-- Phase 3 -->
-      <div class="flex flex-col justify-between bg-white/70 p-8 group relative z-10">
-        <h3 class="text-2xl font-bold mb-2 text-pink-800">Strategic Integration and Optimization</h3>
-        <div class="text-sm text-pink-700 font-semibold mb-2">90 days and beyond, Competitive Advantage</div>
-        <ul class="mb-4 text-gray-800 space-y-1 text-base">
-          <li>✔️ AI powered decision making</li>
-          <li>✔️ Predictive analytics and dashboards</li>
-          <li>✔️ Cross platform integration</li>
-        </ul>
-        <div class="text-pink-700 font-bold mb-2">Outcomes</div>
-        <ul class="text-gray-700 text-sm mb-4 space-y-1">
-          <li>60 to 80 percent efficiency boost</li>
-          <li>Two to five times more volume, same team</li>
-          <li>Industry leading customer experience</li>
-        </ul>
-        <div class="text-xs italic text-pink-900">Best for market leaders and fast growers</div>
+    </div>
+    <div class="flex flex-col items-center py-10">
+      <div class="font-display text-6xl sm:text-7xl text-blue-200 mb-2">
+        15-30% <span class="text-3xl text-neutral-200">less</span>
       </div>
-      <!-- Phase 4 -->
-      <div class="flex flex-col justify-between bg-white/70 p-8 group relative z-10">
-        <h3 class="text-2xl font-bold mb-2 text-gray-800">Innovation and Evolution</h3>
-        <div class="text-sm text-gray-700 font-semibold mb-2">Ongoing, Market Leadership</div>
-        <ul class="mb-4 text-gray-800 space-y-1 text-base">
-          <li>✔️ Proactive optimization</li>
-          <li>✔️ Tech evolution and new AI</li>
-          <li>✔️ Strategic expansion</li>
-        </ul>
-        <div class="text-gray-700 font-bold mb-2">Ongoing Benefits</div>
-        <ul class="text-gray-700 text-sm mb-4 space-y-1">
-          <li>Always ahead of competitors</li>
-          <li>Continuous improvement</li>
-          <li>Early access to new tools</li>
-        </ul>
-        <div class="text-xs italic text-gray-900">Best for ambitious, future focused teams</div>
+      <div class="text-base text-neutral-400">Average cost reduction</div>
+    </div>
+    <div class="flex flex-col items-center py-10">
+      <div class="font-display text-6xl sm:text-7xl text-blue-200 mb-2">
+        2x <span class="text-3xl text-neutral-200">faster</span>
       </div>
+      <div class="text-base text-neutral-400">Decision making</div>
     </div>
   </div>
 </section>
 
+<!-- SERVICES SECTION -->
+<section id="services" class="mx-auto px-6 sm:px-16 my-20 h-full max-w-7xl">
+  <div class="max-w-7xl mx-auto text-center">
+    <h2
+      class="font-display text-2xl font-semibold tracking-tight text-balance text-neutral-700 sm:text-4xl mb-4"
+    >
+      How We Partner For Your Success
+    </h2>
+    <span
+      class="rounded-full bg-gradient-to-r from-blue-400 to-blue-200 px-4 py-2 text-blue-600 font-display font-semibold tracking-tight mb-10 text-center shadow text-sm"
+      >Our Solutions</span
+    >
+  </div>
+  <div class="flex flex-col gap-2 mt-4">
+    <div class="flex flex-col md:flex-row items-center gap-4">
+      <div class="flex-1 p-12 md:p-24">
+        <div class="flex items-center gap-3 mb-6">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-workflow-icon lucide-workflow text-blue-600"
+            ><rect width="8" height="8" x="3" y="3" rx="2" /><path
+              d="M7 11v4a2 2 0 0 0 2 2h4"
+            /><rect width="8" height="8" x="13" y="13" rx="2" /></svg
+          >
+          <h3
+            class="font-display text-2xl font-semibold tracking-wider text-neutral-700"
+          >
+            Smart Daily Automation
+          </h3>
+        </div>
+        <p class="font-sans text-lg text-neutral-500 leading-loose">
+          We put AI into your essential tools. Think smarter customer contacts
+          (CRM), automated messages on apps like WhatsApp, <span
+            class="text-blue-600">&</span
+          >
+          helpful website chatbots. We help you streamline tasks
+          <span class="text-blue-600">&</span> keep things running smoothly.
+        </p>
+      </div>
+    </div>
+    <div class="flex flex-col md:flex-row-reverse items-center gap-4">
+      <div class="flex-1 p-12 md:p-24">
+        <div class="flex items-center gap-3 mb-6">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-bot-message-square-icon lucide-bot-message-square text-blue-600"
+            ><path d="M12 6V2H8" /><path
+              d="m8 18-4 4V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2Z"
+            /><path d="M2 12h2" /><path d="M9 11v2" /><path d="M15 11v2" /><path
+              d="M20 12h2"
+            /></svg
+          >
+          <h3
+            class="font-display text-2xl font-semibold tracking-wider text-neutral-700"
+          >
+            Brilliant Customer & Sales Connections
+          </h3>
+        </div>
+        <p class="font-sans text-lg text-neutral-500 leading-loose">
+          We set up AI voice helpers <span class="text-blue-600">&</span> smart
+          chatbots. They answer questions, guide new customers,
+          <span class="text-blue-600">&</span>
+          manage all your messages. We ensure you offer instant, outstanding service
+          <span class="text-blue-600">&</span> celebrate more sales.
+        </p>
+      </div>
+    </div>
+    <div class="flex flex-col md:flex-row items-center gap-4">
+      <div class="flex-1 p-12 md:p-24">
+        <div class="flex items-center gap-3 mb-6">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-database-zap-icon lucide-database-zap text-blue-600"
+            ><ellipse cx="12" cy="5" rx="9" ry="3" /><path
+              d="M3 5V19A9 3 0 0 0 15 21.84"
+            /><path d="M21 5V8" /><path d="M21 12L18 17H22L19 22" /><path
+              d="M3 12A9 3 0 0 0 14.59 14.87"
+            /></svg
+          >
+          <h3
+            class="font-display text-2xl font-semibold tracking-wider text-neutral-700"
+          >
+            Easy Insights from Your Data
+          </h3>
+        </div>
+        <p class="font-sans text-lg text-neutral-500 leading-loose">
+          Use our "Data Analytics with Just Prompts" service. Just ask simple
+          questions to get valuable info from your business data. We help you
+          understand your business better <span class="text-blue-600">&</span> make
+          wiser, quicker choices.
+        </p>
+      </div>
+    </div>
+    <div class="flex flex-col md:flex-row-reverse items-center gap-4">
+      <div class="flex-1 p-12 md:p-24">
+        <div class="flex items-center gap-3 mb-6">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-toy-brick-icon lucide-toy-brick text-blue-600"
+            ><rect width="18" height="12" x="3" y="8" rx="1" /><path
+              d="M10 8V5c0-.6-.4-1-1-1H6a1 1 0 0 0-1 1v3"
+            /><path d="M19 8V5c0-.6-.4-1-1-1h-3a1 1 0 0 0-1 1v3" /></svg
+          >
+          <h3
+            class="font-display text-2xl font-semibold tracking-wider text-neutral-700"
+          >
+            Custom AI Solutions
+          </h3>
+        </div>
+        <p class="font-sans text-lg text-neutral-500 leading-loose">
+          Sometimes, your business needs something unique. We create custom AI
+          tools designed specifically for your special needs or challenges. We
+          partner with you to build the perfect AI solution, tailor-made for
+          your success.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+<hr class="my-12 border-neutral-200" />
 <!-- TEAM SECTION -->
-<section id="team" class="py-12 md:py-16 bg-white">
-  <div class="container mx-auto max-w-2xl px-4">
-    <h2 class="text-3xl font-bold mb-6 text-center">Meet Ed & Sy</h2>
-    <div class="grid md:grid-cols-2 gap-6 md:gap-8">
-      <div
-        class="w-full max-w-sm mx-auto mb-6 md:mb-0 p-6 flex flex-col items-center rounded-xl shadow bg-white"
-      >
-        <img
-          src="https://media.licdn.com/dms/image/v2/C4D03AQE0faqui5GEzQ/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1517429424712?e=1753920000&v=beta&t=0VtMz0wg580LRDk1pIc1PbP-SXIpIFQ0gtddI7Qpbhg"
-          alt="Edmel Ricahuerta"
-          class="mb-2 w-16 h-16 rounded-full bg-gray-200"
-        />
-        <div class="text-xl font-bold">Edmel Ricahuerta</div>
-        <div class="text-sm text-gray-600 mb-2">Founder / Systems & Technology</div>
-        <div class="mb-2 text-center">
-          Makes technology simple and reliable for traditional business owners.
-        </div>
-        <div class="flex gap-2">
-          <a
-            href="mailto:edmel@ednsy.com"
-            class="btn btn-outline flex items-center gap-1"
-            ><Mail class="w-4 h-4" /> Email</a
-          >
-          <a
-            href="https://www.linkedin.com/in/exricahuerta/"
-            class="btn btn-outline flex items-center gap-1"
-            ><Linkedin class="w-4 h-4" /> LinkedIn</a
-          >
-        </div>
+<section id="team" class="max-w-7xl mx-auto px-6 sm:px-16 my-20">
+  <h2
+    class="font-display text-2xl font-semibold tracking-tight text-balance text-neutral-700 sm:text-4xl mb-4 text-left"
+  >
+    Meet Your Growth Partners
+  </h2>
+  <span
+    class="rounded-full bg-gradient-to-r from-blue-400 to-blue-200 px-4 py-2 text-neutral-700 font-display font-semibold tracking-tight mb-10 text-center shadow text-sm mb-4"
+    >The Team</span
+  >
+
+  <p class="font-sans text-lg text-neutral-500 text-left max-w-2xl my-8">
+    Our joy is partnering with businesses like yours to bring you real results.
+    We understand your challenges <span class="text-blue-600">&</span> make your
+    AI journey easy <span class="text-blue-600">&</span> powerful.
+  </p>
+  <!-- Team Cards Side by Side -->
+
+  <div class="flex flex-col md:flex-row gap-8 mb-8">
+    <!-- Edmel's Team Card -->
+    <div class="flex-1 flex flex-col items-center gap-2">
+      <img
+        src="https://media.licdn.com/dms/image/v2/C4D03AQE0faqui5GEzQ/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1517429424712?e=1753920000&v=beta&t=0VtMz0wg580LRDk1pIc1PbP-SXIpIFQ0gtddI7Qpbhg"
+        alt="Edmel Ricahuerta"
+        class="w-32 h-32 rounded-full object-cover"
+      />
+      <div class="flex items-center gap-2 mb-1">
+        <h3 class="font-display text-2xl font-bold text-neutral-700">
+          Edmel Ricahuerta
+        </h3>
       </div>
-      <div
-        class="w-full max-w-sm mx-auto p-6 flex flex-col items-center rounded-xl shadow bg-white"
+      <span
+        class="bg-blue-100 text-blue-700 text-xs font-semibold px-2 py-1 rounded ml-1"
+        >Founder / Systems & Technology</span
       >
-        <img
-          src="https://media.licdn.com/dms/image/v2/D5603AQHneUVdF6c2Ig/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1675783722369?e=1753920000&v=beta&t=eYVOXdRKdLjcBTOqEEjCaIh4ePSOjeozovt97ws8BpI"
-          alt="Syron Suerte"
-          class="mb-2 w-16 h-16 rounded-full bg-gray-200"
-        />
-        <div class="text-xl font-bold">Syron Suerte</div>
-        <div class="text-sm text-gray-600 mb-2">Founder / Client Success & Support</div>
-        <div class="mb-2 text-center">
-          Helps business owners save time while maintaining their personal touch
-          with customers.
-        </div>
-        <div class="flex gap-2">
-          <a
-            href="mailto:syron@ednsy.com"
-            class="btn btn-outline flex items-center gap-1"
-            ><Mail class="w-4 h-4" /> Email</a
-          >
-          <a
-            href="https://www.linkedin.com/in/syronsuerte/"
-            class="btn btn-outline flex items-center gap-1"
-            ><Linkedin class="w-4 h-4" /> LinkedIn</a
-          >
-        </div>
+      <p
+        class="font-sans text-neutral-600 leading-relaxed mb-0 text-center mt-4"
+      >
+        Makes technology simple and reliable for traditional business owners.
+      </p>
+      <a
+        href="https://ca.linkedin.com/in/exricahuerta"
+        target="_blank"
+        rel="noopener"
+        class="text-blue-600 hover:underline text-sm mt-4">LinkedIn</a
+      >
+    </div>
+    <!-- Syron's Team Card -->
+    <div class="flex-1 flex flex-col items-center gap-2">
+      <img
+        src="https://media.licdn.com/dms/image/v2/D5603AQHneUVdF6c2Ig/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1675783722369?e=1757548800&v=beta&t=WC4EiDFsUK4OqtdhYl_TumEUGhijXAn4wkfNsbKIr2U"
+        alt="Syron Suerte"
+        class="w-32 h-32 rounded-full object-cover"
+      />
+      <div class="flex items-center gap-2 mb-1">
+        <h3 class="font-display text-2xl font-bold text-neutral-700">
+          Syron Suerte
+        </h3>
       </div>
+      <span
+        class="bg-blue-100 text-blue-700 text-xs font-semibold px-2 py-1 rounded ml-1"
+        >Founder / Client Success & Support</span
+      >
+      <p
+        class="font-sans text-neutral-600 leading-relaxed mb-0 text-center mt-4"
+      >
+        Helps business owners save time while maintaining their personal touch
+        with customers.
+      </p>
+      <a
+        href="https://www.linkedin.com/in/syronsuerte/"
+        target="_blank"
+        rel="noopener"
+        class="text-blue-600 hover:underline text-sm mt-4">LinkedIn</a
+      >
     </div>
   </div>
+  <!-- Optionally, add more team member cards here in the future -->
 </section>
+<hr class="my-12 border-neutral-200" />
 
-<!-- FINAL CTA / CONSULTATION SECTION (Inspired by v0-new-project-ilofrbxjvqs.vercel.app) -->
+<!-- CTA SECTION -->
 <section
   id="contact"
-  class="py-20 bg-gradient-to-br from-blue-600 to-purple-500 text-white"
+  class="flex justify-center items-center my-24 px-6 sm:px-16 max-w-7xl mx-auto"
 >
-  <div class="container mx-auto max-w-4xl px-4">
-    <h2 class="text-3xl md:text-4xl font-bold mb-4 text-center">
-      Ready to simplify your business?
-    </h2>
-    <p class="text-lg md:text-xl mb-10 text-center">
-      Let's have a friendly 30-minute chat about how we can help - no charge, no
-      pressure.
-    </p>
-    <div
-      class="flex flex-col md:flex-row gap-10 md:gap-16 items-center md:items-start justify-center"
+  <div
+    class="bg-slate-900 rounded-[2.5rem] px-10 py-14 w-full shadow-lg flex flex-col items-center"
+  >
+    <h2
+      class="font-display text-3xl font-semibold tracking-tight text-balance text-neutral-200 sm:text-5xl mb-6 text-center"
     >
-      <!-- Consultation Form -->
-      <div
-        class="flex-1 max-w-md w-full min-h-[500px] mb-10 md:mb-0 mx-auto bg-white/90 rounded-2xl shadow-lg p-0 md:p-4 flex flex-col justify-center overflow-hidden"
-      >
-        <h3
-          class="text-xl font-bold mb-4 text-blue-700 text-center pt-6 md:pt-0"
-        >
-          Schedule your free consultation
-        </h3>
-        <iframe
-          data-tally-src="https://tally.so/embed/3NQ6pB?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1"
-          loading="lazy"
-          width="100%"
-          height="562"
-          frameborder="0"
-          marginheight="0"
-          marginwidth="0"
-          title="Schedule your free consultation
-        "
-        ></iframe>
-        <script>
-          var d = document,
-            w = "https://tally.so/widgets/embed.js",
-            v = function () {
-              "undefined" != typeof Tally
-                ? Tally.loadEmbeds()
-                : d
-                    .querySelectorAll("iframe[data-tally-src]:not([src])")
-                    .forEach(function (e) {
-                      e.src = e.dataset.tallySrc;
-                    });
-            };
-          if ("undefined" != typeof Tally) v();
-          else if (d.querySelector('script[src="' + w + '"]') == null) {
-            var s = d.createElement("script");
-            (s.src = w), (s.onload = v), (s.onerror = v), d.body.appendChild(s);
-          }
-        </script>
-      </div>
-      <!-- Contact Info & What You'll Get -->
-      <div
-        class="flex-1 max-w-md w-full mx-auto text-white/90 text-center md:text-left"
-      >
-        <div class="mb-8">
-          <h4 class="font-bold text-lg mb-2 text-center md:text-left">
-            Contact Us Your Way:
-          </h4>
-          <div class="mb-2 text-center md:text-left">
-            <span class="font-semibold">Call</span>
-            <a href="tel:+14165551234" class="underline">+1 (416) 555-1234</a
-            ><span class="ml-2">Any time during business hours</span>
-          </div>
-          <div class="mb-2 text-center md:text-left">
-            <span class="font-semibold">Email</span>
-            <a href="mailto:hello@ednsy.com" class="underline"
-              >hello@ednsy.com</a
-            ><span class="ml-2">We respond within 24 hours</span>
-          </div>
-          <div class="mb-2 text-center md:text-left">
-            <span class="font-semibold">In-Person Meeting</span>
-            <span class="ml-2">We're happy to meet up for a coffee</span>
-          </div>
-        </div>
-        <div class="bg-white/80 rounded-xl p-6 text-gray-900 mx-auto">
-          <h5 class="font-bold mb-2 text-center md:text-left">
-            What you'll get:
-          </h5>
-          <ul class="list-disc list-inside space-y-1 text-left mx-auto">
-            <li>30-minute friendly business consultation</li>
-            <li>Plain-English explanation of how we can help</li>
-            <li>Clear pricing with no hidden fees</li>
-            <li>Simple next steps you can take right away</li>
-          </ul>
-        </div>
-      </div>
-    </div>
+      Ready to Scale Your Business?
+    </h2>
+    <button
+      data-tally-open="3NQ6pB"
+      data-tally-overlay="1"
+      class="rounded-full bg-white text-blue-600 hover:bg-blue-100 hover:text-blue-600 font-display font-bold px-8 py-3 text-base shadow border-2 border-blue-600 transition mb-2 cursor-pointer"
+      >Book a Free Quick Chat</button
+    >
+    <p class="text-neutral-200 text-sm">🍵 Coffee is on us.</p>
   </div>
 </section>
-
-<style>
-  .blinking-cursor {
-    animation: blink 1s steps(2, start) infinite;
-  }
-  @keyframes blink {
-    0%,
-    100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0;
-    }
-  }
-  .chat-bubble {
-    display: flex;
-    align-items: flex-start;
-    gap: 15px;
-    max-width: 650px;
-    animation: fadeIn 0.6s ease-out;
-    width: 100%;
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .ai-avatar {
-    width: 50px;
-    height: 50px;
-    background: linear-gradient(45deg, #2563eb, #1d4ed8);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    color: white;
-    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
-    animation: pulse 2s infinite;
-    flex-shrink: 0;
-  }
-  @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-  }
-  .message-content {
-    background: linear-gradient(145deg, #ffffff, #f8fafc);
-    padding: 25px;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e2e8f0;
-    color: #334155;
-    position: relative;
-    backdrop-filter: blur(10px);
-    width: 100%;
-  }
-  .message-content::before {
-    content: '';
-    position: absolute;
-    left: -10px;
-    top: 20px;
-    width: 0;
-    height: 0;
-    border-top: 10px solid transparent;
-    border-bottom: 10px solid transparent;
-    border-right: 10px solid #ffffff;
-  }
-  .message-time {
-    font-size: 11px;
-    color: #94a3b8;
-    margin-top: 15px;
-    text-align: right;
-  }
-  .ai-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: linear-gradient(45deg, #2563eb, #1d4ed8);
-    color: white;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    margin-bottom: 15px;
-  }
-
-  /* CRM Chat Bubble Styles */
-  .chat-bubble-crm {
-    max-width: 600px;
-    width: 100%;
-    background: none;
-    box-shadow: none;
-    border: none;
-    padding: 0;
-  }
-  .ai-avatar-crm {
-    width: 36px;
-    height: 36px;
-    background: linear-gradient(45deg, #4facfe, #00f2fe);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    color: white;
-    box-shadow: 0 2px 8px rgba(79, 172, 254, 0.18);
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-  .ai-bubble {
-    background: linear-gradient(145deg, #ffffff, #f8fafc);
-    border-radius: 18px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    border: 1px solid #e2e8f0;
-    color: #334155;
-    padding: 14px 18px;
-    max-width: 80%;
-    font-size: 13px;
-    position: relative;
-  }
-  .ai-bubble::before {
-    content: '';
-    position: absolute;
-    left: -10px;
-    top: 18px;
-    width: 0;
-    height: 0;
-    border-top: 8px solid transparent;
-    border-bottom: 8px solid transparent;
-    border-right: 10px solid #ffffff;
-    filter: drop-shadow(0 0 1px #e2e8f0);
-  }
-  .owner-bubble {
-    background: linear-gradient(145deg, #e0f2fe, #bae6fd);
-    border-radius: 18px;
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.08);
-    border: 1px solid #7dd3fc;
-    color: #0c4a6e;
-    padding: 14px 18px;
-    max-width: 80%;
-    font-size: 13px;
-    position: relative;
-    text-align: right;
-  }
-  .owner-bubble::after {
-    content: '';
-    position: absolute;
-    right: -10px;
-    top: 18px;
-    width: 0;
-    height: 0;
-    border-top: 8px solid transparent;
-    border-bottom: 8px solid transparent;
-    border-left: 10px solid #e0f2fe;
-    filter: drop-shadow(0 0 1px #7dd3fc);
-  }
-  .voice-message-content {
-    font-size: 13px;
-  }
-  .voice-transcript {
-    font-size: 13px;
-  }
-</style>
+<hr class="my-12 border-neutral-200" />
+<!-- FOOTER REMOVED: now in layout -->

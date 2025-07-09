@@ -127,108 +127,142 @@
   </script>
 </svelte:head>
 
-<!-- NAVBAR -->
-<nav class="fixed top-0 left-0 w-full z-50 bg-white/80 backdrop-blur shadow-md">
-  <div class="container mx-auto flex items-center justify-between px-4 py-3">
-    <!-- Logo -->
-    <a
-      href="/"
-      class="font-extrabold text-2xl text-blue-700 tracking-tight focus:outline-none focus:ring-2 focus:ring-blue-500"
-      >Ed & Sy</a
-    >
-    <!-- Desktop Nav -->
-    <div class="hidden md:flex items-center gap-8">
-      <a
-        href="/"
-        class="text-lg font-semibold text-gray-700 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-        >Home</a
-      >
-      <a
-        href="/#how-it-works"
-        class="text-lg font-semibold text-gray-700 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-        >How It Works</a
-      >
-      <a
-        href="/#team"
-        class="text-lg font-semibold text-gray-700 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-        >Meet Ed & Sy</a
-      >
-      <a
-        href="/#contact"
-        class="text-lg font-semibold text-gray-700 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-        >Contact</a
-      >
-
+<!-- NAVIGATION BAR (moved from +page.svelte) -->
+<nav
+  class="sticky top-0 z-50 w-full mx-auto bg-gradient-to-b from-white to-gray-100"
+>
+  <div
+    class="max-w-7xl mx-auto flex items-center justify-between px-6 sm:px-16 py-4"
+  >
+    <a href="/" class="flex items-center gap-3 font-heading">
+      <div class="font-heading text-2xl font-bold tracking-tight text-blue-600">
+        Ed <span class="text-blue-600">&</span> Sy
+      </div>
+    </a>
+    <div class="flex items-center gap-6">
       <button
-        class="ml-4 bg-blue-600 text-white font-bold text-lg px-6 py-3 rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
         data-tally-open="3NQ6pB"
         data-tally-overlay="1"
-        data-tally-emoji-text="👋"
-        data-tally-emoji-animation="wave"
-        data-tally-auto-close="3000">Get Started</button
+        class="hidden sm:inline-block rounded-full bg-blue-600 hover:bg-blue-700 hover:text-white font-heading font-bold px-6 py-2 text-base bg-white text-blue-600 transition border-2 border-blue-600 cursor-pointer"
+        >Contact us</button
       >
     </div>
-    <!-- Mobile Hamburger -->
-    <button
-      class="md:hidden flex items-center justify-center w-12 h-12 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-      aria-label="Open navigation menu"
-      onclick={() => (mobileNavOpen = !mobileNavOpen)}
-    >
-      <span class="sr-only">Open navigation menu</span>
-      <svg
-        class="w-8 h-8 text-blue-700"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        viewBox="0 0 24 24"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        ><line x1="3" y1="6" x2="21" y2="6" /><line
-          x1="3"
-          y1="12"
-          x2="21"
-          y2="12"
-        /><line x1="3" y1="18" x2="21" y2="18" /></svg
-      >
-    </button>
   </div>
-  <!-- Mobile Nav Menu -->
-  {#if mobileNavOpen}
-    <div class="md:hidden bg-white border-t shadow-lg animate-slide-down pb-4">
-      <a
-        href="/"
-        class="block px-8 py-4 text-lg font-semibold text-gray-700 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        onclick={closeMobileNav}>Home</a
-      >
-      <a
-        href="/#how-it-works"
-        class="block px-8 py-4 text-lg font-semibold text-gray-700 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        onclick={closeMobileNav}>How It Works</a
-      >
-      <a
-        href="/#team"
-        class="block px-8 py-4 text-lg font-semibold text-gray-700 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        onclick={closeMobileNav}>Meet Ed & Sy</a
-      >
-      <a
-        href="#contact"
-        class="block px-8 py-4 text-lg font-semibold text-gray-700 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        onclick={closeMobileNav}>Contact</a
-      >
-      <button
-        data-tally-open="3NQ6pB"
-        data-tally-overlay="1"
-        data-tally-emoji-text="👋"
-        data-tally-emoji-animation="wave"
-        data-tally-auto-close="3000"
-        class="block px-8 py-4 bg-blue-600 text-white font-bold text-lg rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2 mb-4 mx-4 text-center"
-        onclick={closeMobileNav}>Get Started</button
-      >
-    </div>
-  {/if}
 </nav>
 
 {@render children()}
+
+<!-- FOOTER (moved from +page.svelte) -->
+<footer
+  class="mx-auto px-6 sm:px-16 py-20 h-full mt-20 text-center bg-slate-900"
+>
+  <div class="mx-auto max-w-2xl lg:max-w-none">
+    <div class="grid grid-cols-1 gap-x-8 gap-y-8 lg:grid-cols-1">
+      <nav>
+        <ul class="grid grid-cols-2 sm:grid-cols-3 justify-between">
+          <li>
+            <div
+              class="font-display font-semibold tracking-wider text-white/70"
+            >
+              Solutions
+            </div>
+            <ul class="mt-4 text-sm text-white/90">
+              <li class="mt-4">
+                <a class="transition hover:text-neutral-700" href="/#services"
+                  >Automation</a
+                >
+              </li>
+              <li class="mt-4">
+                <a class="transition hover:text-neutral-700" href="/#services"
+                  >AI Voice & Chat</a
+                >
+              </li>
+              <li class="mt-4">
+                <a class="transition hover:text-neutral-700" href="/#services"
+                  >Data Insights</a
+                >
+              </li>
+              <li class="mt-4">
+                <a class="transition hover:text-neutral-700" href="/#services"
+                  >Custom AI</a
+                >
+              </li>
+            </ul>
+          </li>
+          <li>
+            <div
+              class="font-display font-semibold tracking-wider text-white/70"
+            >
+              Company
+            </div>
+            <ul class="mt-4 text-sm text-white/90">
+              <li class="mt-4">
+                <a class="transition hover:text-neutral-700" href="/#team">
+                  Our Story</a
+                >
+              </li>
+              <li class="mt-4">
+                <button
+                  data-tally-open="3NQ6pB"
+                  data-tally-overlay="1"
+                  class="transition hover:text-neutral-700 cursor-pointer"
+                  >Contact Us</button
+                >
+              </li>
+              <li class="mt-4">
+                <a class="transition hover:text-neutral-700" href="/privacy"
+                  >Privacy</a
+                >
+              </li>
+              <li class="mt-4">
+                <a class="transition hover:text-neutral-700" href="/terms"
+                  >Terms</a
+                >
+              </li>
+            </ul>
+          </li>
+          <li>
+            <div
+              class="font-display font-semibold tracking-wider text-white/70"
+            >
+              Connect
+            </div>
+            <ul class="mt-4 text-sm text-white/90">
+              <li class="mt-4">
+                <a
+                  class="transition hover:text-neutral-700"
+                  href="https://www.instagram.com/dev.exd/">Ed's Instagram</a
+                >
+              </li>
+              <li class="mt-4">
+                <a
+                  class="transition hover:text-neutral-700"
+                  href="https://www.linkedin.com/in/syronsuerte/"
+                  >Sy's LinkedIn</a
+                >
+              </li>
+            </ul>
+            <div class="flex flex-col items-center gap-2">
+              <a
+                aria-label="Home"
+                href="/"
+                class="flex flex-col items-center gap-2"
+              >
+                <div
+                  class="hidden sm:block font-display text-xl font-bold text-blue-700 tracking-tight mt-6"
+                >
+                  Ed <span class="text-blue-600">&</span> Sy
+                </div>
+              </a>
+              <p class="text-sm text-neutral-700">© ednsy.com 2025</p>
+            </div>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</footer>
+
 <button
   data-tally-open="3NQ6pB"
   data-tally-overlay="1"
@@ -239,41 +273,6 @@
   >Hi!👋</button
 >
 
-<footer
-  class="w-full py-10 bg-gray-900 border-t text-center text-white text-lg font-sans"
->
-  <div class="mb-2 font-bold text-xl">Ed & Sy</div>
-  <div class="mb-2">
-    &copy; {new Date().getFullYear()} Ed & Sy. All rights reserved.
-  </div>
-  <nav
-    class="flex flex-wrap justify-center gap-4 mt-2 text-base mb-4"
-    aria-label="Footer navigation"
-  >
-    {#each footerLinks as link}
-      <a
-        href={link.href}
-        class="hover:underline focus:outline-none focus:ring-2 focus:ring-blue-600"
-        >{link.label}</a
-      >
-    {/each}
-  </nav>
-  <div class="flex justify-center gap-4">
-    {#each socialLinks as s}
-      <a
-        href={s.href}
-        class="hover:underline focus:outline-none focus:ring-2 focus:ring-blue-600 flex items-center gap-1"
-        aria-label={s.label}
-        target="_blank"
-        rel="noopener"
-      >
-        {#if s.icon}
-          <s.icon class="w-5 h-5" aria-hidden="true" />
-        {/if}
-      </a>
-    {/each}
-  </div>
-</footer>
 
 <style>
   @keyframes slide-down {
