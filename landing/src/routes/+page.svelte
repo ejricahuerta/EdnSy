@@ -1,4 +1,8 @@
 <script lang="ts">
+  import ChatbotDemo from '$lib/components/demos/ChatbotDemo.svelte';
+  import DataInsightsDemo from '$lib/components/demos/DataInsightsDemo.svelte';
+  import DailyTaskDemo from '$lib/components/demos/DailyTaskDemo.svelte';
+  import UnifiedDemoChat from '$lib/components/demos/UnifiedDemoChat.svelte';
   let navOpen = false;
 </script>
 
@@ -319,7 +323,7 @@
 
 <!-- SERVICES SECTION -->
 <section id="services" class="mx-auto px-6 sm:px-16 my-20 h-full max-w-7xl">
-  <div class="max-w-7xl mx-auto text-center">
+  <div class="max-w-7xl mx-auto text-center mb-16">
     <h2
       class="font-display text-2xl font-semibold tracking-tight text-balance text-neutral-700 sm:text-4xl mb-4"
     >
@@ -330,8 +334,11 @@
       >Our Solutions</span
     >
   </div>
-  <div class="flex flex-col gap-2 mt-4">
+  <div class="flex flex-col gap-12 mt-4">
     <div class="flex flex-col md:flex-row items-center gap-4">
+      <div class="sm:order-2 hidden sm:block">
+        <DailyTaskDemo />
+      </div>
       <div class="flex-1 p-12 md:p-24">
         <div class="flex items-center gap-3 mb-6">
           <svg
@@ -366,6 +373,9 @@
       </div>
     </div>
     <div class="flex flex-col md:flex-row-reverse items-center gap-4">
+      <div class="sm:order-2 hidden sm:block">
+        <ChatbotDemo />
+      </div>
       <div class="flex-1 p-12 md:p-24">
         <div class="flex items-center gap-3 mb-6">
           <svg
@@ -401,6 +411,9 @@
       </div>
     </div>
     <div class="flex flex-col md:flex-row items-center gap-4">
+      <div class="md:order-2 order-2 hidden sm:block">
+        <DataInsightsDemo />
+      </div>
       <div class="flex-1 p-12 md:p-24">
         <div class="flex items-center gap-3 mb-6">
           <svg
@@ -465,6 +478,29 @@
           your success.
         </p>
       </div>
+    </div>
+    <!-- Unified chat for mobile only -->
+    <div class="block sm:hidden mt-8">
+      <div class="text-center mb-4 px-4">
+        <div class="font-semibold text-lg text-[#075e54] mb-1">Plumbing/HVAC Service Company AI Assistant for Owners & Customers</div>
+        <div class="text-sm text-gray-700 leading-relaxed">
+          Get instant help with scheduling jobs, daily tasks, or customer questions—all in one place.<br />
+          <span class="block text-left mt-2 mx-auto max-w-xs">
+            <span class="font-semibold">You can:</span>
+            <ul class="list-disc list-inside text-gray-700 text-sm mt-1 mb-2">
+              <li>Get instant answers to customer questions</li>
+              <li>See service and job insights</li>
+              <li>Automate daily tasks (work orders, invoices, feedback)</li>
+              <li>Ask for help with anything your service business needs</li>
+            </ul>
+            Just type your question or task below—our AI will handle the rest!
+          </span>
+        </div>
+        <div class="text-xs text-gray-500 italic mt-2">
+          Demo Only: This is a simulated chat experience for a Plumbing/HVAC service company assistant. No real data or actions are processed.
+        </div>
+      </div>
+      <UnifiedDemoChat />
     </div>
   </div>
 </section>
