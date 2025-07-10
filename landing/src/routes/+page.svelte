@@ -1,8 +1,8 @@
 <script lang="ts">
-  import ChatbotDemo from '$lib/components/demos/ChatbotDemo.svelte';
-  import DataInsightsDemo from '$lib/components/demos/DataInsightsDemo.svelte';
-  import DailyTaskDemo from '$lib/components/demos/DailyTaskDemo.svelte';
-  import UnifiedDemoChat from '$lib/components/demos/UnifiedDemoChat.svelte';
+  import ChatbotDemo from "$lib/components/demos/ChatbotDemo.svelte";
+  import DataInsightsDemo from "$lib/components/demos/DataInsightsDemo.svelte";
+  import DailyTaskDemo from "$lib/components/demos/DailyTaskDemo.svelte";
+  import UnifiedDemoChat from "$lib/components/demos/UnifiedDemoChat.svelte";
   let navOpen = false;
 </script>
 
@@ -282,8 +282,19 @@
     </span>
   </div>
 </section>
+<!-- Unified chat for mobile only: move here -->
+<div class="block sm:hidden my-8">
+  <div class="text-center mb-4 px-4">
+    <div class="text-xs text-gray-500 italic mt-2">
+      Demo Only: This is a simulated chat experience for a Plumbing/HVAC service
+      company assistant. No real data or actions are processed.
+    </div>
+  </div>
+  <UnifiedDemoChat />
+</div>
 <!-- VALUE PROPOSITION SECTION -->
-<section id="value"
+<section
+  id="value"
   class=" mx-auto px-6 sm:px-16 min-h-[60vh] bg-slate-900 text-neutral-200 py-16 flex flex-col items-center justify-center"
 >
   <h2
@@ -478,29 +489,6 @@
           your success.
         </p>
       </div>
-    </div>
-    <!-- Unified chat for mobile only -->
-    <div class="block sm:hidden mt-8">
-      <div class="text-center mb-4 px-4">
-        <div class="font-semibold text-lg text-[#075e54] mb-1">Plumbing/HVAC Service Company AI Assistant for Owners & Customers</div>
-        <div class="text-sm text-gray-700 leading-relaxed">
-          Get instant help with scheduling jobs, daily tasks, or customer questions—all in one place.<br />
-          <span class="block text-left mt-2 mx-auto max-w-xs">
-            <span class="font-semibold">You can:</span>
-            <ul class="list-disc list-inside text-gray-700 text-sm mt-1 mb-2">
-              <li>Get instant answers to customer questions</li>
-              <li>See service and job insights</li>
-              <li>Automate daily tasks (work orders, invoices, feedback)</li>
-              <li>Ask for help with anything your service business needs</li>
-            </ul>
-            Just type your question or task below—our AI will handle the rest!
-          </span>
-        </div>
-        <div class="text-xs text-gray-500 italic mt-2">
-          Demo Only: This is a simulated chat experience for a Plumbing/HVAC service company assistant. No real data or actions are processed.
-        </div>
-      </div>
-      <UnifiedDemoChat />
     </div>
   </div>
 </section>
