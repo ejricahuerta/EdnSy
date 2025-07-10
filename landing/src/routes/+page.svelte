@@ -283,7 +283,7 @@
   </div>
 </section>
 <!-- Unified chat for mobile only: move here -->
-<div class="block sm:hidden my-8">
+<div class="block sm:hidden m-8">
   <div class="text-center mb-4 px-4">
     <div class="text-xs text-gray-500 italic mt-2">
       Demo Only: This is a simulated chat experience for a Plumbing/HVAC service
