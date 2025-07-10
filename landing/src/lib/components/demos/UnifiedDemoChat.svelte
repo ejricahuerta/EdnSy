@@ -209,7 +209,7 @@ onMount(async () => {
 <div class="w-full max-w-md mx-auto rounded-2xl shadow-lg overflow-hidden bg-white border border-gray-200" style="font-family: 'Segoe UI', 'Inter', sans-serif;">
   <!-- WhatsApp-style header -->
   <div class="flex items-center gap-3 px-4 py-3 bg-[#075e54] text-white">
-    <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[#25d366] text-xl">🛍️</span>
+    <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[#25d366] text-xl">🛠️</span>
     <div class="flex flex-col">
       <span class="font-semibold text-base leading-tight">ServicePro Assistant</span>
       <span class="text-xs text-[#d9fdd3]">online</span>
