@@ -7,6 +7,15 @@
 </script>
 
 <svelte:head>
+  <title>AI Automation for Local Businesses | Ed&Sy</title>
+  <meta name="description" content="AI automation made simple for non-technical teams and experienced business owners. Automate admin, scheduling, lead capture, reviews, marketing, dashboards, and training with Ed&Sy's easy-to-use AI tools." />
+  <meta property="og:title" content="AI Automation for Local Businesses | Ed&Sy" />
+  <meta property="og:description" content="AI automation made simple for non-technical teams and experienced business owners. Automate admin, scheduling, lead capture, reviews, marketing, dashboards, and training with Ed&Sy's easy-to-use AI tools." />
+  <meta property="og:image" content="/logo.png" />
+  <meta property="og:url" content="https://ednsy.com" />
+  <meta name="twitter:title" content="AI Automation for Local Businesses | Ed&Sy" />
+  <meta name="twitter:description" content="AI automation made simple for non-technical teams and experienced business owners. Automate admin, scheduling, lead capture, reviews, marketing, dashboards, and training with Ed&Sy's easy-to-use AI tools." />
+  <meta name="twitter:image" content="/logo.png" />
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap"
     rel="stylesheet"

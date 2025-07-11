@@ -68,6 +68,16 @@
   />
   <meta name="twitter:image" content="/logo.png" />
   <link rel="canonical" href="https://ednsy.com" />
+  <link rel="icon" href="/favicon.ico" />
+  <!-- Manifest (add if/when available) -->
+  <!-- <link rel="manifest" href="/manifest.json" /> -->
+  <!-- Social profile links for SEO -->
+  <link rel="me" href="https://www.instagram.com/dev.exd/" />
+  <link rel="me" href="https://www.linkedin.com/in/syronsuerte/" />
+  <!-- JSON-LD Structured Data for LocalBusiness/Organization -->
+  <script type="application/ld+json">
+    {"@context": "https://schema.org","@type": "LocalBusiness","name": "Ed&Sy","url": "https://ednsy.com","logo": "https://ednsy.com/logo.png","image": "https://ednsy.com/logo.png","description": "Ed&Sy helps small and medium businesses automate admin, scheduling, lead capture, reviews, marketing, dashboards, and training with easy-to-use AI tools. Designed for non-technical teams and older business owners.","address": {"@type": "PostalAddress","addressLocality": "Toronto","addressRegion": "ON","addressCountry": "CA"},"contactPoint": [{"@type": "ContactPoint","email": "hello@ednsy.com","contactType": "customer support","areaServed": "CA"}],"sameAs": ["https://www.instagram.com/dev.exd/","https://www.linkedin.com/in/syronsuerte/"]}
+  </script>
 
   <script>
     !(function (t, e) {
