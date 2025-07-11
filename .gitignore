@@ -1,33 +1,58 @@
-node_modules
+# Node modules
+node_modules/
 
-# Output
-.output
-.vercel
-.netlify
-.wrangler
-/.svelte-kit
-/build
+# SvelteKit build output
+.svelte-kit/
+/build/
 
-# OS
+# Deployment outputs
+.output/
+.vercel/
+.netlify/
+.wrangler/
+
+# System files
 .DS_Store
 Thumbs.db
 
-# Env
+# Environment files
 .env
 .env.*
 !.env.example
 !.env.test
 
-# Vite
-vite.config.js.timestamp-*
-vite.config.ts.timestamp-*
+# Vite cache
+.vite/
+
+# SvelteKit types
+.svelte-kit/types/
+
+# SvelteKit generated files (optional, if present)
+.svelte-kit/generated/
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+
+# Cursor/Taskmaster
 .cursor/rules/cursor_rules.mdc
 .cursor/mcp.json
-scripts/prd.txt
 .cursor/rules/*
 
-
+# Scripts and keys
+scripts/prd.txt
 #keys
 .keys/
 .keys/*
+.keys
+
+# Miscellaneous
+package-lock.json
+
+# Ignore static analysis output (optional)
+coverage/
+
+# Ignore log files
+*.log
 
