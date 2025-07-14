@@ -4,7 +4,7 @@ module.exports = {
   ],
   theme: {
     fontFamily: {
-      sans: ['Inter', 'Open Sans', 'system-ui', 'sans-serif'],
+      sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
     },
     extend: {
       spacing: {
@@ -14,6 +14,9 @@ module.exports = {
       fontSize: {
         'hero': '3rem', // 48px
         'section': '2rem', // 32px
+      },
+      colors: {
+        primary: '#22223b',
       },
     },
   },
