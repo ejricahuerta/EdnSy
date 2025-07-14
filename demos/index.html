@@ -201,7 +201,7 @@
     }
 
     // Typewriter effect for bot responses
-    async function typewriterEffect(element, text, delay = 7) {
+    async function typewriterEffect(element, text, delay = 3) {
       element.innerHTML = '';
       let i = 0;
       while (i < text.length) {
@@ -298,13 +298,13 @@
             })
             .join('<br>');
         })();
-        await typewriterEffect(bubble, html, 7);
+        await typewriterEffect(bubble, html, 3);
         chatSendBtn.disabled = false;
         chatSendBtn.classList.remove('opacity-50', 'cursor-not-allowed');
       } catch (err) {
         removeLoadingBubble();
         const bubble = addMessage('', 'bot');
-        await typewriterEffect(bubble, 'Sorry, there was an error. Please try again.', 18);
+        await typewriterEffect(bubble, 'Sorry, there was an error. Please try again.', 9);
         chatSendBtn.disabled = false;
         chatSendBtn.classList.remove('opacity-50', 'cursor-not-allowed');
       }
@@ -341,13 +341,13 @@
             })
             .join('<br>');
         })();
-        await typewriterEffect(bubble, html, 7);
+        await typewriterEffect(bubble, html, 3);
         chatSendBtn.disabled = false;
         chatSendBtn.classList.remove('opacity-50', 'cursor-not-allowed');
       } catch (err) {
         removeLoadingBubble();
         const bubble = addMessage('', 'bot');
-        await typewriterEffect(bubble, 'Sorry, there was an error. Please try again.', 18);
+        await typewriterEffect(bubble, 'Sorry, there was an error. Please try again.', 9);
         chatSendBtn.disabled = false;
         chatSendBtn.classList.remove('opacity-50', 'cursor-not-allowed');
       }
