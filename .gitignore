@@ -56,3 +56,8 @@ coverage/
 # Ignore log files
 *.log
 
+*.session
+*.session-journal
+__pycache__/
+
+internal-apps/*
