@@ -3,6 +3,10 @@
   import "../app.css";
   import { Star, Users } from "@lucide/svelte";
   import { injectAnalytics } from "@vercel/analytics/sveltekit";
+  import posthog from "posthog-js";
+  import { browser } from "$app/environment";
+  import { beforeNavigate, afterNavigate } from "$app/navigation";
+
   injectAnalytics({ mode: "production" });
   let { children } = $props();
   let mobileNavOpen = $state(false);
@@ -33,6 +37,12 @@
       label: "LinkedIn",
     },
   ];
+  const posthogApiKey = import.meta.env.VITE_POSTHOG_API_KEY;
+
+  if (browser) {
+    beforeNavigate(() => posthog.capture('$pageleave'));
+    afterNavigate(() => posthog.capture('$pageview'));
+  }
 </script>
 
 <svelte:head>
@@ -76,65 +86,35 @@
   <link rel="me" href="https://www.linkedin.com/in/syronsuerte/" />
   <!-- JSON-LD Structured Data for LocalBusiness/Organization -->
   <script type="application/ld+json">
-    {"@context": "https://schema.org","@type": "LocalBusiness","name": "Ed&Sy","url": "https://ednsy.com","logo": "https://ednsy.com/logo.png","image": "https://ednsy.com/logo.png","description": "Ed&Sy helps small and medium businesses automate admin, scheduling, lead capture, reviews, marketing, dashboards, and training with easy-to-use AI tools. Designed for non-technical teams and older business owners.","address": {"@type": "PostalAddress","addressLocality": "Toronto","addressRegion": "ON","addressCountry": "CA"},"contactPoint": [{"@type": "ContactPoint","email": "hello@ednsy.com","contactType": "customer support","areaServed": "CA"}],"sameAs": ["https://www.instagram.com/dev.exd/","https://www.linkedin.com/in/syronsuerte/"]}
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "Ed&Sy",
+      "url": "https://ednsy.com",
+      "logo": "https://ednsy.com/logo.png",
+      "image": "https://ednsy.com/logo.png",
+      "description": "Ed&Sy helps small and medium businesses automate admin, scheduling, lead capture, reviews, marketing, dashboards, and training with easy-to-use AI tools. Designed for non-technical teams and older business owners.",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Toronto",
+        "addressRegion": "ON",
+        "addressCountry": "CA"
+      },
+      "contactPoint": [
+        {
+          "@type": "ContactPoint",
+          "email": "hello@ednsy.com",
+          "contactType": "customer support",
+          "areaServed": "CA"
+        }
+      ],
+      "sameAs": [
+        "https://www.instagram.com/dev.exd/",
+        "https://www.linkedin.com/in/syronsuerte/"
+      ]
+    }
   </script>
 
-  <script>
-    !(function (t, e) {
-      var o, n, p, r;
-      e.__SV ||
-        ((window.posthog = e),
-        (e._i = []),
-        (e.init = function (i, s, a) {
-          function g(t, e) {
-            var o = e.split(".");
-            2 == o.length && ((t = t[o[0]]), (e = o[1])),
-              (t[e] = function () {
-                t.push([e].concat(Array.prototype.slice.call(arguments, 0)));
-              });
-          }
-          ((p = t.createElement("script")).type = "text/javascript"),
-            (p.crossOrigin = "anonymous"),
-            (p.async = !0),
-            (p.src =
-              s.api_host.replace(".i.posthog.com", "-assets.i.posthog.com") +
-              "/static/array.js"),
-            (r = t.getElementsByTagName("script")[0]).parentNode.insertBefore(
-              p,
-              r
-            );
-          var u = e;
-          for (
-            void 0 !== a ? (u = e[a] = []) : (a = "posthog"),
-              u.people = u.people || [],
-              u.toString = function (t) {
-                var e = "posthog";
-                return (
-                  "posthog" !== a && (e += "." + a), t || (e += " (stub)"), e
-                );
-              },
-              u.people.toString = function () {
-                return u.toString(1) + ".people (stub)";
-              },
-              o =
-                "init Ie Ts Ms Ee Es Rs capture Ge calculateEventProperties Os register register_once register_for_session unregister unregister_for_session js getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSurveysLoaded onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey canRenderSurveyAsync identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty Ds Fs createPersonProfile Ls Ps opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing Cs debug I As getPageViewId captureTraceFeedback captureTraceMetric".split(
-                  " "
-                ),
-              n = 0;
-            n < o.length;
-            n++
-          )
-            g(u, o[n]);
-          e._i.push([i, s, a]);
-        }),
-        (e.__SV = 1));
-    })(document, window.posthog || []);
-    posthog.init("phc_dIDsHXydHuZQaAMvL3BpgjxQz32bcvdm4ZdUogzi3a6", {
-      api_host: "https://us.i.posthog.com",
-      defaults: "2025-05-24",
-      person_profiles: "identified_only", // or 'always' to create profiles for anonymous users as well
-    });
-  </script>
 </svelte:head>
 
 <!-- NAVIGATION BAR (moved from +page.svelte) -->
@@ -282,7 +262,6 @@
   class="fixed bottom-6 right-6 z-50 bg-blue-600 text-white text-lg font-bold px-6 py-4 rounded-full shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
   >Hi!👋</button
 >
-
 
 <style>
   @keyframes slide-down {
