@@ -25,7 +25,7 @@ Thumbs.db
 .vite/
 
 # SvelteKit types
-.svelte-kit/types/
+.svelte-kit/*
 
 # SvelteKit generated files (optional, if present)
 .svelte-kit/generated/
@@ -61,3 +61,5 @@ coverage/
 __pycache__/
 
 internal-apps/*
+landing/.svelte-kit/generated/client/app.js
+landing/.svelte-kit/generated/client/app.js
