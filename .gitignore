@@ -15,6 +15,7 @@ lerna-debug.log*
 dist/
 
 # SvelteKit generated files and directories
+.svelte-kit/*
 .svelte-kit/generated/
 .svelte-kit/output/
 .svelte-kit/types/
