@@ -14,6 +14,77 @@ lerna-debug.log*
 .output/
 dist/
 
+# SvelteKit generated files and directories
+.svelte-kit/generated/
+.svelte-kit/output/
+.svelte-kit/types/
+.svelte-kit/ambient.d.ts
+.svelte-kit/manifest.js
+.svelte-kit/routes.js
+.svelte-kit/vite.config.js
+
+# SvelteKit development files
+.svelte-kit/dev/
+.svelte-kit/imports/
+.svelte-kit/nodes/
+.svelte-kit/params/
+
+# SvelteKit prerendered pages
+.svelte-kit/prerendered/
+
+# SvelteKit service worker
+.svelte-kit/service-worker.js
+
+# SvelteKit client-side generated files
+.svelte-kit/generated/client/
+.svelte-kit/generated/server/
+.svelte-kit/generated/app.html
+.svelte-kit/generated/app.d.ts
+.svelte-kit/generated/app.js
+.svelte-kit/generated/app.css
+.svelte-kit/generated/entry.js
+.svelte-kit/generated/entry.css
+.svelte-kit/generated/fallback.js
+.svelte-kit/generated/hooks.js
+.svelte-kit/generated/params.js
+.svelte-kit/generated/root.js
+.svelte-kit/generated/root.css
+.svelte-kit/generated/service-worker.js
+.svelte-kit/generated/start.js
+.svelte-kit/generated/vite-env.d.ts
+
+# SvelteKit build artifacts
+.svelte-kit/build/
+.svelte-kit/build/client/
+.svelte-kit/build/server/
+.svelte-kit/build/service-worker.js
+.svelte-kit/build/manifest.json
+
+# SvelteKit static files (if using static adapter)
+.svelte-kit/static/
+
+# SvelteKit prerender output
+.svelte-kit/prerendered/
+
+# SvelteKit development server
+.svelte-kit/dev/
+
+# SvelteKit cache
+.svelte-kit/cache/
+
+# SvelteKit temporary files
+.svelte-kit/tmp/
+.svelte-kit/temp/
+
+# SvelteKit environment files
+.svelte-kit/env.d.ts
+
+# SvelteKit adapter outputs
+.svelte-kit/vercel/
+.svelte-kit/netlify/
+.svelte-kit/cloudflare/
+.svelte-kit/node/
+
 # Deployment outputs
 .vercel/
 .netlify/
@@ -21,9 +92,6 @@ dist/
 
 # Vite cache
 .vite/
-
-# SvelteKit generated files
-.svelte-kit/generated/
 
 # Environment files
 .env
@@ -511,5 +579,27 @@ tasks/
 # Internal apps
 internal-apps/*
 
-# SvelteKit generated files
-landing/.svelte-kit/generated/client/app.js 
+# SvelteKit generated files (specific to this project)
+landing/.svelte-kit/generated/client/app.js
+landing/.svelte-kit/generated/client/app.css
+landing/.svelte-kit/generated/client/entry.js
+landing/.svelte-kit/generated/client/fallback.js
+landing/.svelte-kit/generated/client/start.js
+landing/.svelte-kit/generated/server/app.js
+landing/.svelte-kit/generated/server/entry.js
+landing/.svelte-kit/generated/server/fallback.js
+landing/.svelte-kit/generated/server/start.js
+landing/.svelte-kit/generated/service-worker.js
+landing/.svelte-kit/generated/manifest.js
+landing/.svelte-kit/generated/routes.js
+landing/.svelte-kit/generated/app.d.ts
+landing/.svelte-kit/generated/vite-env.d.ts
+landing/.svelte-kit/generated/ambient.d.ts
+landing/.svelte-kit/generated/app.html
+landing/.svelte-kit/generated/root.js
+landing/.svelte-kit/generated/root.css
+landing/.svelte-kit/generated/hooks.js
+landing/.svelte-kit/generated/params.js
+landing/.svelte-kit/generated/entry.css
+landing/.svelte-kit/generated/fallback.css
+landing/.svelte-kit/generated/start.css 
