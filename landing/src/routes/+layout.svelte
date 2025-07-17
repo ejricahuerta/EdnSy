@@ -1,19 +1,33 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
+  import { page } from '$app/stores';
   import "../app.css";
   import { Star, Users } from "@lucide/svelte";
   import { injectAnalytics } from "@vercel/analytics/sveltekit";
   import posthog from "posthog-js";
   import { browser } from "$app/environment";
   import { beforeNavigate, afterNavigate } from "$app/navigation";
+  import LoginNavButton from '$lib/components/LoginNavButton.svelte';
+  import { error, clearError } from '$lib/stores/error';
+  import ConsultationPopup from '$lib/components/consultation-popup.svelte';
+  import { consultationPopupOpen, openConsultationPopup } from '$lib/stores/consultation';
+
+  let user = $derived($page.data.user);
+  let props = $props();
+  let children = props.children;
 
   injectAnalytics({ mode: "production" });
-  let { children } = $props();
   let mobileNavOpen = $state(false);
   function closeMobileNav() {
     mobileNavOpen = false;
   }
-  // Footer links
+  let pathname = $derived($page.url.pathname);
+  // Debug: show cookies client-side
+  let cookies = '';
+  if (browser) {
+    cookies = document.cookie;
+  }
+  // Footer links 
   const footerLinks = [
     {
       href: "/privacy",
@@ -42,6 +56,10 @@
   if (browser) {
     beforeNavigate(() => posthog.capture('$pageleave'));
     afterNavigate(() => posthog.capture('$pageview'));
+  }
+
+  function logout() {
+    window.location.href = '/logout';
   }
 </script>
 
@@ -117,7 +135,15 @@
 
 </svelte:head>
 
-<!-- NAVIGATION BAR (moved from +page.svelte) -->
+{#if $error}
+  <div class="fixed top-0 left-0 w-full bg-red-600 text-white p-4 z-50 flex justify-between items-center">
+    <span>{$error}</span>
+    <button class="ml-4 px-2 py-1 bg-red-800 rounded" onclick={clearError}>Dismiss</button>
+  </div>
+{/if}
+
+{#if !pathname.startsWith('/app') && !['/login', '/login/', '/oauth-callback', '/oauth-callback/', '/my-account', '/my-account/', '/my-account/billing', '/my-account/integration', '/my-account/payment', '/my-account/settings', '/onboarding'].includes(pathname)}
+<!-- NAVIGATION BAR (always visible for debugging) -->
 <nav
   class="sticky top-0 z-50 w-full mx-auto bg-gradient-to-b from-white to-gray-100"
 >
@@ -130,18 +156,36 @@
       </div>
     </a>
     <div class="flex items-center gap-6">
-      <button
-        data-tally-open="3NQ6pB"
-        data-tally-overlay="1"
-        class="hidden sm:inline-block rounded-full bg-blue-600 hover:bg-blue-700 hover:text-white font-heading font-bold px-6 py-2 text-base bg-white text-blue-600 transition border-2 border-blue-600 cursor-pointer"
-        >Contact us</button
-      >
-    </div>
+      {#if user && user.sub}
+        <a href="/my-account" class="btn font-heading font-bold px-6 py-2 text-base text-blue-600 transition cursor-pointer">
+          My Account
+        </a>
+        <button onclick={logout} class="font-heading font-bold px-6 py-2 text-base text-blue-600 transition cursor-pointer">
+          Logout
+        </button>
+      {:else}
+        <a href="/login">
+          <button class=" font-heading font-bold px-6 py-2 text-base text-blue-600 transition cursor-pointer">
+            Sign in
+          </button>
+        </a>
+        <button
+          onclick={openConsultationPopup}
+          class="hidden sm:inline-block rounded-full bg-blue-600 hover:bg-blue-700 hover:text-white font-heading font-bold px-6 py-2 text-base bg-white text-blue-600 transition border-2 border-blue-600 cursor-pointer"
+          >Contact us</button
+        >
+        {/if}
+      </div>
   </div>
 </nav>
+{/if}
 
-{@render children()}
+{@render children?.()}
 
+<!-- Global Consultation Popup -->
+<ConsultationPopup isOpen={$consultationPopupOpen} />
+
+{#if !pathname.startsWith('/app') && !['/login', '/login/', '/oauth-callback', '/oauth-callback/', '/my-account', '/my-account/', '/my-account/billing', '/my-account/integration', '/my-account/payment', '/my-account/settings', '/onboarding'].includes(pathname)}
 <!-- FOOTER (moved from +page.svelte) -->
 <footer
   class="mx-auto px-6 sm:px-16 py-20 h-full mt-20 text-center bg-slate-900"
@@ -193,8 +237,7 @@
               </li>
               <li class="mt-4">
                 <button
-                  data-tally-open="3NQ6pB"
-                  data-tally-overlay="1"
+                  onclick={openConsultationPopup}
                   class="transition hover:text-neutral-700 cursor-pointer"
                   >Contact Us</button
                 >
@@ -252,16 +295,18 @@
     </div>
   </div>
 </footer>
+{/if}
 
+{#if !pathname.startsWith('/app') && !['/login', '/login/', '/oauth-callback', '/oauth-callback/'].includes(pathname)}
 <button
-  data-tally-open="3NQ6pB"
-  data-tally-overlay="1"
+  onclick={openConsultationPopup}
   data-tally-emoji-text="👋"
   data-tally-emoji-animation="wave"
   data-tally-auto-close="3000"
   class="fixed bottom-6 right-6 z-50 bg-blue-600 text-white text-lg font-bold px-6 py-4 rounded-full shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
   >Hi!👋</button
 >
+{/if}
 
 <style>
   @keyframes slide-down {
@@ -273,8 +318,5 @@
       opacity: 1;
       transform: translateY(0);
     }
-  }
-  .animate-slide-down {
-    animation: slide-down 0.2s ease;
   }
 </style>

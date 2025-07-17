@@ -1,5 +1,8 @@
 <script lang="ts">
 import { onMount } from 'svelte';
+import SignupPrompt from '../SignupPrompt.svelte';
+import { user } from '$lib/stores/user';
+import { get } from 'svelte/store';
 let input = '';
 let loading = false;
 type ChatMsg = { role: 'user' | 'ai'; type: 'text'; content: string };
@@ -7,6 +10,7 @@ let chatHistory: ChatMsg[] = [
   { role: 'ai', type: 'text', content: 'Hi! I can help automate your daily service tasks. Paste a work order, customer feedback, or restock request to get started.' }
 ];
 let chatWindow: HTMLDivElement | null = null;
+let showSignupPrompt = $state(false);
 
 function scrollToBottom() {
   if (chatWindow) chatWindow.scrollTop = chatWindow.scrollHeight;
@@ -50,14 +54,36 @@ function processTask() {
     scrollToBottom();
   }, 1200);
 }
+
+function openSignupPrompt() {
+  if (!get(user)) {
+    showSignupPrompt = true;
+  }
+}
+function closeSignupPrompt() {
+  showSignupPrompt = false;
+}
 </script>
+
+<!-- Try it now button -->
+<div class="flex justify-center mb-4">
+  <button 
+    class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-slate-600 text-white hover:bg-slate-700 h-10 px-4 py-2" 
+    onclick={openSignupPrompt}
+  >
+    Try it now
+  </button>
+</div>
+{#if showSignupPrompt}
+  <SignupPrompt on:close={closeSignupPrompt} />
+{/if}
 
 <div class="w-full max-w-md mx-auto rounded-2xl shadow-lg overflow-hidden bg-white border border-gray-200" style="font-family: 'Segoe UI', 'Inter', sans-serif;">
   <!-- WhatsApp-style header -->
   <div class="flex items-center gap-3 px-4 py-3 bg-[#075e54] text-white">
     <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[#25d366] text-xl">🛠️</span>
     <div class="flex flex-col">
-      <span class="font-semibold text-base leading-tight">ServicePro Automation</span>
+      <span class="font-semibold text-base leading-tight">Handyman Pro Automation</span>
       <span class="text-xs text-[#d9fdd3]">automation bot</span>
     </div>
   </div>
@@ -79,23 +105,28 @@ function processTask() {
       {/if}
     </div>
     <!-- Input bar -->
-    <form class="flex items-center gap-2 px-3 py-2 bg-[#f7f7f7] border-t border-gray-200 sticky bottom-0 left-0 right-0 z-10" on:submit|preventDefault={processTask}>
+    <div class="flex items-center gap-2 px-3 py-2 bg-[#f7f7f7] border-t border-gray-200 sticky bottom-0 left-0 right-0 z-10">
       <input
         type="text"
         class="flex-1 rounded-full px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#25d366] bg-white text-gray-900"
         placeholder="Paste a work order, feedback, or restock request..."
         bind:value={input}
         autocomplete="off"
+        onkeydown={(e) => e.key === 'Enter' && processTask()}
       />
-      <button type="submit" class="bg-[#25d366] hover:bg-[#128c7e] text-white rounded-full p-2 transition-colors duration-150">
+      <button 
+        type="button" 
+        aria-label="Send message" 
+        class="bg-[#25d366] hover:bg-[#128c7e] text-white rounded-full p-2 transition-colors duration-150"
+        onclick={processTask}
+      >
         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M22 2L11 13"/><path stroke-linecap="round" stroke-linejoin="round" d="M22 2L15 22l-4-9-9-4 20-7z"/></svg>
       </button>
-    </form>
+    </div>
   </div>
 </div>
 
 <style>
-  .chat-bubble { animation: pop-in 0.2s cubic-bezier(0.4,0,0.2,1) forwards; }
   @keyframes pop-in {
     0% { transform: scale(0.95); opacity: 0; }
     100% { transform: scale(1); opacity: 1; }

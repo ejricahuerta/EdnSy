@@ -76,3 +76,65 @@ svelte.config.js        # SvelteKit config
 ## Contact
 
 For questions or support, contact Ed & Sy at [hello@edsy.ca](mailto:hello@edsy.ca)
+
+# SvelteKit Project Structure & Conventions
+
+## Recommended Structure
+```
+src/
+  lib/
+    components/      # Reusable UI components
+      ui/            # Atomic design system components
+      demos/         # Demo/example components
+    stores/          # Svelte stores for state management
+    services/        # API clients and business logic
+    hooks/           # Custom hooks
+    server/          # Server-side utilities
+    utils.ts         # Utility functions
+  routes/            # Pages and endpoints
+```
+
+## Directories
+- **components/**: All Svelte UI components
+- **components/ui/**: Atomic, reusable UI elements (buttons, cards, etc.)
+- **components/demos/**: Demo or example components
+- **stores/**: Svelte stores for app/global state (e.g., user, auth, UI)
+- **services/**: API clients and business logic (e.g., authService, billingService)
+- **hooks/**: Custom Svelte hooks
+- **server/**: Server-side utilities (e.g., analytics, logging)
+
+## Best Practices
+- Use TypeScript for all code
+- Use Svelte stores for state management
+- Keep API logic in services/
+- Use environment variables for secrets/config
+- Organize components by feature or domain if the app grows
+- Use ESLint/Prettier for code quality
+
+---
+
+For more details, see the main project documentation or ask the team.
+
+# Login & Session Flow
+
+## How it works
+- All authentication and session logic is handled via service modules and Svelte stores.
+- After login, the user store is updated with the current user profile.
+- On logout, the user store is cleared.
+- Errors are managed globally via an error store and displayed at the top of the app.
+
+## Key files
+- `src/lib/services/authService.ts` — Handles login, OAuth, and JWT exchange
+- `src/lib/services/userService.ts` — Fetches user profile
+- `src/lib/stores/user.ts` — Svelte store for user state
+- `src/lib/stores/error.ts` — Svelte store for global error messages
+- `src/routes/oauth-callback/+page.svelte` — Handles OAuth callback, sets cookie, updates user store
+- `src/routes/logout/+server.ts` — Deletes JWT cookie and redirects to clear user store
+- `src/routes/logout/clear/+page.svelte` — Clears user store and redirects to login
+- `src/routes/+layout.svelte` — Displays global error messages
+
+## Best practices
+- Keep all API logic in service modules
+- Use Svelte stores for global state
+- Handle errors globally for a better UX
+- Keep UI components focused on display and state, not fetch logic

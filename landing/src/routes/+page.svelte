@@ -3,6 +3,7 @@
   import DataInsightsDemo from "$lib/components/demos/DataInsightsDemo.svelte";
   import DailyTaskDemo from "$lib/components/demos/DailyTaskDemo.svelte";
   import UnifiedDemoChat from "$lib/components/demos/UnifiedDemoChat.svelte";
+  import { openConsultationPopup } from '$lib/stores/consultation';
   let navOpen = false;
 </script>
 
@@ -70,8 +71,7 @@
     class="sm:hidden bg-white border-t border-neutral-200 px-6 sm:px-16 pb-4"
   >
     <button
-      data-tally-open="3NQ6pB"
-      data-tally-overlay="1"
+      onclick={openConsultationPopup}
       class="block py-2 text-black font-heading font-semibold cursor-pointer"
       >Contact us</button
     >
@@ -598,8 +598,7 @@
       Ready to Scale Your Business?
     </h2>
     <button
-      data-tally-open="3NQ6pB"
-      data-tally-overlay="1"
+      onclick={openConsultationPopup}
       class="rounded-full bg-white text-blue-600 hover:bg-blue-100 hover:text-blue-600 font-display font-bold px-8 py-3 text-base shadow border-2 border-blue-600 transition mb-2 cursor-pointer"
       >Book a Free Quick Chat</button
     >

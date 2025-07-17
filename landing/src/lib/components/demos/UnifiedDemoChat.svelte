@@ -211,7 +211,7 @@ onMount(async () => {
   <div class="flex items-center gap-3 px-4 py-3 bg-[#075e54] text-white">
     <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[#25d366] text-xl">🛠️</span>
     <div class="flex flex-col">
-      <span class="font-semibold text-base leading-tight">ServicePro Assistant</span>
+      <span class="font-semibold text-base leading-tight">Handyman Pro Assistant</span>
       <span class="text-xs text-[#d9fdd3]">online</span>
     </div>
   </div>
@@ -264,19 +264,25 @@ onMount(async () => {
       {/if}
     </div>
     <!-- Input bar -->
-    <form class="flex items-center gap-2 px-3 py-2 bg-[#f7f7f7] border-t border-gray-200 sticky bottom-0 left-0 right-0 z-10" on:submit|preventDefault={sendPrompt}>
+    <div class="flex items-center gap-2 px-3 py-2 bg-[#f7f7f7] border-t border-gray-200 sticky bottom-0 left-0 right-0 z-10">
       <input
         type="text"
         placeholder="Ask about sales, invoices, or daily tasks..."
         class="flex-1 rounded-full px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#25d366] bg-white text-gray-900"
         bind:value={prompt}
         autocomplete="off"
-        on:input={stopDemo}
-        on:focus={stopDemo}
+        oninput={stopDemo}
+        onfocus={stopDemo}
+        onkeydown={(e) => e.key === 'Enter' && sendPrompt()}
       />
-      <button type="submit" class="bg-[#25d366] hover:bg-[#128c7e] text-white rounded-full p-2 transition-colors duration-150">
+      <button 
+        type="button" 
+        aria-label="Send message" 
+        class="bg-[#25d366] hover:bg-[#128c7e] text-white rounded-full p-2 transition-colors duration-150"
+        onclick={sendPrompt}
+      >
         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M22 2L11 13"/><path stroke-linecap="round" stroke-linejoin="round" d="M22 2L15 22l-4-9-9-4 20-7z"/></svg>
       </button>
-    </form>
+    </div>
   </div>
 </div> 
