@@ -604,3 +604,7 @@ landing/.svelte-kit/generated/params.js
 landing/.svelte-kit/generated/entry.css
 landing/.svelte-kit/generated/fallback.css
 landing/.svelte-kit/generated/start.css 
+
+appsettings.Development.json
+appsettings.Staging.json
+appsettings.Local.json
