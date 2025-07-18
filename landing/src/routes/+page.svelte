@@ -4,6 +4,7 @@
   import DailyTaskDemo from "$lib/components/demos/DailyTaskDemo.svelte";
   import UnifiedDemoChat from "$lib/components/demos/UnifiedDemoChat.svelte";
   import { openConsultationPopup } from '$lib/stores/consultation';
+  import { goto } from '$app/navigation';
   let navOpen = false;
 </script>
 
@@ -359,7 +360,7 @@
       <div class="sm:order-2 hidden sm:block">
         <DailyTaskDemo />
       </div>
-      <div class="flex-1 p-12 md:p-24">
+              <div class="flex-1 p-12 md:p-24">
         <div class="flex items-center gap-3 mb-6">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -379,24 +380,31 @@
           <h3
             class="font-display text-2xl font-semibold tracking-wider text-neutral-700"
           >
-            Smart Daily Automation
+            Task Automation Helper
           </h3>
         </div>
         <p class="font-sans text-lg text-neutral-500 leading-loose">
-          We put AI into your essential tools. Think smarter customer contacts
-          (CRM), automated messages on apps like WhatsApp, <span
-            class="text-blue-600">&</span
-          >
-          helpful website chatbots. We help you streamline tasks
-          <span class="text-blue-600">&</span> keep things running smoothly.
+          Tired of drowning in paperwork and repetitive tasks? Our AI assistant
+          processes invoices, handles customer feedback, and manages inventory
+          requests automatically. Focus on growing your business while we handle
+          the boring stuff.
         </p>
+        <button 
+          class="mt-6 inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors font-medium"
+          onclick={() => goto('/login')}
+        >
+          Try the demo
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H7M17 7V17"/>
+          </svg>
+        </button>
       </div>
     </div>
     <div class="flex flex-col md:flex-row-reverse items-center gap-4">
       <div class="sm:order-2 hidden sm:block">
         <ChatbotDemo />
       </div>
-      <div class="flex-1 p-12 md:p-24">
+              <div class="flex-1 p-12 md:p-24">
         <div class="flex items-center gap-3 mb-6">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -418,23 +426,30 @@
           <h3
             class="font-display text-2xl font-semibold tracking-wider text-neutral-700"
           >
-            Brilliant Customer & Sales Connections
+            Customer Service Assistant
           </h3>
         </div>
         <p class="font-sans text-lg text-neutral-500 leading-loose">
-          We set up AI voice helpers <span class="text-blue-600">&</span> smart
-          chatbots. They answer questions, guide new customers,
-          <span class="text-blue-600">&</span>
-          manage all your messages. We ensure you offer instant, outstanding service
-          <span class="text-blue-600">&</span> celebrate more sales.
+          Missing calls and losing customers? Our AI assistant answers questions
+          about hours, pricing, and booking instantly. Never miss a customer
+          inquiry again and turn every call into a potential sale.
         </p>
+        <button 
+          class="mt-6 inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors font-medium"
+          onclick={() => goto('/login')}
+        >
+          Try the demo
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H7M17 7V17"/>
+          </svg>
+        </button>
       </div>
     </div>
     <div class="flex flex-col md:flex-row items-center gap-4">
       <div class="md:order-2 order-2 hidden sm:block">
         <DataInsightsDemo />
       </div>
-      <div class="flex-1 p-12 md:p-24">
+              <div class="flex-1 p-12 md:p-24">
         <div class="flex items-center gap-3 mb-6">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -456,19 +471,27 @@
           <h3
             class="font-display text-2xl font-semibold tracking-wider text-neutral-700"
           >
-            Easy Insights from Your Data
+            Business Health Checker
           </h3>
         </div>
         <p class="font-sans text-lg text-neutral-500 leading-loose">
-          Use our "Data Analytics with Just Prompts" service. Just ask simple
-          questions to get valuable info from your business data. We help you
-          understand your business better <span class="text-blue-600">&</span> make
-          wiser, quicker choices.
+          Don't know if your business is doing well? Our AI analyzes your sales
+          data, tracks expenses, and shows performance metrics in plain English.
+          See exactly how your business is performing and make smarter decisions.
         </p>
+        <button 
+          class="mt-6 inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors font-medium"
+          onclick={() => goto('/login')}
+        >
+          Try the demo
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H7M17 7V17"/>
+          </svg>
+        </button>
       </div>
     </div>
     <div class="flex flex-col md:flex-row-reverse items-center gap-4">
-      <div class="flex-1 p-12 md:p-24">
+              <div class="flex-1 p-12 md:p-24">
         <div class="flex items-center gap-3 mb-6">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -488,15 +511,24 @@
           <h3
             class="font-display text-2xl font-semibold tracking-wider text-neutral-700"
           >
-            Custom AI Solutions
+            Business Problem Solver
           </h3>
         </div>
         <p class="font-sans text-lg text-neutral-500 leading-loose">
-          Sometimes, your business needs something unique. We create custom AI
-          tools designed specifically for your special needs or challenges. We
-          partner with you to build the perfect AI solution, tailor-made for
-          your success.
+          Have multiple business challenges and don't know where to start? Our
+          unified AI assistant handles sales tracking, invoice processing, and
+          customer service all in one place. One tool that solves all your
+          business problems.
         </p>
+        <button 
+          class="mt-6 inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors font-medium"
+          onclick={() => goto('/login')}
+        >
+          Try the demo
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H7M17 7V17"/>
+          </svg>
+        </button>
       </div>
     </div>
   </div>

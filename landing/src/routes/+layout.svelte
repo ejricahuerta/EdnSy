@@ -2,65 +2,44 @@
   import { goto } from "$app/navigation";
   import { page } from '$app/stores';
   import "../app.css";
-  import { Star, Users } from "@lucide/svelte";
   import { injectAnalytics } from "@vercel/analytics/sveltekit";
   import posthog from "posthog-js";
   import { browser } from "$app/environment";
   import { beforeNavigate, afterNavigate } from "$app/navigation";
-  import LoginNavButton from '$lib/components/LoginNavButton.svelte';
   import { error, clearError } from '$lib/stores/error';
   import ConsultationPopup from '$lib/components/consultation-popup.svelte';
   import { consultationPopupOpen, openConsultationPopup } from '$lib/stores/consultation';
+  import { logout } from '$lib/services/logoutService';
+  import { user as userStore } from '$lib/stores/user';
+  import { Sparkles } from "@lucide/svelte";
 
-  let user = $derived($page.data.user);
+  let serverUser = $derived($page.data.user);
+  let clientUser = $derived($userStore);
+  let user = $derived(clientUser || serverUser);
   let props = $props();
   let children = props.children;
 
   injectAnalytics({ mode: "production" });
-  let mobileNavOpen = $state(false);
-  function closeMobileNav() {
-    mobileNavOpen = false;
-  }
   let pathname = $derived($page.url.pathname);
   // Debug: show cookies client-side
   let cookies = '';
   if (browser) {
     cookies = document.cookie;
   }
-  // Footer links 
-  const footerLinks = [
-    {
-      href: "/privacy",
-      label: "Privacy",
-    },
-    {
-      href: "/terms",
-      label: "Terms",
-    },
-    {
-      href: "/cookies",
-      label: "Cookies",
-    },
-  ];
-  // Social links (placeholder)
-  const socialLinks = [
-    { href: "https://twitter.com/yourcompany", icon: Star, label: "Twitter" },
-    {
-      href: "https://linkedin.com/company/yourcompany",
-      icon: Users,
-      label: "LinkedIn",
-    },
-  ];
-  const posthogApiKey = import.meta.env.VITE_POSTHOG_API_KEY;
 
   if (browser) {
     beforeNavigate(() => posthog.capture('$pageleave'));
     afterNavigate(() => posthog.capture('$pageview'));
   }
 
-  function logout() {
-    window.location.href = '/logout';
+  async function handleLogout() {
+    try {
+      await logout();
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
   }
+
 </script>
 
 <svelte:head>
@@ -142,7 +121,7 @@
   </div>
 {/if}
 
-{#if !pathname.startsWith('/app') && !['/login', '/login/', '/oauth-callback', '/oauth-callback/', '/my-account', '/my-account/', '/my-account/billing', '/my-account/integration', '/my-account/payment', '/my-account/settings', '/onboarding'].includes(pathname)}
+{#if !pathname.startsWith('/app') && !pathname.startsWith('/demos') && !['/login', '/login/', '/oauth-callback', '/oauth-callback/', '/my-account', '/my-account/', '/my-account/billing', '/my-account/integration', '/my-account/payment', '/my-account/settings', '/onboarding'].includes(pathname)}
 <!-- NAVIGATION BAR (always visible for debugging) -->
 <nav
   class="sticky top-0 z-50 w-full mx-auto bg-gradient-to-b from-white to-gray-100"
@@ -157,18 +136,19 @@
     </a>
     <div class="flex items-center gap-6">
       {#if user && user.sub}
-        <a href="/my-account" class="btn font-heading font-bold px-6 py-2 text-base text-blue-600 transition cursor-pointer">
-          My Account
+        <a href="/demos" class="btn font-heading font-bold px-6 py-2 text-base text-blue-600 transition cursor-pointer">
+         <span class="flex items-center gap-2">
+           <Sparkles class="h-4 w-4 text-blue-600" />
+          Demos
+          </span>
         </a>
-        <button onclick={logout} class="font-heading font-bold px-6 py-2 text-base text-blue-600 transition cursor-pointer">
+        <button onclick={handleLogout} class="font-heading font-bold px-6 py-2 text-base text-blue-600 transition cursor-pointer">
           Logout
         </button>
       {:else}
-        <a href="/login">
-          <button class=" font-heading font-bold px-6 py-2 text-base text-blue-600 transition cursor-pointer">
+          <button class=" font-heading font-bold px-6 py-2 text-base text-blue-600 transition cursor-pointer" onclick={() => goto('/login')}>
             Sign in
           </button>
-        </a>
         <button
           onclick={openConsultationPopup}
           class="hidden sm:inline-block rounded-full bg-blue-600 hover:bg-blue-700 hover:text-white font-heading font-bold px-6 py-2 text-base bg-white text-blue-600 transition border-2 border-blue-600 cursor-pointer"
@@ -185,7 +165,7 @@
 <!-- Global Consultation Popup -->
 <ConsultationPopup isOpen={$consultationPopupOpen} />
 
-{#if !pathname.startsWith('/app') && !['/login', '/login/', '/oauth-callback', '/oauth-callback/', '/my-account', '/my-account/', '/my-account/billing', '/my-account/integration', '/my-account/payment', '/my-account/settings', '/onboarding'].includes(pathname)}
+{#if !pathname.startsWith('/demos') && !['/login', '/login/', '/oauth-callback', '/oauth-callback/'].includes(pathname)}
 <!-- FOOTER (moved from +page.svelte) -->
 <footer
   class="mx-auto px-6 sm:px-16 py-20 h-full mt-20 text-center bg-slate-900"
@@ -297,7 +277,7 @@
 </footer>
 {/if}
 
-{#if !pathname.startsWith('/app') && !['/login', '/login/', '/oauth-callback', '/oauth-callback/'].includes(pathname)}
+{#if !pathname.startsWith('/app') && !pathname.startsWith('/demos') && !['/login', '/login/', '/oauth-callback', '/oauth-callback/'].includes(pathname)}
 <button
   onclick={openConsultationPopup}
   data-tally-emoji-text="👋"

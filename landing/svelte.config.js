@@ -14,6 +14,14 @@ const config = {
 		adapter: adapter(),
 		paths: {
 			relative: false // Required for PostHog session replay to work correctly
+		},
+		alias: {
+			'@/components': './src/lib/components',
+			'@/routes': './src/routes',
+			'@/lib': './src/lib',
+			'@/stores': './src/lib/stores',
+			'@/services': './src/lib/services',
+			'@/utils': './src/lib/utils'
 		}
 	}
 };

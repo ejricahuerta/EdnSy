@@ -14,17 +14,8 @@ export const load: LayoutServerLoad = async ({ fetch, locals, cookies }) => {
         userProfile = await res.json();
       }
     } catch (error) {
-      console.warn('Backend not available, using mock user profile');
-      // Mock user profile for development
-      userProfile = {
-        id: locals.user.sub,
-        email: locals.user.email,
-        name: locals.user.name,
-        organization: {
-          id: 'mock-org-id',
-          name: 'Mock Organization'
-        }
-      };
+      console.error('Failed to fetch user profile:', error);
+      // Don't set mock data, let the frontend handle the missing profile
     }
   }
   return {

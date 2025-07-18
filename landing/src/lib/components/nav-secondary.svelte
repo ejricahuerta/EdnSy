@@ -3,6 +3,7 @@
 	import type { WithoutChildren } from "$lib/utils.js";
 	import type { ComponentProps } from "svelte";
 	import type { Icon } from "@tabler/icons-svelte";
+	import { goto } from '$app/navigation';
 
 	let {
 		items,
@@ -10,6 +11,10 @@
 	}: { items: { title: string; url: string; icon: Icon; onClick?: () => void }[] } & WithoutChildren<
 		ComponentProps<typeof Sidebar.Group>
 	> = $props();
+	
+	function handleNavigation(url: string) {
+		goto(url);
+	}
 </script>
 
 <Sidebar.Group {...restProps}>
@@ -22,17 +27,21 @@
 							{#if item.onClick}
 								<button 
 									onclick={item.onClick}
-									class="w-full text-left"
+									class="w-full text-left cursor-pointer"
 									{...props}
 								>
 									<item.icon />
 									<span>{item.title}</span>
 								</button>
 							{:else}
-								<a href={item.url} {...props}>
+								<button 
+									onclick={() => handleNavigation(item.url)}
+									class="w-full text-left cursor-pointer"
+									{...props}
+								>
 									<item.icon />
 									<span>{item.title}</span>
-								</a>
+								</button>
 							{/if}
 						{/snippet}
 					</Sidebar.MenuButton>

@@ -18,8 +18,8 @@ export interface CreditsState {
 
 function createCreditsStore() {
   const { subscribe, set, update } = writable<CreditsState>({
-    totalCredits: 100,
-    remainingCredits: 85,
+    totalCredits: 0,
+    remainingCredits: 0,
     usageHistory: [],
     isLoading: false,
     error: null
@@ -33,43 +33,20 @@ function createCreditsStore() {
       update(state => ({ ...state, isLoading: true, error: null }));
       
       try {
-        // TODO: Replace with actual API call
-        // const response = await fetch('/api/credits');
-        // const data = await response.json();
+        const response = await fetch('http://localhost:5235/user/credits', {
+          credentials: 'include'
+        });
         
-        // Mock data for now
-        const mockData = {
-          totalCredits: 100,
-          remainingCredits: 85,
-          usageHistory: [
-            {
-              id: '1',
-              feature: 'Chatbot Demo',
-              creditsUsed: 5,
-              timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-              description: 'Used AI chat demo'
-            },
-            {
-              id: '2',
-              feature: 'Data Insights Demo',
-              creditsUsed: 10,
-              timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
-              description: 'Analyzed sample data'
-            },
-            {
-              id: '3',
-              feature: 'Daily Task Demo',
-              creditsUsed: 3,
-              timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
-              description: 'Created task automation'
-            }
-          ]
-        };
+        if (!response.ok) {
+          throw new Error('Failed to fetch credits');
+        }
+        
+        const data = await response.json();
         
         set({
-          totalCredits: mockData.totalCredits,
-          remainingCredits: mockData.remainingCredits,
-          usageHistory: mockData.usageHistory,
+          totalCredits: data.totalCredits || 0,
+          remainingCredits: data.remainingCredits || 0,
+          usageHistory: data.usageHistory || [],
           isLoading: false,
           error: null
         });
@@ -108,12 +85,17 @@ function createCreditsStore() {
         };
       });
       
-      // TODO: Send usage to API
-      // await fetch('/api/credits/use', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ feature, creditsUsed: creditsToUse, description })
-      // });
+      // Send usage to API
+      try {
+        await fetch('http://localhost:5235/user/credits/use', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ feature, creditsUsed: creditsToUse, description })
+        });
+      } catch (error) {
+        console.error('Failed to record credit usage:', error);
+      }
     },
     
     // Check if user has enough credits
@@ -140,8 +122,8 @@ function createCreditsStore() {
     // Reset store
     reset() {
       set({
-        totalCredits: 100,
-        remainingCredits: 85,
+        totalCredits: 0,
+        remainingCredits: 0,
         usageHistory: [],
         isLoading: false,
         error: null

@@ -1,8 +1,13 @@
 <script lang="ts">
 	import * as Sidebar from "$lib/components/ui/sidebar/index.js";
-	import type { Icon } from "@tabler/icons-svelte";
+	import type { ComponentType } from "svelte";
+	import { goto } from '$app/navigation';
 
-	let { items }: { items: { title: string; url: string; icon?: Icon }[] } = $props();
+	let { items }: { items: { title: string; url: string; icon?: ComponentType }[] } = $props();
+	
+	function handleNavigation(url: string) {
+		goto(url);
+	}
 </script>
 
 <Sidebar.Group>
@@ -12,12 +17,16 @@
 				<Sidebar.MenuItem>
 					<Sidebar.MenuButton>
 						{#snippet child({ props })}
-							<a href={item.url} {...props}>
+							<button 
+								onclick={() => handleNavigation(item.url)}
+								class="w-full text-left cursor-pointer"
+								{...props}
+							>
 								{#if item.icon}
 									<item.icon />
 								{/if}
 								<span>{item.title}</span>
-							</a>
+							</button>
 						{/snippet}
 					</Sidebar.MenuButton>
 				</Sidebar.MenuItem>

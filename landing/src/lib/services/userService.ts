@@ -1,6 +1,6 @@
 // userService: Handles user profile API calls
 
-const API_HOST = import.meta.env.VITE_API_HOST;
+const API_HOST = import.meta.env.VITE_API_HOST || 'http://localhost:5235';
 
 export async function fetchCurrentUser() {
   const res = await fetch(`${API_HOST}/user/profile`, {

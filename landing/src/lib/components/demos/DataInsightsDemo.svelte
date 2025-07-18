@@ -1,90 +1,64 @@
 <script lang="ts">
+import { onMount, tick } from 'svelte';
 import SignupPrompt from '../SignupPrompt.svelte';
 import { user } from '$lib/stores/user';
 import { get } from 'svelte/store';
-import { Button } from '$lib/components/ui/button';
-let prompt = '';
-let insights = '';
-let loading = false;
 
-type DataType = 'initial' | 'jobs' | 'leads' | 'expenses';
-type ChatMsg = { role: 'user' | 'ai'; type: 'text' | 'table'; content: string | { labels: string[]; data: number[]; title: string; colLabel: string } };
-
-const chartData = {
-  initial: {
-    labels: [
-      'Drain Cleaning',
-      'AC Repair',
-      'Water Heater Install',
-      'Furnace Maintenance',
-      'Leak Detection'
-    ],
-    data: [120, 95, 80, 60, 55],
-    title: 'Top Requested Services (This Year)',
-    colLabel: 'Jobs Completed'
-  },
-  jobs: {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-    data: [40, 55, 62, 70, 65, 80, 75, 90],
-    title: 'Monthly Jobs Completed',
-    colLabel: 'Jobs'
-  },
-  leads: {
-    labels: ['Website', 'Referral', 'Social Media', 'Ads', 'Phone'],
-    data: [60, 85, 50, 40, 30],
-    title: 'Lead Sources',
-    colLabel: 'Leads'
-  },
-  expenses: {
-    labels: ['Payroll', 'Parts', 'Fuel', 'Marketing', 'Insurance', 'Misc'],
-    data: [3200, 1500, 600, 800, 400, 250],
-    title: 'Monthly Expenses ($)',
-    colLabel: 'Amount ($)'
-  }
-};
-let currentType: DataType = 'initial';
-let chatHistory: ChatMsg[] = [
-  { role: 'ai', type: 'text', content: 'Hi! Ask me about your service business data, e.g., "Show me top requested services".' }
-];
+let demoActive = true;
 let chatWindow: HTMLDivElement | null = null;
 let showSignupPrompt = $state(false);
 
-function scrollToBottom() {
-  if (chatWindow) chatWindow.scrollTop = chatWindow.scrollHeight;
-}
+type ChatMsg = { role: 'user' | 'ai'; type: 'text' | 'table'; content: string | { labels: string[]; data: number[]; title: string; colLabel: string } };
 
-function sendPrompt() {
-  if (!prompt.trim()) return;
-  chatHistory = [...chatHistory, { role: 'user', type: 'text', content: prompt }];
-  loading = true;
-  let type: DataType = 'initial';
-  if (/jobs|monthly/i.test(prompt)) type = 'jobs';
-  else if (/leads?/i.test(prompt)) type = 'leads';
-  else if (/expenses?/i.test(prompt)) type = 'expenses';
-  currentType = type;
-  const data = chartData[type];
-  setTimeout(() => {
-    chatHistory = [
-      ...chatHistory,
-      { role: 'ai', type: 'table', content: data },
-      { role: 'ai', type: 'text', content: getInsightText(type) }
-    ];
-    loading = false;
-    prompt = '';
-    scrollToBottom();
-  }, 1200);
-}
-
-function getInsightText(type: DataType) {
-  if (type === 'jobs') {
-    return 'Job volume is highest in August. Consider adding more technicians for peak season.';
-  } else if (type === 'leads') {
-    return 'Referrals and website are your strongest lead sources. Invest more in these channels for growth.';
-  } else if (type === 'expenses') {
-    return 'Payroll and parts are the largest expenses. Review staffing and supplier contracts to improve margins.';
-  } else {
-    return 'Drain Cleaning and AC Repair are your most requested services. Consider promoting these for seasonal campaigns.';
+const chartData = {
+  sales: {
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    data: [2800, 3200, 4100, 3800, 5200, 4800, 6100, 6800, 5900, 7200, 8900, 12500],
+    title: 'Monthly Sales 2024 ($)',
+    colLabel: 'Sales ($)'
+  },
+  expenses: {
+    labels: ['Rent', 'Utilities', 'Inventory', 'Marketing', 'Staff Wages', 'Insurance', 'Misc'],
+    data: [2400, 450, 1800, 600, 3200, 280, 350],
+    title: 'Monthly Operating Expenses ($)',
+    colLabel: 'Amount ($)'
+  },
+  products: {
+    labels: [
+      'Winter Coats',
+      'Scarves & Gloves',
+      'Boots',
+      'Hats',
+      'Thermal Underwear'
+    ],
+    data: [45, 78, 32, 56, 23],
+    title: 'Top Winter Products Sold',
+    colLabel: 'Units Sold'
   }
+};
+
+const demoMessages: ChatMsg[] = [
+  { role: 'user', type: 'text', content: 'How did we do this month compared to last year?' },
+  { role: 'ai', type: 'table', content: chartData.sales },
+  { role: 'ai', type: 'text', content: 'Great news! December sales are up 40% from last year at $12,500. Your holiday marketing campaign is working well. Consider extending your Boxing Week sale to capitalize on this momentum.' },
+  { role: 'user', type: 'text', content: 'Where is most of our money going?' },
+  { role: 'ai', type: 'table', content: chartData.expenses },
+  { role: 'ai', type: 'text', content: 'Staff wages ($3,200) and rent ($2,400) are your biggest expenses. Consider cross-training staff to handle multiple roles during peak periods. Your marketing spend ($600) is generating good returns.' }
+];
+
+let chatHistory: ChatMsg[] = $state([
+  { role: 'ai', type: 'text', content: 'Hi! I\'m your business health checker. I can analyze your data and provide insights.' }
+]);
+
+async function scrollToBottom() {
+  await tick();
+  if (chatWindow) {
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  }
+}
+
+function stopDemo() {
+  demoActive = false;
 }
 
 function openSignupPrompt() {
@@ -92,33 +66,56 @@ function openSignupPrompt() {
     showSignupPrompt = true;
   }
 }
+
 function closeSignupPrompt() {
   showSignupPrompt = false;
 }
-</script>
 
-<!-- Try it now button -->
-<div class="flex justify-center mb-4">
-  <button 
-    class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-slate-600 text-white hover:bg-slate-700 h-10 px-4 py-2" 
-    onclick={openSignupPrompt}
-  >
-    Try it now
-  </button>
-</div>
-{#if showSignupPrompt}
-  <SignupPrompt on:close={closeSignupPrompt} />
-{/if}
+onMount(() => {
+  const runDemo = async () => {
+    while (demoActive) {
+      // Reset chat to welcome message
+      chatHistory = [
+        { role: 'ai', type: 'text', content: 'Hi! I\'m your business health checker. I can analyze your data and provide insights.' }
+      ];
+      
+      await new Promise(r => setTimeout(r, 1000));
+      await scrollToBottom();
+      
+      // Display each message one by one
+      for (let i = 0; i < demoMessages.length && demoActive; i++) {
+        await new Promise(r => setTimeout(r, 1500));
+        if (!demoActive) break;
+        
+        chatHistory = [...chatHistory, demoMessages[i]];
+        await scrollToBottom();
+      }
+      
+      if (!demoActive) break;
+      
+      // Pause before restarting the loop
+      await new Promise(r => setTimeout(r, 3000));
+    }
+  };
+  
+  runDemo();
+});
+</script>
 
 <div class="w-full max-w-md mx-auto rounded-2xl shadow-lg overflow-hidden bg-white border border-gray-200" style="font-family: 'Segoe UI', 'Inter', sans-serif;">
   <!-- WhatsApp-style header -->
   <div class="flex items-center gap-3 px-4 py-3 bg-[#075e54] text-white">
-    <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[#25d366] text-xl">🛠️</span>
+    <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[#25d366] text-xl">📊</span>
     <div class="flex flex-col">
-      <span class="font-semibold text-base leading-tight">Handyman Pro Insights</span>
-      <span class="text-xs text-[#d9fdd3]">data insights</span>
+      <span class="font-semibold text-base leading-tight">Business Health Checker</span>
+      <span class="text-xs text-[#d9fdd3]">assistant</span>
     </div>
   </div>
+  
+  {#if showSignupPrompt}
+    <SignupPrompt on:close={closeSignupPrompt} />
+  {/if}
+  
   <div class="relative bg-[#ece5dd] flex flex-col h-[520px] sm:h-[520px] md:h-[520px] lg:h-[520px] xl:h-[520px]" style="height:520px;">
     <div bind:this={chatWindow} class="flex-1 overflow-y-auto px-3 py-4 space-y-2" style="min-height:0;">
       {#each chatHistory as msg}
@@ -138,7 +135,7 @@ function closeSignupPrompt() {
                 <table class="min-w-full text-base text-left rounded-xl overflow-hidden mb-2">
                   <thead class="bg-[#25d366] text-white">
                     <tr>
-                      <th class="px-4 py-3 font-semibold">{msg.content.colLabel === 'Amount ($)' ? 'Category' : msg.content.colLabel === 'Leads' ? 'Source' : msg.content.colLabel === 'Jobs' ? 'Month' : 'Service'}</th>
+                      <th class="px-4 py-3 font-semibold">{msg.content.colLabel === 'Amount ($)' ? 'Category' : msg.content.colLabel === 'Sales ($)' ? 'Month' : 'Product'}</th>
                       <th class="px-4 py-3 font-semibold">{msg.content.colLabel}</th>
                     </tr>
                   </thead>
@@ -156,27 +153,23 @@ function closeSignupPrompt() {
           </div>
         {/if}
       {/each}
-      {#if loading}
-        <div class="flex justify-start">
-          <div class="rounded-2xl px-4 py-2 max-w-[75%] bg-white text-gray-900 border border-gray-200 shadow animate-pulse">AI is typing...</div>
-        </div>
-      {/if}
     </div>
+    
     <!-- Input bar -->
     <div class="flex items-center gap-2 px-3 py-2 bg-[#f7f7f7] border-t border-gray-200 sticky bottom-0 left-0 right-0 z-10">
       <input
         type="text"
-        placeholder="e.g., Show me top requested services"
+        placeholder="Ask about your business data..."
         class="flex-1 rounded-full px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#25d366] bg-white text-gray-900"
-        bind:value={prompt}
-        autocomplete="off"
-        onkeydown={(e) => e.key === 'Enter' && sendPrompt()}
+        on:input={stopDemo}
+        on:focus={stopDemo}
+        on:keydown={(e) => e.key === 'Enter' && openSignupPrompt()}
       />
       <button 
         type="button" 
         aria-label="Send message" 
         class="bg-[#25d366] hover:bg-[#128c7e] text-white rounded-full p-2 transition-colors duration-150"
-        onclick={sendPrompt}
+        on:click={openSignupPrompt}
       >
         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M22 2L11 13"/><path stroke-linecap="round" stroke-linejoin="round" d="M22 2L15 22l-4-9-9-4 20-7z"/></svg>
       </button>
