@@ -14,6 +14,10 @@ const config = {
 		adapter: adapter(),
 		paths: {
 			relative: false // Required for PostHog session replay to work correctly
+		},
+		alias: {
+			$lib: './src/lib',
+			'@': './src'
 		}
 	}
 };

@@ -3,6 +3,7 @@
   import DataInsightsDemo from "$lib/components/demos/DataInsightsDemo.svelte";
   import DailyTaskDemo from "$lib/components/demos/DailyTaskDemo.svelte";
   import UnifiedDemoChat from "$lib/components/demos/UnifiedDemoChat.svelte";
+  import { goto } from '$app/navigation';
   let navOpen = false;
 </script>
 
@@ -607,4 +608,23 @@
   </div>
 </section>
 <hr class="my-12 border-neutral-200" />
+
+<!-- Add this section where appropriate in the existing landing page -->
+<div class="bg-primary/5 border border-primary/20 rounded-lg p-6 my-8">
+  <div class="text-center space-y-4">
+    <h3 class="text-2xl font-bold">Experience AI Automation in Action</h3>
+    <p class="text-muted-foreground max-w-2xl mx-auto">
+      See exactly how AI automation can transform your local business. Try our interactive demos tailored to your industry.
+    </p>
+    <div class="flex justify-center space-x-4">
+      <a href="/demos/onboarding" class="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
+        Try Demo Platform
+      </a>
+      <a href="/demos/catalog" class="inline-flex items-center px-6 py-3 border border-primary text-primary rounded-lg hover:bg-primary/5 transition-colors">
+        View Demo Catalog
+      </a>
+    </div>
+  </div>
+</div>
+
 <!-- FOOTER REMOVED: now in layout -->

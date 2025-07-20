@@ -1,0 +1,241 @@
+{
+  "project": {
+    "name": "Ednsy - AI Automation Made Simple for Local Businesses",
+    "description": "Interactive demo platform for local business automation with consultation booking and client management",
+    "version": "2.1.0",
+    "lastUpdated": "2025-01-27"
+  },
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Project Setup & Infrastructure",
+      "description": "Initialize the project with proper architecture and development environment",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [],
+      "details": "Set up the foundational infrastructure including SvelteKit 5, Supabase, TypeScript, and deployment configuration. This includes authentication setup, database schema, and basic project structure. Focus on building the demo platform that will integrate with the existing landing page.",
+      "testStrategy": "Verify all services are connected and basic authentication flow works",
+      "subtasks": []
+    },
+    {
+      "id": 2,
+      "title": "Demo Platform Integration",
+      "description": "Integrate demo platform with existing landing page and ensure seamless navigation",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [1],
+      "details": "Build integration points between the existing landing page and new demo platform. Ensure 'See It In Action' buttons on existing industry pages link to relevant demos. Implement seamless navigation between existing site and demo platform.",
+      "testStrategy": "Test all integration points, navigation flows, and ensure existing site functionality is preserved",
+      "subtasks": []
+    },
+    {
+      "id": 3,
+      "title": "Demo Authentication System",
+      "description": "Implement Google OAuth authentication with credit allocation",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [1],
+      "details": "Set up Google OAuth with Supabase Auth, implement automatic credit allocation (200 credits per user), and industry preference tracking for personalized demo recommendations. This is the core authentication system for the demo platform.",
+      "testStrategy": "Test OAuth flow, credit allocation, and user profile creation",
+      "subtasks": []
+    },
+    {
+      "id": 4,
+      "title": "Demo Platform Core",
+      "description": "Build the interactive demo environment with credit system and state management",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [3],
+      "details": "Create the demo platform infrastructure including credit metering, progress persistence, and interactive demo environments. Implement demo state management and resume functionality. This is the core engine for all interactive demos.",
+      "testStrategy": "Test credit consumption, state persistence, and demo interactions",
+      "subtasks": []
+    },
+    {
+      "id": 5,
+      "title": "Restaurant & Food Service Demos",
+      "description": "Create interactive demos for restaurant automation scenarios",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [4],
+      "details": "Build 5-8 restaurant-specific demos including online ordering, reservation management, review automation, inventory tracking, and staff scheduling. Each demo should cost 25-40 credits. These demos will be linked from the existing restaurant industry page.",
+      "testStrategy": "Test each demo scenario with realistic data and verify credit consumption",
+      "subtasks": []
+    },
+    {
+      "id": 6,
+      "title": "Professional Services Demos",
+      "description": "Create interactive demos for professional services automation",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [4],
+      "details": "Build 5-8 professional services demos including appointment scheduling, client intake, follow-up sequences, document generation, and payment processing. Each demo should cost 20-35 credits. These demos will be linked from the existing professional services page.",
+      "testStrategy": "Test each demo scenario with realistic data and verify credit consumption",
+      "subtasks": []
+    },
+    {
+      "id": 7,
+      "title": "Retail & E-commerce Demos",
+      "description": "Create interactive demos for retail automation scenarios",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [4],
+      "details": "Build 5-8 retail-specific demos including customer segmentation, inventory management, cart recovery, loyalty programs, and social media automation. Each demo should cost 30-45 credits. These demos will be linked from the existing retail industry page.",
+      "testStrategy": "Test each demo scenario with realistic data and verify credit consumption",
+      "subtasks": []
+    },
+    {
+      "id": 8,
+      "title": "Home Services Demos",
+      "description": "Create interactive demos for home services automation",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [4],
+      "details": "Build 5-8 home services demos including lead qualification, appointment booking, service reminders, estimate generation, and customer communication. Each demo should cost 25-40 credits. These demos will be linked from the existing home services page.",
+      "testStrategy": "Test each demo scenario with realistic data and verify credit consumption",
+      "subtasks": []
+    },
+    {
+      "id": 9,
+      "title": "Consultation Booking System",
+      "description": "Integrate Calendly and build consultation management",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [4],
+      "details": "Integrate Calendly for consultation booking, build consultant dashboard showing prospect demo activity, and implement consultation notes and follow-up tracking. This system will capture leads from demo completions.",
+      "testStrategy": "Test booking flow, consultant dashboard, and follow-up automation",
+      "subtasks": []
+    },
+    {
+      "id": 10,
+      "title": "Lead Capture & CRM Integration",
+      "description": "Integrate demo platform with existing lead capture and CRM systems",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [9],
+      "details": "Integrate with existing CRM (HubSpot/Pipedrive) to capture leads from demo completions. Ensure demo activity data flows to existing lead management systems. Build lead qualification scoring based on demo engagement.",
+      "testStrategy": "Test lead capture, CRM integration, and data flow accuracy",
+      "subtasks": []
+    },
+    {
+      "id": 11,
+      "title": "Lead Nurturing & Email Automation",
+      "description": "Implement automated email sequences and lead nurturing",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [9],
+      "details": "Set up ConvertKit/Mailchimp integration, create automated email sequences based on demo completion, and implement industry-specific content delivery and monthly newsletters. This will nurture leads from the existing landing page traffic.",
+      "testStrategy": "Test email sequences, content delivery, and retargeting campaigns",
+      "subtasks": []
+    },
+    {
+      "id": 12,
+      "title": "Analytics & Performance Tracking",
+      "description": "Implement comprehensive analytics and demo performance tracking",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [4],
+      "details": "Set up Google Analytics 4, implement demo completion tracking, user engagement analytics, credit consumption tracking, and A/B testing framework for demo experiences. Track conversion from existing landing page to demo platform.",
+      "testStrategy": "Verify analytics data collection and reporting accuracy",
+      "subtasks": []
+    },
+    {
+      "id": 13,
+      "title": "Client Management Portal",
+      "description": "Build client portal for project tracking and implementation management",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [9],
+      "details": "Create client portal showing project status, implementation timeline, training session scheduling, support ticket system, and success metrics tracking. This will manage clients acquired through the demo platform.",
+      "testStrategy": "Test client portal functionality and project tracking features",
+      "subtasks": []
+    },
+    {
+      "id": 14,
+      "title": "Sales & Marketing Analytics",
+      "description": "Implement lead source tracking and sales pipeline analytics",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [12],
+      "details": "Build lead source tracking (existing landing page vs demo platform), sales pipeline visibility, CAC calculation by channel, LTV tracking, and marketing campaign ROI analysis. Track effectiveness of demo platform vs traditional lead sources.",
+      "testStrategy": "Test lead attribution and pipeline tracking accuracy",
+      "subtasks": []
+    },
+    {
+      "id": 15,
+      "title": "Performance Optimization",
+      "description": "Optimize demo platform performance for speed and reliability",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [2, 4],
+      "details": "Optimize demo load times to under 3 seconds, achieve Lighthouse score >90, ensure 99.5% uptime, implement CDN for global performance, and optimize database queries. Ensure demo platform doesn't impact existing site performance.",
+      "testStrategy": "Run performance audits and load testing",
+      "subtasks": []
+    },
+    {
+      "id": 16,
+      "title": "Security & Compliance",
+      "description": "Implement security measures and GDPR compliance",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [1],
+      "details": "Implement data encryption, secure OAuth integration, GDPR compliance features, regular backups, and demo data anonymization for privacy protection. Ensure demo platform meets same security standards as existing site.",
+      "testStrategy": "Conduct security audit and compliance verification",
+      "subtasks": []
+    },
+    {
+      "id": 17,
+      "title": "Deployment & DevOps",
+      "description": "Set up production deployment and monitoring",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [1],
+      "details": "Configure Vercel deployment with global CDN, set up monitoring and alerting, implement CI/CD pipeline, and configure environment variables and secrets management. Ensure demo platform deploys alongside existing site.",
+      "testStrategy": "Test deployment pipeline and monitor uptime",
+      "subtasks": []
+    },
+    {
+      "id": 18,
+      "title": "Content Enhancement",
+      "description": "Enhance existing content with demo integration and ROI calculators",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [2],
+      "details": "Enhance existing industry pages with dynamic demo links, integrate ROI calculators from demo system into existing pages, add case studies and testimonials that reference demo experiences, and create educational content about automation.",
+      "testStrategy": "Test content integration and user engagement",
+      "subtasks": []
+    },
+    {
+      "id": 19,
+      "title": "Mobile Optimization",
+      "description": "Ensure excellent mobile experience for business owners on-the-go",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [2, 4],
+      "details": "Optimize all demo pages for mobile devices, implement touch-friendly interactions, ensure fast mobile loading, and test across different mobile browsers and devices. Ensure demo platform works seamlessly on mobile alongside existing site.",
+      "testStrategy": "Test on various mobile devices and screen sizes",
+      "subtasks": []
+    },
+    {
+      "id": 20,
+      "title": "Testing & Quality Assurance",
+      "description": "Implement comprehensive testing strategy",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [4, 9],
+      "details": "Set up unit tests, integration tests, end-to-end tests for demo flows, user acceptance testing, and automated testing for critical user journeys. Ensure demo platform quality doesn't impact existing site functionality.",
+      "testStrategy": "Achieve 80%+ test coverage and verify all critical paths",
+      "subtasks": []
+    },
+    {
+      "id": 21,
+      "title": "Documentation & Training",
+      "description": "Create comprehensive documentation and training materials",
+      "status": "pending",
+      "priority": "low",
+      "dependencies": [4, 9],
+      "details": "Create user documentation for demo platform, consultant training materials, implementation guides, API documentation, and troubleshooting guides. Include integration documentation for existing site maintenance team.",
+      "testStrategy": "Verify documentation accuracy and completeness",
+      "subtasks": []
+    }
+  ]
+} 

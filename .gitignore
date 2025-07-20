@@ -62,4 +62,9 @@ __pycache__/
 
 internal-apps/*
 landing/.svelte-kit/generated/client/app.js
-landing/.svelte-kit/generated/client/app.js
+landing/.svelte-kit/*
+landing/node_modules/
+
+
+
+

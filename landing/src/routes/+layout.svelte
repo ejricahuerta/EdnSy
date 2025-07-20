@@ -1,17 +1,42 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import "../app.css";
-  import { Star, Users } from "@lucide/svelte";
+  import { Star, Users, LogOut, ToyBrick } from "@lucide/svelte";
   import { injectAnalytics } from "@vercel/analytics/sveltekit";
   import posthog from "posthog-js";
   import { browser } from "$app/environment";
   import { beforeNavigate, afterNavigate } from "$app/navigation";
+  import { page } from "$app/stores";
+  import { supabase } from "$lib/supabase";
+  import * as Sidebar from "$lib/components/ui/sidebar/index.js";
+  import SiteHeader from "$lib/components/site-header.svelte";
+  import AppSidebar from "$lib/components/app-sidebar.svelte";
 
   injectAnalytics({ mode: "production" });
   let { children } = $props();
   let mobileNavOpen = $state(false);
+  let user = $state<any>(null);
+  
   function closeMobileNav() {
     mobileNavOpen = false;
+  }
+  
+  async function handleLogout() {
+    const { error } = await supabase.auth.signOut();
+    if (!error) {
+      goto('/login');
+    }
+  }
+  
+  // Check for user session on mount
+  if (browser) {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      user = session?.user || null;
+    });
+    
+    supabase.auth.onAuthStateChange((event, session) => {
+      user = session?.user || null;
+    });
   }
   // Footer links
   const footerLinks = [
@@ -117,7 +142,8 @@
 
 </svelte:head>
 
-<!-- NAVIGATION BAR (moved from +page.svelte) -->
+<!-- NAVIGATION BAR (moved from +page.svelte)  remove for login-->
+ {#if $page.url.pathname !== '/login' && !$page.url.pathname.includes('/demos')}
 <nav
   class="sticky top-0 z-50 w-full mx-auto bg-gradient-to-b from-white to-gray-100"
 >
@@ -130,22 +156,56 @@
       </div>
     </a>
     <div class="flex items-center gap-6">
-      <button
-        data-tally-open="3NQ6pB"
-        data-tally-overlay="1"
-        class="hidden sm:inline-block rounded-full bg-blue-600 hover:bg-blue-700 hover:text-white font-heading font-bold px-6 py-2 text-base bg-white text-blue-600 transition border-2 border-blue-600 cursor-pointer"
-        >Contact us</button
-      >
+      {#if user}
+        <a 
+          href="/demos" 
+          class="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors font-medium"
+        >
+          <ToyBrick class="w-5 h-5" />
+          Demos
+        </a>
+        <button
+          onclick={handleLogout}
+          class="flex items-center gap-2 text-gray-700 hover:text-red-600 transition-colors font-medium"
+        >
+          <LogOut class="w-5 h-5" />
+          Logout
+        </button>
+      {:else}
+        <button
+          data-tally-open="3NQ6pB"
+          data-tally-overlay="1"
+          class="hidden sm:inline-block rounded-full bg-blue-600 hover:bg-blue-700 hover:text-white font-heading font-bold px-6 py-2 text-base bg-white text-blue-600 transition border-2 border-blue-600 cursor-pointer"
+          >Contact us</button
+        >
+      {/if}
     </div>
   </div>
 </nav>
+{/if}
 
-{@render children()}
-
-<!-- FOOTER (moved from +page.svelte) -->
-<footer
-  class="mx-auto px-6 sm:px-16 py-20 h-full mt-20 text-center bg-slate-900"
->
+{#if user && $page.url.pathname !== '/login'}
+  <!-- Authenticated Layout with Sidebar -->
+  <div class="[--header-height:calc(--spacing(14))]">
+    <Sidebar.Provider class="flex flex-col">
+      <SiteHeader />
+      <div class="flex flex-1">
+        <AppSidebar />
+        <Sidebar.Inset>
+          {@render children()}
+        </Sidebar.Inset>
+      </div>
+    </Sidebar.Provider>
+  </div>
+{:else}
+  <!-- Public Layout without Sidebar -->
+  {@render children()}
+  
+  {#if $page.url.pathname !== '/login'}
+  <!-- FOOTER (moved from +page.svelte) -->
+  <footer
+    class="mx-auto px-6 sm:px-16 py-20 h-full mt-20 text-center bg-slate-900"
+  >
   <div class="mx-auto max-w-2xl lg:max-w-none">
     <div class="grid grid-cols-1 gap-x-8 gap-y-8 lg:grid-cols-1">
       <nav>
@@ -252,7 +312,6 @@
     </div>
   </div>
 </footer>
-
 <button
   data-tally-open="3NQ6pB"
   data-tally-overlay="1"
@@ -262,6 +321,8 @@
   class="fixed bottom-6 right-6 z-50 bg-blue-600 text-white text-lg font-bold px-6 py-4 rounded-full shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
   >Hi!👋</button
 >
+  {/if}
+{/if}
 
 <style>
   @keyframes slide-down {
