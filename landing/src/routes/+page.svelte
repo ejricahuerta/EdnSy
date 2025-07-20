@@ -1,10 +1,41 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
+  import { supabase } from '$lib/supabase';
+  import { goto } from '$app/navigation';
+  import { browser } from '$app/environment';
   import ChatbotDemo from "$lib/components/demos/ChatbotDemo.svelte";
   import DataInsightsDemo from "$lib/components/demos/DataInsightsDemo.svelte";
   import DailyTaskDemo from "$lib/components/demos/DailyTaskDemo.svelte";
   import UnifiedDemoChat from "$lib/components/demos/UnifiedDemoChat.svelte";
-  import { goto } from '$app/navigation';
   let navOpen = false;
+
+  onMount(async () => {
+    if (!browser) return;
+    
+    // Handle OAuth callback
+    const { data: { session }, error } = await supabase.auth.getSession();
+    
+    if (session) {
+      console.log('User is authenticated:', session.user.email);
+      // You can redirect to a dashboard or specific page here if needed
+      // For now, we'll just stay on the main page
+    }
+    
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+          console.log('User signed in:', session.user.email);
+          // Handle successful sign in
+        } else if (event === 'SIGNED_OUT') {
+          console.log('User signed out');
+          // Handle sign out
+        }
+      }
+    );
+    
+    return () => subscription.unsubscribe();
+  });
 </script>
 
 <svelte:head>

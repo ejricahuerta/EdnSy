@@ -29,11 +29,18 @@
       isLoading = true;
       errorMessage = "";
       
+      // Get the current URL and construct the redirect URL properly
+      const currentUrl = window.location.href;
+      const baseUrl = currentUrl.split('/login')[0]; // Remove /login from the URL
+      const redirectUrl = `${baseUrl}/demos`;
+      
       console.log('Starting Google OAuth...');
+      console.log('Redirect URL:', redirectUrl);
+      
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: redirectUrl,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
