@@ -12,7 +12,37 @@
   onMount(async () => {
     if (!browser) return;
     
-    // Handle OAuth callback
+    // Handle OAuth callback - check for tokens in URL hash
+    const hash = window.location.hash;
+    if (hash && hash.includes('access_token')) {
+      console.log('OAuth callback detected, processing tokens...');
+      
+      // Extract tokens from URL hash
+      const params = new URLSearchParams(hash.substring(1));
+      const accessToken = params.get('access_token');
+      const refreshToken = params.get('refresh_token');
+      
+      if (accessToken) {
+        console.log('Processing OAuth tokens...');
+        
+        // Set the session with the tokens
+        const { data: { session }, error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken || '',
+        });
+        
+        if (error) {
+          console.error('Error setting session:', error);
+        } else if (session) {
+          console.log('Authentication successful:', session.user.email);
+          // Redirect to demos page
+          goto('/demos');
+          return;
+        }
+      }
+    }
+    
+    // Handle existing session
     const { data: { session }, error } = await supabase.auth.getSession();
     
     if (session) {

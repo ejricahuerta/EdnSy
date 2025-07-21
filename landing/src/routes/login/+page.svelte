@@ -24,6 +24,8 @@
       supabaseUrl: PUBLIC_SUPABASE_URL,
       hasAnonKey: !!PUBLIC_SUPABASE_ANON_KEY
     });
+    console.log('Current location:', window.location.href);
+    console.log('Origin:', window.location.origin);
     
     try {
       isLoading = true;
@@ -32,10 +34,13 @@
       // Get the current URL and construct the redirect URL properly
       const currentUrl = window.location.href;
       const baseUrl = currentUrl.split('/login')[0]; // Remove /login from the URL
-      const redirectUrl = `${baseUrl}/demos`;
+      const redirectUrl = `${baseUrl}/auth/callback`;
       
       console.log('Starting Google OAuth...');
+      console.log('Current URL:', currentUrl);
+      console.log('Base URL:', baseUrl);
       console.log('Redirect URL:', redirectUrl);
+      console.log('Supabase URL:', PUBLIC_SUPABASE_URL);
       
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -55,6 +60,7 @@
         errorMessage = error.message || 'Failed to sign in with Google';
       } else {
         console.log('OAuth successful, redirecting...');
+        console.log('OAuth data:', data);
       }
     } catch (error) {
       console.error('Unexpected error:', error);
