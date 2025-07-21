@@ -35,10 +35,10 @@
 	function getDemoTitle(demoName: string) {
 		const demoMap = {
 			'chatbot': 'Chat Demo',
-			'scheduling': 'Scheduling Demo',
-			'analytics': 'Analytics Demo'
+			'automation-tasks': 'Automation Tasks Demo',
+			'data-insights': 'Data Insights Demo'
 		};
-		return demoMap[demoName] || 'Demo';
+		return demoMap[demoName as keyof typeof demoMap] || 'Demo';
 	}
 </script>
 
