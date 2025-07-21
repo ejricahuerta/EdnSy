@@ -10,11 +10,11 @@
 	const sidebar = Sidebar.useSidebar();
 
 	// Dynamic breadcrumb based on current route
-	$: breadcrumbItems = getBreadcrumbItems($page.url.pathname);
+	  let breadcrumbItems = $derived(getBreadcrumbItems($page.url.pathname));
 
 	function getBreadcrumbItems(pathname: string) {
 		if (pathname.startsWith('/demos/')) {
-			const demoName = pathname.split('/').pop();
+			const demoName = pathname.split('/').pop() || '';
 			const demoTitle = getDemoTitle(demoName);
 			return [
 				{ text: 'Demos', href: '/demos' },
@@ -34,9 +34,10 @@
 
 	function getDemoTitle(demoName: string) {
 		const demoMap = {
-			'chatbot': 'Chat Demo',
-			'automation-tasks': 'Automation Tasks Demo',
-			'data-insights': 'Data Insights Demo'
+			'chatbot': 'Assistant',
+			'automation-tasks': 'Automation Tasks',
+			'data-insights': 'Data Insights',
+			'business-operations': 'Business Operations',
 		};
 		return demoMap[demoName as keyof typeof demoMap] || 'Demo';
 	}

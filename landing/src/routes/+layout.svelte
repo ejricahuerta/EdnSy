@@ -11,11 +11,12 @@
   import * as Sidebar from "$lib/components/ui/sidebar/index.js";
   import SiteHeader from "$lib/components/site-header.svelte";
   import AppSidebar from "$lib/components/app-sidebar.svelte";
+  import type { LayoutData } from './$types';
 
   injectAnalytics({ mode: "production" });
-  let { children } = $props();
+  let { children, data } = $props<{ data: LayoutData }>();
   let mobileNavOpen = $state(false);
-  let user = $state<any>(null);
+  let user = $state<any>(data.user);
   
   function closeMobileNav() {
     mobileNavOpen = false;
@@ -28,12 +29,8 @@
     }
   }
   
-  // Check for user session on mount
+  // Update user state when auth state changes
   if (browser) {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      user = session?.user || null;
-    });
-    
     supabase.auth.onAuthStateChange((event, session) => {
       user = session?.user || null;
     });
@@ -64,7 +61,12 @@
   ];
   const posthogApiKey = import.meta.env.VITE_POSTHOG_API_KEY;
 
-  if (browser) {
+  // Validate PostHog API key
+  if (!posthogApiKey) {
+    console.warn('⚠️ PostHog API key not found. Analytics will be disabled.');
+  }
+
+  if (browser && posthogApiKey) {
     beforeNavigate(() => posthog.capture('$pageleave'));
     afterNavigate(() => posthog.capture('$pageview'));
   }
@@ -142,8 +144,8 @@
 
 </svelte:head>
 
-<!-- NAVIGATION BAR (moved from +page.svelte)  remove for login-->
- {#if $page.url.pathname !== '/login' && !$page.url.pathname.includes('/demos')}
+<!-- NAVIGATION BAR - Only show on landing page and non-demo pages -->
+{#if $page.url.pathname === '/' || ($page.url.pathname !== '/login' && !$page.url.pathname.startsWith('/demos'))}
 <nav
   class="sticky top-0 z-50 w-full mx-auto bg-gradient-to-b from-white to-gray-100"
 >
@@ -184,8 +186,8 @@
 </nav>
 {/if}
 
-{#if user && $page.url.pathname !== '/login'}
-  <!-- Authenticated Layout with Sidebar -->
+{#if user && $page.url.pathname.startsWith('/demos')}
+  <!-- Authenticated Layout with Sidebar - Only for Demos -->
   <div class="[--header-height:calc(--spacing(14))]">
     <Sidebar.Provider class="flex flex-col">
       <SiteHeader />
@@ -197,6 +199,9 @@
       </div>
     </Sidebar.Provider>
   </div>
+{:else if user && $page.url.pathname !== '/login'}
+  <!-- Authenticated user on non-demo pages - Clean layout -->
+  {@render children()}
 {:else}
   <!-- Public Layout without Sidebar -->
   {@render children()}
@@ -334,8 +339,5 @@
       opacity: 1;
       transform: translateY(0);
     }
-  }
-  .animate-slide-down {
-    animation: slide-down 0.2s ease;
   }
 </style>

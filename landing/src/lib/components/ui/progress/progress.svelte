@@ -7,12 +7,9 @@
 		max?: number;
 	};
 
-	let className: $$Props['class'] = undefined;
-	export { className as class };
-	export let value: $$Props['value'] = 0;
-	export let max: $$Props['max'] = 100;
+	let { value = 0, max = 100, class: className } = $props();
 
-	$: percentage = Math.min(Math.max(((value || 0) / (max || 100)) * 100, 0), 100);
+	let percentage = $derived(Math.min(Math.max(((value || 0) / (max || 100)) * 100, 0), 100));
 </script>
 
 <div

@@ -26,7 +26,7 @@
   const demos = [
     {
       id: "chatbot",
-      title: "AI Chatbot Demo",
+      title: "AI Assistant",
       description:
         "Intelligent customer support chatbot that handles inquiries 24/7",
       icon: MessageSquare,
@@ -42,8 +42,8 @@
       status: "available",
     },
     {
-      id: "scheduling",
-      title: "Smart Scheduling Demo",
+      id: "automation-tasks",
+      title: "Automation Tasks",
       description:
         "Automated appointment booking and calendar management system",
       icon: Calendar,
@@ -55,8 +55,8 @@
       status: "available",
     },
     {
-      id: "analytics",
-      title: "Data Insights Demo",
+      id: "data-insights",
+      title: "Data Insights",
       description: "AI-powered analytics dashboard for business intelligence",
       icon: BarChart3,
       category: "Analytics",
@@ -71,9 +71,9 @@
       status: "available",
     },
     {
-      id: "automation",
-      title: "Workflow Automation",
-      description: "Automate repetitive tasks and business processes",
+      id: "business-operations",
+      title: "Business Operations",
+      description: "All-in-one business operations platform for local businesses to manage their operations.",
       icon: Zap,
       category: "Automation",
       duration: "12-18 min",
@@ -81,39 +81,11 @@
       benefits: ["Save time", "Reduce errors", "Scale operations"],
       color: "bg-orange-500",
       status: "coming-soon",
-    },
-    {
-      id: "training",
-      title: "AI Training Assistant",
-      description: "Personalized training and onboarding system",
-      icon: Users,
-      category: "HR",
-      duration: "6-10 min",
-      difficulty: "Easy",
-      benefits: [
-        "Faster onboarding",
-        "Consistent training",
-        "Progress tracking",
-      ],
-      color: "bg-indigo-500",
-      status: "coming-soon",
-    },
-    {
-      id: "documentation",
-      title: "Smart Documentation",
-      description: "AI-powered document generation and management",
-      icon: FileText,
-      category: "Documentation",
-      duration: "8-12 min",
-      difficulty: "Medium",
-      benefits: ["Auto-generate docs", "Version control", "Easy search"],
-      color: "bg-teal-500",
-      status: "coming-soon",
-    },
+    }
   ];
 
   function startDemo(demoId: string) {
-    if (demoId === "chatbot" || demoId === "scheduling" || demoId === "analytics") {
+    if (demoId === "ai-assistant" || demoId === "automation-tasks" || demoId === "data-insights" || demoId === "business-operations") {
       goto(`/demos/${demoId}`);
     } else {
       console.log(`Demo ${demoId} coming soon`);

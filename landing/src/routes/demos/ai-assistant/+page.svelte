@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { env } from "$env/dynamic/public";
+
   import { Button } from "$lib/components/ui/button";
   import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "$lib/components/ui/card";
   import { Badge } from "$lib/components/ui/badge";
@@ -171,7 +171,7 @@
       console.error("Error getting chatbot response:", error);
       
       // Fallback to simulated response if n8n fails
-      const websiteData = websiteContent[websiteUrl] || websiteContent["https://example.com"];
+      const websiteData = websiteContent[websiteUrl as keyof typeof websiteContent] || websiteContent["https://example.com"];
       const botResponse = {
         id: messages.length + 1,
         text: generateIntelligentResponse(userMessage.text, websiteData),
@@ -216,11 +216,10 @@
     
     try {
       // Call n8n workflow to train the chatbot
-      const response = await fetch(env.PUBLIC_N8N_DEMO_CHAT_API_URL, {
+      const response = await fetch('/api/n8n/chat', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'n8n': 'EDNSY'
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           websiteUrl: websiteUrl,
@@ -240,7 +239,7 @@
       isDemoRunning = true;
       
       // Get website data for the demo
-      const websiteData = websiteContent[websiteUrl] || websiteContent["https://example.com"];
+      const websiteData = websiteContent[websiteUrl as keyof typeof websiteContent] || websiteContent["https://example.com"];
       
       messages = [
         {
@@ -270,9 +269,11 @@
   }
 
   // Watch for website URL changes to validate
-  $: if (websiteUrl && !isTraining && !isDemoRunning) {
-    websiteValidation = validateWebsiteUrl(websiteUrl);
-  }
+  $effect(() => {
+    if (websiteUrl && !isTraining && !isDemoRunning) {
+      websiteValidation = validateWebsiteUrl(websiteUrl);
+    }
+  });
 </script>
 
 <div class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 ">

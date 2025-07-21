@@ -1,76 +1,42 @@
 <script lang="ts">
-  import { Button } from "$lib/components/ui/button";
-  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "$lib/components/ui/card";
-  import { Separator } from "$lib/components/ui/separator";
-  import { supabase } from "$lib/supabase";
-  import { goto } from "$app/navigation";
-  import { browser } from "$app/environment";
-  import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
+  import { supabase } from '$lib/supabase';
+  import { browser } from '$app/environment';
+  import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '$lib/components/ui/card';
+  import { onMount } from 'svelte';
+  import { goto } from '$app/navigation';
 
   let isLoading = $state(false);
   let errorMessage = $state("");
-  
-  // Test function
-  function testClick() {
-    console.log('Test click works!');
-    alert('Button click is working!');
-  }
+  let isLoggedIn = $state(false);
 
-  async function handleGoogleLogin() {
-    if (!browser) return;
-    
-    console.log('Button clicked!');
-    console.log('Environment variables:', {
-      supabaseUrl: PUBLIC_SUPABASE_URL,
-      hasAnonKey: !!PUBLIC_SUPABASE_ANON_KEY
-    });
-    console.log('Current location:', window.location.href);
-    console.log('Origin:', window.location.origin);
-    
-    try {
-      isLoading = true;
-      errorMessage = "";
-      
-      // Get the current URL and construct the redirect URL properly
-      const currentUrl = window.location.href;
-      const baseUrl = currentUrl.split('/login')[0]; // Remove /login from the URL
-      const redirectUrl = `${baseUrl}/auth/callback`;
-      
-      console.log('Starting Google OAuth...');
-      console.log('Current URL:', currentUrl);
-      console.log('Base URL:', baseUrl);
-      console.log('Redirect URL:', redirectUrl);
-      console.log('Supabase URL:', PUBLIC_SUPABASE_URL);
-      
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: redirectUrl,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          },
+  onMount(async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      isLoggedIn = true;
+      goto('/demos');
+    }
+  });
+
+  async function loginWithGoogle() {
+    isLoading = true;
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const redirectTo = `${origin}/auth/callback`;
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
         },
-      });
-
-      console.log('OAuth result:', { data, error });
-
-      if (error) {
-        console.error('Google OAuth error:', error);
-        errorMessage = error.message || 'Failed to sign in with Google';
-      } else {
-        console.log('OAuth successful, redirecting...');
-        console.log('OAuth data:', data);
-      }
-    } catch (error) {
-      console.error('Unexpected error:', error);
-      errorMessage = 'An unexpected error occurred. Please try again.';
-    } finally {
+      },
+    });
+    if (error) {
+      errorMessage = error.message;
       isLoading = false;
     }
   }
 </script>
-
 <svelte:head>
   <title>Login - Ed&Sy</title>
   <meta name="description" content="Sign in to your Ed&Sy account" />
@@ -94,40 +60,23 @@
       </CardHeader>
       
       <CardContent class="space-y-6 mb-10 mx-2">
-        <button 
-          class="w-full h-12 text-base font-medium border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 rounded-md bg-white text-gray-900 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          on:click={testClick}
-        >
-          Test Click
-        </button>
-        
-        <button 
-          class="w-full h-12 text-base font-medium border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 rounded-md bg-white text-gray-900 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          on:click={handleGoogleLogin}
+        {#if !isLoggedIn}
+        <button
+          onclick={loginWithGoogle}
+          class="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 mt-4"
           disabled={isLoading}
         >
-          {#if isLoading}
-            <div class="w-5 h-5 mr-3 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
-            Signing in...
-          {:else}
-            <svg class="w-5 h-5 mr-3" viewBox="0 0 24 24">
-              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-            </svg>
-            Continue with Google
-          {/if}
+          <svg class="w-5 h-5" viewBox="0 0 48 48"><g><path fill="#4285F4" d="M44.5 20H24v8.5h11.7C34.1 33.1 29.6 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c2.7 0 5.2.9 7.2 2.4l6.4-6.4C34.1 5.1 29.3 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21c10.5 0 19.5-7.6 21-18h-21v-9z"/><path fill="#34A853" d="M6.3 14.7l7 5.1C15.5 17.1 19.4 15 24 15c2.7 0 5.2.9 7.2 2.4l6.4-6.4C34.1 5.1 29.3 3 24 3 15.1 3 7.6 8.7 6.3 14.7z"/><path fill="#FBBC05" d="M24 45c5.3 0 10.1-1.8 13.8-4.9l-6.4-5.2C29.2 36.1 26.7 37 24 37c-5.5 0-10.1-3.7-11.7-8.7l-7 5.4C7.6 39.3 15.1 45 24 45z"/><path fill="#EA4335" d="M44.5 20H24v8.5h11.7C34.1 33.1 29.6 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c2.7 0 5.2.9 7.2 2.4l6.4-6.4C34.1 5.1 29.3 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21c10.5 0 19.5-7.6 21-18h-21v-9z"/></g></svg>
+          Continue with Google
         </button>
-        
+        {/if}
         {#if errorMessage}
-          <div class="text-red-600 text-sm text-center bg-red-50 border border-red-200 rounded-md p-3">
-            {errorMessage}
-          </div>
+          <div class="text-red-500 mt-2">{errorMessage}</div>
         {/if}
         
-        
-        
+        <div class="text-center">
+          <a class="text-blue-600 hover:text-blue-700" href="/">Return to Home</a>
+        </div>
       </CardContent>
     </Card>
     

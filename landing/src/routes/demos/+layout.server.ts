@@ -1,0 +1,1 @@
+// SPA: No SSR session guard needed. File intentionally left blank. 

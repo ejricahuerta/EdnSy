@@ -5,16 +5,25 @@ import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/publi
 const supabaseUrl = PUBLIC_SUPABASE_URL
 const supabaseAnonKey = PUBLIC_SUPABASE_ANON_KEY
 
-// Check if environment variables are set
+// Enhanced environment variable validation
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Missing Supabase environment variables. Please set PUBLIC_SUPABASE_URL and PUBLIC_SUPABASE_ANON_KEY in your .env file.')
-  console.warn('For development, you can use placeholder values:')
-  console.warn('PUBLIC_SUPABASE_URL=https://your-project.supabase.co')
-  console.warn('PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key')
-  console.warn('See GOOGLE_OAUTH_SETUP.md for complete setup instructions.')
+  console.error('❌ Missing required Supabase environment variables:')
+  console.error('   - PUBLIC_SUPABASE_URL')
+  console.error('   - PUBLIC_SUPABASE_ANON_KEY')
+  console.error('')
+  console.error('Please ensure these are set in your .env file:')
+  console.error('PUBLIC_SUPABASE_URL=https://your-project.supabase.co')
+  console.error('PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key')
+  console.error('')
+  console.error('See GOOGLE_OAUTH_SETUP.md for complete setup instructions.')
+  
+  // In production, this should throw an error
+  if (import.meta.env.PROD) {
+    throw new Error('Missing required Supabase environment variables')
+  }
 }
 
-// Create Supabase client with fallback for development
+// Create Supabase client with enhanced error handling
 export const supabase = createClient(
   supabaseUrl || 'https://placeholder.supabase.co',
   supabaseAnonKey || 'placeholder_key',
@@ -22,7 +31,8 @@ export const supabase = createClient(
     auth: {
       autoRefreshToken: true,
       persistSession: true,
-      detectSessionInUrl: true
+      detectSessionInUrl: true,
+      flowType: 'pkce'
     }
   }
 )

@@ -8,8 +8,8 @@
 		},
         navMain: [
             {
-                title: "Chatbot",
-                url: "/demos/chatbot",
+                title: "Assistant",
+                url: "/demos/ai-assistant",
                 icon: Bot,
             },
             {
@@ -26,8 +26,8 @@
         ],
         navBundle: [
             {
-                name: "AI Agent",
-                url: "/demos/custom-ai",
+                name: "Full Business Operations",
+                url: "/demos/business-operations",
                 icon: Bot,
             },
         ],

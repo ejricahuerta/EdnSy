@@ -144,7 +144,7 @@ function getInsightText(type: DataType) {
         bind:value={prompt}
         autocomplete="off"
       />
-      <button type="submit" class="bg-[#25d366] hover:bg-[#128c7e] text-white rounded-full p-2 transition-colors duration-150">
+      <button type="submit" class="bg-[#25d366] hover:bg-[#128c7e] text-white rounded-full p-2 transition-colors duration-150" aria-label="Send message">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M22 2L11 13"/><path stroke-linecap="round" stroke-linejoin="round" d="M22 2L15 22l-4-9-9-4 20-7z"/></svg>
       </button>
     </form>
@@ -152,11 +152,6 @@ function getInsightText(type: DataType) {
 </div>
 
 <style>
-  .chat-bubble { animation: pop-in 0.2s cubic-bezier(0.4,0,0.2,1) forwards; }
-  @keyframes pop-in {
-    0% { transform: scale(0.95); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-  }
 </style>
 
 <!-- Chart.js CDN for demo (user can switch to npm if desired) -->

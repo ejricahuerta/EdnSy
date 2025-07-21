@@ -1,49 +1,41 @@
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
+import { N8N_DEMO_CHAT_API_URL } from '$env/static/private';
 
-export const POST: RequestHandler = async ({ request }) => {
+// Validate environment variables
+if (!N8N_DEMO_CHAT_API_URL) {
+  console.error('❌ Missing required N8N environment variable: N8N_DEMO_CHAT_API_URL');
+  if (import.meta.env.PROD) {
+    throw new Error('Missing required N8N environment variable');
+  }
+}
+
+export async function POST({ request }) {
   try {
-    const { message, websiteUrl, conversationHistory } = await request.json();
+    const body = await request.json();
     
-    // Get n8n webhook URL from environment variable
-    const n8nWebhookUrl = process.env.N8N_CHAT_WEBHOOK_URL || 'http://localhost:5678/webhook/chat';
+    // Validate request body
+    if (!body || typeof body !== 'object') {
+      return json({ error: 'Invalid request body' }, { status: 400 });
+    }
     
-    console.log('Calling n8n chat webhook:', n8nWebhookUrl);
-    console.log('Chat data:', { message, websiteUrl, conversationHistory });
-    
-    // Call n8n webhook for chat response
-    const response = await fetch(n8nWebhookUrl, {
+    const response = await fetch(N8N_DEMO_CHAT_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'n8n': 'EDNSY'
       },
-      body: JSON.stringify({
-        message,
-        websiteUrl,
-        conversationHistory,
-        timestamp: new Date().toISOString()
-      })
+      body: JSON.stringify(body)
     });
-    
+
     if (!response.ok) {
-      throw new Error(`n8n chat webhook failed: ${response.status} ${response.statusText}`);
+      console.error(`N8N API error: ${response.status} ${response.statusText}`);
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
+
     const result = await response.json();
-    console.log('n8n chat response:', result);
-    
-    return json({
-      success: true,
-      response: result.response || result.message || "I'm sorry, I couldn't process your request.",
-      data: result
-    });
-    
+    return json(result);
   } catch (error) {
-    console.error('Error calling n8n chat:', error);
-    return json({
-      success: false,
-      response: "I'm sorry, I'm having trouble connecting to my training. Please try again later.",
-      error: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    console.error('Error in n8n chat API:', error);
+    return json({ error: 'Failed to process request' }, { status: 500 });
   }
-}; 
+} 

@@ -1,12 +1,38 @@
 import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
+import { N8N_DEMO_CHAT_API_URL } from '$env/static/private';
 
-export const POST: RequestHandler = async ({ request }) => {
+// Validate environment variables
+if (!N8N_DEMO_CHAT_API_URL) {
+  console.error('❌ Missing required N8N environment variable: N8N_DEMO_CHAT_API_URL');
+  if (import.meta.env.PROD) {
+    throw new Error('Missing required N8N environment variable');
+  }
+}
+
+export async function POST({ request }) {
   try {
     const { websiteUrl, action } = await request.json();
     
-    // Get n8n webhook URL from environment variable
-    const n8nWebhookUrl = process.env.N8N_WEBHOOK_URL || 'http://localhost:5678/webhook/train-chatbot';
+    // Validate required fields
+    if (!websiteUrl || !action) {
+      return json({ 
+        success: false, 
+        message: 'Missing required fields: websiteUrl and action' 
+      }, { status: 400 });
+    }
+    
+    // Validate websiteUrl format
+    try {
+      new URL(websiteUrl);
+    } catch {
+      return json({ 
+        success: false, 
+        message: 'Invalid website URL format' 
+      }, { status: 400 });
+    }
+    
+    // Use the same n8n URL for training
+    const n8nWebhookUrl = N8N_DEMO_CHAT_API_URL;
     
     console.log('Calling n8n webhook:', n8nWebhookUrl);
     console.log('Training data:', { websiteUrl, action });
@@ -25,6 +51,7 @@ export const POST: RequestHandler = async ({ request }) => {
     });
     
     if (!response.ok) {
+      console.error(`N8N webhook failed: ${response.status} ${response.statusText}`);
       throw new Error(`n8n webhook failed: ${response.status} ${response.statusText}`);
     }
     
