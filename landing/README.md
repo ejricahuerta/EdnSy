@@ -61,8 +61,10 @@ The Ednsy Demo Platform features **four interactive demos** where users input th
 Create a `.env` file in the landing directory:
 
 ```env
-VITE_SUPABASE_URL=your_supabase_project_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+PUBLIC_SUPABASE_URL=your_supabase_project_url
+PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_URL=your_supabase_project_url
+SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
 ### 3. Google OAuth Configuration
@@ -91,14 +93,16 @@ npm run build
 
 ## Database Schema
 
-### Users Table
+### users
 - `id`: UUID (references auth.users)
 - `email`: User's email address
-- `industry_preference`: Selected industry during onboarding
+- `created_at`: Timestamp
 - `demo_credits`: Available credits (starts with 200)
+- `industry_preference`: Selected industry during onboarding
 - `total_demos_completed`: Number of completed demos
+- `consultation_booked`: Boolean
 
-### Demos Table
+### demos
 - `id`: Demo identifier
 - `title`: Demo title
 - `description`: Demo description
@@ -106,23 +110,28 @@ npm run build
 - `credit_cost`: Credits required for this demo
 - `estimated_time`: Estimated completion time in minutes
 - `difficulty`: beginner/intermediate/advanced
+- `benefits`: Array of text
+- `created_at`: Timestamp
 
-### Demo Sessions Table
+### demo_sessions
+- `id`: UUID
 - `user_id`: User who started the demo
 - `demo_id`: Demo being attempted
 - `started_at`: When demo was started
 - `completed_at`: When demo was completed
 - `credits_used`: Credits consumed
 - `progress_data`: JSON data for resume functionality
-- `user_input_data`: User's provided information for the demo
+- `created_at`: Timestamp
 
-### Consultations Table
+### consultations
+- `id`: UUID
 - `user_id`: User requesting consultation
-- `industry`: User's industry
-- `demo_activity_summary`: Summary of demo engagement
-- `consultation_type`: in-person/phone/video
-- `scheduled_at`: Consultation appointment time
+- `demo_id`: Demo related to consultation
+- `scheduled_at`: Appointment time
+- `calendly_link`: Calendly booking link
 - `status`: scheduled/completed/cancelled
+- `notes`: Optional notes
+- `created_at`: Timestamp
 
 ## User Flow
 
@@ -130,7 +139,7 @@ npm run build
 2. **Demo Onboarding:** User clicks "Try Demo Platform" and selects industry
 3. **Google OAuth:** User signs in with Google account
 4. **Credit Allocation:** User receives 200 credits automatically
-5. **Demo Selection:** User chooses from the four available demos
+5. **Demo Selection:** User chooses from the available demos
 6. **Data Input:** User provides their business information, data, or preferences
 7. **Interactive Demo:** User experiences AI automation working with their input
 8. **Consultation Booking:** User can book consultation after demo completion
@@ -141,13 +150,12 @@ npm run build
 - Demo platform links added to existing landing page
 - Consultation bookings integrated with Calendly
 - Demo completion data flows to CRM (e.g., HubSpot, Pipedrive)
-- Analytics tracking for demo engagement and completion
 
 ## Security & Performance
 
 - Row Level Security (RLS) enabled on all tables
 - GDPR compliance features included
-- Secure OAuth integration with Google
+- Secure OAuth integration with Google (via Supabase)
 - Demo load times under 3 seconds
 - Mobile-optimized for business owners on-the-go
 - Secure handling of user input data

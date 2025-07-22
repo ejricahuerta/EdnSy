@@ -1,241 +1,906 @@
 {
   "project": {
-    "name": "Ednsy - AI Automation Made Simple for Local Businesses",
-    "description": "Interactive demo platform for local business automation with consultation booking and client management",
-    "version": "2.1.0",
-    "lastUpdated": "2025-01-27"
+    "name": "Ednsy - AI Automation for Home Services (n8n-Powered)",
+    "description": "Interactive demo platform for Home Services businesses with n8n-powered automation demos, onboarding, analytics, and consultation booking.",
+    "version": "3.0.0",
+    "lastUpdated": "2025-06-11"
   },
   "tasks": [
     {
       "id": 1,
       "title": "Project Setup & Infrastructure",
-      "description": "Initialize the project with proper architecture and development environment",
-      "status": "pending",
+      "description": "Initialize SvelteKit 5, Supabase, TypeScript, n8n integration, and deployment configuration.",
+      "status": "done",
       "priority": "high",
       "dependencies": [],
-      "details": "Set up the foundational infrastructure including SvelteKit 5, Supabase, TypeScript, and deployment configuration. This includes authentication setup, database schema, and basic project structure. Focus on building the demo platform that will integrate with the existing landing page.",
-      "testStrategy": "Verify all services are connected and basic authentication flow works",
-      "subtasks": []
+      "details": "Foundational infrastructure, authentication setup, database schema, and project structure are present.",
+      "testStrategy": "Verify all services are connected and basic authentication flow works.",
+      "subtasks": [
+        {
+          "id": "1.1",
+          "title": "Initialize SvelteKit 5 project",
+          "description": "Create a new SvelteKit 5 project and set up the initial repository.",
+          "status": "done",
+          "priority": "high",
+          "dependencies": [],
+          "details": "Project initialized with SvelteKit 5.",
+          "testStrategy": "Project builds and runs locally.",
+          "subtasks": []
+        },
+        {
+          "id": "1.2",
+          "title": "Set up Supabase project and connect to SvelteKit",
+          "description": "Create a Supabase project, configure environment variables, and connect to SvelteKit.",
+          "status": "done",
+          "priority": "high",
+          "dependencies": ["1.1"],
+          "details": "Supabase project created and connected.",
+          "testStrategy": "Supabase client can read/write data.",
+          "subtasks": []
+        },
+        {
+          "id": "1.3",
+          "title": "Configure TypeScript and strict mode",
+          "description": "Enable TypeScript and strict mode for type safety.",
+          "status": "done",
+          "priority": "medium",
+          "dependencies": ["1.1"],
+          "details": "TypeScript and strict mode enabled in tsconfig.",
+          "testStrategy": "Type errors are caught during build.",
+          "subtasks": []
+        },
+        {
+          "id": "1.4",
+          "title": "Set up n8n integration points (API endpoints, workflow triggers)",
+          "description": "Create API endpoints and workflow triggers for n8n integration.",
+          "status": "done",
+          "priority": "high",
+          "dependencies": ["1.1"],
+          "details": "n8n endpoints and triggers are in place.",
+          "testStrategy": "n8n workflows can be triggered from the app.",
+          "subtasks": []
+        },
+        {
+          "id": "1.5",
+          "title": "Configure deployment (Vercel)",
+          "description": "Set up Vercel deployment and environment variables.",
+          "status": "done",
+          "priority": "medium",
+          "dependencies": ["1.1"],
+          "details": "Vercel deployment configured.",
+          "testStrategy": "App deploys and runs on Vercel.",
+          "subtasks": []
+        }
+      ]
     },
     {
       "id": 2,
-      "title": "Demo Platform Integration",
-      "description": "Integrate demo platform with existing landing page and ensure seamless navigation",
-      "status": "pending",
+      "title": "Authentication & Onboarding",
+      "description": "Implement Google OAuth with Supabase and onboarding flow with industry selection and credit allocation.",
+      "status": "done",
       "priority": "high",
       "dependencies": [1],
-      "details": "Build integration points between the existing landing page and new demo platform. Ensure 'See It In Action' buttons on existing industry pages link to relevant demos. Implement seamless navigation between existing site and demo platform.",
-      "testStrategy": "Test all integration points, navigation flows, and ensure existing site functionality is preserved",
-      "subtasks": []
+      "details": "Google OAuth and onboarding with demo credits are implemented in /login and /auth/callback.",
+      "testStrategy": "Test OAuth flow, credit allocation, and onboarding.",
+      "subtasks": [
+        {
+          "id": "2.1",
+          "title": "Implement Google OAuth login with Supabase",
+          "description": "Set up Google OAuth authentication flow with Supabase.",
+          "status": "done",
+          "priority": "high",
+          "dependencies": ["1.1"],
+          "details": "Google OAuth login implemented.",
+          "testStrategy": "User can log in with Google.",
+          "subtasks": []
+        },
+        {
+          "id": "2.2",
+          "title": "Create onboarding UI for industry selection",
+          "description": "Design and implement the onboarding UI for users to select their industry.",
+          "status": "done",
+          "priority": "medium",
+          "dependencies": ["1.1"],
+          "details": "Onboarding UI created.",
+          "testStrategy": "Users can navigate to onboarding and select industry.",
+          "subtasks": []
+        },
+        {
+          "id": "2.3",
+          "title": "Allocate 200 demo credits to new users",
+          "description": "Set up a system to allocate 200 demo credits to new users upon successful onboarding.",
+          "status": "done",
+          "priority": "medium",
+          "dependencies": ["1.1"],
+          "details": "Credit allocation system implemented.",
+          "testStrategy": "New users receive 200 demo credits.",
+          "subtasks": []
+        },
+        {
+          "id": "2.4",
+          "title": "Track onboarding completion in user profile",
+          "description": "Ensure that the onboarding process is tracked and the user's profile is updated.",
+          "status": "done",
+          "priority": "medium",
+          "dependencies": ["1.1"],
+          "details": "Onboarding completion tracking implemented.",
+          "testStrategy": "User profile reflects onboarding status.",
+          "subtasks": []
+        }
+      ]
     },
     {
       "id": 3,
-      "title": "Demo Authentication System",
-      "description": "Implement Google OAuth authentication with credit allocation",
-      "status": "pending",
+      "title": "Demo Platform Core",
+      "description": "Build interactive demo environment with credit system and state management.",
+      "status": "done",
       "priority": "high",
-      "dependencies": [1],
-      "details": "Set up Google OAuth with Supabase Auth, implement automatic credit allocation (200 credits per user), and industry preference tracking for personalized demo recommendations. This is the core authentication system for the demo platform.",
-      "testStrategy": "Test OAuth flow, credit allocation, and user profile creation",
-      "subtasks": []
+      "dependencies": [2],
+      "details": "Demo platform with credit metering, progress persistence, and interactive demos is implemented.",
+      "testStrategy": "Test credit consumption, state persistence, and demo interactions.",
+      "subtasks": [
+        {
+          "id": "3.1",
+          "title": "Implement credit metering system for demos",
+          "description": "Create a system to track and manage demo credits for users.",
+          "status": "done",
+          "priority": "high",
+          "dependencies": ["1.1"],
+          "details": "Credit metering system implemented.",
+          "testStrategy": "Credits are deducted correctly for demo usage.",
+          "subtasks": []
+        },
+        {
+          "id": "3.2",
+          "title": "Create progress persistence for demo sessions",
+          "description": "Ensure that user's demo progress is saved and can be resumed.",
+          "status": "done",
+          "priority": "medium",
+          "dependencies": ["1.1"],
+          "details": "Progress persistence implemented.",
+          "testStrategy": "User can resume demo sessions from where they left off.",
+          "subtasks": []
+        },
+        {
+          "id": "3.3",
+          "title": "Build interactive demo UI shell",
+          "description": "Design and implement the main UI shell for the demo platform.",
+          "status": "done",
+          "priority": "medium",
+          "dependencies": ["1.1"],
+          "details": "Demo UI shell implemented.",
+          "testStrategy": "Users can navigate and interact with the demo platform.",
+          "subtasks": []
+        },
+        {
+          "id": "3.4",
+          "title": "Integrate demo navigation and state management",
+          "description": "Ensure smooth navigation between different demo sections and manage the application state.",
+          "status": "done",
+          "priority": "high",
+          "dependencies": ["1.1"],
+          "details": "Demo navigation and state management integrated.",
+          "testStrategy": "Users can navigate between demos without losing context.",
+          "subtasks": []
+        }
+      ]
     },
     {
       "id": 4,
-      "title": "Demo Platform Core",
-      "description": "Build the interactive demo environment with credit system and state management",
-      "status": "pending",
+      "title": "AI Assistant Demo (Chat/Voice)",
+      "description": "Implement AI assistant demo for scheduling and Q&A, powered by n8n.",
+      "status": "done",
       "priority": "high",
       "dependencies": [3],
-      "details": "Create the demo platform infrastructure including credit metering, progress persistence, and interactive demo environments. Implement demo state management and resume functionality. This is the core engine for all interactive demos.",
-      "testStrategy": "Test credit consumption, state persistence, and demo interactions",
-      "subtasks": []
+      "details": "/demos/ai-assistant and ChatbotDemo.svelte are implemented.",
+      "testStrategy": "Test chat and voice flows, booking simulation, and n8n integration.",
+      "subtasks": [
+        {
+          "id": "4.1",
+          "title": "Build chat UI for AI assistant demo",
+          "description": "Design and implement the chat interface for the AI assistant.",
+          "status": "done",
+          "priority": "high",
+          "dependencies": ["1.1"],
+          "details": "Chat UI implemented.",
+          "testStrategy": "Users can interact with the AI assistant via chat.",
+          "subtasks": []
+        },
+        {
+          "id": "4.2",
+          "title": "Integrate n8n backend for scheduling and Q&A",
+          "description": "Connect the frontend chat interface to the n8n backend for scheduling and Q&A.",
+          "status": "done",
+          "priority": "high",
+          "dependencies": ["1.1"],
+          "details": "n8n backend integration for scheduling and Q&A implemented.",
+          "testStrategy": "Chatbot can process user queries and schedule appointments.",
+          "subtasks": []
+        },
+        {
+          "id": "4.3",
+          "title": "Implement simulated calendar booking",
+          "description": "Simulate the process of booking a calendar appointment via the chat interface.",
+          "status": "done",
+          "priority": "medium",
+          "dependencies": ["1.1"],
+          "details": "Simulated calendar booking implemented.",
+          "testStrategy": "Chatbot can successfully book a calendar appointment.",
+          "subtasks": []
+        },
+        {
+          "id": "4.4",
+          "title": "Add voice input/output (if applicable)",
+          "description": "Add voice input/output capabilities to the chat interface.",
+          "status": "pending",
+          "priority": "medium",
+          "dependencies": ["1.1"],
+          "details": "Voice input/output not yet implemented.",
+          "testStrategy": "Voice input/output functionality is ready for integration.",
+          "subtasks": []
+        },
+        {
+          "id": "4.5",
+          "title": "Test demo with various user scenarios",
+          "description": "Test the AI assistant demo with different user intents and scenarios.",
+          "status": "in_progress",
+          "priority": "medium",
+          "dependencies": ["1.1"],
+          "details": "Various user scenarios tested.",
+          "testStrategy": "AI assistant handles a variety of user inputs and provides accurate responses.",
+          "subtasks": []
+        }
+      ]
     },
     {
       "id": 5,
-      "title": "Restaurant & Food Service Demos",
-      "description": "Create interactive demos for restaurant automation scenarios",
-      "status": "pending",
+      "title": "Tasks Automation Demo (Lead to Sale)",
+      "description": "Implement lead-to-sale automation demo for Home Services.",
+      "status": "done",
       "priority": "high",
-      "dependencies": [4],
-      "details": "Build 5-8 restaurant-specific demos including online ordering, reservation management, review automation, inventory tracking, and staff scheduling. Each demo should cost 25-40 credits. These demos will be linked from the existing restaurant industry page.",
-      "testStrategy": "Test each demo scenario with realistic data and verify credit consumption",
-      "subtasks": []
+      "dependencies": [3],
+      "details": "/demos/automation-tasks and DailyTaskDemo.svelte are implemented.",
+      "testStrategy": "Test lead capture, automated emails/SMS, and CRM simulation.",
+      "subtasks": [
+        {
+          "id": "5.1",
+          "title": "Build lead capture form and flow",
+          "description": "Design and implement the form users fill out to start a lead.",
+          "status": "done",
+          "priority": "high",
+          "dependencies": ["1.1"],
+          "details": "Lead capture form implemented.",
+          "testStrategy": "Users can successfully submit a lead form.",
+          "subtasks": []
+        },
+        {
+          "id": "5.2",
+          "title": "Integrate n8n for automated email/SMS",
+          "description": "Connect the lead capture form to an automated email/SMS system.",
+          "status": "done",
+          "priority": "high",
+          "dependencies": ["1.1"],
+          "details": "Automated email/SMS integration implemented.",
+          "testStrategy": "Users receive automated follow-up emails/SMS.",
+          "subtasks": []
+        },
+        {
+          "id": "5.3",
+          "title": "Simulate CRM lead assignment",
+          "description": "Simulate the process of assigning a lead to a sales representative.",
+          "status": "done",
+          "priority": "medium",
+          "dependencies": ["1.1"],
+          "details": "CRM lead assignment simulation implemented.",
+          "testStrategy": "Leads are correctly routed to sales representatives.",
+          "subtasks": []
+        },
+        {
+          "id": "5.4",
+          "title": "Test full lead-to-sale journey",
+          "description": "Test the complete lead-to-sale journey from lead capture to follow-up.",
+          "status": "in_progress",
+          "priority": "medium",
+          "dependencies": ["1.1"],
+          "details": "Full lead-to-sale journey tested.",
+          "testStrategy": "Leads are successfully converted to sales opportunities.",
+          "subtasks": []
+        }
+      ]
     },
     {
       "id": 6,
-      "title": "Professional Services Demos",
-      "description": "Create interactive demos for professional services automation",
-      "status": "pending",
+      "title": "Data Insights Demo",
+      "description": "Implement data upload and KPI insights demo for Home Services.",
+      "status": "done",
       "priority": "high",
-      "dependencies": [4],
-      "details": "Build 5-8 professional services demos including appointment scheduling, client intake, follow-up sequences, document generation, and payment processing. Each demo should cost 20-35 credits. These demos will be linked from the existing professional services page.",
-      "testStrategy": "Test each demo scenario with realistic data and verify credit consumption",
-      "subtasks": []
+      "dependencies": [3],
+      "details": "/demos/data-insights and DataInsightsDemo.svelte are implemented.",
+      "testStrategy": "Test CSV upload, prompt-based insights, and n8n-powered analytics.",
+      "subtasks": [
+        {
+          "id": "6.1",
+          "title": "Build CSV upload UI for demo",
+          "description": "Design and implement the UI for users to upload CSV data.",
+          "status": "done",
+          "priority": "high",
+          "dependencies": ["1.1"],
+          "details": "CSV upload UI implemented.",
+          "testStrategy": "Users can successfully upload CSV files.",
+          "subtasks": []
+        },
+        {
+          "id": "6.2",
+          "title": "Integrate n8n for KPI and insights generation",
+          "description": "Connect the CSV upload to an n8n workflow for KPI generation and insights.",
+          "status": "done",
+          "priority": "high",
+          "dependencies": ["1.1"],
+          "details": "n8n integration for KPI and insights implemented.",
+          "testStrategy": "CSV data is processed and insights are generated.",
+          "subtasks": []
+        },
+        {
+          "id": "6.3",
+          "title": "Implement prompt-based analytics queries",
+          "description": "Allow users to query the generated insights using natural language.",
+          "status": "done",
+          "priority": "medium",
+          "dependencies": ["1.1"],
+          "details": "Prompt-based analytics queries implemented.",
+          "testStrategy": "Users can ask questions about the data and get relevant answers.",
+          "subtasks": []
+        },
+        {
+          "id": "6.4",
+          "title": "Test with sample data sets",
+          "description": "Test the data insights demo with different data sets and queries.",
+          "status": "in_progress",
+          "priority": "medium",
+          "dependencies": ["1.1"],
+          "details": "Data insights demo tested.",
+          "testStrategy": "Users can generate insights and ask questions about various data sets.",
+          "subtasks": []
+        }
+      ]
     },
     {
       "id": 7,
-      "title": "Retail & E-commerce Demos",
-      "description": "Create interactive demos for retail automation scenarios",
+      "title": "Business Operations Demo (Messaging Integration)",
+      "description": "Implement business operations demo with messaging platform integration (e.g., WhatsApp).",
       "status": "pending",
       "priority": "high",
-      "dependencies": [4],
-      "details": "Build 5-8 retail-specific demos including customer segmentation, inventory management, cart recovery, loyalty programs, and social media automation. Each demo should cost 30-45 credits. These demos will be linked from the existing retail industry page.",
-      "testStrategy": "Test each demo scenario with realistic data and verify credit consumption",
-      "subtasks": []
+      "dependencies": [3],
+      "details": "/demos/business-operations exists but has no implementation file.",
+      "testStrategy": "Implement WhatsApp simulation, urgent job dispatch, and FSM integration.",
+      "subtasks": [
+        {
+          "id": "7.1",
+          "title": "Design WhatsApp-like messaging UI",
+          "description": "Design a UI that mimics WhatsApp's look and feel for the business operations demo.",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": ["1.1"],
+          "details": "WhatsApp-like UI design not yet implemented.",
+          "testStrategy": "UI is ready for WhatsApp simulation.",
+          "subtasks": []
+        },
+        {
+          "id": "7.2",
+          "title": "Integrate n8n for urgent job dispatch",
+          "description": "Connect the messaging UI to an n8n workflow for urgent job dispatch.",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": ["1.1"],
+          "details": "n8n integration for urgent job dispatch not yet implemented.",
+          "testStrategy": "Messages can trigger urgent job dispatch.",
+          "subtasks": []
+        },
+        {
+          "id": "7.3",
+          "title": "Simulate FSM (Field Service Management) system",
+          "description": "Simulate the process of a field service manager receiving and dispatching jobs.",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": ["1.1"],
+          "details": "FSM simulation not yet implemented.",
+          "testStrategy": "FSM system is ready for simulation.",
+          "subtasks": []
+        },
+        {
+          "id": "7.4",
+          "title": "Test business operations demo scenarios",
+          "description": "Test the business operations demo with different messaging and dispatch scenarios.",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": ["1.1"],
+          "details": "Business operations demo tested.",
+          "testStrategy": "Users can interact with the messaging platform and experience dispatching jobs.",
+          "subtasks": []
+        }
+      ]
     },
     {
       "id": 8,
-      "title": "Home Services Demos",
-      "description": "Create interactive demos for home services automation",
-      "status": "pending",
+      "title": "API & Backend Integration",
+      "description": "Implement n8n-powered backend endpoints for chat, automation, and data insights.",
+      "status": "done",
       "priority": "high",
-      "dependencies": [4],
-      "details": "Build 5-8 home services demos including lead qualification, appointment booking, service reminders, estimate generation, and customer communication. Each demo should cost 25-40 credits. These demos will be linked from the existing home services page.",
-      "testStrategy": "Test each demo scenario with realistic data and verify credit consumption",
-      "subtasks": []
+      "dependencies": [3],
+      "details": "API endpoints for chat and chatbot training exist under /api/n8n/.",
+      "testStrategy": "Test API endpoints and n8n workflow triggers.",
+      "subtasks": [
+        {
+          "id": "8.1",
+          "title": "Implement /api/n8n/chat endpoint",
+          "description": "Create the API endpoint for the chatbot to receive user messages.",
+          "status": "done",
+          "priority": "high",
+          "dependencies": ["1.1"],
+          "details": "Chat endpoint implemented.",
+          "testStrategy": "API can receive and process chat messages.",
+          "subtasks": []
+        },
+        {
+          "id": "8.2",
+          "title": "Implement /api/n8n/train-chatbot endpoint",
+          "description": "Create the API endpoint for training the chatbot with new data.",
+          "status": "done",
+          "priority": "high",
+          "dependencies": ["1.1"],
+          "details": "Chatbot training endpoint implemented.",
+          "testStrategy": "API can trigger chatbot training workflows.",
+          "subtasks": []
+        },
+        {
+          "id": "8.3",
+          "title": "Test API endpoints with demo flows",
+          "description": "Test the API endpoints with various demo flows to ensure they work as expected.",
+          "status": "in_progress",
+          "priority": "medium",
+          "dependencies": ["1.1"],
+          "details": "API endpoints tested.",
+          "testStrategy": "API endpoints handle various demo flows correctly.",
+          "subtasks": []
+        }
+      ]
     },
     {
       "id": 9,
       "title": "Consultation Booking System",
-      "description": "Integrate Calendly and build consultation management",
+      "description": "Integrate Calendly or similar for consultation booking and management.",
       "status": "pending",
       "priority": "high",
-      "dependencies": [4],
-      "details": "Integrate Calendly for consultation booking, build consultant dashboard showing prospect demo activity, and implement consultation notes and follow-up tracking. This system will capture leads from demo completions.",
-      "testStrategy": "Test booking flow, consultant dashboard, and follow-up automation",
-      "subtasks": []
+      "dependencies": [3],
+      "details": "No direct consultation booking route found; likely a future feature.",
+      "testStrategy": "Implement booking UI, calendar integration, and consultant dashboard.",
+      "subtasks": [
+        {
+          "id": "9.1",
+          "title": "Design consultation booking UI",
+          "description": "Design and implement the UI for users to book consultations.",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": ["1.1"],
+          "details": "Consultation booking UI design not yet implemented.",
+          "testStrategy": "UI is ready for consultation booking.",
+          "subtasks": []
+        },
+        {
+          "id": "9.2",
+          "title": "Integrate Calendly or similar service",
+          "description": "Connect the booking UI to a Calendly or similar service for actual booking.",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": ["1.1"],
+          "details": "Calendly integration not yet implemented.",
+          "testStrategy": "Users can successfully book consultations via the booking UI.",
+          "subtasks": []
+        },
+        {
+          "id": "9.3",
+          "title": "Build consultant dashboard for demo activity",
+          "description": "Design and implement a dashboard for consultants to manage their booked consultations.",
+          "status": "pending",
+          "priority": "medium",
+          "dependencies": ["1.1"],
+          "details": "Consultant dashboard design not yet implemented.",
+          "testStrategy": "Consultants can view and manage their booked consultations.",
+          "subtasks": []
+        },
+        {
+          "id": "9.4",
+          "title": "Test booking and management flows",
+          "description": "Test the complete booking and management flow for consultants.",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": ["1.1"],
+          "details": "Consultation booking and management tested.",
+          "testStrategy": "Users can successfully book and manage consultations.",
+          "subtasks": []
+        }
+      ]
     },
     {
       "id": 10,
-      "title": "Lead Capture & CRM Integration",
-      "description": "Integrate demo platform with existing lead capture and CRM systems",
-      "status": "pending",
+      "title": "Analytics & Performance Tracking",
+      "description": "Implement analytics for demo engagement, credit usage, and conversion.",
+      "status": "done",
       "priority": "medium",
-      "dependencies": [9],
-      "details": "Integrate with existing CRM (HubSpot/Pipedrive) to capture leads from demo completions. Ensure demo activity data flows to existing lead management systems. Build lead qualification scoring based on demo engagement.",
-      "testStrategy": "Test lead capture, CRM integration, and data flow accuracy",
-      "subtasks": []
+      "dependencies": [3],
+      "details": "Analytics is implemented via Vercel Analytics and PostHog.",
+      "testStrategy": "Verify analytics data collection and reporting accuracy.",
+      "subtasks": [
+        {
+          "id": "10.1",
+          "title": "Integrate Vercel Analytics",
+          "description": "Set up Vercel Analytics to track user engagement and performance.",
+          "status": "done",
+          "priority": "medium",
+          "dependencies": ["1.1"],
+          "details": "Vercel Analytics integration implemented.",
+          "testStrategy": "Analytics data is collected and reported accurately.",
+          "subtasks": []
+        },
+        {
+          "id": "10.2",
+          "title": "Integrate PostHog for user behavior tracking",
+          "description": "Set up PostHog to track user interactions and behavior across the platform.",
+          "status": "done",
+          "priority": "medium",
+          "dependencies": ["1.1"],
+          "details": "PostHog integration implemented.",
+          "testStrategy": "User behavior is tracked and analyzed.",
+          "subtasks": []
+        },
+        {
+          "id": "10.3",
+          "title": "Test analytics dashboards and event tracking",
+          "description": "Test the various analytics dashboards and ensure event tracking is accurate.",
+          "status": "in_progress",
+          "priority": "medium",
+          "dependencies": ["1.1"],
+          "details": "Analytics dashboards and event tracking tested.",
+          "testStrategy": "All analytics features work as expected.",
+          "subtasks": []
+        }
+      ]
     },
     {
       "id": 11,
       "title": "Lead Nurturing & Email Automation",
-      "description": "Implement automated email sequences and lead nurturing",
+      "description": "Implement automated email sequences and lead nurturing.",
       "status": "pending",
       "priority": "medium",
       "dependencies": [9],
-      "details": "Set up ConvertKit/Mailchimp integration, create automated email sequences based on demo completion, and implement industry-specific content delivery and monthly newsletters. This will nurture leads from the existing landing page traffic.",
-      "testStrategy": "Test email sequences, content delivery, and retargeting campaigns",
-      "subtasks": []
+      "details": "No evidence of ConvertKit/Mailchimp or automated email flows in codebase.",
+      "testStrategy": "Set up email automation and test content delivery.",
+      "subtasks": [
+        {
+          "id": "11.1",
+          "title": "Integrate ConvertKit or Mailchimp",
+          "description": "Connect the platform to a marketing automation platform (e.g., ConvertKit, Mailchimp).",
+          "status": "pending",
+          "priority": "medium",
+          "dependencies": ["1.1"],
+          "details": "Marketing automation integration not yet implemented.",
+          "testStrategy": "Email automation flows are ready for testing.",
+          "subtasks": []
+        },
+        {
+          "id": "11.2",
+          "title": "Create automated email sequences for demo users",
+          "description": "Create pre-defined email sequences for new users to nurture them.",
+          "status": "pending",
+          "priority": "medium",
+          "dependencies": ["1.1"],
+          "details": "Automated email sequences not yet implemented.",
+          "testStrategy": "Email sequences are ready for testing.",
+          "subtasks": []
+        },
+        {
+          "id": "11.3",
+          "title": "Implement industry-specific content delivery",
+          "description": "Ensure that content is personalized and relevant to the user's industry.",
+          "status": "pending",
+          "priority": "medium",
+          "dependencies": ["1.1"],
+          "details": "Industry-specific content delivery not yet implemented.",
+          "testStrategy": "Content is personalized and relevant to the user's industry.",
+          "subtasks": []
+        },
+        {
+          "id": "11.4",
+          "title": "Test email automation flows",
+          "description": "Test the complete email automation flow from lead capture to follow-up.",
+          "status": "pending",
+          "priority": "medium",
+          "dependencies": ["1.1"],
+          "details": "Email automation flows tested.",
+          "testStrategy": "Users receive automated follow-up emails.",
+          "subtasks": []
+        }
+      ]
     },
     {
       "id": 12,
-      "title": "Analytics & Performance Tracking",
-      "description": "Implement comprehensive analytics and demo performance tracking",
-      "status": "pending",
-      "priority": "medium",
-      "dependencies": [4],
-      "details": "Set up Google Analytics 4, implement demo completion tracking, user engagement analytics, credit consumption tracking, and A/B testing framework for demo experiences. Track conversion from existing landing page to demo platform.",
-      "testStrategy": "Verify analytics data collection and reporting accuracy",
-      "subtasks": []
-    },
-    {
-      "id": 13,
       "title": "Client Management Portal",
-      "description": "Build client portal for project tracking and implementation management",
+      "description": "Build client portal for project tracking and implementation management.",
       "status": "pending",
       "priority": "medium",
       "dependencies": [9],
-      "details": "Create client portal showing project status, implementation timeline, training session scheduling, support ticket system, and success metrics tracking. This will manage clients acquired through the demo platform.",
-      "testStrategy": "Test client portal functionality and project tracking features",
-      "subtasks": []
+      "details": "No client portal or project tracking route found.",
+      "testStrategy": "Implement portal UI, project status, and support ticketing.",
+      "subtasks": [
+        {
+          "id": "12.1",
+          "title": "Design client portal UI",
+          "description": "Design and implement the UI for clients to manage their projects and support tickets.",
+          "status": "pending",
+          "priority": "medium",
+          "dependencies": ["1.1"],
+          "details": "Client portal UI design not yet implemented.",
+          "testStrategy": "UI is ready for client management.",
+          "subtasks": []
+        },
+        {
+          "id": "12.2",
+          "title": "Implement project status tracking",
+          "description": "Track the status of ongoing projects and their progress.",
+          "status": "pending",
+          "priority": "medium",
+          "dependencies": ["1.1"],
+          "details": "Project status tracking not yet implemented.",
+          "testStrategy": "Project status is accurately tracked.",
+          "subtasks": []
+        },
+        {
+          "id": "12.3",
+          "title": "Add support ticket system",
+          "description": "Implement a system for clients to submit support tickets.",
+          "status": "pending",
+          "priority": "medium",
+          "dependencies": ["1.1"],
+          "details": "Support ticket system not yet implemented.",
+          "testStrategy": "Users can submit and manage support tickets.",
+          "subtasks": []
+        },
+        {
+          "id": "12.4",
+          "title": "Test client portal features",
+          "description": "Test the complete client portal functionality.",
+          "status": "pending",
+          "priority": "medium",
+          "dependencies": ["1.1"],
+          "details": "Client portal features tested.",
+          "testStrategy": "Users can access and manage their projects and support tickets.",
+          "subtasks": []
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "title": "Performance Optimization",
+      "description": "Optimize demo platform for speed, mobile, and reliability.",
+      "status": "in_progress",
+      "priority": "medium",
+      "dependencies": [3],
+      "details": "Mobile optimization and performance work is present but may not be complete.",
+      "testStrategy": "Run performance audits and mobile testing.",
+      "subtasks": [
+        {
+          "id": "13.1",
+          "title": "Audit Lighthouse scores and optimize assets",
+          "description": "Run Lighthouse audits to identify performance bottlenecks and optimize assets.",
+          "status": "in_progress",
+          "priority": "medium",
+          "dependencies": ["1.1"],
+          "details": "Lighthouse audits run and performance optimization work is ongoing.",
+          "testStrategy": "Lighthouse scores are improved and assets are optimized.",
+          "subtasks": []
+        },
+        {
+          "id": "13.2",
+          "title": "Optimize mobile layout and interactions",
+          "description": "Ensure that the platform is responsive and performs well on mobile devices.",
+          "status": "in_progress",
+          "priority": "medium",
+          "dependencies": ["1.1"],
+          "details": "Mobile optimization and performance work is present.",
+          "testStrategy": "Platform is responsive and performs well on mobile.",
+          "subtasks": []
+        },
+        {
+          "id": "13.3",
+          "title": "Implement CDN and caching strategies",
+          "description": "Set up a Content Delivery Network (CDN) and implement caching strategies.",
+          "status": "pending",
+          "priority": "medium",
+          "dependencies": ["1.1"],
+          "details": "CDN and caching strategies not yet implemented.",
+          "testStrategy": "Assets are served efficiently and performance is improved.",
+          "subtasks": []
+        },
+        {
+          "id": "13.4",
+          "title": "Test performance under load",
+          "description": "Test the platform's performance under various loads and stress scenarios.",
+          "status": "pending",
+          "priority": "medium",
+          "dependencies": ["1.1"],
+          "details": "Performance testing is ongoing.",
+          "testStrategy": "Platform handles high loads and maintains performance.",
+          "subtasks": []
+        }
+      ]
     },
     {
       "id": 14,
-      "title": "Sales & Marketing Analytics",
-      "description": "Implement lead source tracking and sales pipeline analytics",
-      "status": "pending",
-      "priority": "medium",
-      "dependencies": [12],
-      "details": "Build lead source tracking (existing landing page vs demo platform), sales pipeline visibility, CAC calculation by channel, LTV tracking, and marketing campaign ROI analysis. Track effectiveness of demo platform vs traditional lead sources.",
-      "testStrategy": "Test lead attribution and pipeline tracking accuracy",
-      "subtasks": []
+      "title": "Security & Compliance",
+      "description": "Implement security measures and GDPR compliance.",
+      "status": "in_progress",
+      "priority": "high",
+      "dependencies": [1],
+      "details": "OAuth and Supabase security are present; full GDPR and backup features may not be complete.",
+      "testStrategy": "Conduct security audit and compliance verification.",
+      "subtasks": [
+        {
+          "id": "14.1",
+          "title": "Implement data encryption at rest and in transit",
+          "description": "Encrypt data at rest (on disk) and in transit (over network).",
+          "status": "in_progress",
+          "priority": "high",
+          "dependencies": ["1.1"],
+          "details": "Encryption at rest and in transit not yet fully implemented.",
+          "testStrategy": "Data is encrypted and secure.",
+          "subtasks": []
+        },
+        {
+          "id": "14.2",
+          "title": "Ensure secure OAuth integration",
+          "description": "Ensure that OAuth authentication is secure and protected.",
+          "status": "done",
+          "priority": "high",
+          "dependencies": ["1.1"],
+          "details": "OAuth integration is secure.",
+          "testStrategy": "OAuth flow is protected and secure.",
+          "subtasks": []
+        },
+        {
+          "id": "14.3",
+          "title": "Add GDPR compliance features (consent, data export)",
+          "description": "Implement consent management and data export functionality.",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": ["1.1"],
+          "details": "GDPR compliance features not yet implemented.",
+          "testStrategy": "GDPR compliance is ready for testing.",
+          "subtasks": []
+        },
+        {
+          "id": "14.4",
+          "title": "Set up regular backups and disaster recovery",
+          "description": "Set up automated backups and a disaster recovery plan.",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": ["1.1"],
+          "details": "Backup and disaster recovery not yet implemented.",
+          "testStrategy": "Data is backed up and recovery is possible.",
+          "subtasks": []
+        }
+      ]
     },
     {
       "id": 15,
-      "title": "Performance Optimization",
-      "description": "Optimize demo platform performance for speed and reliability",
+      "title": "Testing & Quality Assurance",
+      "description": "Implement comprehensive testing strategy for demos and onboarding.",
       "status": "pending",
       "priority": "medium",
-      "dependencies": [2, 4],
-      "details": "Optimize demo load times to under 3 seconds, achieve Lighthouse score >90, ensure 99.5% uptime, implement CDN for global performance, and optimize database queries. Ensure demo platform doesn't impact existing site performance.",
-      "testStrategy": "Run performance audits and load testing",
-      "subtasks": []
+      "dependencies": [3],
+      "details": "No explicit test suite or coverage found in codebase.",
+      "testStrategy": "Set up unit, integration, and end-to-end tests.",
+      "subtasks": [
+        {
+          "id": "15.1",
+          "title": "Set up unit test framework (e.g., Vitest)",
+          "description": "Set up a testing framework (e.g., Vitest) for unit testing.",
+          "status": "pending",
+          "priority": "medium",
+          "dependencies": ["1.1"],
+          "details": "Unit test framework not yet set up.",
+          "testStrategy": "Framework is ready for unit tests.",
+          "subtasks": []
+        },
+        {
+          "id": "15.2",
+          "title": "Write integration tests for demo flows",
+          "description": "Write tests to verify the integration between different components.",
+          "status": "pending",
+          "priority": "medium",
+          "dependencies": ["1.1"],
+          "details": "Integration tests not yet written.",
+          "testStrategy": "Integration tests are ready for writing.",
+          "subtasks": []
+        },
+        {
+          "id": "15.3",
+          "title": "Implement end-to-end tests for onboarding and demos",
+          "description": "Write tests to simulate the complete user journey from onboarding to demo.",
+          "status": "pending",
+          "priority": "medium",
+          "dependencies": ["1.1"],
+          "details": "End-to-end tests not yet implemented.",
+          "testStrategy": "End-to-end tests are ready for implementation.",
+          "subtasks": []
+        },
+        {
+          "id": "15.4",
+          "title": "Track and improve test coverage",
+          "description": "Track test coverage and continuously improve it.",
+          "status": "pending",
+          "priority": "medium",
+          "dependencies": ["1.1"],
+          "details": "Test coverage tracking not yet implemented.",
+          "testStrategy": "Test coverage is tracked and improved.",
+          "subtasks": []
+        }
+      ]
     },
     {
       "id": 16,
-      "title": "Security & Compliance",
-      "description": "Implement security measures and GDPR compliance",
-      "status": "pending",
-      "priority": "high",
-      "dependencies": [1],
-      "details": "Implement data encryption, secure OAuth integration, GDPR compliance features, regular backups, and demo data anonymization for privacy protection. Ensure demo platform meets same security standards as existing site.",
-      "testStrategy": "Conduct security audit and compliance verification",
-      "subtasks": []
-    },
-    {
-      "id": 17,
-      "title": "Deployment & DevOps",
-      "description": "Set up production deployment and monitoring",
-      "status": "pending",
-      "priority": "high",
-      "dependencies": [1],
-      "details": "Configure Vercel deployment with global CDN, set up monitoring and alerting, implement CI/CD pipeline, and configure environment variables and secrets management. Ensure demo platform deploys alongside existing site.",
-      "testStrategy": "Test deployment pipeline and monitor uptime",
-      "subtasks": []
-    },
-    {
-      "id": 18,
-      "title": "Content Enhancement",
-      "description": "Enhance existing content with demo integration and ROI calculators",
-      "status": "pending",
-      "priority": "medium",
-      "dependencies": [2],
-      "details": "Enhance existing industry pages with dynamic demo links, integrate ROI calculators from demo system into existing pages, add case studies and testimonials that reference demo experiences, and create educational content about automation.",
-      "testStrategy": "Test content integration and user engagement",
-      "subtasks": []
-    },
-    {
-      "id": 19,
-      "title": "Mobile Optimization",
-      "description": "Ensure excellent mobile experience for business owners on-the-go",
-      "status": "pending",
-      "priority": "medium",
-      "dependencies": [2, 4],
-      "details": "Optimize all demo pages for mobile devices, implement touch-friendly interactions, ensure fast mobile loading, and test across different mobile browsers and devices. Ensure demo platform works seamlessly on mobile alongside existing site.",
-      "testStrategy": "Test on various mobile devices and screen sizes",
-      "subtasks": []
-    },
-    {
-      "id": 20,
-      "title": "Testing & Quality Assurance",
-      "description": "Implement comprehensive testing strategy",
-      "status": "pending",
-      "priority": "medium",
-      "dependencies": [4, 9],
-      "details": "Set up unit tests, integration tests, end-to-end tests for demo flows, user acceptance testing, and automated testing for critical user journeys. Ensure demo platform quality doesn't impact existing site functionality.",
-      "testStrategy": "Achieve 80%+ test coverage and verify all critical paths",
-      "subtasks": []
-    },
-    {
-      "id": 21,
       "title": "Documentation & Training",
-      "description": "Create comprehensive documentation and training materials",
+      "description": "Create user documentation, consultant training, and API docs.",
       "status": "pending",
       "priority": "low",
-      "dependencies": [4, 9],
-      "details": "Create user documentation for demo platform, consultant training materials, implementation guides, API documentation, and troubleshooting guides. Include integration documentation for existing site maintenance team.",
-      "testStrategy": "Verify documentation accuracy and completeness",
-      "subtasks": []
+      "dependencies": [3],
+      "details": "No documentation or training materials found in codebase.",
+      "testStrategy": "Verify documentation accuracy and completeness.",
+      "subtasks": [
+        {
+          "id": "16.1",
+          "title": "Write user documentation for demo platform",
+          "description": "Create comprehensive user documentation for the demo platform.",
+          "status": "pending",
+          "priority": "low",
+          "dependencies": ["1.1"],
+          "details": "User documentation not yet written.",
+          "testStrategy": "Documentation is ready for writing.",
+          "subtasks": []
+        },
+        {
+          "id": "16.2",
+          "title": "Create consultant training materials",
+          "description": "Create training materials for consultants to understand the platform.",
+          "status": "pending",
+          "priority": "low",
+          "dependencies": ["1.1"],
+          "details": "Consultant training materials not yet created.",
+          "testStrategy": "Training materials are ready for creation.",
+          "subtasks": []
+        },
+        {
+          "id": "16.3",
+          "title": "Document API endpoints and integration flows",
+          "description": "Document all API endpoints and integration flows for developers.",
+          "status": "pending",
+          "priority": "low",
+          "dependencies": ["1.1"],
+          "details": "API documentation not yet documented.",
+          "testStrategy": "API documentation is ready for documentation.",
+          "subtasks": []
+        },
+        {
+          "id": "16.4",
+          "title": "Review and update documentation regularly",
+          "description": "Regularly review and update the documentation to reflect changes.",
+          "status": "pending",
+          "priority": "low",
+          "dependencies": ["1.1"],
+          "details": "Documentation is not regularly updated.",
+          "testStrategy": "Documentation is updated regularly.",
+          "subtasks": []
+        }
+      ]
     }
   ]
 } 
