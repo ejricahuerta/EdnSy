@@ -28,6 +28,7 @@
   import { onMount } from 'svelte';
   import { supabase } from '$lib/supabase';
   import { marked } from 'marked';
+  import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "$lib/components/ui/dialog";
 
   function formatBotText(text: string): string {
     // Basic sanitization: escape < and >, then parse markdown
@@ -55,34 +56,7 @@
   let trainingError = $state("");
   let websiteValidation = $state("");
   let trainingSuccess = $state("");
-
-  // Simulated website content for demo
-  const websiteContent = {
-    "https://example.com": {
-      name: "Example Corp",
-      services: ["Web Development", "Mobile Apps", "Cloud Solutions"],
-      products: ["E-commerce Platform", "CRM System", "Analytics Dashboard"],
-      policies: ["30-day money-back guarantee", "24/7 support", "Free consultation"],
-      faq: {
-        "pricing": "Our pricing starts at $99/month for basic plans and goes up to $499/month for enterprise solutions.",
-        "support": "We offer 24/7 customer support via phone, email, and live chat.",
-        "features": "Our platform includes advanced analytics, custom integrations, and white-label options.",
-        "setup": "Setup typically takes 2-3 business days and includes training for your team."
-      }
-    },
-    "https://demo-store.com": {
-      name: "Demo Store",
-      services: ["Online Shopping", "Fast Delivery", "Customer Service"],
-      products: ["Electronics", "Clothing", "Home & Garden"],
-      policies: ["Free shipping on orders over $50", "30-day returns", "Price match guarantee"],
-      faq: {
-        "shipping": "We offer free shipping on orders over $50 and expedited shipping for an additional fee.",
-        "returns": "You can return items within 30 days for a full refund or exchange.",
-        "payment": "We accept all major credit cards, PayPal, and Apple Pay.",
-        "tracking": "You'll receive tracking information via email once your order ships."
-      }
-    }
-  };
+  let showDemoReadyDialog = $state(false);
 
   function validateWebsiteUrl(url: string): string {
     if (!url) return "";
@@ -95,49 +69,6 @@
     } catch {
       return "Please enter a valid URL";
     }
-  }
-
-  function generateIntelligentResponse(userMessage: string, websiteData: any): string {
-    const message = userMessage.toLowerCase();
-    
-    // Check for common questions
-    if (message.includes("price") || message.includes("cost") || message.includes("pricing")) {
-      return websiteData.faq.pricing || "I'd be happy to discuss our pricing options with you. Our plans start at $99/month and include all the features you need.";
-    }
-    
-    if (message.includes("support") || message.includes("help") || message.includes("assist")) {
-      return websiteData.faq.support || "We provide excellent customer support! Our team is available 24/7 via phone, email, and live chat to help you with any questions.";
-    }
-    
-    if (message.includes("feature") || message.includes("what can") || message.includes("capabilities")) {
-      return websiteData.faq.features || `Our platform offers many powerful features including ${websiteData.services.join(", ")}. We can customize solutions to meet your specific needs.`;
-    }
-    
-    if (message.includes("setup") || message.includes("install") || message.includes("get started")) {
-      return websiteData.faq.setup || "Getting started is easy! Our setup process typically takes 2-3 business days and includes comprehensive training for your team.";
-    }
-    
-    if (message.includes("service") || message.includes("offer")) {
-      return `We offer a range of services including ${websiteData.services.join(", ")}. Each service is designed to help your business grow and succeed.`;
-    }
-    
-    if (message.includes("product")) {
-      return `Our products include ${websiteData.products.join(", ")}. All products are designed with quality and customer satisfaction in mind.`;
-    }
-    
-    if (message.includes("policy") || message.includes("guarantee") || message.includes("return")) {
-      return `Our policies include ${websiteData.policies.join(", ")}. We're committed to providing excellent service and customer satisfaction.`;
-    }
-    
-    // Default responses
-    const defaultResponses = [
-      `Thank you for your question about "${userMessage}". I'm here to help you with any information about ${websiteData.name}.`,
-      `I understand you're asking about "${userMessage}". Let me provide you with the most relevant information from our knowledge base.`,
-      `Great question! Regarding "${userMessage}", I can help you find the information you need about our services and products.`,
-      `I appreciate your interest in "${userMessage}". Let me share some helpful information about how we can assist you.`
-    ];
-    
-    return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
   }
 
   async function sendMessage() {
@@ -176,7 +107,6 @@
       }
       
       const result = await response.json();
-      console.log("N8N chat API result:", result);
       
       const botResponse = {
         id: messages.length + 1,
@@ -210,9 +140,15 @@
   }
 
   const trainingSteps = [
-    "Connecting to N8N...",
+    "Connecting to Ed & Sy AI Assistant...",
     "Uploading website data...",
+    "Preparing AI model...",
     "Training AI model...",
+    "Connecting to Ed & Sy AI messaging services...",
+    "Integrating with Chatbot APIs...",
+    "Creating AI assistant...",
+    "Creating chat API integration...",
+    "Building chat component...",
     "Finalizing setup..."
   ];
   let currentTrainingStep = $state(trainingSteps[0]);
@@ -221,15 +157,7 @@
 
   async function startDemo() {
     console.log("startDemo called", { isDemoRunning, isTraining, websiteUrl });
-    
-    // If no URL is provided, use a default one
-    if (!websiteUrl.trim()) {
-      websiteUrl = "https://example.com";
-      console.log("Set default URL:", websiteUrl);
-    }
-    
-    console.log("About to validate URL:", websiteUrl);
-    
+        
     const validation = validateWebsiteUrl(websiteUrl);
     console.log("Validation result:", validation);
     if (validation) {
@@ -278,42 +206,17 @@
       isTraining = false;
       isDemoRunning = true;
       trainingSuccess = "Training completed successfully!";
+      trainingError = "";
       // Get website data for the demo
       const websiteData = websiteContent[websiteUrl as keyof typeof websiteContent] || websiteContent["https://example.com"];
-      // Remove initial bot welcome message: do not push to messages
-      // messages = [
-      //   {
-      //     id: 1,
-      //     text: `Hello! I'm your AI assistant trained on ${websiteData.name}. I can help you with information about our services, products, policies, and more. How can I assist you today?`,
-      //     sender: "bot",
-      //     timestamp: new Date()
-      //   }
-      // ];
+
       trainingSuccess = trainingSuccess || "Training completed successfully!";
       console.log("Demo started successfully after training!");
     } catch (error) {
-      console.error("Error training chatbot:", error);
-      // If n8n is not available, fall back to demo mode
-      if (error instanceof Error && (error.message.includes('Failed to fetch') || error.message.includes('HTTP error'))) {
-        console.log("n8n not available, using demo mode");
-        trainingError = "AI service not available. Using demo mode with simulated responses.";
-      } else {
-        trainingError = "Failed to train chatbot. Please try again.";
-      }
+      trainingError = "Failed to train chatbot. Please try again.";
       trainingProgress = 100;
       isTraining = false;
-      isDemoRunning = true;
-      // Get website data for the demo
-      const websiteData = websiteContent[websiteUrl as keyof typeof websiteContent] || websiteContent["https://example.com"];
-      // Remove initial bot welcome message: do not push to messages
-      // messages = [
-      //   {
-      //     id: 1,
-      //     text: `Hello! I'm your AI assistant trained on ${websiteData.name}. I can help you with information about our services, products, policies, and more. How can I assist you today? (Demo mode - using simulated responses)` ,
-      //     sender: "bot",
-      //     timestamp: new Date()
-      //   }
-      // ];
+
       console.log("Demo started in fallback mode!");
     } finally {
       if (trainingStepInterval) clearInterval(trainingStepInterval);
@@ -344,6 +247,13 @@
     }
   });
 
+  $effect(() => {
+    // Show dialog when demo starts
+    if (isDemoRunning) {
+      showDemoReadyDialog = true;
+    }
+  });
+
 
   
   // Debug: Log when component loads
@@ -363,7 +273,7 @@
       <div class="flex-1 p-3 lg:p-6  h-full">
         <!-- Mobile: Single Unified Card -->
         <div class="lg:hidden">
-          <Card class="h-full min-h-[calc(100vh-100px)] bg-white/90 backdrop-blur-sm shadow-xl flex flex-col">
+          <Card class="h-full h-[calc(100vh-100px)] bg-white/90 backdrop-blur-sm shadow-xl flex flex-col">
             <CardHeader class="border-b border-gray-200 flex-shrink-0">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -442,7 +352,7 @@
 
 
                             <!-- Training Error -->
-        {#if trainingError}
+        {#if trainingError && !isDemoRunning}
           <div class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
             <div class="flex items-center gap-2 text-yellow-700">
               <AlertCircle class="w-4 h-4" />
@@ -505,19 +415,21 @@
                   </div>
                 {:else}
                   {#each messages as message}
-                    <div class="flex {message.sender === 'user' ? 'flex-row-reverse items-end' : 'flex-row items-start'} gap-2 max-w-[85%]">
-                      <div class="w-8 h-8 flex items-center justify-center rounded-full {message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}">
-                        {#if message.sender === 'user'}
-                          <User class="w-4 h-4" />
-                        {:else}
-                          <Bot class="w-4 h-4" />
-                        {/if}
-                      </div>
-                      <div class="p-2 rounded-lg {message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-900'}">
-                        <p class="text-xs">{@html formatBotText(message.text)}</p>
-                        <p class="text-xs mt-1 opacity-70">
-                          {message.timestamp.toLocaleTimeString()}
-                        </p>
+                    <div class="flex w-full {message.sender === 'user' ? 'justify-end' : 'justify-start'}">
+                      <div class="flex {message.sender === 'user' ? 'flex-row-reverse items-end' : 'flex-row items-start'} gap-2 max-w-[85%]">
+                        <div class="w-8 h-8 flex items-center justify-center rounded-full {message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}">
+                          {#if message.sender === 'user'}
+                            <User class="w-4 h-4" />
+                          {:else}
+                            <Bot class="w-4 h-4" />
+                          {/if}
+                        </div>
+                        <div class="p-2 rounded-lg min-w-[80px] {message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-900'}">
+                          <p class="text-xs">{@html formatBotText(message.text)}</p>
+                          <p class="text-xs mt-1 opacity-70">
+                            {message.timestamp.toLocaleTimeString()}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   {/each}
@@ -564,7 +476,7 @@
 
         <!-- Desktop: Separate Chat Card -->
         <div class="hidden lg:block">
-          <Card class="h-full min-h-[calc(100vh-100px)] bg-white/90 backdrop-blur-sm shadow-xl flex flex-col">
+          <Card class="h-full h-[calc(100vh-100px)] bg-white/90 backdrop-blur-sm shadow-xl flex flex-col">
             <CardHeader class="border-b border-gray-200 flex-shrink-0">
               <div class="flex items-center gap-3">
                 <div class="p-2 rounded-lg bg-blue-500 text-white">
@@ -616,19 +528,21 @@
                   </div>
                 {:else}
                   {#each messages as message}
-                    <div class="flex {message.sender === 'user' ? 'flex-row-reverse items-end' : 'flex-row items-start'} gap-2 max-w-[80%]">
-                      <div class="w-8 h-8 flex items-center justify-center rounded-full {message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}">
-                        {#if message.sender === 'user'}
-                          <User class="w-4 h-4" />
-                        {:else}
-                          <Bot class="w-4 h-4" />
-                        {/if}
-                      </div>
-                      <div class="p-3 rounded-lg {message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-900'}">
-                        <p class="text-sm">{@html formatBotText(message.text)}</p>
-                        <p class="text-xs mt-1 opacity-70">
-                          {message.timestamp.toLocaleTimeString()}
-                        </p>
+                    <div class="flex w-full {message.sender === 'user' ? 'justify-end' : 'justify-start'}">
+                      <div class="flex {message.sender === 'user' ? 'flex-row-reverse items-end' : 'flex-row items-start'} gap-2 max-w-[80%]">
+                        <div class="w-8 h-8 flex items-center justify-center rounded-full {message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}">
+                          {#if message.sender === 'user'}
+                            <User class="w-4 h-4" />
+                          {:else}
+                            <Bot class="w-4 h-4" />
+                          {/if}
+                        </div>
+                        <div class="p-3 rounded-lg min-w-[80px] {message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-900'}">
+                          <p class="text-sm">{@html formatBotText(message.text)}</p>
+                          <p class="text-xs mt-1 opacity-70">
+                            {message.timestamp.toLocaleTimeString()}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   {/each}
@@ -723,7 +637,7 @@
 
 
         <!-- Training Error -->
-        {#if trainingError}
+        {#if trainingError && !isDemoRunning}
           <div class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
             <div class="flex items-center gap-2 text-yellow-700">
               <AlertCircle class="w-4 h-4" />
@@ -795,3 +709,18 @@
     </div>
   </div>
 </div> 
+<Dialog open={showDemoReadyDialog} on:openChange={e => showDemoReadyDialog = e.detail}>
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Demo Ready!</DialogTitle>
+      <DialogDescription>
+        The AI Customer Support demo is now ready. You can start chatting with the AI assistant below.
+      </DialogDescription>
+    </DialogHeader>
+    <DialogFooter>
+      <DialogClose asChild>
+        <Button on:click={() => showDemoReadyDialog = false}>Start Chatting</Button>
+      </DialogClose>
+    </DialogFooter>
+  </DialogContent>
+</Dialog> 
