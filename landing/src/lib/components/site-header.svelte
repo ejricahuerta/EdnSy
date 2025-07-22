@@ -34,7 +34,7 @@
 
 	function getDemoTitle(demoName: string) {
 		const demoMap = {
-			'chatbot': 'Assistant',
+			'ai-assistant': 'Assistant',
 			'automation-tasks': 'Automation Tasks',
 			'data-insights': 'Data Insights',
 			'business-operations': 'Business Operations',

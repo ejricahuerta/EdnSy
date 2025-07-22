@@ -25,7 +25,7 @@
 
   const demos = [
     {
-      id: "chatbot",
+      id: "ai-assistant",
       title: "AI Assistant",
       description:
         "Intelligent customer support chatbot that handles inquiries 24/7",
@@ -149,7 +149,7 @@
             <ul class="space-y-1">
               {#each demo.benefits as benefit}
                 <li class="text-sm text-gray-600 flex items-center gap-2">
-                  <div class="w-1.5 h-1.5 bg-blue-500 rounded-full" />
+                  <div class="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
                   {benefit}
                 </li>
               {/each}

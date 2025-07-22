@@ -25,17 +25,36 @@
     CheckCircle
   } from "@lucide/svelte";
   import { goto } from "$app/navigation";
+  import { onMount } from 'svelte';
+  import { supabase } from '$lib/supabase';
+  import { marked } from 'marked';
 
-  let isDemoRunning = false;
-  let websiteUrl = "";
-  let isTraining = false;
-  let messages: Array<{ id: number; text: string; sender: "user" | "bot"; timestamp: Date }> = [];
-  let newMessage = "";
-  let isTyping = false;
-  let showMobileSetup = false;
-  let trainingProgress = 0;
-  let trainingError = "";
-  let websiteValidation = "";
+  function formatBotText(text: string): string {
+    // Basic sanitization: escape < and >, then parse markdown
+    const safeText = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return marked.parse(safeText);
+  }
+
+  let supabaseSessionId: string | null = null;
+  let supabaseUserId: string | null = null;
+
+  onMount(async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    supabaseSessionId = session?.access_token ?? null;
+    supabaseUserId = session?.user?.id ?? null;
+  });
+
+  let isDemoRunning = $state(false);
+  let websiteUrl = $state("");
+  let isTraining = $state(false);
+  let messages: Array<{ id: number; text: string; sender: "user" | "bot"; timestamp: Date }> = $state([]);
+  let newMessage = $state("");
+  let isTyping = $state(false);
+  let showMobileSetup = $state(true); // Show by default for testing
+  let trainingProgress = $state(0);
+  let trainingError = $state("");
+  let websiteValidation = $state("");
+  let trainingSuccess = $state("");
 
   // Simulated website content for demo
   const websiteContent = {
@@ -122,6 +141,7 @@
   }
 
   async function sendMessage() {
+    if (isTraining) return; // Prevent sending during training
     if (!newMessage.trim()) return;
 
     const userMessage = {
@@ -136,19 +156,18 @@
     isTyping = true;
 
     try {
-      // Call n8n for chatbot response
+      // Call our SvelteKit API route for chatbot response
       const response = await fetch('/api/n8n/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          action: 'message',
           message: userMessage.text,
           websiteUrl: websiteUrl,
-          conversationHistory: messages.map(m => ({
-            text: m.text,
-            sender: m.sender
-          }))
+          sessionId: supabaseSessionId, // Add session ID
+          userId: supabaseUserId        // Add user ID
         })
       });
       
@@ -157,10 +176,11 @@
       }
       
       const result = await response.json();
+      console.log("N8N chat API result:", result);
       
       const botResponse = {
         id: messages.length + 1,
-        text: result.response || "I'm sorry, I couldn't process your request. Please try again.",
+        text: result.output || result.raw || "I'm sorry, I couldn't process your request. Please try again.",
         sender: "bot" as const,
         timestamp: new Date()
       };
@@ -169,16 +189,13 @@
       
     } catch (error) {
       console.error("Error getting chatbot response:", error);
-      
-      // Fallback to simulated response if n8n fails
-      const websiteData = websiteContent[websiteUrl as keyof typeof websiteContent] || websiteContent["https://example.com"];
+      // Instead of simulated response, show service down message
       const botResponse = {
         id: messages.length + 1,
-        text: generateIntelligentResponse(userMessage.text, websiteData),
+        text: "AI service is currently unavailable. Please try again later.",
         sender: "bot" as const,
         timestamp: new Date()
       };
-      
       messages = [...messages, botResponse];
     } finally {
       isTyping = false;
@@ -192,6 +209,16 @@
     }
   }
 
+  const trainingSteps = [
+    "Connecting to N8N...",
+    "Uploading website data...",
+    "Training AI model...",
+    "Finalizing setup..."
+  ];
+  let currentTrainingStep = $state(trainingSteps[0]);
+  let trainingStepIndex = 0;
+  let trainingStepInterval: ReturnType<typeof setInterval> | null = null;
+
   async function startDemo() {
     console.log("startDemo called", { isDemoRunning, isTraining, websiteUrl });
     
@@ -201,7 +228,10 @@
       console.log("Set default URL:", websiteUrl);
     }
     
+    console.log("About to validate URL:", websiteUrl);
+    
     const validation = validateWebsiteUrl(websiteUrl);
+    console.log("Validation result:", validation);
     if (validation) {
       websiteValidation = validation;
       console.log("Validation failed:", validation);
@@ -211,12 +241,24 @@
     console.log("Starting training with n8n...");
     websiteValidation = "";
     isTraining = true;
+    isDemoRunning = false; // Ensure chat is disabled during training
     trainingError = "";
+    trainingSuccess = "";
     trainingProgress = 0;
+    trainingStepIndex = 0;
+    currentTrainingStep = trainingSteps[0];
+    if (trainingStepInterval) clearInterval(trainingStepInterval);
+    trainingStepInterval = setInterval(() => {
+      trainingStepIndex = (trainingStepIndex + 1) % trainingSteps.length;
+      currentTrainingStep = trainingSteps[trainingStepIndex];
+    }, 4000); // Change step every 4 seconds
+    
+    console.log("Training state set:", { isTraining, trainingProgress });
     
     try {
-      // Call n8n workflow to train the chatbot
-      const response = await fetch('/api/n8n/chat', {
+      console.log("Making API call to /api/n8n/train-chatbot");
+      // Call our SvelteKit API route for training
+      const response = await fetch('/api/n8n/train-chatbot', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -226,34 +268,55 @@
           action: 'train'
         })
       });
-      
+      console.log("API response status:", response.status);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
       const result = await response.json();
-      console.log("n8n training response:", result);
-      
-      // Training completed successfully
+      // Optionally check result.success or result.data if needed
+      trainingProgress = 100;
       isTraining = false;
       isDemoRunning = true;
-      
+      trainingSuccess = "Training completed successfully!";
       // Get website data for the demo
       const websiteData = websiteContent[websiteUrl as keyof typeof websiteContent] || websiteContent["https://example.com"];
-      
-      messages = [
-        {
-          id: 1,
-          text: `Hello! I'm your AI assistant trained on ${websiteData.name}. I can help you with information about our services, products, policies, and more. How can I assist you today?`,
-          sender: "bot",
-          timestamp: new Date()
-        }
-      ];
-      
+      // Remove initial bot welcome message: do not push to messages
+      // messages = [
+      //   {
+      //     id: 1,
+      //     text: `Hello! I'm your AI assistant trained on ${websiteData.name}. I can help you with information about our services, products, policies, and more. How can I assist you today?`,
+      //     sender: "bot",
+      //     timestamp: new Date()
+      //   }
+      // ];
+      trainingSuccess = trainingSuccess || "Training completed successfully!";
+      console.log("Demo started successfully after training!");
     } catch (error) {
       console.error("Error training chatbot:", error);
-      trainingError = "Failed to train chatbot. Please try again.";
+      // If n8n is not available, fall back to demo mode
+      if (error instanceof Error && (error.message.includes('Failed to fetch') || error.message.includes('HTTP error'))) {
+        console.log("n8n not available, using demo mode");
+        trainingError = "AI service not available. Using demo mode with simulated responses.";
+      } else {
+        trainingError = "Failed to train chatbot. Please try again.";
+      }
+      trainingProgress = 100;
       isTraining = false;
+      isDemoRunning = true;
+      // Get website data for the demo
+      const websiteData = websiteContent[websiteUrl as keyof typeof websiteContent] || websiteContent["https://example.com"];
+      // Remove initial bot welcome message: do not push to messages
+      // messages = [
+      //   {
+      //     id: 1,
+      //     text: `Hello! I'm your AI assistant trained on ${websiteData.name}. I can help you with information about our services, products, policies, and more. How can I assist you today? (Demo mode - using simulated responses)` ,
+      //     sender: "bot",
+      //     timestamp: new Date()
+      //   }
+      // ];
+      console.log("Demo started in fallback mode!");
+    } finally {
+      if (trainingStepInterval) clearInterval(trainingStepInterval);
     }
   }
 
@@ -262,6 +325,7 @@
     isTraining = false;
     trainingProgress = 0;
     trainingError = "";
+    trainingSuccess = "";
     websiteValidation = "";
     messages = [];
     newMessage = "";
@@ -270,26 +334,36 @@
 
   // Watch for website URL changes to validate
   $effect(() => {
+    console.log("$effect triggered:", { websiteUrl, isTraining, isDemoRunning });
     if (websiteUrl && !isTraining && !isDemoRunning) {
       websiteValidation = validateWebsiteUrl(websiteUrl);
+      console.log("Validation result:", websiteValidation);
+    } else if (!websiteUrl) {
+      websiteValidation = "";
+      console.log("URL is empty, clearing validation");
     }
   });
+
+
+  
+  // Debug: Log when component loads
+  console.log("AI Assistant demo component loaded");
 </script>
 
-<div class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 ">
+<div class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 h-full">
   <!-- Background Pattern -->
   <div class="absolute inset-0 opacity-10">
     <div class="absolute inset-0" style="background-image: radial-gradient(circle at 1px 1px, #3b82f6 1px, transparent 0); background-size: 20px 20px;"></div>
   </div>
 
-  <div class="relative z-10 flex min-h-[calc(100vh-60px)]">
+  <div class="relative z-10 flex h-[calc(100vh-60px)]">
     <!-- Chat Interface (Left - Takes remaining space) -->
     <div class="flex-1 flex flex-col lg:mr-80">
       <!-- Chat Area -->
-      <div class="flex-1 p-3 lg:p-6  ">
+      <div class="flex-1 p-3 lg:p-6  h-full">
         <!-- Mobile: Single Unified Card -->
         <div class="lg:hidden">
-          <Card class="h-full bg-white/90 backdrop-blur-sm border-blue-200 shadow-xl flex flex-col">
+          <Card class="h-full min-h-[calc(100vh-100px)] bg-white/90 backdrop-blur-sm shadow-xl flex flex-col">
             <CardHeader class="border-b border-gray-200 flex-shrink-0">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -331,7 +405,7 @@
                         <Input
                           id="website-mobile"
                           type="url"
-                          placeholder="https://example.com or https://demo-store.com"
+                          placeholder="https://yourcompany.com"
                           bind:value={websiteUrl}
                           class="w-full text-sm"
                         />
@@ -353,44 +427,69 @@
                       </div>
                     </div>
 
+
+
                     <!-- Training Status -->
                     {#if isTraining}
                       <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                        <div class="space-y-2">
-                          <div class="flex items-center gap-2 text-blue-700">
-                            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                            <span class="text-sm font-medium">Training chatbot...</span>
-                          </div>
-                          <div class="w-full bg-blue-200 rounded-full h-2">
-                            <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: {trainingProgress}%"></div>
-                          </div>
-                          <p class="text-xs text-blue-600">{Math.round(trainingProgress)}% complete</p>
+                        <div class="flex items-center gap-2 text-blue-700">
+                          <div class="animate-pulse rounded-full h-4 w-4 bg-blue-600"></div>
+                          <span class="text-sm font-medium">{currentTrainingStep}</span>
+                        </div>
+                      </div>
+                    {/if}
+                    
+
+
+                            <!-- Training Error -->
+        {#if trainingError}
+          <div class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div class="flex items-center gap-2 text-yellow-700">
+              <AlertCircle class="w-4 h-4" />
+              <span class="text-sm">{trainingError}</span>
+            </div>
+          </div>
+        {/if}
+
+                    <!-- Training Success -->
+                    {#if trainingSuccess}
+                      <div class="p-3 bg-green-50 border border-green-200 rounded-lg">
+                        <div class="flex items-center gap-2 text-green-700">
+                          <CheckCircle class="w-4 h-4" />
+                          <span class="text-sm">{trainingSuccess}</span>
                         </div>
                       </div>
                     {/if}
 
                     <!-- Demo Controls -->
                     <div class="space-y-3 pt-4 border-t border-gray-200">
-                      <Button 
-                        variant={isDemoRunning ? "outline" : "default"}
-                        onclick={startDemo}
-                        disabled={isTraining}
-                        class="w-full flex items-center gap-2 text-sm"
-                        size="sm"
-                      >
-                        <Play class="w-4 h-4" />
-                        {isTraining ? "Training..." : "Start Demo"}
-                      </Button>
-                      <Button 
-                        variant="outline"
-                        onclick={resetDemo}
-                        disabled={!isDemoRunning}
-                        class="w-full flex items-center gap-2 text-sm"
-                        size="sm"
-                      >
-                        <RotateCcw class="w-4 h-4" />
-                        Reset Demo
-                      </Button>
+                      {#if !isDemoRunning}
+                        <Button 
+                          variant={isDemoRunning ? "outline" : "default"}
+                          onclick={() => {
+                            console.log("Start Demo button clicked!");
+                            startDemo();
+                          }}
+                          disabled={isTraining || !websiteUrl.trim() || !!websiteValidation}
+                          class="w-full flex items-center gap-2 text-sm"
+                          size="sm"
+                        >
+                          <Play class="w-4 h-4" />
+                          {isTraining ? "Training..." : !websiteUrl.trim() ? "Enter Website URL" : !!websiteValidation ? "Invalid URL" : "Start Demo"}
+                        </Button>
+                      {/if}
+                      {#if isDemoRunning}
+                        <Button 
+                          variant="outline"
+                          onclick={resetDemo}
+                          disabled={!isDemoRunning && !isTraining && !websiteUrl.trim()}
+                          class="w-full flex items-center gap-2 text-sm"
+                          size="sm"
+                        >
+                          <RotateCcw class="w-4 h-4" />
+                          Reset Demo
+                        </Button>
+                      {/if}
                     </div>
                   </div>
                 </div>
@@ -402,25 +501,23 @@
                   <div class="text-center py-6 text-gray-500">
                     <Bot class="w-8 h-8 mx-auto mb-3 text-gray-300" />
                     <p class="text-base font-medium">Welcome to AI Customer Support</p>
-                    <p class="text-xs">Configure your demo and click Start to begin chatting</p>
+                    <p class="text-xs">Tap the settings icon above to configure your website URL, then click Start Demo to begin chatting</p>
                   </div>
                 {:else}
                   {#each messages as message}
-                    <div class="flex gap-2 {message.sender === 'user' ? 'justify-end' : 'justify-start'}">
-                      <div class="flex gap-2 max-w-[85%] {message.sender === 'user' ? 'flex-row-reverse' : ''}">
-                        <div class="p-1.5 rounded-full {message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}">
-                          {#if message.sender === 'user'}
-                            <User class="w-3 h-3" />
-                          {:else}
-                            <Bot class="w-3 h-3" />
-                          {/if}
-                        </div>
-                        <div class="p-2 rounded-lg {message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-900'}">
-                          <p class="text-xs">{message.text}</p>
-                          <p class="text-xs mt-1 opacity-70">
-                            {message.timestamp.toLocaleTimeString()}
-                          </p>
-                        </div>
+                    <div class="flex {message.sender === 'user' ? 'flex-row-reverse items-end' : 'flex-row items-start'} gap-2 max-w-[85%]">
+                      <div class="w-8 h-8 flex items-center justify-center rounded-full {message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}">
+                        {#if message.sender === 'user'}
+                          <User class="w-4 h-4" />
+                        {:else}
+                          <Bot class="w-4 h-4" />
+                        {/if}
+                      </div>
+                      <div class="p-2 rounded-lg {message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-900'}">
+                        <p class="text-xs">{@html formatBotText(message.text)}</p>
+                        <p class="text-xs mt-1 opacity-70">
+                          {message.timestamp.toLocaleTimeString()}
+                        </p>
                       </div>
                     </div>
                   {/each}
@@ -453,8 +550,9 @@
                         bind:value={newMessage}
                         onkeydown={handleKeyPress}
                         class="flex-1 text-sm"
+                        disabled={isTraining}
                     />
-                    <Button onclick={sendMessage} disabled={!newMessage.trim()} size="sm">
+                    <Button onclick={sendMessage} disabled={isTraining || !newMessage.trim()} size="sm">
                       <Send class="w-3 h-3" />
                     </Button>
                   </div>
@@ -466,7 +564,7 @@
 
         <!-- Desktop: Separate Chat Card -->
         <div class="hidden lg:block">
-          <Card class="h-full bg-white/90 backdrop-blur-sm border-blue-200 shadow-xl flex flex-col">
+          <Card class="h-full min-h-[calc(100vh-100px)] bg-white/90 backdrop-blur-sm shadow-xl flex flex-col">
             <CardHeader class="border-b border-gray-200 flex-shrink-0">
               <div class="flex items-center gap-3">
                 <div class="p-2 rounded-lg bg-blue-500 text-white">
@@ -514,25 +612,23 @@
                   <div class="text-center py-8 text-gray-500">
                     <Bot class="w-12 h-12 mx-auto mb-4 text-gray-300" />
                     <p class="text-lg font-medium">Welcome to AI Customer Support</p>
-                    <p class="text-sm">Configure your demo and click Start to begin chatting</p>
+                    <p class="text-sm">Enter your website URL in the sidebar on the right, then click Start Demo to begin chatting</p>
                   </div>
                 {:else}
                   {#each messages as message}
-                    <div class="flex gap-3 {message.sender === 'user' ? 'justify-end' : 'justify-start'}">
-                      <div class="flex gap-3 max-w-[80%] {message.sender === 'user' ? 'flex-row-reverse' : ''}">
-                        <div class="p-2 rounded-full {message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}">
-                          {#if message.sender === 'user'}
-                            <User class="w-4 h-4" />
-                          {:else}
-                            <Bot class="w-4 h-4" />
-                          {/if}
-                        </div>
-                        <div class="p-3 rounded-lg {message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-900'}">
-                          <p class="text-sm">{message.text}</p>
-                          <p class="text-xs mt-1 opacity-70">
-                            {message.timestamp.toLocaleTimeString()}
-                          </p>
-                        </div>
+                    <div class="flex {message.sender === 'user' ? 'flex-row-reverse items-end' : 'flex-row items-start'} gap-2 max-w-[80%]">
+                      <div class="w-8 h-8 flex items-center justify-center rounded-full {message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}">
+                        {#if message.sender === 'user'}
+                          <User class="w-4 h-4" />
+                        {:else}
+                          <Bot class="w-4 h-4" />
+                        {/if}
+                      </div>
+                      <div class="p-3 rounded-lg {message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-900'}">
+                        <p class="text-sm">{@html formatBotText(message.text)}</p>
+                        <p class="text-xs mt-1 opacity-70">
+                          {message.timestamp.toLocaleTimeString()}
+                        </p>
                       </div>
                     </div>
                   {/each}
@@ -565,8 +661,9 @@
                         bind:value={newMessage}
                         onkeydown={handleKeyPress}
                         class="flex-1 text-base"
+                        disabled={isTraining}
                     />
-                    <Button onclick={sendMessage} disabled={!newMessage.trim()}>
+                    <Button onclick={sendMessage} disabled={isTraining || !newMessage.trim()}>
                       <Send class="w-4 h-4" />
                     </Button>
                   </div>
@@ -591,7 +688,7 @@
             <Input
               id="website"
               type="url"
-              placeholder="https://example.com or https://demo-store.com"
+              placeholder="https://yourcompany.com"
               bind:value={websiteUrl}
               class="w-full text-base"
             />
@@ -616,15 +713,21 @@
         <!-- Training Status -->
         {#if isTraining}
           <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <div class="space-y-2">
-              <div class="flex items-center gap-2 text-blue-700">
-                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                <span class="text-sm font-medium">Training chatbot with your website...</span>
-              </div>
-              <div class="w-full bg-blue-200 rounded-full h-2">
-                <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: {trainingProgress}%"></div>
-              </div>
-              <p class="text-xs text-blue-600">{Math.round(trainingProgress)}% complete</p>
+            <div class="flex items-center gap-2 text-blue-700">
+              <div class="animate-pulse rounded-full h-4 w-4 bg-blue-600"></div>
+              <span class="text-sm font-medium">{currentTrainingStep}</span>
+            </div>
+          </div>
+        {/if}
+        
+
+
+        <!-- Training Error -->
+        {#if trainingError}
+          <div class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div class="flex items-center gap-2 text-yellow-700">
+              <AlertCircle class="w-4 h-4" />
+              <span class="text-sm">{trainingError}</span>
             </div>
           </div>
         {/if}
@@ -662,24 +765,31 @@
 
         <!-- Demo Controls -->
         <div class="space-y-3 pt-4 border-t border-gray-200">
-          <Button 
-            variant={isDemoRunning ? "outline" : "default"}
-            onclick={startDemo}
-            disabled={isTraining}
-            class="w-full flex items-center gap-2 text-base"
-          >
-            <Play class="w-4 h-4" />
-            {isTraining ? "Training..." : "Start Demo"}
-          </Button>
-          <Button 
-            variant="outline"
-            onclick={resetDemo}
-            disabled={!isDemoRunning}
-            class="w-full flex items-center gap-2 text-base"
-          >
-            <RotateCcw class="w-4 h-4" />
-            Reset Demo
-          </Button>
+          {#if !isDemoRunning}
+            <Button 
+              variant={isDemoRunning ? "outline" : "default"}
+              onclick={() => {
+                console.log("Start Demo button clicked (desktop)!");
+                startDemo();
+              }}
+              disabled={isTraining || !websiteUrl.trim() || !!websiteValidation}
+              class="w-full flex items-center gap-2 text-base"
+            >
+              <Play class="w-4 h-4" />
+              {isTraining ? "Training..." : !websiteUrl.trim() ? "Enter Website URL" : !!websiteValidation ? "Invalid URL" : "Start Demo"}
+            </Button>
+          {/if}
+          {#if isDemoRunning}
+            <Button 
+              variant="outline"
+              onclick={resetDemo}
+              disabled={!isDemoRunning && !isTraining && !websiteUrl.trim()}
+              class="w-full flex items-center gap-2 text-base"
+            >
+              <RotateCcw class="w-4 h-4" />
+              Reset Demo
+            </Button>
+          {/if}
         </div>
       </div>
     </div>

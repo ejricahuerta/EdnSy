@@ -21,7 +21,8 @@
     ChevronRight,
     Settings,
     Play,
-    RotateCcw
+    RotateCcw,
+    MessageSquare
   } from "@lucide/svelte";
   import { goto } from "$app/navigation";
 
@@ -143,20 +144,20 @@
   }
 </script>
 
-<div class="bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 min-h-screen">
+<div class="bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 h-full">
   <!-- Background Pattern -->
   <div class="absolute inset-0 opacity-10">
     <div class="absolute inset-0" style="background-image: radial-gradient(circle at 1px 1px, #10b981 1px, transparent 0); background-size: 20px 20px;"></div>
   </div>
 
-  <div class="relative z-10 flex h-screen">
+  <div class="relative z-10 flex h-full">
     <!-- Scheduling Interface (Left - Takes remaining space) -->
     <div class="flex-1 flex flex-col min-h-0 lg:mr-80">
       <!-- Scheduling Area -->
       <div class="flex-1 p-3 lg:p-6 min-h-0">
         <!-- Mobile: Single Unified Card -->
         <div class="lg:hidden">
-          <Card class="h-full bg-white/90 backdrop-blur-sm border-green-200 shadow-xl flex flex-col">
+          <Card class="h-full bg-white/90 backdrop-blur-sm shadow-xl flex flex-col">
             <CardHeader class="border-b border-gray-200 flex-shrink-0 p-4">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -347,8 +348,8 @@
 
         <!-- Desktop: Separate Scheduling Card -->
         <div class="hidden lg:block">
-          <Card class="h-full bg-white/90 backdrop-blur-sm border-green-200 shadow-xl flex flex-col">
-            <CardHeader class="border-b border-gray-200 flex-shrink-0 p-6">
+          <Card class="h-full bg-white/90 backdrop-blur-sm shadow-xl flex flex-col">
+            <CardHeader class="border-b border-gray-200 flex-shrink-0">
               <div class="flex items-center gap-3">
                 <div class="p-2 rounded-lg bg-green-500 text-white">
                   <Calendar class="w-5 h-5" />
@@ -359,6 +360,32 @@
                     {isDemoRunning ? "Live - Booking appointments" : "Offline - Start demo to begin"}
                   </p>
                 </div>
+              </div>
+              <div class="flex items-center gap-2 mt-2 flex-wrap ">
+                <Badge variant="outline">
+                  <Calendar class="w-4 h-4" />
+                  <span>Google Calendar</span>
+                </Badge>
+                <Badge variant="outline">
+                  <Calendar class="w-4 h-4" />
+                  <span>Outlook Calendar</span>
+                </Badge>
+                <Badge variant="outline">
+                  <Calendar class="w-4 h-4" />
+                  <span>iCal</span>
+                </Badge>
+                <Badge variant="outline">
+                  <Mail class="w-4 h-4" />
+                  <span>Gmail</span>
+                </Badge>
+                <Badge variant="outline">
+                  <MessageSquare class="w-4 h-4" />
+                  <span>WhatsApp</span>
+                </Badge>
+                <Badge variant="outline">
+                  <MessageSquare class="w-4 h-4" />
+                  <span>SMS</span>
+                </Badge>
               </div>
             </CardHeader>
 

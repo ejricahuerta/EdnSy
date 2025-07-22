@@ -105,20 +105,20 @@
   }
 </script>
 
-<div class="bg-gradient-to-br from-purple-50 via-violet-50 to-indigo-50 min-h-screen">
+<div class="bg-gradient-to-br from-purple-50 via-violet-50 to-indigo-50 h-full">
   <!-- Background Pattern -->
   <div class="absolute inset-0 opacity-10">
     <div class="absolute inset-0" style="background-image: radial-gradient(circle at 1px 1px, #8b5cf6 1px, transparent 0); background-size: 20px 20px;"></div>
   </div>
 
-  <div class="relative z-10 flex h-screen">
+  <div class="relative z-10 flex h-full">
     <!-- Analytics Interface (Left - Takes remaining space) -->
     <div class="flex-1 flex flex-col min-h-0 lg:mr-80">
       <!-- Analytics Area -->
       <div class="flex-1 p-3 lg:p-6 min-h-0">
         <!-- Mobile: Single Unified Card -->
         <div class="lg:hidden">
-          <Card class="h-full bg-white/90 backdrop-blur-sm border-purple-200 shadow-xl flex flex-col">
+          <Card class="h-full bg-white/90 backdrop-blur-sm shadow-xl flex flex-col">
             <CardHeader class="border-b border-gray-200 flex-shrink-0 p-4">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -286,8 +286,8 @@
 
         <!-- Desktop: Separate Analytics Card -->
         <div class="hidden lg:block">
-          <Card class="h-full bg-white/90 backdrop-blur-sm border-purple-200 shadow-xl flex flex-col">
-            <CardHeader class="border-b border-gray-200 flex-shrink-0 p-6">
+          <Card class="h-full bg-white/90 backdrop-blur-sm shadow-xl flex flex-col">
+            <CardHeader class="border-b border-gray-200 flex-shrink-0">
               <div class="flex items-center gap-3">
                 <div class="p-2 rounded-lg bg-purple-500 text-white">
                   <BarChart3 class="w-5 h-5" />
@@ -298,6 +298,29 @@
                     {isDemoRunning ? "Live - Real-time analytics" : "Offline - Start demo to begin"}
                   </p>
                 </div>
+              </div>
+              <div class="flex items-center gap-2 mt-2 flex-wrap ">
+                <Badge variant="outline">
+                  <File class="w-4 h-4" />
+                  <span>Google Sheets</span>
+                </Badge>
+                <Badge variant="outline">
+                  <File class="w-4 h-4" />
+                  <span>Google Docs</span>
+                </Badge>
+                <Badge variant="outline">
+                  <File class="w-4 h-4" />
+                  <span>Excel</span>
+                </Badge>
+                <Badge variant="outline">
+                  <File class="w-4 h-4" />
+                  <span>CSV</span>
+                </Badge>
+                <Badge variant="outline">
+                  <File class="w-4 h-4" />
+                  <span>JSON</span>
+                </Badge>
+                
               </div>
             </CardHeader>
 

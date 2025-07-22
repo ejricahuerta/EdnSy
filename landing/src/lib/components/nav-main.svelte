@@ -19,13 +19,11 @@
 	<Sidebar.Menu>
 		{#each items as item (item.title)}
 			<Sidebar.MenuItem>
-				<Sidebar.MenuButton tooltipContent={item.title} class="w-full">
-					<a href={item.url} class="w-full button">
+				<Sidebar.MenuButton tooltipContent={item.title} class="w-full cursor-pointer" onclick={() => { goto(item.url) }} >
 						<div class="flex items-center gap-2">
 							<item.icon class="w-4 h-4" />
 							<span>{item.title}</span>
 						</div>
-					</a>
 				</Sidebar.MenuButton>
 			</Sidebar.MenuItem>
 		{/each}
