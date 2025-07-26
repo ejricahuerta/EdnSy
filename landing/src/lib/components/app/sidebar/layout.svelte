@@ -1,43 +1,76 @@
-<script lang="ts" module>
-    import { Bot, Calendar, ChartLine, BotIcon, LifeBuoyIcon, SendIcon, CommandIcon } from "@lucide/svelte";
-	const data = {
-		user: {
-			name: "Ed & Sy",
-			email: "edmel@ednsy.com",
-			avatar: "/avatars/ednsy.png",
-		},// todo: needs real data from supabase
-        navMain: [
-            {
-                title: "AI Assistant",
-                url: "/demos/ai-assistant",
-                icon: Bot,
-            },
-            {
-                title: "Lead to Sale Automation",
-                url: "/demos/automation-tasks",
-                icon: Calendar,
-            },
-            {
-                title: "Service Analytics",
-                url: "/demos/data-insights",
-                icon: ChartLine,
-            },
-            {
-                title: "Full Business Operations",
-                url: "/demos/business-operations",
-                icon: Bot,
-            },
-        ]
-	};
-</script>
-
 <script lang="ts">
 	import type { ComponentProps } from "svelte";
 	import * as Sidebar from "$lib/components/ui/sidebar/index.js";
 	import Nav from "./nav.svelte";
 	import NavUser from "./nav-user.svelte";
+	import { Bot, Calendar, ChartLine, BotIcon, LifeBuoyIcon, SendIcon, CommandIcon } from "@lucide/svelte";
+	import { supabase } from '$lib/supabase';
+	import { onMount } from 'svelte';
 
 	let { ref = $bindable(null), ...restProps }: ComponentProps<typeof Sidebar.Root> = $props();
+
+	let user = $state({
+		name: "Loading...",
+		email: "loading@example.com"
+	});
+
+	const data = $derived({
+		user: user,
+		navMain: [
+			{
+				title: "AI Assistant",
+				url: "/demos/ai-assistant",
+				icon: Bot,
+			},
+			{
+				title: "Automation Tasks",
+				url: "/demos/automation-tasks",
+				icon: Calendar,
+			},
+			{
+				title: "Data Insights",
+				url: "/demos/data-insights",
+				icon: ChartLine,
+			},
+			{
+				title: "Business Operations",
+				url: "/demos/business-operations",
+				icon: Bot,
+			},
+		]
+	});
+
+	onMount(async () => {
+		console.log("onMount called in sidebar");
+		try {
+			const { data: { session }, error } = await supabase.auth.getSession();
+			console.log("Session result:", { session, error });
+
+			if (error) {
+				console.error("Session error:", error);
+				return;
+			}
+
+			if (session?.user) {
+				console.log("User data from session:", {
+					full_name: session.user.user_metadata?.full_name,
+					name: session.user.user_metadata?.name,
+					email: session.user.email,
+					user_metadata: session.user.user_metadata
+				});
+
+				user = {
+					name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || "Demo User",
+					email: session.user.email || session.user.user_metadata?.email || "demo@ednsy.com",
+				};
+				console.log("Updated user data:", user);
+			} else {
+				console.log("No session found");
+			}
+		} catch (error) {
+			console.error("Error in onMount:", error);
+		}
+	});
 </script>
 
 <Sidebar.Root class="top-(--header-height) h-[calc(100svh-var(--header-height))]!" {...restProps}>

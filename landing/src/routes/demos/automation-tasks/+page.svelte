@@ -30,6 +30,8 @@
   } from 'lucide-svelte';
   import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "$lib/components/ui/dialog";
   import { supabase } from '$lib/supabase';
+  import { CreditService } from '$lib/services/creditService';
+  import CreditDisplay from '$lib/components/ui/CreditDisplay.svelte';
 
 
   let activeTab = 'demo';
@@ -58,6 +60,7 @@
   let showDemoReadyDialog = $state(false);
 
   let webhookUrl = "/api/n8n/automation-chat";
+  let currentSessionId: string | null = null;
 
   const trainingSteps = [
     "Initializing automation demo...",
@@ -142,6 +145,13 @@
 
   async function startDemo() {
     console.log("startDemo called", { isDemoRunning, isTraining, websiteUrl, emailAddress, phoneNumber });
+    
+    // Check if user has enough credits
+    const { canStart, userCredits, demoCost } = await CreditService.canStartDemo('automation-tasks');
+    if (!canStart) {
+      alert(`Insufficient credits. You have ${userCredits} credits, but this demo costs ${demoCost} credits.`);
+      return;
+    }
         
     // Validate website URL
     const websiteValidationResult = validateWebsiteUrl(websiteUrl);
@@ -191,6 +201,16 @@
     
     try {
       console.log("Starting automation demo setup");
+      
+      // Start demo session and deduct credits
+      const sessionResult = await CreditService.startDemoSession('automation-tasks');
+      if (!sessionResult.success) {
+        alert(sessionResult.error || 'Failed to start demo session');
+        isTraining = false;
+        return;
+      }
+      currentSessionId = sessionResult.sessionId;
+      
       // Call the automation-tasks API route for training
       const response = await fetch(webhookUrl, {
         method: 'POST',
@@ -396,28 +416,31 @@
         <div class="lg:hidden">
           <Card class="h-full h-[calc(100vh-100px)] bg-white/90 backdrop-blur-sm shadow-xl flex flex-col">
             <CardHeader class="border-b border-gray-200 flex-shrink-0">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                  <div class="p-2 rounded-lg bg-purple-500 text-white">
-                    <Zap class="w-4 h-4" />
+                              <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="p-2 rounded-lg bg-purple-500 text-white">
+                      <Zap class="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h3 class="font-semibold text-gray-900 text-sm">Automation Tasks</h3>
+                      <p class="text-xs text-gray-600">
+                        {isDemoRunning ? "Online - Ready to help" : "Offline - Start demo to begin"}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 class="font-semibold text-gray-900 text-sm">Automation Tasks</h3>
-                    <p class="text-xs text-gray-600">
-                      {isDemoRunning ? "Online - Ready to help" : "Offline - Start demo to begin"}
-                    </p>
+                  <div class="flex items-center gap-2">
+                    <CreditDisplay />
+                    <!-- Mobile Setup Toggle -->
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      class="text-gray-600 hover:text-gray-900"
+                      onclick={() => showMobileSetup = !showMobileSetup}
+                    >
+                      <Settings class="w-4 h-4" />
+                    </Button>
                   </div>
                 </div>
-                <!-- Mobile Setup Toggle -->
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  class="text-gray-600 hover:text-gray-900"
-                  onclick={() => showMobileSetup = !showMobileSetup}
-                >
-                  <Settings class="w-4 h-4" />
-                </Button>
-              </div>
             </CardHeader>
 
             <CardContent class="p-0 flex-1 flex flex-col min-h-0">
@@ -625,9 +648,9 @@
                         >
                           <RotateCcw class="w-4 h-4" />
                           Reset Demo
-                        </Button>
-                      {/if}
-                    </div>
+          </Button>
+        {/if}
+      </div>
     </div>
                 </div>
               {/if}
@@ -805,6 +828,11 @@
     <!-- Desktop Sidebar (Right) -->
     <div class="hidden lg:block w-80 border-l border-gray-200 bg-gray-50 absolute right-0 top-0 h-full overflow-y-auto">
       <div class="p-6 space-y-6">
+        <!-- Credit Display -->
+        <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
+          <span class="text-sm font-medium text-gray-700">Credits</span>
+          <CreditDisplay />
+        </div>
         <!-- Website Input -->
         <div class="space-y-3">
           <div class="flex items-center gap-2">
@@ -980,7 +1008,7 @@
               Reset Demo
             </Button>
           {/if}
-        </div>
+              </div>
             </div>
           </div>
     </div>

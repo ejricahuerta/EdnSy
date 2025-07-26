@@ -16,7 +16,6 @@
 		user: {
 			name: string;
 			email: string;
-			avatar: string;
 		};
 	} = $props();
 
@@ -33,11 +32,7 @@
 						class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 						{...props}
 					>
-						<Avatar.Root class="size-8 rounded-lg">
-							<Avatar.Image src={user.avatar} alt={user.name} />
-							<Avatar.Fallback class="rounded-lg">CN</Avatar.Fallback>
-						</Avatar.Root>
-						<div class="grid flex-1 text-left text-sm leading-tight">
+						<div class="grid flex-1  text-left text-sm leading-tight p-2">
 							<span class="truncate font-medium">{user.name}</span>
 							<span class="truncate text-xs">{user.email}</span>
 						</div>
@@ -53,10 +48,6 @@
 			>
 				<DropdownMenu.Label class="p-0 font-normal">
 					<div class="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-						<Avatar.Root class="size-8 rounded-lg">
-							<Avatar.Image src={user.avatar} alt={user.name} />
-							<Avatar.Fallback class="rounded-lg">CN</Avatar.Fallback>
-						</Avatar.Root>
 						<div class="grid flex-1 text-left text-sm leading-tight">
 							<span class="truncate font-medium">{user.name}</span>
 							<span class="truncate text-xs">{user.email}</span>
@@ -66,23 +57,8 @@
 				<DropdownMenu.Separator />
 				<DropdownMenu.Group>
 					<DropdownMenu.Item>
-						<SparklesIcon />
-						Upgrade to Pro
-					</DropdownMenu.Item>
-				</DropdownMenu.Group>
-				<DropdownMenu.Separator />
-				<DropdownMenu.Group>
-					<DropdownMenu.Item>
 						<BadgeCheckIcon />
-						Account
-					</DropdownMenu.Item>
-					<DropdownMenu.Item>
-						<CreditCardIcon />
-						Billing
-					</DropdownMenu.Item>
-					<DropdownMenu.Item>
-						<BellIcon />
-						Notifications
+						DemoAccount
 					</DropdownMenu.Item>
 				</DropdownMenu.Group>
 				<DropdownMenu.Separator />

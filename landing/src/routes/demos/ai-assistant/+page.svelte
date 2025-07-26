@@ -29,6 +29,8 @@
   import { supabase } from '$lib/supabase';
   import { marked } from 'marked';
   import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "$lib/components/ui/dialog";
+  import { CreditService } from '$lib/services/creditService';
+  import CreditDisplay from '$lib/components/ui/CreditDisplay.svelte';
 
   function formatBotText(text: string): string {
     // Basic sanitization: escape < and >, then parse markdown
@@ -157,6 +159,13 @@
 
   async function startDemo() {
     console.log("startDemo called", { isDemoRunning, isTraining, websiteUrl });
+    
+    // Check if user has enough credits
+    const { canStart, userCredits, demoCost } = await CreditService.canStartDemo('ai-assistant');
+    if (!canStart) {
+      alert(`Insufficient credits. You have ${userCredits} credits, but this demo costs ${demoCost} credits.`);
+      return;
+    }
         
     const validation = validateWebsiteUrl(websiteUrl);
     console.log("Validation result:", validation);
@@ -185,6 +194,15 @@
     
     try {
       console.log("Making API call to /api/n8n/train-chatbot");
+      
+      // Start demo session and deduct credits
+      const sessionResult = await CreditService.startDemoSession('ai-assistant');
+      if (!sessionResult.success) {
+        alert(sessionResult.error || 'Failed to start demo session');
+        isTraining = false;
+        return;
+      }
+      
       // Call our SvelteKit API route for training
       const response = await fetch('/api/n8n/train-chatbot', {
         method: 'POST',
@@ -288,15 +306,18 @@
                   </div>
 
                 </div>
-                <!-- Mobile Setup Toggle -->
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  class="text-gray-600 hover:text-gray-900"
-                  onclick={() => showMobileSetup = !showMobileSetup}
-                >
-                  <Settings class="w-4 h-4" />
-                </Button>
+                <div class="flex items-center gap-2">
+                  <CreditDisplay />
+                  <!-- Mobile Setup Toggle -->
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    class="text-gray-600 hover:text-gray-900"
+                    onclick={() => showMobileSetup = !showMobileSetup}
+                  >
+                    <Settings class="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
             </CardHeader>
 
@@ -515,6 +536,9 @@
                   <span>Telegram</span>
                 </Badge>
               </div>
+              <div class="flex items-center gap-2 mt-2">
+                <CreditDisplay />
+              </div>
             </CardHeader>
 
             <CardContent class="p-0 flex-1 flex flex-col min-h-0">
@@ -592,6 +616,11 @@
     <!-- Desktop Sidebar (Right) -->
     <div class="hidden lg:block w-80 border-l border-gray-200 bg-gray-50 absolute right-0 top-0 h-full overflow-y-auto">
       <div class="p-6 space-y-6">
+        <!-- Credit Display -->
+        <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
+          <span class="text-sm font-medium text-gray-700">Credits</span>
+          <CreditDisplay />
+        </div>
         <!-- Website Input -->
         <div class="space-y-3">
           <div class="flex items-center gap-2">

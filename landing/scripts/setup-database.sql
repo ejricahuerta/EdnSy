@@ -115,31 +115,15 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
 
 -- Insert sample demo data
 INSERT INTO demos (id, title, description, industry, credit_cost, estimated_time, difficulty, benefits) VALUES
--- Restaurant demos
-('restaurant-ordering', 'Online Ordering System', 'Streamline customer orders with automated kitchen integration and real-time updates', 'restaurant', 35, 15, 'intermediate', ARRAY['Reduce order errors by 80%', 'Speed up kitchen workflow by 40%', 'Improve customer satisfaction scores', 'Increase order volume by 25%']),
-('restaurant-reservations', 'Reservation Management', 'Automate table bookings, waitlist management, and customer communication', 'restaurant', 30, 12, 'beginner', ARRAY['Fill empty tables efficiently', 'Reduce no-shows by 60%', 'Improve customer experience']),
-('restaurant-reviews', 'Review & Social Media Automation', 'Automatically request reviews and manage social media posting', 'restaurant', 25, 10, 'beginner', ARRAY['Increase positive reviews', 'Save 5 hours/week on social media', 'Build online reputation']),
-('restaurant-inventory', 'Inventory Tracking & Reordering', 'Monitor stock levels and automate supplier reordering', 'restaurant', 40, 18, 'advanced', ARRAY['Prevent stockouts', 'Reduce waste by 30%', 'Optimize purchasing costs']),
-('restaurant-scheduling', 'Staff Scheduling Automation', 'Optimize staff schedules based on demand forecasting and availability', 'restaurant', 35, 15, 'intermediate', ARRAY['Reduce labor costs by 15%', 'Improve staff satisfaction', 'Handle scheduling conflicts']),
+-- AI Assistant Demo
+('ai-assistant', 'AI Assistant', 'Intelligent customer support chatbot for scheduling and inquiries 24/7', 'general', 30, 15, 'beginner', ARRAY['Handle scheduling requests', '24/7 availability', 'Instant responses', 'Reduce support workload by 60%']),
 
--- Professional services demos
-('services-appointments', 'Appointment Scheduling', 'Automate client booking with intelligent scheduling and reminder systems', 'professional-services', 25, 12, 'beginner', ARRAY['Reduce no-shows by 70%', 'Save 3 hours/week on scheduling', 'Improve client experience']),
-('services-intake', 'Client Intake Automation', 'Streamline client onboarding with automated forms and CRM integration', 'professional-services', 30, 15, 'intermediate', ARRAY['Reduce data entry by 90%', 'Improve client satisfaction', 'Speed up onboarding process']),
-('services-followup', 'Follow-up Sequences', 'Automate client communication based on service type and timeline', 'professional-services', 20, 10, 'beginner', ARRAY['Increase client retention', 'Save 4 hours/week', 'Improve client outcomes']),
-('services-documents', 'Document Generation', 'Automate contract creation, proposals, and e-signature workflows', 'professional-services', 35, 18, 'advanced', ARRAY['Reduce document errors', 'Speed up proposal process', 'Improve client conversion']),
-('services-payments', 'Payment Processing', 'Automate invoicing, payment collection, and financial reporting', 'professional-services', 30, 15, 'intermediate', ARRAY['Get paid faster', 'Reduce payment errors', 'Improve cash flow']),
+-- Automation Tasks Demo
+('automation-tasks', 'Lead to Sale Automation', 'Automated lead processing from inquiry to booking for service calls', 'general', 35, 18, 'intermediate', ARRAY['Auto-schedule jobs', 'Instant quotes', 'Customer follow-ups', 'Convert 40% more leads']),
 
--- Retail demos
-('retail-segmentation', 'Customer Segmentation', 'Automate customer data analysis and personalized marketing campaigns', 'retail', 40, 20, 'advanced', ARRAY['Increase sales by 25%', 'Improve customer retention', 'Optimize marketing spend']),
-('retail-inventory', 'Inventory Management', 'Track stock levels and automate low-stock alerts and reordering', 'retail', 35, 18, 'intermediate', ARRAY['Prevent stockouts', 'Reduce carrying costs', 'Improve cash flow']),
-('retail-cart-recovery', 'Abandoned Cart Recovery', 'Automate recovery sequences for abandoned shopping carts', 'retail', 30, 15, 'intermediate', ARRAY['Recover 15% of abandoned sales', 'Increase conversion rates', 'Improve customer experience']),
-('retail-loyalty', 'Loyalty Program Management', 'Automate points tracking, rewards, and customer engagement', 'retail', 25, 12, 'beginner', ARRAY['Increase customer lifetime value', 'Improve retention rates', 'Drive repeat purchases']),
-('retail-social', 'Social Media Automation', 'Automate content scheduling and social media engagement', 'retail', 20, 10, 'beginner', ARRAY['Save 6 hours/week', 'Increase social engagement', 'Build brand awareness']),
+-- Data Insights Demo
+('data-insights', 'Service Analytics', 'AI-powered insights for technician performance and business metrics', 'general', 40, 20, 'advanced', ARRAY['Technician efficiency', 'Service profitability', 'Customer insights', 'Data-driven decisions']),
 
--- Home services demos
-('home-leads', 'Lead Qualification', 'Automate lead scoring and appointment booking for service requests', 'home-services', 30, 15, 'intermediate', ARRAY['Convert 40% more leads', 'Reduce response time', 'Improve lead quality']),
-('home-scheduling', 'Service Scheduling', 'Automate appointment booking and service reminder systems', 'home-services', 25, 12, 'beginner', ARRAY['Reduce no-shows by 60%', 'Optimize technician routes', 'Improve customer satisfaction']),
-('home-estimates', 'Estimate Generation', 'Automate quote creation and proposal delivery', 'home-services', 35, 18, 'intermediate', ARRAY['Speed up quote process', 'Increase win rates', 'Improve proposal quality']),
-('home-communication', 'Customer Communication', 'Automate customer updates throughout service lifecycle', 'home-services', 20, 10, 'beginner', ARRAY['Improve customer satisfaction', 'Reduce support calls', 'Build trust']),
-('home-reviews', 'Review & Referral Automation', 'Automate review requests and referral program management', 'home-services', 25, 12, 'beginner', ARRAY['Increase positive reviews', 'Generate more referrals', 'Build online reputation'])
+-- Business Operations Demo
+('business-operations', 'Field Service Management', 'Complete field service operations from dispatch to invoicing', 'general', 45, 25, 'advanced', ARRAY['Dispatch optimization', 'Real-time tracking', 'Automated invoicing', 'End-to-end automation'])
 ON CONFLICT (id) DO NOTHING; 

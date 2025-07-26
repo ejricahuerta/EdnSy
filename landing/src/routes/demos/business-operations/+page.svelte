@@ -23,6 +23,8 @@
     Globe,
     Headphones
   } from 'lucide-svelte';
+  import { CreditService } from '$lib/services/creditService';
+  import CreditDisplay from '$lib/components/ui/CreditDisplay.svelte';
 
   let messageInput = '';
   let loading = false;
@@ -180,15 +182,18 @@
                     </p>
                   </div>
                 </div>
-                <!-- Mobile Setup Toggle -->
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  class="text-gray-600 hover:text-gray-900"
-                  onclick={() => showMobileSetup = !showMobileSetup}
-                >
-                  <Settings class="w-4 h-4" />
-                </Button>
+                <div class="flex items-center gap-2">
+                  <CreditDisplay />
+                  <!-- Mobile Setup Toggle -->
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    class="text-gray-600 hover:text-gray-900"
+                    onclick={() => showMobileSetup = !showMobileSetup}
+                  >
+                    <Settings class="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
             </CardHeader>
 
@@ -345,6 +350,9 @@
                   <span>Emergency</span>
                 </Badge>
               </div>
+              <div class="flex items-center gap-2 mt-2">
+                <CreditDisplay />
+              </div>
             </CardHeader>
 
             <CardContent class="p-0 flex-1 flex flex-col min-h-0">
@@ -419,6 +427,11 @@
     <!-- Desktop Sidebar (Right) -->
     <div class="hidden lg:block w-80 border-l border-gray-200 bg-gray-50 absolute right-0 top-0 h-full overflow-y-auto">
       <div class="p-6 space-y-6">
+        <!-- Credit Display -->
+        <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
+          <span class="text-sm font-medium text-gray-700">Credits</span>
+          <CreditDisplay />
+        </div>
         <!-- Demo Status -->
         {#if demoError}
           <div class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">

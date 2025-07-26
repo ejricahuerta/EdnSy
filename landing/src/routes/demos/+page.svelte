@@ -1,201 +1,172 @@
 <script lang="ts">
-  import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-  } from "$lib/components/ui/card";
-  import { Button } from "$lib/components/ui/button";
-  import { Badge } from "$lib/components/ui/badge";
-  import {
-    MessageSquare,
-    Calendar,
-    BarChart3,
-    Bot,
-    Zap,
-    Users,
-    FileText,
-    Play,
-    Clock,
-    Star,
-    Sparkles,
-  } from "@lucide/svelte";
-  import { goto } from "$app/navigation";
+  import { onMount } from 'svelte';
+  import { supabase } from '$lib/supabase';
+  import { CreditService } from '$lib/services/creditService';
+  import CreditDisplay from '$lib/components/ui/CreditDisplay.svelte';
+  import DemoCard from '$lib/components/ui/DemoCard.svelte';
+  import { Filter, Search, Building2, Utensils, ShoppingBag, Wrench, Clock } from 'lucide-svelte';
 
-  const demos = [
-    {
-      id: "ai-assistant",
-      title: "AI Assistant",
-      description:
-        "Intelligent customer support chatbot for scheduling and inquiries 24/7",
-      icon: MessageSquare,
-      category: "Customer Service",
-      duration: "5-10 min",
-      difficulty: "Easy",
-      benefits: [
-        "Handle scheduling requests",
-        "24/7 availability",
-        "Instant responses",
-      ],
-      color: "bg-blue-500",
-      status: "available",
-    },
-    {
-      id: "automation-tasks",
-      title: "Lead to Sale Automation",
-      description:
-        "Automated lead processing from inquiry to booking for service calls",
-      icon: Calendar,
-      category: "Operations",
-      duration: "8-12 min",
-      difficulty: "Medium",
-      benefits: ["Auto-schedule jobs", "Instant quotes", "Customer follow-ups"],
-      color: "bg-green-500",
-      status: "available",
-    },
-    {
-      id: "data-insights",
-      title: "Service Analytics",
-      description: "AI-powered insights for technician performance and business metrics",
-      icon: BarChart3,
-      category: "Analytics",
-      duration: "10-15 min",
-      difficulty: "Medium",
-      benefits: [
-        "Technician efficiency",
-        "Service profitability",
-        "Customer insights",
-      ],
-      color: "bg-purple-500",
-      status: "available",
-    },
-    {
-      id: "business-operations",
-      title: "Field Service Management",
-      description: "Complete field service operations from dispatch to invoicing",
-      icon: Zap,
-      category: "Automation",
-      duration: "12-18 min",
-      difficulty: "Hard",
-      benefits: ["Dispatch optimization", "Real-time tracking", "Automated invoicing"],
-      color: "bg-orange-500",
-      status: "coming-soon",
-    }
+  let demos: any[] = [];
+  let filteredDemos: any[] = [];
+  let loading = $state(true);
+  let searchTerm = $state('');
+  let selectedIndustry = $state('all');
+  let creditDisplay: CreditDisplay;
+
+  const industries = [
+    { id: 'all', name: 'All Demos', icon: Building2 }
   ];
 
-  function startDemo(demoId: string) {
-    if (demoId === "ai-assistant" || demoId === "automation-tasks" || demoId === "data-insights" || demoId === "business-operations") {
-      goto(`/demos/${demoId}`);
-    } else {
-      console.log(`Demo ${demoId} coming soon`);
+  async function loadDemos() {
+    try {
+      loading = true;
+      const { data, error } = await supabase
+        .from('demos')
+        .select('*')
+        .order('title');
+
+      if (error) {
+        console.error('Error loading demos:', error);
+        return;
+      }
+
+      demos = data || [];
+      filterDemos();
+    } catch (error) {
+      console.error('Error loading demos:', error);
+    } finally {
+      loading = false;
     }
   }
+
+  function filterDemos() {
+    filteredDemos = demos.filter(demo => {
+      const matchesSearch = demo.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          demo.description.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesIndustry = selectedIndustry === 'all' || demo.industry === selectedIndustry;
+      
+      return matchesSearch && matchesIndustry;
+    });
+  }
+
+  function handleSearch() {
+    filterDemos();
+  }
+
+  function handleIndustryChange() {
+    filterDemos();
+  }
+
+  function refreshCredits() {
+    if (creditDisplay) {
+      creditDisplay.refresh();
+    }
+  }
+
+  onMount(() => {
+    loadDemos();
+  });
+
+  $effect(() => {
+    filterDemos();
+  });
 </script>
 
-<div class="flex flex-1 flex-col gap-4 p-4">
+<svelte:head>
+  <title>Demos - Ed&Sy</title>
+  <meta name="description" content="Try our AI automation demos" />
+</svelte:head>
+
+<div class="min-h-screen bg-gray-50">
   <!-- Header -->
-  <div class="text-left mb-8">
-    <div class="flex items-center justify-between mb-4">
-      <div class="flex items-center gap-2 text-sm text-gray-600">
-        <span class="text-gray-900 font-medium">Demos</span>
-        <span class="text-gray-400">/</span>
-        <span class="text-gray-600">Available Demos</span>
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">AI Automation Demos</h1>
+          <p class="mt-2 text-gray-600">Experience the power of AI automation for your business</p>
+        </div>
+        <div class="flex items-center gap-4">
+          <CreditDisplay bind:this={creditDisplay} />
+          <a
+            href="/demos/history"
+            class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
+          >
+            <Clock class="h-4 w-4" />
+            History
+          </a>
+        </div>
       </div>
     </div>
-    <p class="text-lg text-gray-600 max-w-2xl">
-      Explore our AI automation solutions designed specifically for local
-      businesses.
-    </p>
   </div>
 
-  <!-- Demos Grid -->
-  <div class="grid auto-rows-min gap-4 md:grid-cols-2 lg:grid-cols-3">
-    {#each demos as demo}
-      <Card class="hover:shadow-lg transition-all duration-300">
-        <CardHeader>
-          <div class="flex items-center justify-between mb-2">
-            <div class={`p-3 rounded-lg ${demo.color} text-white`}>
-              <svelte:component this={demo.icon} class="w-6 h-6" />
-            </div>
-            <Badge
-              variant={demo.status === "available" ? "default" : "secondary"}
-            >
-              {demo.status === "available" ? "Available" : "Coming Soon"}
-            </Badge>
+  <!-- Filters -->
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex flex-col sm:flex-row gap-4">
+        <!-- Search -->
+        <div class="flex-1">
+          <div class="relative">
+            <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search demos..."
+              bind:value={searchTerm}
+              on:input={handleSearch}
+              class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+            />
           </div>
-          <CardTitle class="text-lg font-semibold text-gray-900">
-            {demo.title}
-          </CardTitle>
-          <CardDescription class="text-gray-600">
-            {demo.description}
-          </CardDescription>
-        </CardHeader>
-
-        <CardContent class="space-y-4">
-          <div class="flex items-center gap-4 text-sm text-gray-500">
-            <div class="flex items-center gap-1">
-              <Clock class="w-4 h-4" />
-              {demo.duration}
-            </div>
-            <div class="flex items-center gap-1">
-              <Star class="w-4 h-4" />
-              {demo.difficulty}
-            </div>
-          </div>
-
-          <div class="space-y-2">
-            <h4 class="font-medium text-gray-900 text-sm">Key Benefits:</h4>
-            <ul class="space-y-1">
-              {#each demo.benefits as benefit}
-                <li class="text-sm text-gray-600 flex items-center gap-2">
-                  <div class="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
-                  {benefit}
-                </li>
-              {/each}
-            </ul>
-          </div>
-
-          <Button
-            class="w-full"
-            variant={demo.status === "available" ? "default" : "outline"}
-            disabled={demo.status !== "available"}
-            onclick={() => startDemo(demo.id)}
-          >
-            {#if demo.status === "available"}
-              <Play class="w-4 h-4 mr-2" />
-              Start Demo
-            {:else}
-              <Clock class="w-4 h-4 mr-2" />
-              Coming Soon
-            {/if}
-          </Button>
-        </CardContent>
-      </Card>
-    {/each}
-  </div>
-
-  <!-- Footer CTA -->
-  <div class="text-center mt-8">
-    <Card
-      class="max-w-2xl mx-auto bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200"
-    >
-      <CardContent class="py-8">
-        <div class="flex items-center justify-center gap-3 mb-4">
-          <Bot class="w-6 h-6 text-blue-600" />
-          <h3 class="text-2xl font-bold text-gray-900">
-            Ready to Transform Your Business?
-          </h3>
         </div>
-        <p class="text-gray-600 mb-6">
-          These demos showcase just a fraction of what's possible. Let's discuss
-          how AI automation can work for your specific needs.
-        </p>
-        <Button size="lg" class="bg-blue-600 hover:bg-blue-700">
-          <Sparkles class="w-5 h-5 mr-2" />
-          Schedule Consultation
-        </Button>
-      </CardContent>
-    </Card>
+
+        <!-- Industry Filter -->
+        <div class="flex gap-2">
+          {#each industries as industry}
+            <button
+              on:click={() => { selectedIndustry = industry.id; handleIndustryChange(); }}
+              class="flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors {selectedIndustry === industry.id ? 'bg-primary text-white border-primary' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}"
+            >
+              <svelte:component this={industry.icon} class="h-4 w-4" />
+              <span class="text-sm font-medium">{industry.name}</span>
+            </button>
+          {/each}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    {#if loading}
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {#each Array(6) as _}
+          <div class="bg-white rounded-lg border border-gray-200 p-6 animate-pulse">
+            <div class="h-6 bg-gray-200 rounded mb-4"></div>
+            <div class="h-4 bg-gray-200 rounded mb-2"></div>
+            <div class="h-4 bg-gray-200 rounded mb-4"></div>
+            <div class="h-10 bg-gray-200 rounded"></div>
+          </div>
+        {/each}
+      </div>
+    {:else if filteredDemos.length === 0}
+      <div class="text-center py-12">
+        <Filter class="h-12 w-12 text-gray-400 mx-auto mb-4" />
+        <h3 class="text-lg font-medium text-gray-900 mb-2">No demos found</h3>
+        <p class="text-gray-600">Try adjusting your search or filter criteria.</p>
+      </div>
+    {:else}
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {#each filteredDemos as demo}
+          <DemoCard
+            demoId={demo.id}
+            title={demo.title}
+            description={demo.description}
+            industry={demo.industry}
+            estimatedTime={demo.estimated_time}
+            difficulty={demo.difficulty}
+            benefits={demo.benefits}
+          />
+        {/each}
+      </div>
+    {/if}
   </div>
 </div>

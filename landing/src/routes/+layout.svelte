@@ -2,7 +2,7 @@
   import { goto } from "$app/navigation";
   import "../app.css";
   import { Star, Users, LogOut, ToyBrick } from "@lucide/svelte";
-  import { injectAnalytics } from "@vercel/analytics/sveltekit";
+
   import posthog from "posthog-js";
   import { browser } from "$app/environment";
   import { beforeNavigate, afterNavigate } from "$app/navigation";
@@ -14,7 +14,7 @@
   import { onMount } from "svelte";
   import type { LayoutData } from './$types';
 
-  injectAnalytics({ mode: "production" });
+
   let { children, data } = $props<{ data: LayoutData }>();
   let mobileNavOpen = $state(false);
   let user = $state<any>(data.user);
