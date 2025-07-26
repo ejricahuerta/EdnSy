@@ -1,173 +1,410 @@
 <script lang="ts">
-  import { Button } from "$lib/components/ui/button";
-  import { Card, CardContent, CardHeader, CardTitle } from "$lib/components/ui/card";
-  import { Badge } from "$lib/components/ui/badge";
-  import { Input } from "$lib/components/ui/input";
-  import { Label } from "$lib/components/ui/label";
-  import { Select, SelectContent, SelectItem, SelectTrigger } from "$lib/components/ui/select";
+  import { onMount } from 'svelte';
+  import { Button } from '$lib/components/ui/button';
+  import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
+  import { Badge } from '$lib/components/ui/badge';
+  import { Input } from '$lib/components/ui/input';
+  import { Label } from '$lib/components/ui/label';
+  import DailyTaskDemo from '$lib/components/demos/DailyTaskDemo.svelte';
   import { 
-    Calendar, 
-    ArrowLeft, 
-    Clock,
-    Star,
+    Zap, 
+    Workflow, 
+    MessageSquare, 
     CheckCircle,
-    Zap,
+    Clock,
+    TrendingUp,
     Users,
-    CalendarDays,
-    Phone,
-    Mail,
-    MapPin,
-    ChevronLeft,
-    ChevronRight,
+    FileText,
     Settings,
     Play,
     RotateCcw,
-    MessageSquare
-  } from "@lucide/svelte";
-  import { goto } from "$app/navigation";
+    Star,
+    User,
+    Bot,
+    Send,
+    AlertCircle,
+    Globe,
+    Headphones,
+    Mail,
+    Phone
+  } from 'lucide-svelte';
+  import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "$lib/components/ui/dialog";
+  import { supabase } from '$lib/supabase';
 
-  let selectedDate = new Date();
-  let selectedTime = "";
-  let selectedService = "";
-  let customerName = "";
-  let customerEmail = "";
-  let customerPhone = "";
-  let bookingConfirmed = false;
-  let isDemoRunning = false;
-  let showMobileSetup = false;
 
-  const availableTimes = [
-    "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
-    "01:00 PM", "01:30 PM", "02:00 PM", "02:30 PM", "03:00 PM", "03:30 PM",
-    "04:00 PM", "04:30 PM", "05:00 PM"
+  let activeTab = 'demo';
+  let supabaseSessionId: string | null = null;
+
+  let isDemoRunning = $state(false);
+  let isTraining = $state(false);
+  let showMobileSetup = $state(true);
+  let demoError = $state("");
+  let demoSuccess = $state("");
+  let messageInput = $state("");
+  let websiteUrl = $state("");
+  let emailAddress = $state("");
+  let phoneNumber = $state("");
+  let websiteValidation = $state("");
+  let emailValidation = $state("");
+  let phoneValidation = $state("");
+  let chatHistory = $state([]);
+  let loading = $state(false);
+  let trainingProgress = $state(0);
+  let trainingError = $state("");
+  let trainingSuccess = $state("");
+  let currentTrainingStep = $state("");
+  let trainingStepIndex = 0;
+  let trainingStepInterval: ReturnType<typeof setInterval> | null = null;
+  let showDemoReadyDialog = $state(false);
+
+  let webhookUrl = "/api/n8n/automation-chat";
+
+  const trainingSteps = [
+    "Initializing automation demo...",
+    "Loading automation workflows...",
+    "Preparing lead capture systems...",
+    "Setting up email automation...",
+    "Configuring phone integration...",
+    "Building automation rules...",
+    "Creating workflow triggers...",
+    "Testing automation sequences...",
+    "Finalizing demo setup...",
+    "Demo ready!"
   ];
 
-  const services = [
-    { id: "consultation", name: "Business Consultation", duration: "60 min", price: "$150" },
-    { id: "strategy", name: "Strategy Session", duration: "90 min", price: "$200" },
-    { id: "implementation", name: "Implementation Planning", duration: "120 min", price: "$300" },
-    { id: "review", name: "Progress Review", duration: "45 min", price: "$100" }
-  ];
-
-  const demoFeatures = [
-    {
-      icon: CalendarDays,
-      title: "Smart Calendar",
-      description: "Automatically syncs with your existing calendar systems"
-    },
-    {
-      icon: Clock,
-      title: "No Double Bookings",
-      description: "Prevents scheduling conflicts and overlapping appointments"
-    },
-    {
-      icon: Zap,
-      title: "Automatic Reminders",
-      description: "Sends SMS and email reminders to reduce no-shows"
-    },
-    {
-      icon: Users,
-      title: "Multi-staff Support",
-      description: "Manage multiple team members and their availability"
+  function validateWebsiteUrl(url: string): string {
+    if (!url) return "";
+    try {
+      const urlObj = new URL(url);
+      if (urlObj.protocol !== "http:" && urlObj.protocol !== "https:") {
+        return "Please enter a valid HTTP or HTTPS URL";
+      }
+      return "";
+    } catch {
+      return "Please enter a valid URL";
     }
-  ];
+  }
 
-  const benefits = [
-    "Reduce no-shows by 80% with automated reminders",
-    "Eliminate double bookings and scheduling conflicts",
-    "Save 5+ hours per week on manual scheduling",
-    "Improve customer satisfaction with self-service booking",
-    "Integrate with existing CRM and calendar systems"
-  ];
+  function validateEmail(email: string): string {
+    if (!email) return "";
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return "Please enter a valid email address";
+    }
+    return "";
+  }
 
-  function getDaysInMonth(date: Date) {
-    const year = date.getFullYear();
-    const month = date.getMonth();
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const daysInMonth = lastDay.getDate();
-    const startingDay = firstDay.getDay();
+  function validatePhone(phone: string): string {
+    if (!phone) return "";
+    const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
+    if (!phoneRegex.test(phone.replace(/[\s\-\(\)]/g, ''))) {
+      return "Please enter a valid phone number";
+    }
+    return "";
+  }
+
+  // Watch for input changes to validate
+  $effect(() => {
+    console.log("$effect triggered:", { websiteUrl, isTraining, isDemoRunning });
+    if (websiteUrl && !isTraining && !isDemoRunning) {
+      websiteValidation = validateWebsiteUrl(websiteUrl);
+      console.log("Validation result:", websiteValidation);
+    } else if (!websiteUrl) {
+      websiteValidation = "";
+      console.log("URL is empty, clearing validation");
+    }
+  });
+
+  $effect(() => {
+    if (emailAddress && !isTraining && !isDemoRunning) {
+      emailValidation = validateEmail(emailAddress);
+    } else if (!emailAddress) {
+      emailValidation = "";
+    }
+  });
+
+  $effect(() => {
+    if (phoneNumber && !isTraining && !isDemoRunning) {
+      phoneValidation = validatePhone(phoneNumber);
+    } else if (!phoneNumber) {
+      phoneValidation = "";
+    }
+  });
+
+  $effect(() => {
+    // Show dialog when demo starts
+    if (isDemoRunning) {
+      showDemoReadyDialog = true;
+    }
+  });
+
+
+
+  async function startDemo() {
+    console.log("startDemo called", { isDemoRunning, isTraining, websiteUrl, emailAddress, phoneNumber });
+        
+    // Validate website URL
+    const websiteValidationResult = validateWebsiteUrl(websiteUrl);
+    console.log("Website validation result:", websiteValidationResult);
+    if (websiteValidationResult) {
+      websiteValidation = websiteValidationResult;
+      console.log("Website validation failed:", websiteValidationResult);
+      return;
+    }
     
-    return { daysInMonth, startingDay };
-  }
-
-  function getCalendarDays() {
-    const { daysInMonth, startingDay } = getDaysInMonth(selectedDate);
-    const days = [];
-    
-    // Add empty cells for days before the first day of the month
-    for (let i = 0; i < startingDay; i++) {
-      days.push(null);
+    // Validate email
+    const emailValidationResult = validateEmail(emailAddress);
+    console.log("Email validation result:", emailValidationResult);
+    if (emailValidationResult) {
+      emailValidation = emailValidationResult;
+      console.log("Email validation failed:", emailValidationResult);
+      return;
     }
     
-    // Add days of the month
-    for (let i = 1; i <= daysInMonth; i++) {
-      days.push(i);
+    // Validate phone
+    const phoneValidationResult = validatePhone(phoneNumber);
+    console.log("Phone validation result:", phoneValidationResult);
+    if (phoneValidationResult) {
+      phoneValidation = phoneValidationResult;
+      console.log("Phone validation failed:", phoneValidationResult);
+      return;
     }
     
-    return days;
-  }
-
-  function changeMonth(direction: number) {
-    selectedDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + direction, 1);
-  }
-
-  function selectDate(day: number) {
-    if (day) {
-      selectedDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), day);
+    console.log("Starting training with n8n...");
+    websiteValidation = "";
+    isTraining = true;
+    isDemoRunning = false; // Ensure chat is disabled during training
+    demoError = "";
+    demoSuccess = "";
+    trainingError = "";
+    trainingSuccess = "";
+    trainingProgress = 0;
+    trainingStepIndex = 0;
+    currentTrainingStep = trainingSteps[0];
+    if (trainingStepInterval) clearInterval(trainingStepInterval);
+    trainingStepInterval = setInterval(() => {
+      trainingStepIndex = (trainingStepIndex + 1) % trainingSteps.length;
+      currentTrainingStep = trainingSteps[trainingStepIndex];
+    }, 4000); // Change step every 4 seconds
+    
+    console.log("Training state set:", { isTraining, trainingProgress });
+    
+    try {
+      console.log("Starting automation demo setup");
+      // Call the automation-tasks API route for training
+      const response = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          action: 'train',
+          website: websiteUrl,
+          email: emailAddress,
+          phone: phoneNumber,
+          timestamp: new Date().toISOString(),
+          demo: 'automation-tasks'
+        })
+      });
+      
+      trainingProgress = 100;
+      isTraining = false;
+      isDemoRunning = true;
+      trainingSuccess = "Demo ready!";
+      trainingError = "";
+      demoSuccess = "Automation Tasks demo started successfully!";
+      console.log("Demo started successfully!");
+      
+      // Send welcome message and display the response
+      await sendWelcomeMessage();
+    } catch (error) {
+      console.error("Demo start error:", error);
+      trainingProgress = 100;
+      isTraining = false;
+      isDemoRunning = true;
+      trainingError = "Demo started in fallback mode.";
+      demoSuccess = "Demo started in fallback mode - some features may be limited.";
+      console.log("Demo started in fallback mode!");
+    } finally {
+      if (trainingStepInterval) clearInterval(trainingStepInterval);
     }
   }
 
-  function confirmBooking() {
-    if (selectedService && selectedTime && customerName && customerEmail) {
-      bookingConfirmed = true;
-    }
-  }
 
-  function resetBooking() {
-    bookingConfirmed = false;
-    selectedTime = "";
-    selectedService = "";
-    customerName = "";
-    customerEmail = "";
-    customerPhone = "";
-  }
-
-  function startDemo() {
-    isDemoRunning = true;
-    resetBooking();
-  }
 
   function resetDemo() {
     isDemoRunning = false;
-    resetBooking();
+    isTraining = false;
+    demoSuccess = "";
+    demoError = "";
+    trainingError = "";
+    trainingSuccess = "";
+    trainingProgress = 0;
+    websiteUrl = "";
+    emailAddress = "";
+    phoneNumber = "";
+    websiteValidation = "";
+    emailValidation = "";
+    phoneValidation = "";
+    chatHistory = [];
+    messageInput = '';
+    if (trainingStepInterval) clearInterval(trainingStepInterval);
   }
+
+  async function sendWelcomeMessage() {
+    try {
+      // Send welcome message to n8n and get the response
+      const response = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sessionId: supabaseSessionId,
+          action: 'message',
+          message: 'Send Welcome Message through SMS and Email. make the message personalized based on the customer and the company',
+          website: websiteUrl,
+          email: emailAddress,
+          phone: phoneNumber,
+          timestamp: new Date().toISOString(),
+          demo: 'automation-tasks'
+        })
+      });
+      
+      if (!response.ok) {
+        console.error("Welcome message failed:", response.status);
+        // Add a fallback welcome message
+        const fallbackMessage = {
+          id: Date.now().toString(),
+          role: 'ai',
+          content: "Welcome to Ed & Sy Automation Services! I'm here to help you with our automation solutions. How can I assist you today?"
+        };
+        chatHistory = [...chatHistory, fallbackMessage];
+      } else {
+        console.log("Welcome message sent successfully");
+        const result = await response.json();
+        
+        // Display the welcome message response in chat
+        const welcomeMessage = {
+          id: Date.now().toString(),
+          role: 'ai',
+          content: result.output || result.raw || "Welcome to Ed & Sy Automation Services! I'm here to help you with our automation solutions. How can I assist you today?"
+        };
+        chatHistory = [...chatHistory, welcomeMessage];
+      }
+    } catch (error) {
+      console.error("Error sending welcome message:", error);
+      // Add a fallback welcome message
+      const fallbackMessage = {
+        id: Date.now().toString(),
+        role: 'ai',
+        content: "Welcome to Ed & Sy Automation Services! I'm here to help you with our automation solutions. How can I assist you today?"
+      };
+      chatHistory = [...chatHistory, fallbackMessage];
+    }
+  }
+
+  async function sendMessage() {
+    if (!messageInput.trim() || !isDemoRunning || isTraining) return;
+
+    const userMessage = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: messageInput
+    };
+
+    chatHistory = [...chatHistory, userMessage];
+    const currentMessage = messageInput;
+    messageInput = '';
+    loading = true;
+
+    try {
+      // Call the automation-tasks specific n8n webhook
+      const response = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sessionId: supabaseSessionId,
+          action: 'message',
+          message: currentMessage,
+          website: websiteUrl,
+          email: emailAddress,
+          phone: phoneNumber,
+          timestamp: new Date().toISOString(),
+          demo: 'automation-tasks'
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      
+      const botResponse = {
+        id: Date.now().toString(),
+        role: 'ai',
+        content: result.output || result.raw || "I'm sorry, I couldn't process your request. Please try again."
+      };
+      
+      chatHistory = [...chatHistory, botResponse];
+      
+    } catch (error) {
+      console.error("Error getting chatbot response:", error);
+      // Show service down message like ai-assistant demo
+      const botResponse = {
+        id: Date.now().toString(),
+        role: 'ai',
+        content: "Automation service is currently unavailable. Please try again later."
+      };
+      chatHistory = [...chatHistory, botResponse];
+    } finally {
+      loading = false;
+    }
+  }
+
+
+
+  function handleKeyPress(event: KeyboardEvent) {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      sendMessage();
+    }
+  }
+
+  onMount(async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    supabaseSessionId = session?.access_token ?? null;
+    // Initialize demo
+  });
 </script>
 
-<div class="bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 h-full">
+<div class="bg-gradient-to-br from-purple-50 via-violet-50 to-indigo-50 h-full">
   <!-- Background Pattern -->
   <div class="absolute inset-0 opacity-10">
-    <div class="absolute inset-0" style="background-image: radial-gradient(circle at 1px 1px, #10b981 1px, transparent 0); background-size: 20px 20px;"></div>
+    <div class="absolute inset-0" style="background-image: radial-gradient(circle at 1px 1px, #8b5cf6 1px, transparent 0); background-size: 20px 20px;"></div>
   </div>
 
-  <div class="relative z-10 flex h-full">
-    <!-- Scheduling Interface (Left - Takes remaining space) -->
-    <div class="flex-1 flex flex-col min-h-0 lg:mr-80">
-      <!-- Scheduling Area -->
-      <div class="flex-1 p-3 lg:p-6 min-h-0">
+  <div class="relative z-10 flex h-[calc(100vh-60px)]">
+    <!-- Chat Interface (Left - Takes remaining space) -->
+    <div class="flex-1 flex flex-col lg:mr-80">
+      <!-- Chat Area -->
+      <div class="flex-1 p-3 lg:p-6 h-full">
         <!-- Mobile: Single Unified Card -->
         <div class="lg:hidden">
-          <Card class="h-full bg-white/90 backdrop-blur-sm shadow-xl flex flex-col">
-            <CardHeader class="border-b border-gray-200 flex-shrink-0 p-4">
+          <Card class="h-full h-[calc(100vh-100px)] bg-white/90 backdrop-blur-sm shadow-xl flex flex-col">
+            <CardHeader class="border-b border-gray-200 flex-shrink-0">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                  <div class="p-2 rounded-lg bg-green-500 text-white">
-                    <Calendar class="w-4 h-4" />
+                  <div class="p-2 rounded-lg bg-purple-500 text-white">
+                    <Zap class="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 class="font-semibold text-gray-900 text-sm">Smart Scheduling</h3>
+                    <h3 class="font-semibold text-gray-900 text-sm">Automation Tasks</h3>
                     <p class="text-xs text-gray-600">
-                      {isDemoRunning ? "Live - Booking appointments" : "Offline - Start demo to begin"}
+                      {isDemoRunning ? "Online - Ready to help" : "Offline - Start demo to begin"}
                     </p>
                   </div>
                 </div>
@@ -176,7 +413,7 @@
                   variant="ghost" 
                   size="sm" 
                   class="text-gray-600 hover:text-gray-900"
-                  on:click={() => showMobileSetup = !showMobileSetup}
+                  onclick={() => showMobileSetup = !showMobileSetup}
                 >
                   <Settings class="w-4 h-4" />
                 </Button>
@@ -188,396 +425,579 @@
               {#if showMobileSetup}
                 <div class="border-b border-gray-200 p-4 bg-gray-50">
                   <div class="space-y-4">
-                    <!-- Service Selection -->
+                    <!-- Website Input -->
                     <div class="space-y-2">
-                      <Label class="text-sm font-medium">Select Service</Label>
-                      <Select bind:value={selectedService}>
-                        <SelectTrigger class="w-full text-sm">
-                          <span>{services.find(s => s.id === selectedService)?.name || "Choose a service"}</span>
-                        </SelectTrigger>
-                        <SelectContent>
-                          {#each services as service}
-                            <SelectItem value={service.id}>{service.name} - {service.price}</SelectItem>
-                          {/each}
-                        </SelectContent>
-                      </Select>
+                      <div class="flex items-center gap-2">
+                        <Globe class="w-4 h-4 text-purple-600" />
+                        <Label for="website-mobile" class="text-sm font-medium">Your Website</Label>
+                      </div>
+                      <div class="space-y-2">
+                        <Input
+                          id="website-mobile"
+                          type="url"
+                          placeholder="https://yourcompany.com"
+                          bind:value={websiteUrl}
+                          class="w-full text-sm"
+                        />
+                        {#if websiteValidation}
+                          <p class="text-xs text-red-500 flex items-center gap-1">
+                            <AlertCircle class="w-3 h-3" />
+                            {websiteValidation}
+                          </p>
+                        {:else if websiteUrl}
+                          <p class="text-xs text-green-500 flex items-center gap-1">
+                            <CheckCircle class="w-3 h-3" />
+                            Valid URL
+                          </p>
+                        {:else}
+                          <p class="text-xs text-gray-500">
+                            Enter your website URL for automation setup
+                          </p>
+                        {/if}
+                      </div>
                     </div>
 
-                    <!-- Time Selection -->
+                    <!-- Email Input -->
                     <div class="space-y-2">
-                      <Label class="text-sm font-medium">Select Time</Label>
-                      <Select bind:value={selectedTime}>
-                        <SelectTrigger class="w-full text-sm">
-                          <span>{selectedTime || "Choose a time"}</span>
-                        </SelectTrigger>
-                        <SelectContent>
-                          {#each availableTimes as time}
-                            <SelectItem value={time}>{time}</SelectItem>
-                          {/each}
-                        </SelectContent>
-                      </Select>
+                      <div class="flex items-center gap-2">
+                        <Mail class="w-4 h-4 text-purple-600" />
+                        <Label for="email-mobile" class="text-sm font-medium">Your Email</Label>
+                      </div>
+                      <div class="space-y-2">
+                        <Input
+                          id="email-mobile"
+                          type="email"
+                          placeholder="your@email.com"
+                          bind:value={emailAddress}
+                          class="w-full text-sm"
+                        />
+                        {#if emailValidation}
+                          <p class="text-xs text-red-500 flex items-center gap-1">
+                            <AlertCircle class="w-3 h-3" />
+                            {emailValidation}
+                          </p>
+                        {:else if emailAddress}
+                          <p class="text-xs text-green-500 flex items-center gap-1">
+                            <CheckCircle class="w-3 h-3" />
+                            Valid Email
+                          </p>
+                        {:else}
+                          <p class="text-xs text-gray-500">
+                            Enter your email for notifications
+                          </p>
+                        {/if}
+                      </div>
+      </div>
+
+                    <!-- Phone Input -->
+                    <div class="space-y-2">
+      <div class="flex items-center gap-2">
+                        <Phone class="w-4 h-4 text-purple-600" />
+                        <Label for="phone-mobile" class="text-sm font-medium">Your Phone</Label>
+                      </div>
+                      <div class="space-y-2">
+                        <Input
+                          id="phone-mobile"
+                          type="tel"
+                          placeholder="+1 (555) 123-4567"
+                          bind:value={phoneNumber}
+                          class="w-full text-sm"
+                        />
+                        {#if phoneValidation}
+                          <p class="text-xs text-red-500 flex items-center gap-1">
+                            <AlertCircle class="w-3 h-3" />
+                            {phoneValidation}
+                          </p>
+                        {:else if phoneNumber}
+                          <p class="text-xs text-green-500 flex items-center gap-1">
+                            <CheckCircle class="w-3 h-3" />
+                            Valid Phone
+                          </p>
+                        {:else}
+                          <p class="text-xs text-gray-500">
+                            Enter your phone for SMS notifications
+                          </p>
+                        {/if}
+                      </div>
                     </div>
 
-                    <!-- Demo Controls -->
+                    <!-- Training Status -->
+                    {#if isTraining}
+                      <div class="p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                        <div class="flex items-center gap-2 text-purple-700">
+                          <div class="animate-pulse rounded-full h-4 w-4 bg-purple-600"></div>
+                          <span class="text-sm font-medium">{currentTrainingStep}</span>
+                        </div>
+                      </div>
+                    {/if}
+
+                    <!-- Training Error -->
+                    {#if trainingError && !isDemoRunning}
+                      <div class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <div class="flex items-center gap-2 text-yellow-700">
+                          <AlertCircle class="w-4 h-4" />
+                          <span class="text-sm">{trainingError}</span>
+                        </div>
+                      </div>
+                    {/if}
+
+                    <!-- Training Success -->
+                    {#if trainingSuccess}
+                      <div class="p-3 bg-green-50 border border-green-200 rounded-lg">
+                        <div class="flex items-center gap-2 text-green-700">
+                          <CheckCircle class="w-4 h-4" />
+                          <span class="text-sm">{trainingSuccess}</span>
+                        </div>
+                      </div>
+                    {/if}
+
+                            <!-- Training Status -->
+        {#if isTraining}
+          <div class="p-3 bg-purple-50 border border-purple-200 rounded-lg">
+            <div class="flex items-center gap-2 text-purple-700">
+              <div class="animate-pulse rounded-full h-4 w-4 bg-purple-600"></div>
+              <span class="text-sm font-medium">{currentTrainingStep}</span>
+            </div>
+          </div>
+        {/if}
+
+        <!-- Training Error -->
+        {#if trainingError && !isDemoRunning}
+          <div class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div class="flex items-center gap-2 text-yellow-700">
+              <AlertCircle class="w-4 h-4" />
+              <span class="text-sm">{trainingError}</span>
+            </div>
+          </div>
+        {/if}
+
+        <!-- Training Success -->
+        {#if trainingSuccess}
+          <div class="p-3 bg-green-50 border border-green-200 rounded-lg">
+            <div class="flex items-center gap-2 text-green-700">
+              <CheckCircle class="w-4 h-4" />
+              <span class="text-sm">{trainingSuccess}</span>
+            </div>
+          </div>
+        {/if}
+
+        <!-- Demo Status -->
+        {#if demoError}
+          <div class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div class="flex items-center gap-2 text-yellow-700">
+              <AlertCircle class="w-4 h-4" />
+              <span class="text-sm">{demoError}</span>
+            </div>
+          </div>
+        {/if}
+
+                    <!-- Demo Success -->
+                    {#if demoSuccess}
+                      <div class="p-3 bg-green-50 border border-green-200 rounded-lg">
+                        <div class="flex items-center gap-2 text-green-700">
+                          <CheckCircle class="w-4 h-4" />
+                          <span class="text-sm">{demoSuccess}</span>
+                        </div>
+                      </div>
+                    {/if}
+
+                                        <!-- Demo Controls -->
                     <div class="space-y-3 pt-4 border-t border-gray-200">
-                      <Button 
-                        variant={isDemoRunning ? "outline" : "default"}
-                        on:click={startDemo}
-                        disabled={isDemoRunning}
-                        class="w-full flex items-center gap-2 text-sm"
-                        size="sm"
-                      >
-                        <Play class="w-4 h-4" />
-                        Start Demo
-                      </Button>
-                      <Button 
-                        variant="outline"
-                        on:click={resetDemo}
-                        disabled={!isDemoRunning}
-                        class="w-full flex items-center gap-2 text-sm"
-                        size="sm"
-                      >
-                        <RotateCcw class="w-4 h-4" />
-                        Reset Demo
-                      </Button>
+                      {#if !isDemoRunning}
+                        <Button 
+                          variant={isDemoRunning ? "outline" : "default"}
+                          onclick={startDemo}
+                          disabled={isTraining || !websiteUrl.trim() || !!websiteValidation || !emailAddress.trim() || !!emailValidation || !phoneNumber.trim() || !!phoneValidation}
+                          class="w-full flex items-center gap-2 text-sm"
+                          size="sm"
+                        >
+                          <Play class="w-4 h-4" />
+                          {isTraining ? "Training..." : !websiteUrl.trim() ? "Enter Website URL" : !!websiteValidation ? "Invalid URL" : !emailAddress.trim() ? "Enter Email" : !!emailValidation ? "Invalid Email" : !phoneNumber.trim() ? "Enter Phone" : !!phoneValidation ? "Invalid Phone" : "Start Demo"}
+                        </Button>
+                      {/if}
+                      {#if isDemoRunning}
+                        <Button 
+                          variant="outline"
+                          onclick={resetDemo}
+                          disabled={!isDemoRunning && !isTraining && !websiteUrl.trim()}
+                          class="w-full flex items-center gap-2 text-sm"
+                          size="sm"
+                        >
+                          <RotateCcw class="w-4 h-4" />
+                          Reset Demo
+                        </Button>
+                      {/if}
                     </div>
-                  </div>
+    </div>
                 </div>
               {/if}
 
-              <!-- Scheduling Content -->
+              <!-- Messages Area -->
               <div class="flex-1 p-3 space-y-3 overflow-y-auto min-h-0">
                 {#if !isDemoRunning}
                   <div class="text-center py-6 text-gray-500">
-                    <Calendar class="w-8 h-8 mx-auto mb-3 text-gray-300" />
-                    <p class="text-base font-medium">Welcome to Smart Scheduling</p>
-                    <p class="text-xs">Configure your demo and click Start to book appointments</p>
+                    <Zap class="w-8 h-8 mx-auto mb-3 text-gray-300" />
+                    <p class="text-base font-medium">Welcome to Automation Tasks</p>
+                    <p class="text-xs">Tap the settings icon above to start the demo, then begin chatting</p>
                   </div>
                 {:else}
-                  <!-- Scheduling Dashboard Content -->
-                  <div class="space-y-4">
-                    <!-- Calendar -->
-                    <Card class="border-green-200">
-                      <CardHeader class="pb-3">
-                        <div class="flex items-center justify-between">
-                          <CardTitle class="text-base">Select Date</CardTitle>
-                          <div class="flex items-center gap-2">
-                            <Button variant="ghost" size="sm" on:click={() => changeMonth(-1)}>
-                              <ChevronLeft class="w-4 h-4" />
-                            </Button>
-                            <span class="text-sm font-medium">
-                              {selectedDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-                            </span>
-                            <Button variant="ghost" size="sm" on:click={() => changeMonth(1)}>
-                              <ChevronRight class="w-4 h-4" />
-                            </Button>
+                  {#each chatHistory as message}
+                    <div class="flex w-full {message.role === 'user' ? 'justify-end' : 'justify-start'}">
+                      <div class="flex {message.role === 'user' ? 'flex-row-reverse items-end' : 'flex-row items-start'} gap-2 max-w-[85%]">
+                        <div class="w-8 h-8 flex items-center justify-center rounded-full {message.role === 'user' ? 'bg-purple-500 text-white' : 'bg-gray-200 text-gray-700'}">
+                          {#if message.role === 'user'}
+                            <User class="w-4 h-4" />
+                          {:else}
+                            <Zap class="w-4 h-4" />
+                          {/if}
+                        </div>
+                        <div class="p-2 rounded-lg min-w-[80px] {message.role === 'user' ? 'bg-purple-500 text-white' : 'bg-gray-100 text-gray-900'}">
+                          <p class="text-xs whitespace-pre-line">{message.content}</p>
+                        </div>
+                      </div>
+                    </div>
+                  {/each}
+                  
+                  {#if loading}
+                    <div class="flex gap-2 justify-start">
+                      <div class="flex gap-2 max-w-[85%]">
+                        <div class="p-1.5 rounded-full bg-gray-200 text-gray-700">
+                          <Zap class="w-3 h-3" />
+                        </div>
+                        <div class="p-2 rounded-lg bg-gray-100 text-gray-900">
+                          <div class="flex gap-1">
+                            <div class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></div>
+                            <div class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                            <div class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
                           </div>
                         </div>
-                      </CardHeader>
-                      <CardContent class="p-4">
-                        <div class="grid grid-cols-7 gap-1 text-xs">
-                          {#each ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as day}
-                            <div class="p-2 text-center text-gray-500 font-medium">{day}</div>
-                          {/each}
-                          {#each getCalendarDays() as day}
-                            <button
-                              class="p-2 text-center rounded hover:bg-gray-100 {day === selectedDate.getDate() ? 'bg-green-500 text-white' : day ? 'text-gray-900' : 'text-gray-300'}"
-                              on:click={() => selectDate(day)}
-                              disabled={!day}
-                            >
-                              {day || ''}
-                            </button>
-                          {/each}
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    <!-- Booking Form -->
-                    {#if selectedDate && selectedService && selectedTime}
-                      <Card class="border-green-200">
-                        <CardHeader class="pb-3">
-                          <CardTitle class="text-base">Booking Details</CardTitle>
-                        </CardHeader>
-                        <CardContent class="p-4 space-y-3">
-                          <div class="space-y-2">
-                            <Label for="name" class="text-sm">Name</Label>
-                            <Input id="name" bind:value={customerName} placeholder="Your name" class="text-sm" />
-                          </div>
-                          <div class="space-y-2">
-                            <Label for="email" class="text-sm">Email</Label>
-                            <Input id="email" type="email" bind:value={customerEmail} placeholder="your@email.com" class="text-sm" />
-                          </div>
-                          <div class="space-y-2">
-                            <Label for="phone" class="text-sm">Phone (optional)</Label>
-                            <Input id="phone" type="tel" bind:value={customerPhone} placeholder="+1 (555) 123-4567" class="text-sm" />
-                          </div>
-                          <Button 
-                            on:click={confirmBooking}
-                            disabled={!customerName || !customerEmail}
-                            class="w-full text-sm"
-                            size="sm"
-                          >
-                            Confirm Booking
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    {/if}
-
-                    <!-- Confirmation -->
-                    {#if bookingConfirmed}
-                      <Card class="border-green-200 bg-green-50">
-                        <CardContent class="p-4">
-                          <div class="flex items-center gap-3">
-                            <CheckCircle class="w-5 h-5 text-green-600" />
-                            <div>
-                              <h4 class="font-medium text-green-900">Booking Confirmed!</h4>
-                              <p class="text-sm text-green-700">
-                                {selectedService} on {selectedDate.toLocaleDateString()} at {selectedTime}
-                              </p>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    {/if}
-                  </div>
+                      </div>
+                    </div>
+                  {/if}
                 {/if}
-              </div>
+  </div>
+
+              <!-- Message Input -->
+              {#if isDemoRunning}
+                <div class="border-t border-gray-200 p-3 flex-shrink-0">
+                  <div class="flex gap-2">
+                    <Input
+                      placeholder="Type your message..."
+                      bind:value={messageInput}
+                      onkeydown={handleKeyPress}
+                      class="flex-1 text-sm"
+                      disabled={loading}
+                    />
+                    <Button onclick={sendMessage} disabled={loading || !messageInput.trim()} size="sm">
+                      <Send class="w-3 h-3" />
+                    </Button>
+                  </div>
+                </div>
+              {/if}
             </CardContent>
           </Card>
-        </div>
+  </div>
 
-        <!-- Desktop: Separate Scheduling Card -->
+        <!-- Desktop: Separate Chat Card -->
         <div class="hidden lg:block">
-          <Card class="h-full bg-white/90 backdrop-blur-sm shadow-xl flex flex-col">
+          <Card class="h-full h-[calc(100vh-100px)] bg-white/90 backdrop-blur-sm shadow-xl flex flex-col">
             <CardHeader class="border-b border-gray-200 flex-shrink-0">
               <div class="flex items-center gap-3">
-                <div class="p-2 rounded-lg bg-green-500 text-white">
-                  <Calendar class="w-5 h-5" />
+                <div class="p-2 rounded-lg bg-purple-500 text-white">
+                  <Zap class="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 class="font-semibold text-gray-900 text-base">Smart Scheduling</h3>
+                  <h3 class="font-semibold text-gray-900 text-base">Automation Tasks</h3>
                   <p class="text-sm text-gray-600">
-                    {isDemoRunning ? "Live - Booking appointments" : "Offline - Start demo to begin"}
+                    {isDemoRunning ? "Online - Ready to help" : "Offline - Start demo to begin"}
                   </p>
                 </div>
               </div>
-              <div class="flex items-center gap-2 mt-2 flex-wrap ">
-                <Badge variant="outline">
-                  <Calendar class="w-4 h-4" />
-                  <span>Google Calendar</span>
-                </Badge>
-                <Badge variant="outline">
-                  <Calendar class="w-4 h-4" />
-                  <span>Outlook Calendar</span>
-                </Badge>
-                <Badge variant="outline">
-                  <Calendar class="w-4 h-4" />
-                  <span>iCal</span>
-                </Badge>
-                <Badge variant="outline">
-                  <Mail class="w-4 h-4" />
-                  <span>Gmail</span>
-                </Badge>
+              <div class="flex items-center gap-2 mt-2 flex-wrap">
                 <Badge variant="outline">
                   <MessageSquare class="w-4 h-4" />
-                  <span>WhatsApp</span>
+                  <span>Lead Capture</span>
                 </Badge>
                 <Badge variant="outline">
-                  <MessageSquare class="w-4 h-4" />
-                  <span>SMS</span>
+                  <Workflow class="w-4 h-4" />
+                  <span>Follow-ups</span>
                 </Badge>
-              </div>
-            </CardHeader>
+                <Badge variant="outline">
+                  <Users class="w-4 h-4" />
+                  <span>CRM Integration</span>
+                </Badge>
+                <Badge variant="outline">
+                  <FileText class="w-4 h-4" />
+                  <span>Work Orders</span>
+              </Badge>
+            </div>
+          </CardHeader>
 
             <CardContent class="p-0 flex-1 flex flex-col min-h-0">
-              <!-- Scheduling Content -->
+              <!-- Messages Area -->
               <div class="flex-1 p-4 space-y-4 overflow-y-auto min-h-0">
                 {#if !isDemoRunning}
                   <div class="text-center py-8 text-gray-500">
-                    <Calendar class="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                    <p class="text-lg font-medium">Welcome to Smart Scheduling</p>
-                    <p class="text-sm">Configure your demo and click Start to book appointments</p>
+                    <Zap class="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                    <p class="text-lg font-medium">Welcome to Automation Tasks</p>
+                    <p class="text-sm">Click Start Demo in the sidebar to begin setting up automated workflows</p>
                   </div>
                 {:else}
-                  <!-- Scheduling Dashboard Content -->
-                  <div class="space-y-6">
-                    <!-- Calendar -->
-                    <Card class="border-green-200">
-                      <CardHeader class="pb-4">
-                        <div class="flex items-center justify-between">
-                          <CardTitle class="text-lg">Select Date</CardTitle>
-                          <div class="flex items-center gap-3">
-                            <Button variant="ghost" size="sm" on:click={() => changeMonth(-1)}>
-                              <ChevronLeft class="w-5 h-5" />
-                            </Button>
-                            <span class="text-base font-medium">
-                              {selectedDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-                            </span>
-                            <Button variant="ghost" size="sm" on:click={() => changeMonth(1)}>
-                              <ChevronRight class="w-5 h-5" />
-                            </Button>
+                  {#each chatHistory as message}
+                    <div class="flex w-full {message.role === 'user' ? 'justify-end' : 'justify-start'}">
+                      <div class="flex {message.role === 'user' ? 'flex-row-reverse items-end' : 'flex-row items-start'} gap-2 max-w-[80%]">
+                        <div class="w-8 h-8 flex items-center justify-center rounded-full {message.role === 'user' ? 'bg-purple-500 text-white' : 'bg-gray-200 text-gray-700'}">
+                          {#if message.role === 'user'}
+                            <User class="w-4 h-4" />
+                          {:else}
+                            <Zap class="w-4 h-4" />
+                          {/if}
+                        </div>
+                        <div class="p-3 rounded-lg min-w-[80px] {message.role === 'user' ? 'bg-purple-500 text-white' : 'bg-gray-100 text-gray-900'}">
+                          <p class="text-sm whitespace-pre-line">{message.content}</p>
+                        </div>
+                      </div>
+                    </div>
+                  {/each}
+                  
+                  {#if loading}
+                    <div class="flex gap-3 justify-start">
+                      <div class="flex gap-3 max-w-[80%]">
+                        <div class="p-2 rounded-full bg-gray-200 text-gray-700">
+                          <Zap class="w-4 h-4" />
+                        </div>
+                        <div class="p-3 rounded-lg bg-gray-100 text-gray-900">
+                          <div class="flex gap-1">
+                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
                           </div>
                         </div>
-                      </CardHeader>
-                      <CardContent class="p-6">
-                        <div class="grid grid-cols-7 gap-2 text-sm">
-                          {#each ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as day}
-                            <div class="p-3 text-center text-gray-500 font-medium">{day}</div>
-                          {/each}
-                          {#each getCalendarDays() as day}
-                            <button
-                              class="p-3 text-center rounded hover:bg-gray-100 {day === selectedDate.getDate() ? 'bg-green-500 text-white' : day ? 'text-gray-900' : 'text-gray-300'}"
-                              on:click={() => selectDate(day)}
-                              disabled={!day}
-                            >
-                              {day || ''}
-                            </button>
-                          {/each}
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    <!-- Booking Form -->
-                    {#if selectedDate && selectedService && selectedTime}
-                      <Card class="border-green-200">
-                        <CardHeader class="pb-4">
-                          <CardTitle class="text-lg">Booking Details</CardTitle>
-                        </CardHeader>
-                        <CardContent class="p-6 space-y-4">
-                          <div class="space-y-2">
-                            <Label for="name-desktop" class="text-base">Name</Label>
-                            <Input id="name-desktop" bind:value={customerName} placeholder="Your name" class="text-base" />
-                          </div>
-                          <div class="space-y-2">
-                            <Label for="email-desktop" class="text-base">Email</Label>
-                            <Input id="email-desktop" type="email" bind:value={customerEmail} placeholder="your@email.com" class="text-base" />
-                          </div>
-                          <div class="space-y-2">
-                            <Label for="phone-desktop" class="text-base">Phone (optional)</Label>
-                            <Input id="phone-desktop" type="tel" bind:value={customerPhone} placeholder="+1 (555) 123-4567" class="text-base" />
-                          </div>
-                          <Button 
-                            on:click={confirmBooking}
-                            disabled={!customerName || !customerEmail}
-                            class="w-full text-base"
-                          >
-                            Confirm Booking
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    {/if}
-
-                    <!-- Confirmation -->
-                    {#if bookingConfirmed}
-                      <Card class="border-green-200 bg-green-50">
-                        <CardContent class="p-6">
-                          <div class="flex items-center gap-4">
-                            <CheckCircle class="w-6 h-6 text-green-600" />
-                            <div>
-                              <h4 class="text-lg font-medium text-green-900">Booking Confirmed!</h4>
-                              <p class="text-base text-green-700">
-                                {selectedService} on {selectedDate.toLocaleDateString()} at {selectedTime}
-                              </p>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    {/if}
-                  </div>
+                      </div>
+                    </div>
+                  {/if}
                 {/if}
               </div>
-            </CardContent>
-          </Card>
+
+              <!-- Message Input -->
+              {#if isDemoRunning}
+                <div class="border-t border-gray-200 p-4 flex-shrink-0">
+                  <div class="flex gap-2">
+                    <Input
+                      placeholder="Type your message..."
+                      bind:value={messageInput}
+                      onkeydown={handleKeyPress}
+                      class="flex-1 text-base"
+                      disabled={loading}
+                    />
+                    <Button onclick={sendMessage} disabled={loading || !messageInput.trim()}>
+                      <Send class="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            {/if}
+          </CardContent>
+        </Card>
         </div>
       </div>
-    </div>
+      </div>
 
     <!-- Desktop Sidebar (Right) -->
     <div class="hidden lg:block w-80 border-l border-gray-200 bg-gray-50 absolute right-0 top-0 h-full overflow-y-auto">
       <div class="p-6 space-y-6">
-        <!-- Service Selection -->
+        <!-- Website Input -->
         <div class="space-y-3">
-          <Label class="text-sm font-medium">Select Service</Label>
-          <Select bind:value={selectedService}>
-            <SelectTrigger class="w-full text-base">
-              <span>{services.find(s => s.id === selectedService)?.name || "Choose a service"}</span>
-            </SelectTrigger>
-            <SelectContent>
-              {#each services as service}
-                <SelectItem value={service.id}>{service.name} - {service.price}</SelectItem>
-              {/each}
-            </SelectContent>
-          </Select>
-        </div>
+          <div class="flex items-center gap-2">
+            <Globe class="w-4 h-4 text-purple-600" />
+            <Label for="website" class="text-sm font-medium">Your Website</Label>
+              </div>
+          <div class="space-y-2">
+            <Input
+              id="website"
+              type="url"
+              placeholder="https://yourcompany.com"
+              bind:value={websiteUrl}
+              class="w-full text-base"
+            />
+            {#if websiteValidation}
+              <p class="text-xs text-red-500 flex items-center gap-1">
+                <AlertCircle class="w-3 h-3" />
+                {websiteValidation}
+              </p>
+            {:else if websiteUrl}
+              <p class="text-xs text-green-500 flex items-center gap-1">
+                <CheckCircle class="w-3 h-3" />
+                Valid URL
+              </p>
+            {:else}
+              <p class="text-xs text-gray-500">
+                Enter your website URL for automation setup
+              </p>
+            {/if}
+              </div>
+            </div>
 
-        <!-- Time Selection -->
+        <!-- Email Input -->
         <div class="space-y-3">
-          <Label class="text-sm font-medium">Select Time</Label>
-          <Select bind:value={selectedTime}>
-            <SelectTrigger class="w-full text-base">
-              <span>{selectedTime || "Choose a time"}</span>
-            </SelectTrigger>
-            <SelectContent>
-              {#each availableTimes as time}
-                <SelectItem value={time}>{time}</SelectItem>
-              {/each}
-            </SelectContent>
-          </Select>
-        </div>
+          <div class="flex items-center gap-2">
+            <Mail class="w-4 h-4 text-purple-600" />
+            <Label for="email" class="text-sm font-medium">Your Email</Label>
+      </div>
+          <div class="space-y-2">
+            <Input
+              id="email"
+              type="email"
+              placeholder="your@email.com"
+              bind:value={emailAddress}
+              class="w-full text-base"
+            />
+            {#if emailValidation}
+              <p class="text-xs text-red-500 flex items-center gap-1">
+                <AlertCircle class="w-3 h-3" />
+                {emailValidation}
+              </p>
+            {:else if emailAddress}
+              <p class="text-xs text-green-500 flex items-center gap-1">
+                <CheckCircle class="w-3 h-3" />
+                Valid Email
+              </p>
+            {:else}
+              <p class="text-xs text-gray-500">
+                Enter your email for notifications
+              </p>
+            {/if}
+              </div>
+            </div>
+
+        <!-- Phone Input -->
+        <div class="space-y-3">
+            <div class="flex items-center gap-2">
+            <Phone class="w-4 h-4 text-purple-600" />
+            <Label for="phone" class="text-sm font-medium">Your Phone</Label>
+            </div>
+          <div class="space-y-2">
+            <Input
+              id="phone"
+              type="tel"
+              placeholder="+1 (555) 123-4567"
+              bind:value={phoneNumber}
+              class="w-full text-base"
+            />
+            {#if phoneValidation}
+              <p class="text-xs text-red-500 flex items-center gap-1">
+                <AlertCircle class="w-3 h-3" />
+                {phoneValidation}
+              </p>
+            {:else if phoneNumber}
+              <p class="text-xs text-green-500 flex items-center gap-1">
+                <CheckCircle class="w-3 h-3" />
+                Valid Phone
+              </p>
+            {:else}
+              <p class="text-xs text-gray-500">
+                Enter your phone for SMS notifications
+              </p>
+            {/if}
+              </div>
+            </div>
+
+        <!-- Demo Status -->
+        {#if demoError}
+          <div class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div class="flex items-center gap-2 text-yellow-700">
+              <AlertCircle class="w-4 h-4" />
+              <span class="text-sm">{demoError}</span>
+            </div>
+              </div>
+        {/if}
+
+        <!-- Demo Success -->
+        {#if demoSuccess}
+          <div class="p-3 bg-green-50 border border-green-200 rounded-lg">
+            <div class="flex items-center gap-2 text-green-700">
+              <CheckCircle class="w-4 h-4" />
+              <span class="text-sm">{demoSuccess}</span>
+            </div>
+          </div>
+        {/if}
 
         <!-- Demo Information -->
         <div class="space-y-4">
           <div class="flex items-center gap-2 text-sm text-gray-600">
             <Clock class="w-4 h-4" />
-            <span>Duration: 8-12 minutes</span>
-          </div>
+            <span>Duration 5-8 minutes</span>
+              </div>
           <div class="flex items-center gap-2 text-sm text-gray-600">
             <Star class="w-4 h-4" />
-            <span>Difficulty: Easy</span>
-          </div>
-        </div>
+            <span>Difficulty: Medium</span>
+              </div>
+            </div>
 
         <!-- Key Features -->
         <div class="space-y-3">
           <h4 class="font-medium text-gray-900">Key Features</h4>
           <div class="space-y-2">
             <div class="flex items-center gap-2 text-sm text-gray-600">
-              <CalendarDays class="w-4 h-4 text-green-600" />
-              <span>Smart calendar</span>
+              <MessageSquare class="w-4 h-4 text-purple-600" />
+              <span>Lead capture automation</span>
             </div>
             <div class="flex items-center gap-2 text-sm text-gray-600">
-              <Clock class="w-4 h-4 text-green-600" />
-              <span>No double bookings</span>
+              <Workflow class="w-4 h-4 text-purple-600" />
+              <span>Follow-up sequences</span>
             </div>
             <div class="flex items-center gap-2 text-sm text-gray-600">
-              <Zap class="w-4 h-4 text-green-600" />
-              <span>Automatic reminders</span>
+              <Users class="w-4 h-4 text-purple-600" />
+              <span>CRM integration</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm text-gray-600">
+              <FileText class="w-4 h-4 text-purple-600" />
+              <span>Work order processing</span>
             </div>
           </div>
-        </div>
+              </div>
 
-        <!-- Demo Controls -->
+                <!-- Demo Controls -->
         <div class="space-y-3 pt-4 border-t border-gray-200">
-          <Button 
-            variant={isDemoRunning ? "outline" : "default"}
-            on:click={startDemo}
-            disabled={isDemoRunning}
-            class="w-full flex items-center gap-2 text-base"
-          >
-            <Play class="w-4 h-4" />
-            Start Demo
-          </Button>
-          <Button 
-            variant="outline"
-            on:click={resetDemo}
-            disabled={!isDemoRunning}
-            class="w-full flex items-center gap-2 text-base"
-          >
-            <RotateCcw class="w-4 h-4" />
-            Reset Demo
-          </Button>
+          {#if !isDemoRunning}
+            <Button 
+              variant={isDemoRunning ? "outline" : "default"}
+              onclick={startDemo}
+              disabled={isTraining || !websiteUrl.trim() || !!websiteValidation || !emailAddress.trim() || !!emailValidation || !phoneNumber.trim() || !!phoneValidation}
+              class="w-full flex items-center gap-2 text-base"
+            >
+              <Play class="w-4 h-4" />
+              {isTraining ? "Training..." : !websiteUrl.trim() ? "Enter Website URL" : !!websiteValidation ? "Invalid URL" : !emailAddress.trim() ? "Enter Email" : !!emailValidation ? "Invalid Email" : !phoneNumber.trim() ? "Enter Phone" : !!phoneValidation ? "Invalid Phone" : "Start Demo"}
+            </Button>
+          {/if}
+          {#if isDemoRunning}
+            <Button 
+              variant="outline"
+              onclick={resetDemo}
+              disabled={!isDemoRunning && !isTraining && !websiteUrl.trim()}
+              class="w-full flex items-center gap-2 text-base"
+            >
+              <RotateCcw class="w-4 h-4" />
+              Reset Demo
+            </Button>
+          {/if}
         </div>
-      </div>
+            </div>
+          </div>
     </div>
-  </div>
-</div> 
+</div>
+
+<Dialog open={showDemoReadyDialog} on:openChange={e => showDemoReadyDialog = e.detail}>
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Demo Ready!</DialogTitle>
+      <DialogDescription>
+        The Automation Tasks demo is now ready. You can start chatting with the automation assistant below.
+      </DialogDescription>
+    </DialogHeader>
+    <DialogFooter>
+      <DialogClose asChild>
+        <Button on:click={() => showDemoReadyDialog = false}>Start Chatting</Button>
+      </DialogClose>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>

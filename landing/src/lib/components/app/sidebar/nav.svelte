@@ -19,11 +19,18 @@
 	<Sidebar.Menu>
 		{#each items as item (item.title)}
 			<Sidebar.MenuItem>
-				<Sidebar.MenuButton tooltipContent={item.title} class="w-full cursor-pointer" onclick={() => { goto(item.url) }} >
-						<div class="flex items-center gap-2">
+				<Sidebar.MenuButton tooltipContent={item.title} class="p-0 bg-transparent shadow-none">
+					{#snippet child({ props })}
+						<a
+							href={item.url}
+							{...props}
+							class="flex items-center gap-2 w-full h-full px-3 py-2 rounded-md transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-left text-sm no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring"
+							style="text-decoration: none;"
+						>
 							<item.icon class="w-4 h-4" />
 							<span>{item.title}</span>
-						</div>
+						</a>
+					{/snippet}
 				</Sidebar.MenuButton>
 			</Sidebar.MenuItem>
 		{/each}

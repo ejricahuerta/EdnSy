@@ -40,32 +40,32 @@ const chartData = {
     title: 'Monthly Expenses ($)',
     colLabel: 'Amount ($)'
   },
-  products: {
+  technicians: {
     labels: [
-      'Handmade Scarf',
-      'Leather Wallet',
-      'Scented Candle',
-      'Artisan Mug',
-      'Silk Headband'
+      'Mike (Plumbing)',
+      'Sarah (HVAC)',
+      'John (Electrical)',
+      'Lisa (Landscaping)',
+      'Tom (General)'
     ],
-    data: [65, 59, 80, 81, 72],
-    title: 'Sample Data: Units Sold',
-    colLabel: 'Units Sold'
+    data: [85, 92, 78, 88, 82],
+    title: 'Technician Performance (Jobs/Month)',
+    colLabel: 'Jobs Completed'
   }
 };
 
 const demoQueue: ChatMsg[] = [
   // Example 1: Data Insights
-  { role: 'user', type: 'text', content: 'What are my top selling products?' },
-  { role: 'ai', type: 'table', content: chartData.products },
-  { role: 'ai', type: 'text', content: getInsightText('products') },
+  { role: 'user', type: 'text', content: 'What are my top performing technicians?' },
+  { role: 'ai', type: 'table', content: chartData.technicians },
+  { role: 'ai', type: 'text', content: getInsightText('technicians') },
   // Example 2: Daily Task Automation
-  { role: 'user', type: 'text', content: 'Process this invoice: New invoice from Silk Road for $120, due 2025-08-01. Item: 20 Silk Headbands.' },
-  { role: 'ai', type: 'text', content: 'Invoice Processed!\n• Supplier: Silk Road\n• Amount: $120\n• Due Date: 2025-08-01\n• Item: 20 Silk Headbands\nAction: Payment scheduled and inventory updated in Local Boutique system.' }
+  { role: 'user', type: 'text', content: 'Process this work order: New job for AC Repair at 123 Main St., scheduled for 2025-08-01. Customer: John Doe.' },
+  { role: 'ai', type: 'text', content: 'Work Order Processed!\n• Service: AC Repair\n• Address: 123 Main St.\n• Date: 2025-08-01\n• Customer: John Doe\nAction: Job scheduled and technician assigned in Service Company system.' }
 ];
 
 let chatHistory: ChatMsg[] = [
-  { role: 'ai', type: 'text', content: 'Hi! I can help with customer chat, data insights, or daily task automation. Ask me anything!' }
+  { role: 'ai', type: 'text', content: 'Hi! I can help with scheduling, service requests, technician management, or business insights. Ask me anything!' }
 ];
 
 function scrollToBottom() {
@@ -86,11 +86,12 @@ function sendPrompt() {
   const text = prompt.toLowerCase();
   setTimeout(() => {
     // Data Insights
-    if (/sales|revenue|product|data|insight|leads|expenses|table|report/.test(text)) {
-      let type: keyof typeof chartData = 'products';
+    if (/sales|revenue|technician|data|insight|leads|expenses|table|report|performance/.test(text)) {
+      let type: keyof typeof chartData = 'technicians';
       if (/sales/.test(text)) type = 'sales';
       else if (/leads?/.test(text)) type = 'leads';
       else if (/expenses?/.test(text)) type = 'expenses';
+      else if (/technician|performance/.test(text)) type = 'technicians';
       const data = chartData[type];
       chatHistory = [
         ...chatHistory,
@@ -99,26 +100,24 @@ function sendPrompt() {
       ];
     }
     // Daily Task Automation
-    else if (/invoice|feedback|restock|order|delivery|quality/.test(text)) {
+    else if (/work.?order|job|service|appointment|schedule|dispatch/.test(text)) {
       let output = '';
-      if (text.includes('invoice')) {
-        const amountMatch = prompt.match(/\$([\d,]+\.?\d*)/);
+      if (text.includes('work order') || text.includes('job')) {
+        const serviceMatch = prompt.match(/(?:for|service:?)\s+([A-Za-z\s]+?)(?=\s+at|\s+scheduled|\.|$)/i);
+        const addressMatch = prompt.match(/at\s+([A-Za-z0-9\s]+?)(?=\s*,|\s+scheduled|\.|$)/i);
         const dateMatch = prompt.match(/\d{4}-\d{2}-\d{2}/);
-        const supplierMatch = prompt.match(/from\s+([A-Za-z\s]+?)(?=\sfor|\sItem|\.|$)/i);
-        const itemMatch = prompt.match(/item:?\s*([\w\s]+)\./i);
-        const amount = amountMatch ? amountMatch[1] : 'N/A';
+        const customerMatch = prompt.match(/customer:?\s*([A-Za-z\s]+?)(?=\s*\.|$)/i);
+        const service = serviceMatch ? serviceMatch[1].trim() : 'N/A';
+        const address = addressMatch ? addressMatch[1].trim() : 'N/A';
         const date = dateMatch ? dateMatch[0] : 'N/A';
-        const supplier = supplierMatch ? supplierMatch[1].trim() : 'N/A';
-        const item = itemMatch ? itemMatch[1].trim() : 'N/A';
-        output = `Invoice Processed!\n• Supplier: ${supplier}\n• Amount: $${amount}\n• Due Date: ${date}\n• Item: ${item}\nAction: Payment scheduled and inventory updated in Local Boutique system.`;
-      } else if (text.includes('feedback') || text.includes('delivery') || text.includes('quality')) {
-        const sentiment = text.includes('late') && text.includes('great') ? 'Mixed' :
-                          (text.includes('great') || text.includes('amazing') || text.includes('good') ? 'Positive' : 'Neutral');
-        output = `Customer Feedback Processed!\n• Sentiment: ${sentiment}\n• Key words: ${prompt.split(' ').filter(word => word.length > 3).slice(0, 3).join(', ')}...\nAction: Feedback logged and, if needed, follow-up task created for the team.`;
-      } else if (text.includes('restock') || text.includes('order')) {
-        output = `Restock Request Processed!\n• Item: ${prompt.split(' ').slice(-3).join(' ')}\nAction: Restock order created and supplier notified.`;
+        const customer = customerMatch ? customerMatch[1].trim() : 'N/A';
+        output = `Work Order Processed!\n• Service: ${service}\n• Address: ${address}\n• Date: ${date}\n• Customer: ${customer}\nAction: Job scheduled and technician assigned in Service Company system.`;
+      } else if (text.includes('appointment') || text.includes('schedule')) {
+        output = `Appointment Scheduled!\n• Service: ${prompt.split(' ').filter(word => word.length > 3).slice(0, 2).join(' ')}\n• Customer: ${prompt.split(' ').slice(-2).join(' ')}\nAction: Appointment confirmed and reminder sent.`;
+      } else if (text.includes('dispatch')) {
+        output = `Dispatch Processed!\n• Technician: ${prompt.split(' ').filter(word => word.length > 3).slice(0, 1).join(' ')}\n• Priority: ${text.includes('urgent') ? 'High' : 'Normal'}\nAction: Technician notified and ETA sent to customer.`;
       } else {
-        output = `AI processed your input.\nExtracted keywords: ${prompt.split(' ').filter(word => word.length > 3).slice(0, 5).join(', ')}...\nAction: Task created based on your request.`;
+        output = `Service Request Processed!\nExtracted keywords: ${prompt.split(' ').filter(word => word.length > 3).slice(0, 5).join(', ')}...\nAction: Service request created and assigned to appropriate technician.`;
       }
       chatHistory = [...chatHistory, { role: 'ai', type: 'text', content: output }];
     }
@@ -141,23 +140,31 @@ function getInsightText(type: keyof typeof chartData) {
     return 'Referrals and website are your strongest lead sources. Invest more in these channels for growth.';
   } else if (type === 'expenses') {
     return 'Salaries are the largest expense. Review staffing or optimize other costs to improve margins.';
+  } else if (type === 'technicians') {
+    return 'Sarah (HVAC) and Lisa (Landscaping) are your top performers. Consider cross-training opportunities and reward high performers.';
   } else {
-    return 'Scented Candles and Artisan Mugs are top performers. Focus marketing on these products to maximize sales.';
+    return 'Sarah (HVAC) and Lisa (Landscaping) are your top performers. Focus on their best practices to improve team performance.';
   }
 }
 
 function getChatbotReply(input: string) {
-  // Simulate a friendly, helpful AI
+  // Simulate a friendly, helpful AI for home services
   if (/hello|hi|hey|good morning|good afternoon|good evening/.test(input.toLowerCase())) {
-    return 'Hello! How can I help you today?';
+    return 'Hello! I\'m your AI assistant for Reliable Home Services. How can I help you today?';
   }
   if (/hours|open|close|location/.test(input.toLowerCase())) {
-    return 'We are open Mon-Sat, 10am-7pm, at 123 Main St. Let me know if you need directions!';
+    return 'We are open Mon-Sat, 7am-7pm, and offer 24/7 emergency services. Located at 123 Main St. Need directions?';
   }
-  if (/price|cost|how much/.test(input.toLowerCase())) {
-    return 'Our prices vary by product. Ask about a specific item for details!';
+  if (/price|cost|how much|quote/.test(input.toLowerCase())) {
+    return 'Our service prices vary by job type and complexity. I can help you get a quote - what service do you need?';
   }
-  return 'I am here to help with anything related to your boutique. Try asking about sales, invoices, or daily tasks!';
+  if (/schedule|appointment|book/.test(input.toLowerCase())) {
+    return 'I can help you schedule a service appointment. What type of service do you need and when would you prefer?';
+  }
+  if (/emergency|urgent|broken|leak/.test(input.toLowerCase())) {
+    return 'For emergencies, I can dispatch a technician immediately. What\'s the issue and your address?';
+  }
+  return 'I am here to help with scheduling, quotes, emergency services, and general questions. What can I assist you with today?';
 }
 
 onMount(async () => {
@@ -171,6 +178,11 @@ onMount(async () => {
     [
       { role: 'user', type: 'text', content: 'Process this work order: New job for AC Repair at 123 Main St., scheduled for 2025-08-01. Customer: John Doe.' },
       { role: 'ai', type: 'text', content: 'Work Order Processed!\n• Service: AC Repair\n• Address: 123 Main St.\n• Date: 2025-08-01\n• Customer: John Doe\nAction: Job scheduled and technician assigned in Service Company system.' }
+    ],
+    [
+      { role: 'user', type: 'text', content: 'Show me technician performance data' },
+      { role: 'ai', type: 'table', content: chartData.technicians },
+      { role: 'ai', type: 'text', content: getInsightText('technicians') }
     ]
   ];
   while (demoActive) {
@@ -178,7 +190,7 @@ onMount(async () => {
       if (!demoActive) break;
       // Clear chat except welcome message before each session
       chatHistory = [
-        { role: 'ai', type: 'text', content: 'Hi! I can help with customer chat, data insights, or daily task automation. Ask me anything!' }
+        { role: 'ai', type: 'text', content: 'Hi! I can help with scheduling, service requests, technician management, or business insights. Ask me anything!' }
       ];
       await new Promise(r => setTimeout(r, 400));
       for (let i = 0; i < session.length && demoActive; i++) {
@@ -211,7 +223,7 @@ onMount(async () => {
   <div class="flex items-center gap-3 px-4 py-3 bg-[#075e54] text-white">
     <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[#25d366] text-xl">🛠️</span>
     <div class="flex flex-col">
-      <span class="font-semibold text-base leading-tight">ServicePro Assistant</span>
+      <span class="font-semibold text-base leading-tight">Reliable Home Services</span>
       <span class="text-xs text-[#d9fdd3]">online</span>
     </div>
   </div>
@@ -267,7 +279,7 @@ onMount(async () => {
     <form class="flex items-center gap-2 px-3 py-2 bg-[#f7f7f7] border-t border-gray-200 sticky bottom-0 left-0 right-0 z-10" on:submit|preventDefault={sendPrompt}>
       <input
         type="text"
-        placeholder="Ask about sales, invoices, or daily tasks..."
+        placeholder="Ask about scheduling, quotes, or service requests..."
         class="flex-1 rounded-full px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#25d366] bg-white text-gray-900"
         bind:value={prompt}
         autocomplete="off"

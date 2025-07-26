@@ -6,18 +6,34 @@
   import posthog from "posthog-js";
   import { browser } from "$app/environment";
   import { beforeNavigate, afterNavigate } from "$app/navigation";
-  import { page } from "$app/stores";
+  import { page, navigating } from "$app/stores";
   import { supabase } from "$lib/supabase";
   import * as Sidebar from "$lib/components/ui/sidebar/index.js";
-  import SiteHeader from "$lib/components/site-header.svelte";
-  import AppSidebar from "$lib/components/app-sidebar.svelte";
+  import ContentHeader from "$lib/components/app/content/header.svelte";
+  import SidebarLayout from "$lib/components/app/sidebar/layout.svelte";
+  import { onMount } from "svelte";
   import type { LayoutData } from './$types';
 
   injectAnalytics({ mode: "production" });
   let { children, data } = $props<{ data: LayoutData }>();
   let mobileNavOpen = $state(false);
   let user = $state<any>(data.user);
-  
+  let splash = $state(true);
+
+  // Show splash on initial load
+  onMount(() => {
+    splash = true;
+    afterNavigate(() => {
+      splash = false;
+    });
+  });
+
+  $effect(() => {
+    if ($navigating) {
+      splash = true;
+    }
+  });
+
   function closeMobileNav() {
     mobileNavOpen = false;
   }
@@ -71,6 +87,8 @@
     afterNavigate(() => posthog.capture('$pageview'));
   }
 </script>
+
+
 
 <svelte:head>
   <title>Ed&Sy: AI Automation Made Simple for Local Businesses</title>
@@ -190,9 +208,9 @@
   <!-- Authenticated Layout with Sidebar - Only for Demos -->
   <div class="[--header-height:calc(--spacing(14))]">
     <Sidebar.Provider class="flex flex-col">
-      <SiteHeader />
+      <ContentHeader />
       <div class="flex flex-1">
-        <AppSidebar />
+        <SidebarLayout />
         <Sidebar.Inset>
           {@render children()}
         </Sidebar.Inset>
@@ -205,6 +223,7 @@
 {:else}
   <!-- Public Layout without Sidebar -->
   {@render children()}
+  
   
   {#if $page.url.pathname !== '/login'}
   <!-- FOOTER (moved from +page.svelte) -->

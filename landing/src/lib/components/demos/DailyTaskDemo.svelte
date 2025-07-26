@@ -57,7 +57,7 @@ function processTask() {
   <div class="flex items-center gap-3 px-4 py-3 bg-[#075e54] text-white">
     <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[#25d366] text-xl">🛠️</span>
     <div class="flex flex-col">
-      <span class="font-semibold text-base leading-tight">ServicePro Automation</span>
+      <span class="font-semibold text-base leading-tight">Smart Daily Tasks Assistant</span>
       <span class="text-xs text-[#d9fdd3]">automation bot</span>
     </div>
   </div>

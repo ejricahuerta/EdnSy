@@ -419,7 +419,7 @@
   <div class="flex flex-col gap-12 mt-4">
     <div class="flex flex-col md:flex-row items-center gap-4">
       <div class="sm:order-2 hidden sm:block">
-        <DailyTaskDemo />
+        <DailyTaskDemo for="smart-daily-automation"/>
       </div>
       <div class="flex-1 p-12 md:p-24">
         <div class="flex items-center gap-3 mb-6">
@@ -438,7 +438,7 @@
               d="M7 11v4a2 2 0 0 0 2 2h4"
             /><rect width="8" height="8" x="13" y="13" rx="2" /></svg
           >
-          <h3
+          <h3 id="smart-daily-automation"
             class="font-display text-2xl font-semibold tracking-wider text-neutral-700"
           >
             Smart Daily Automation
@@ -456,7 +456,7 @@
     </div>
     <div class="flex flex-col md:flex-row-reverse items-center gap-4">
       <div class="sm:order-2 hidden sm:block">
-        <ChatbotDemo />
+        <ChatbotDemo  for="customer-sales-connections"/>
       </div>
       <div class="flex-1 p-12 md:p-24">
         <div class="flex items-center gap-3 mb-6">
@@ -477,7 +477,7 @@
               d="M20 12h2"
             /></svg
           >
-          <h3
+          <h3 id="customer-sales-connections"
             class="font-display text-2xl font-semibold tracking-wider text-neutral-700"
           >
             Brilliant Customer & Sales Connections
@@ -494,7 +494,7 @@
     </div>
     <div class="flex flex-col md:flex-row items-center gap-4">
       <div class="md:order-2 order-2 hidden sm:block">
-        <DataInsightsDemo />
+        <DataInsightsDemo  for="data-insights"/>
       </div>
       <div class="flex-1 p-12 md:p-24">
         <div class="flex items-center gap-3 mb-6">
@@ -515,7 +515,7 @@
               d="M3 12A9 3 0 0 0 14.59 14.87"
             /></svg
           >
-          <h3
+          <h3 id="data-insights"
             class="font-display text-2xl font-semibold tracking-wider text-neutral-700"
           >
             Easy Insights from Your Data

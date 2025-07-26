@@ -1,6 +1,5 @@
 <script lang="ts">
 	import SidebarIcon from "@lucide/svelte/icons/sidebar";
-	import SearchForm from "./search-form.svelte";
 	import * as Breadcrumb from "$lib/components/ui/breadcrumb/index.js";
 	import { Button } from "$lib/components/ui/button/index.js";
 	import { Separator } from "$lib/components/ui/separator/index.js";
@@ -65,6 +64,5 @@
 				{/each}
 			</Breadcrumb.List>
 		</Breadcrumb.Root>
-		<SearchForm class="w-full sm:ml-auto sm:w-auto" />
 	</div>
 </header>

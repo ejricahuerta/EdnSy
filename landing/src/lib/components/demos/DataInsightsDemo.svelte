@@ -88,7 +88,7 @@ function getInsightText(type: DataType) {
   <div class="flex items-center gap-3 px-4 py-3 bg-[#075e54] text-white">
     <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[#25d366] text-xl">🛠️</span>
     <div class="flex flex-col">
-      <span class="font-semibold text-base leading-tight">ServicePro Insights</span>
+      <span class="font-semibold text-base leading-tight">Data Insights Assistant</span>
       <span class="text-xs text-[#d9fdd3]">data insights</span>
     </div>
   </div>

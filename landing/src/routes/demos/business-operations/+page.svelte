@@ -6,10 +6,11 @@
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';
   import { 
-    BarChart3, 
-    TrendingUp, 
-    PieChart, 
-    Activity,
+    MessageSquare, 
+    AlertTriangle, 
+    CheckCircle, 
+    Truck, 
+    Zap,
     Settings,
     Play,
     RotateCcw,
@@ -20,30 +21,107 @@
     Send,
     AlertCircle,
     Globe,
-    Headphones,
-    CheckCircle,
-    DollarSign,
-    Users,
-    Calendar
+    Headphones
   } from 'lucide-svelte';
 
+  let messageInput = '';
+  let loading = false;
+  let showEmergencyModal = false;
+  let currentJob: any = null;
+  let technicianStatus = 'available';
   let isDemoRunning = $state(false);
   let showMobileSetup = $state(true);
   let demoError = $state("");
   let demoSuccess = $state("");
-  let messageInput = $state("");
-  let chatHistory = $state([
+
+  let chatHistory = [
     {
       id: '1',
       role: 'ai',
-      content: 'Hi! This is your data insights assistant. I can help you analyze business performance, track key metrics, and generate actionable reports. What would you like to explore?'
+      content: 'Hi! This is your business operations assistant. I can help with urgent job dispatch, technician coordination, and field service management. What do you need?'
     }
-  ]);
-  let loading = $state(false);
+  ];
+
+  let chatWindow: HTMLDivElement | null = null;
+
+  function scrollToBottom() {
+    if (chatWindow) {
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+  }
+
+  function sendMessage() {
+    if (!messageInput.trim() || !isDemoRunning) return;
+
+    const userMessage = {
+      id: Date.now().toString(),
+      role: 'customer',
+      content: messageInput
+    };
+
+    chatHistory = [...chatHistory, userMessage];
+    messageInput = '';
+    loading = true;
+
+    setTimeout(() => {
+      processMessage(userMessage);
+      loading = false;
+      scrollToBottom();
+    }, 1500);
+  }
+
+  function processMessage(userMessage: any) {
+    const text = userMessage.content.toLowerCase();
+    
+    if (text.includes('emergency') || text.includes('urgent') || text.includes('burst') || text.includes('leak')) {
+      const emergencyJob = {
+        jobId: 'EMG-' + Date.now().toString().slice(-6),
+        service: text.includes('pipe') ? 'Emergency Plumbing' : 'Emergency Service',
+        address: '123 Main St, Anytown, USA',
+        technician: 'Mike Johnson',
+        eta: '15 minutes'
+      };
+
+      const dispatchMessage = {
+        id: Date.now().toString(),
+        role: 'ai',
+        content: `🚨 URGENT JOB DISPATCHED!\n\nService: ${emergencyJob.service}\nAddress: ${emergencyJob.address}\nTechnician: ${emergencyJob.technician}\nETA: ${emergencyJob.eta}\n\nTechnician notified and en route.`
+      };
+
+      chatHistory = [...chatHistory, dispatchMessage];
+      currentJob = emergencyJob;
+      technicianStatus = 'en-route';
+    } else if (text.includes('status') || text.includes('update')) {
+      const statusMessage = {
+        id: Date.now().toString(),
+        role: 'system',
+        content: `📊 Current Status:\n• Active Jobs: 3\n• Available Technicians: 2\n• Average Response Time: 12 minutes\n• Customer Satisfaction: 4.8/5`
+      };
+      chatHistory = [...chatHistory, statusMessage];
+    } else {
+      const defaultMessage = {
+        id: Date.now().toString(),
+        role: 'ai',
+        content: 'I can help with:\n• Emergency dispatch\n• Job scheduling\n• Status updates\n• Technician coordination\n\nWhat do you need?'
+      };
+      chatHistory = [...chatHistory, defaultMessage];
+    }
+  }
+
+  function triggerEmergency() {
+    showEmergencyModal = true;
+  }
+
+  function dispatchEmergency() {
+    showEmergencyModal = false;
+    const emergencyText = 'EMERGENCY: Burst pipe at 123 Main St, water everywhere! Need immediate assistance!';
+    messageInput = emergencyText;
+    sendMessage();
+  }
 
   function startDemo() {
     isDemoRunning = true;
-    demoSuccess = "Data Insights demo started successfully!";
+    demoSuccess = "Business Operations demo started successfully!";
     demoError = "";
   }
 
@@ -55,70 +133,12 @@
       {
         id: '1',
         role: 'ai',
-        content: 'Hi! This is your data insights assistant. I can help you analyze business performance, track key metrics, and generate actionable reports. What would you like to explore?'
+        content: 'Hi! This is your business operations assistant. I can help with urgent job dispatch, technician coordination, and field service management. What do you need?'
       }
     ];
     messageInput = '';
-  }
-
-  function sendMessage() {
-    if (!messageInput.trim() || !isDemoRunning) return;
-
-    const userMessage = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: messageInput
-    };
-
-    chatHistory = [...chatHistory, userMessage];
-    messageInput = '';
-    loading = true;
-
-    setTimeout(() => {
-      processMessage(userMessage);
-      loading = false;
-    }, 1500);
-  }
-
-  function processMessage(userMessage: any) {
-    const text = userMessage.content.toLowerCase();
-    
-    if (text.includes('revenue') || text.includes('sales') || text.includes('income')) {
-      const response = {
-        id: Date.now().toString(),
-        role: 'ai',
-        content: `📊 Revenue Analysis\n\nCurrent Month: $45,230 (+12% vs last month)\n• Top Service: Plumbing ($18,450)\n• Average Job Value: $342\n• Conversion Rate: 23.4%\n\nTrends:\n• Weekend jobs up 15%\n• Emergency calls peak 6-8 PM\n• Seasonal growth in HVAC services`
-      };
-      chatHistory = [...chatHistory, response];
-    } else if (text.includes('customer') || text.includes('client') || text.includes('satisfaction')) {
-      const response = {
-        id: Date.now().toString(),
-        role: 'ai',
-        content: `👥 Customer Insights\n\nCustomer Satisfaction: 4.8/5\n• Repeat Customers: 67%\n• Average Lifetime Value: $2,340\n• Referral Rate: 34%\n\nTop Feedback Themes:\n• "Quick response time" (89%)\n• "Professional service" (92%)\n• "Fair pricing" (78%)\n\nAreas for Improvement:\n• Communication during delays\n• Follow-up scheduling`
-      };
-      chatHistory = [...chatHistory, response];
-    } else if (text.includes('performance') || text.includes('efficiency') || text.includes('productivity')) {
-      const response = {
-        id: Date.now().toString(),
-        role: 'ai',
-        content: `⚡ Performance Metrics\n\nTeam Productivity:\n• Jobs per day: 8.2 (target: 7.5)\n• Average completion time: 2.3 hours\n• First-time fix rate: 94%\n\nEfficiency Gains:\n• Route optimization: 23% time saved\n• Digital paperwork: 45 min/day saved\n• Automated scheduling: 67% reduction in conflicts\n\nROI Impact:\n• 18% increase in jobs completed\n• 12% reduction in fuel costs\n• 31% improvement in customer satisfaction`
-      };
-      chatHistory = [...chatHistory, response];
-    } else if (text.includes('forecast') || text.includes('prediction') || text.includes('trend')) {
-      const response = {
-        id: Date.now().toString(),
-        role: 'ai',
-        content: `🔮 Predictive Insights\n\nNext 30 Days Forecast:\n• Expected Revenue: $52,400 (+15%)\n• Peak Days: Tuesday, Thursday\n• High-Demand Services:\n  - HVAC maintenance (seasonal)\n  - Emergency plumbing\n  - Smart home installations\n\nRecommendations:\n• Increase HVAC tech availability\n• Stock up on common plumbing parts\n• Promote preventive maintenance packages`
-      };
-      chatHistory = [...chatHistory, response];
-    } else {
-      const defaultMessage = {
-        id: Date.now().toString(),
-        role: 'ai',
-        content: 'I can help you analyze:\n• Revenue trends and projections\n• Customer satisfaction metrics\n• Team performance and efficiency\n• Predictive analytics and forecasting\n• Service demand patterns\n• ROI and profitability analysis\n\nWhat would you like to explore?'
-      };
-      chatHistory = [...chatHistory, defaultMessage];
-    }
+    currentJob = null;
+    technicianStatus = 'available';
   }
 
   function handleKeyPress(event: KeyboardEvent) {
@@ -129,14 +149,14 @@
   }
 
   onMount(() => {
-    // Initialize demo
+    scrollToBottom();
   });
 </script>
 
-<div class="bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 h-full">
+<div class="bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 h-full">
   <!-- Background Pattern -->
   <div class="absolute inset-0 opacity-10">
-    <div class="absolute inset-0" style="background-image: radial-gradient(circle at 1px 1px, #f59e0b 1px, transparent 0); background-size: 20px 20px;"></div>
+    <div class="absolute inset-0" style="background-image: radial-gradient(circle at 1px 1px, #10b981 1px, transparent 0); background-size: 20px 20px;"></div>
   </div>
 
   <div class="relative z-10 flex h-[calc(100vh-60px)]">
@@ -148,13 +168,13 @@
         <div class="lg:hidden">
           <Card class="h-full h-[calc(100vh-100px)] bg-white/90 backdrop-blur-sm shadow-xl flex flex-col">
             <CardHeader class="border-b border-gray-200 flex-shrink-0">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                  <div class="p-2 rounded-lg bg-orange-500 text-white">
-                    <BarChart3 class="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h3 class="font-semibold text-gray-900 text-sm">Data Insights</h3>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="p-2 rounded-lg bg-green-500 text-white">
+                    <Truck class="w-4 h-4" />
+              </div>
+              <div>
+                    <h3 class="font-semibold text-gray-900 text-sm">Business Operations</h3>
                     <p class="text-xs text-gray-600">
                       {isDemoRunning ? "Online - Ready to help" : "Offline - Start demo to begin"}
                     </p>
@@ -221,31 +241,31 @@
                           Reset Demo
                         </Button>
                       {/if}
-                    </div>
-                  </div>
-                </div>
+            </div>
+            </div>
+          </div>
               {/if}
 
               <!-- Messages Area -->
-              <div class="flex-1 p-3 space-y-3 overflow-y-auto min-h-0">
+              <div class="flex-1 p-3 space-y-3 overflow-y-auto min-h-0" bind:this={chatWindow}>
                 {#if !isDemoRunning}
                   <div class="text-center py-6 text-gray-500">
-                    <BarChart3 class="w-8 h-8 mx-auto mb-3 text-gray-300" />
-                    <p class="text-base font-medium">Welcome to Data Insights</p>
+                    <Truck class="w-8 h-8 mx-auto mb-3 text-gray-300" />
+                    <p class="text-base font-medium">Welcome to Business Operations</p>
                     <p class="text-xs">Tap the settings icon above to start the demo, then begin chatting</p>
                   </div>
                 {:else}
-                  {#each chatHistory as message}
-                    <div class="flex w-full {message.role === 'user' ? 'justify-end' : 'justify-start'}">
-                      <div class="flex {message.role === 'user' ? 'flex-row-reverse items-end' : 'flex-row items-start'} gap-2 max-w-[85%]">
-                        <div class="w-8 h-8 flex items-center justify-center rounded-full {message.role === 'user' ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-700'}">
-                          {#if message.role === 'user'}
+            {#each chatHistory as message}
+                    <div class="flex w-full {message.role === 'customer' ? 'justify-end' : 'justify-start'}">
+                      <div class="flex {message.role === 'customer' ? 'flex-row-reverse items-end' : 'flex-row items-start'} gap-2 max-w-[85%]">
+                        <div class="w-8 h-8 flex items-center justify-center rounded-full {message.role === 'customer' ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700'}">
+                          {#if message.role === 'customer'}
                             <User class="w-4 h-4" />
                           {:else}
-                            <BarChart3 class="w-4 h-4" />
+                            <Truck class="w-4 h-4" />
                           {/if}
                         </div>
-                        <div class="p-2 rounded-lg min-w-[80px] {message.role === 'user' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-900'}">
+                        <div class="p-2 rounded-lg min-w-[80px] {message.role === 'customer' ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-900'}">
                           <p class="text-xs whitespace-pre-line">{message.content}</p>
                         </div>
                       </div>
@@ -256,7 +276,7 @@
                     <div class="flex gap-2 justify-start">
                       <div class="flex gap-2 max-w-[85%]">
                         <div class="p-1.5 rounded-full bg-gray-200 text-gray-700">
-                          <BarChart3 class="w-3 h-3" />
+                          <Truck class="w-3 h-3" />
                         </div>
                         <div class="p-2 rounded-lg bg-gray-100 text-gray-900">
                           <div class="flex gap-1">
@@ -297,11 +317,11 @@
           <Card class="h-full h-[calc(100vh-100px)] bg-white/90 backdrop-blur-sm shadow-xl flex flex-col">
             <CardHeader class="border-b border-gray-200 flex-shrink-0">
               <div class="flex items-center gap-3">
-                <div class="p-2 rounded-lg bg-orange-500 text-white">
-                  <BarChart3 class="w-5 h-5" />
+                <div class="p-2 rounded-lg bg-green-500 text-white">
+                  <Truck class="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 class="font-semibold text-gray-900 text-base">Data Insights</h3>
+                  <h3 class="font-semibold text-gray-900 text-base">Business Operations</h3>
                   <p class="text-sm text-gray-600">
                     {isDemoRunning ? "Online - Ready to help" : "Offline - Start demo to begin"}
                   </p>
@@ -309,69 +329,69 @@
               </div>
               <div class="flex items-center gap-2 mt-2 flex-wrap">
                 <Badge variant="outline">
-                  <BarChart3 class="w-4 h-4" />
-                  <span>Analytics</span>
+                  <Truck class="w-4 h-4" />
+                  <span>Dispatch</span>
                 </Badge>
                 <Badge variant="outline">
-                  <TrendingUp class="w-4 h-4" />
-                  <span>Trends</span>
+                  <MessageSquare class="w-4 h-4" />
+                  <span>Coordination</span>
                 </Badge>
                 <Badge variant="outline">
-                  <PieChart class="w-4 h-4" />
-                  <span>Reports</span>
+                  <Zap class="w-4 h-4" />
+                  <span>Automation</span>
                 </Badge>
                 <Badge variant="outline">
-                  <Activity class="w-4 h-4" />
-                  <span>Performance</span>
+                  <AlertTriangle class="w-4 h-4" />
+                  <span>Emergency</span>
                 </Badge>
               </div>
             </CardHeader>
 
             <CardContent class="p-0 flex-1 flex flex-col min-h-0">
               <!-- Messages Area -->
-              <div class="flex-1 p-4 space-y-4 overflow-y-auto min-h-0">
+              <div class="flex-1 p-4 space-y-4 overflow-y-auto min-h-0" bind:this={chatWindow}>
                 {#if !isDemoRunning}
                   <div class="text-center py-8 text-gray-500">
-                    <BarChart3 class="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                    <p class="text-lg font-medium">Welcome to Data Insights</p>
-                    <p class="text-sm">Click Start Demo in the sidebar to begin analyzing your business data</p>
+                    <Truck class="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                    <p class="text-lg font-medium">Welcome to Business Operations</p>
+                    <p class="text-sm">Click Start Demo in the sidebar to begin managing your operations</p>
                   </div>
                 {:else}
                   {#each chatHistory as message}
-                    <div class="flex w-full {message.role === 'user' ? 'justify-end' : 'justify-start'}">
-                      <div class="flex {message.role === 'user' ? 'flex-row-reverse items-end' : 'flex-row items-start'} gap-2 max-w-[80%]">
-                        <div class="w-8 h-8 flex items-center justify-center rounded-full {message.role === 'user' ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-700'}">
-                          {#if message.role === 'user'}
+                    <div class="flex w-full {message.role === 'customer' ? 'justify-end' : 'justify-start'}">
+                      <div class="flex {message.role === 'customer' ? 'flex-row-reverse items-end' : 'flex-row items-start'} gap-2 max-w-[80%]">
+                        <div class="w-8 h-8 flex items-center justify-center rounded-full {message.role === 'customer' ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700'}">
+                          {#if message.role === 'customer'}
                             <User class="w-4 h-4" />
                           {:else}
-                            <BarChart3 class="w-4 h-4" />
+                            <Truck class="w-4 h-4" />
                           {/if}
                         </div>
-                        <div class="p-3 rounded-lg min-w-[80px] {message.role === 'user' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-900'}">
+                        <div class="p-3 rounded-lg min-w-[80px] {message.role === 'customer' ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-900'}">
                           <p class="text-sm whitespace-pre-line">{message.content}</p>
                         </div>
-                      </div>
-                    </div>
-                  {/each}
+                </div>
+              </div>
+            {/each}
                   
-                  {#if loading}
+            {#if loading}
                     <div class="flex gap-3 justify-start">
                       <div class="flex gap-3 max-w-[80%]">
                         <div class="p-2 rounded-full bg-gray-200 text-gray-700">
-                          <BarChart3 class="w-4 h-4" />
+                          <Truck class="w-4 h-4" />
                         </div>
                         <div class="p-3 rounded-lg bg-gray-100 text-gray-900">
                           <div class="flex gap-1">
-                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-                          </div>
-                        </div>
-                      </div>
+                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                  </div>
+                </div>
+              </div>
                     </div>
                   {/if}
-                {/if}
-              </div>
+            {/if}
+          </div>
 
               <!-- Message Input -->
               {#if isDemoRunning}
@@ -379,19 +399,19 @@
                   <div class="flex gap-2">
                     <Input
                       placeholder="Type your message..."
-                      bind:value={messageInput}
+                bind:value={messageInput}
                       onkeydown={handleKeyPress}
                       class="flex-1 text-base"
                       disabled={loading}
                     />
                     <Button onclick={sendMessage} disabled={loading || !messageInput.trim()}>
                       <Send class="w-4 h-4" />
-                    </Button>
+              </Button>
                   </div>
-                </div>
+          </div>
               {/if}
-            </CardContent>
-          </Card>
+        </CardContent>
+      </Card>
         </div>
       </div>
     </div>
@@ -416,14 +436,14 @@
               <CheckCircle class="w-4 h-4" />
               <span class="text-sm">{demoSuccess}</span>
             </div>
-          </div>
-        {/if}
+            </div>
+      {/if}
 
         <!-- Demo Information -->
         <div class="space-y-4">
           <div class="flex items-center gap-2 text-sm text-gray-600">
             <Clock class="w-4 h-4" />
-            <span>Duration 4-6 minutes</span>
+            <span>Duration 3-5 minutes</span>
           </div>
           <div class="flex items-center gap-2 text-sm text-gray-600">
             <Star class="w-4 h-4" />
@@ -436,20 +456,20 @@
           <h4 class="font-medium text-gray-900">Key Features</h4>
           <div class="space-y-2">
             <div class="flex items-center gap-2 text-sm text-gray-600">
-              <BarChart3 class="w-4 h-4 text-orange-600" />
-              <span>Real-time analytics</span>
+              <Truck class="w-4 h-4 text-green-600" />
+              <span>Emergency dispatch</span>
             </div>
             <div class="flex items-center gap-2 text-sm text-gray-600">
-              <TrendingUp class="w-4 h-4 text-orange-600" />
-              <span>Trend analysis</span>
+              <MessageSquare class="w-4 h-4 text-green-600" />
+              <span>Technician coordination</span>
             </div>
             <div class="flex items-center gap-2 text-sm text-gray-600">
-              <PieChart class="w-4 h-4 text-orange-600" />
-              <span>Custom reports</span>
+              <Zap class="w-4 h-4 text-green-600" />
+              <span>Automated workflows</span>
             </div>
             <div class="flex items-center gap-2 text-sm text-gray-600">
-              <Activity class="w-4 h-4 text-orange-600" />
-              <span>Performance tracking</span>
+              <Headphones class="w-4 h-4 text-green-600" />
+              <span>Real-time updates</span>
             </div>
           </div>
         </div>
@@ -464,7 +484,7 @@
             >
               <Play class="w-4 h-4" />
               Start Demo
-            </Button>
+          </Button>
           {/if}
           {#if isDemoRunning}
             <Button 
@@ -474,10 +494,10 @@
             >
               <RotateCcw class="w-4 h-4" />
               Reset Demo
-            </Button>
+          </Button>
           {/if}
         </div>
       </div>
     </div>
   </div>
-</div>
+</div> 

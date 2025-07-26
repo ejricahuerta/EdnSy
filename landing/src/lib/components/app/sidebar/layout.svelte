@@ -5,53 +5,36 @@
 			name: "Ed & Sy",
 			email: "edmel@ednsy.com",
 			avatar: "/avatars/ednsy.png",
-		},
+		},// todo: needs real data from supabase
         navMain: [
             {
-                title: "Assistant",
+                title: "AI Assistant",
                 url: "/demos/ai-assistant",
                 icon: Bot,
             },
             {
-                title: "Automation Tasks",
+                title: "Lead to Sale Automation",
                 url: "/demos/automation-tasks",
                 icon: Calendar,
             },
             {
-                title: "Data Insights",
+                title: "Service Analytics",
                 url: "/demos/data-insights",
                 icon: ChartLine,
             },
-
-        ],
-        navBundle: [
             {
-                name: "Full Business Operations",
+                title: "Full Business Operations",
                 url: "/demos/business-operations",
                 icon: Bot,
             },
-        ],
-		navSecondary: [
-			{
-				title: "Support",
-				url: "#",
-				icon: LifeBuoyIcon,
-			},
-			{
-				title: "Feedback",
-				url: "#",
-				icon: SendIcon,
-			},
-		],
+        ]
 	};
 </script>
 
 <script lang="ts">
 	import type { ComponentProps } from "svelte";
 	import * as Sidebar from "$lib/components/ui/sidebar/index.js";
-	import NavMain from "./nav-main.svelte";
-	import NavBundle from "./nav-bundle.svelte";
-	import NavSecondary from "./nav-secondary.svelte";
+	import Nav from "./nav.svelte";
 	import NavUser from "./nav-user.svelte";
 
 	let { ref = $bindable(null), ...restProps }: ComponentProps<typeof Sidebar.Root> = $props();
@@ -80,9 +63,7 @@
 		</Sidebar.Menu>
 	</Sidebar.Header>
 	<Sidebar.Content>
-		<NavMain items={data.navMain} />
-		<NavBundle navs={data.navBundle} />
-		<NavSecondary items={data.navSecondary} class="mt-auto" />
+		<Nav items={data.navMain} />
 	</Sidebar.Content>
 	<Sidebar.Footer>
 		<NavUser user={data.user} />

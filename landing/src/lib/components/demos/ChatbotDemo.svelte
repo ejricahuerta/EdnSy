@@ -7,11 +7,47 @@
   ];
   let loading = false;
   let chatWindow: HTMLDivElement | null = null;
+  let isListening = false;
+  let isSpeaking = false;
+  let recognition: any = null;
+  let synthesis: any = null;
 
   function scrollToBottom() {
     if (chatWindow) {
       chatWindow.scrollTop = chatWindow.scrollHeight;
     }
+  }
+
+  function startVoiceRecognition() {
+    if (!recognition) return;
+    
+    isListening = true;
+    recognition.start();
+  }
+
+  function stopVoiceRecognition() {
+    if (!recognition) return;
+    
+    isListening = false;
+    recognition.stop();
+  }
+
+  function speakText(text: string) {
+    if (!synthesis) return;
+    
+    isSpeaking = true;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.onend = () => {
+      isSpeaking = false;
+    };
+    synthesis.speak(utterance);
+  }
+
+  function stopSpeaking() {
+    if (!synthesis) return;
+    
+    synthesis.cancel();
+    isSpeaking = false;
   }
 
   async function sendChatMessage() {
@@ -38,6 +74,9 @@
       loading = false;
       chatInput = '';
       scrollToBottom();
+      
+      // Auto-speak the response
+      speakText(reply);
     }, 1200);
   }
 
@@ -53,22 +92,49 @@
     );
   }
 
-  onMount(scrollToBottom);
+  onMount(() => {
+    // Initialize Web Speech API
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
+
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        chatInput = transcript;
+        isListening = false;
+      };
+
+      recognition.onerror = (event: any) => {
+        console.error('Speech recognition error:', event.error);
+        isListening = false;
+      };
+
+      recognition.onend = () => {
+        isListening = false;
+      };
+    }
+
+    if ('speechSynthesis' in window) {
+      synthesis = window.speechSynthesis;
+    }
+  });
 </script>
 
 <div class="w-full max-w-md mx-auto rounded-2xl shadow-lg overflow-hidden bg-white border border-gray-200" style="font-family: 'Segoe UI', 'Inter', sans-serif;">
   <!-- WhatsApp-style header -->
   <div class="flex items-center gap-3 px-4 py-3 bg-[#075e54] text-white">
-    <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[#25d366] text-xl">🛠️</span>
+    <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[#25d366] text-xl">🤖</span>
     <div class="flex flex-col">
-      <span class="font-semibold text-base leading-tight">ServicePro Chat</span>
-      <span class="text-xs text-[#d9fdd3]">chatbot</span>
+      <span class="font-semibold text-base leading-tight">AI Assistant</span>
+      <span class="text-xs text-[#d9fdd3]">voice enabled</span>
     </div>
   </div>
   <div class="relative bg-[#ece5dd] flex flex-col h-[520px] sm:h-[520px] md:h-[520px] lg:h-[520px] xl:h-[520px]" style="height:520px;">
     <div bind:this={chatWindow} class="flex-1 overflow-y-auto px-3 py-4 space-y-2" style="min-height:0;">
       {#each chatHistory as msg}
-        <div class={msg.role === 'user' ? 'flex justify-end' : 'flex justify-start'}>
+        <div class={rowClass(msg.role)}>
           <div class={msg.role === 'user'
             ? 'rounded-2xl px-4 py-2 max-w-[75%] break-words shadow bg-[#25d366] text-white rounded-br-md'
             : 'rounded-2xl px-4 py-2 max-w-[75%] break-words shadow bg-white text-gray-900 rounded-bl-md border border-gray-200'}>
@@ -78,26 +144,72 @@
       {/each}
       {#if loading}
         <div class="flex justify-start">
-          <div class="rounded-2xl px-4 py-2 max-w-[75%] bg-white text-gray-900 border border-gray-200 shadow animate-pulse">AI is typing...</div>
+          <div class="rounded-2xl px-4 py-2 max-w-[75%] bg-white text-gray-900 border border-gray-200 shadow animate-pulse">AI is processing...</div>
         </div>
       {/if}
     </div>
-    <!-- Input bar -->
+    <!-- Input bar with voice controls -->
     <form class="flex items-center gap-2 px-3 py-2 bg-[#f7f7f7] border-t border-gray-200 sticky bottom-0 left-0 right-0 z-10" on:submit|preventDefault={sendChatMessage}>
       <input
         type="text"
-        placeholder="Type your message about jobs, scheduling, or service..."
         class="flex-1 rounded-full px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#25d366] bg-white text-gray-900"
+        placeholder="Type your message or use voice..."
         bind:value={chatInput}
         autocomplete="off"
       />
+      <!-- Voice Input Button -->
+      <button 
+        type="button" 
+        class="bg-[#25d366] hover:bg-[#128c7e] text-white rounded-full p-2 transition-colors duration-150 {isListening ? 'animate-pulse' : ''}" 
+        on:click={isListening ? stopVoiceRecognition : startVoiceRecognition}
+        aria-label="Voice input"
+        disabled={!recognition}
+      >
+        {#if isListening}
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+          </svg>
+        {:else}
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
+          </svg>
+        {/if}
+      </button>
+      <!-- Send Button -->
       <button type="submit" class="bg-[#25d366] hover:bg-[#128c7e] text-white rounded-full p-2 transition-colors duration-150" aria-label="Send message">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M22 2L11 13"/><path stroke-linecap="round" stroke-linejoin="round" d="M22 2L15 22l-4-9-9-4 20-7z"/></svg>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M22 2L11 13"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M22 2L15 22l-4-9-9-4 20-7z"/>
+        </svg>
       </button>
     </form>
   </div>
+  
+  <!-- Voice Status Indicator -->
+  {#if isListening || isSpeaking}
+    <div class="absolute top-2 right-2 bg-white rounded-full p-2 shadow-lg">
+      {#if isListening}
+        <div class="flex items-center gap-2 text-red-500">
+          <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+          <span class="text-xs font-medium">Listening...</span>
+        </div>
+      {:else if isSpeaking}
+        <div class="flex items-center gap-2 text-blue-500">
+          <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+          <span class="text-xs font-medium">Speaking...</span>
+        </div>
+      {/if}
+    </div>
+  {/if}
 </div>
 
 <style>
-  /* WhatsApp-like chat bubble animation */
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  
+  .animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
 </style> 
