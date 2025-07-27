@@ -1,43 +1,21 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import "../app.css";
-  import { Star, Users, LogOut, ToyBrick } from "@lucide/svelte";
+  import { LogOut, LayoutPanelLeft } from "@lucide/svelte";
 
   import posthog from "posthog-js";
   import { browser } from "$app/environment";
   import { beforeNavigate, afterNavigate } from "$app/navigation";
-  import { page, navigating } from "$app/stores";
+  import { page } from "$app/stores";
   import { supabase } from "$lib/supabase";
   import * as Sidebar from "$lib/components/ui/sidebar/index.js";
   import ContentHeader from "$lib/components/app/content/header.svelte";
   import SidebarLayout from "$lib/components/app/sidebar/layout.svelte";
-  import { onMount } from "svelte";
   import type { LayoutData } from './$types';
 
-
   let { children, data } = $props<{ data: LayoutData }>();
-  let mobileNavOpen = $state(false);
   let user = $state<any>(data.user);
-  let splash = $state(true);
 
-  // Show splash on initial load
-  onMount(() => {
-    splash = true;
-    afterNavigate(() => {
-      splash = false;
-    });
-  });
-
-  $effect(() => {
-    if ($navigating) {
-      splash = true;
-    }
-  });
-
-  function closeMobileNav() {
-    mobileNavOpen = false;
-  }
-  
   async function handleLogout() {
     const { error } = await supabase.auth.signOut();
     if (!error) {
@@ -45,36 +23,13 @@
     }
   }
   
-  // Update user state when auth state changes
+  // Update user state when auth state changes (only on client)
   if (browser) {
     supabase.auth.onAuthStateChange((event, session) => {
       user = session?.user || null;
     });
   }
-  // Footer links
-  const footerLinks = [
-    {
-      href: "/privacy",
-      label: "Privacy",
-    },
-    {
-      href: "/terms",
-      label: "Terms",
-    },
-    {
-      href: "/cookies",
-      label: "Cookies",
-    },
-  ];
-  // Social links (placeholder)
-  const socialLinks = [
-    { href: "https://twitter.com/yourcompany", icon: Star, label: "Twitter" },
-    {
-      href: "https://linkedin.com/company/yourcompany",
-      icon: Users,
-      label: "LinkedIn",
-    },
-  ];
+  
   const posthogApiKey = import.meta.env.VITE_POSTHOG_API_KEY;
 
   // Validate PostHog API key
@@ -87,8 +42,6 @@
     afterNavigate(() => posthog.capture('$pageview'));
   }
 </script>
-
-
 
 <svelte:head>
   <title>Ed&Sy: AI Automation Made Simple for Local Businesses</title>
@@ -124,8 +77,6 @@
   <meta name="twitter:image" content="/logo.png" />
   <link rel="canonical" href="https://ednsy.com" />
   <link rel="icon" href="/favicon.ico" />
-  <!-- Manifest (add if/when available) -->
-  <!-- <link rel="manifest" href="/manifest.json" /> -->
   <!-- Social profile links for SEO -->
   <link rel="me" href="https://www.instagram.com/dev.exd/" />
   <link rel="me" href="https://www.linkedin.com/in/syronsuerte/" />
@@ -163,9 +114,9 @@
 </svelte:head>
 
 <!-- NAVIGATION BAR - Only show on landing page and non-demo pages -->
-{#if $page.url.pathname === '/' || ($page.url.pathname !== '/login' && !$page.url.pathname.startsWith('/demos'))}
+{#if $page.url.pathname === '/' || ($page.url.pathname !== '/login' && !$page.url.pathname.startsWith('/demos') && $page.url.pathname !== '/logout')}
 <nav
-  class="sticky top-0 z-50 w-full mx-auto bg-gradient-to-b from-white to-gray-100"
+  class="sticky top-0 z-50 w-full mx-auto bg-white border-b border-gray-200"
 >
   <div
     class="max-w-7xl mx-auto flex items-center justify-between px-6 sm:px-16 py-4"
@@ -175,27 +126,27 @@
         Ed <span class="text-blue-600">&</span> Sy
       </div>
     </a>
-    <div class="flex items-center gap-6">
+    <div class="flex items-center gap-4">
       {#if user}
         <a 
           href="/demos" 
-          class="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors font-medium"
+          class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
         >
-          <ToyBrick class="w-5 h-5" />
-          Demos
+          <LayoutPanelLeft class="w-4 h-4" />
+          <span class="hidden sm:inline">Services</span>
         </a>
         <button
           onclick={handleLogout}
-          class="flex items-center gap-2 text-gray-700 hover:text-red-600 transition-colors font-medium"
+          class="flex items-center gap-2 text-gray-600 hover:text-red-600 px-3 py-2 rounded-lg font-medium transition-colors"
         >
-          <LogOut class="w-5 h-5" />
-          Logout
+          <LogOut class="w-4 h-4" />
+          <span class="hidden sm:inline">Logout</span>
         </button>
       {:else}
         <button
           data-tally-open="3NQ6pB"
           data-tally-overlay="1"
-          class="hidden sm:inline-block rounded-full bg-blue-600 hover:bg-blue-700 hover:text-white font-heading font-bold px-6 py-2 text-base bg-white text-blue-600 transition border-2 border-blue-600 cursor-pointer"
+          class="hidden sm:inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 rounded-lg transition-colors"
           >Contact us</button
         >
       {/if}
@@ -204,7 +155,7 @@
 </nav>
 {/if}
 
-{#if user && $page.url.pathname.startsWith('/demos')}
+{#if user && $page.url.pathname.startsWith('/demos') && $page.url.pathname !== '/logout'}
   <!-- Authenticated Layout with Sidebar - Only for Demos -->
   <div class="[--header-height:calc(--spacing(14))]">
     <Sidebar.Provider class="flex flex-col">
@@ -225,7 +176,7 @@
   {@render children()}
   
   
-  {#if $page.url.pathname !== '/login'}
+  {#if $page.url.pathname !== '/login' && $page.url.pathname !== '/logout'}
   <!-- FOOTER (moved from +page.svelte) -->
   <footer
     class="mx-auto px-6 sm:px-16 py-20 h-full mt-20 text-center bg-slate-900"
@@ -347,16 +298,3 @@
 >
   {/if}
 {/if}
-
-<style>
-  @keyframes slide-down {
-    from {
-      opacity: 0;
-      transform: translateY(-16px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-</style>

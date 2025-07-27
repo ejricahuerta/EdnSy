@@ -8,7 +8,7 @@ export const GET = async ({ url, locals }) => {
     console.log('Exchange result:', data, error);
     if (error) {
       // Log the error for debugging
-      return redirect(303, '/auth/auth-code-error');
+      return redirect(303, '/login?error=' + encodeURIComponent(error.message));
     }
   }
   throw redirect(303, '/demos');

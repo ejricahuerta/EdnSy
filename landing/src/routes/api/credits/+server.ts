@@ -18,7 +18,7 @@ export async function GET() {
 
 export async function POST({ request }) {
   try {
-    const { action, amount, demoId } = await request.json();
+    const { action, amount, serviceId, sessionId, actionType } = await request.json();
 
     switch (action) {
       case 'add':
@@ -31,27 +31,48 @@ export async function POST({ request }) {
         }
         return json({ success: true, message: `Added ${amount} credits` });
 
-      case 'check-demo':
-        if (!demoId) {
-          return json({ error: 'Demo ID required' }, { status: 400 });
+      case 'check-training':
+        if (!serviceId) {
+          return json({ error: 'Service ID required' }, { status: 400 });
         }
-        const checkResult = await CreditService.canStartDemo(demoId);
-        return json(checkResult);
+        const checkTrainingResult = await CreditService.canStartTraining(serviceId);
+        return json(checkTrainingResult);
 
-      case 'start-demo':
-        if (!demoId) {
-          return json({ error: 'Demo ID required' }, { status: 400 });
+      case 'check-action':
+        if (!serviceId || !actionType) {
+          return json({ error: 'Service ID and action type required' }, { status: 400 });
         }
-        const startResult = await CreditService.startDemoSession(demoId);
-        return json(startResult);
+        const checkActionResult = await CreditService.canPerformAction(serviceId, actionType);
+        return json(checkActionResult);
+
+      case 'start-training':
+        if (!serviceId) {
+          return json({ error: 'Service ID required' }, { status: 400 });
+        }
+        const startTrainingResult = await CreditService.startDemoSession(serviceId);
+        return json(startTrainingResult);
+
+      case 'deduct-action':
+        if (!sessionId || !serviceId || !actionType) {
+          return json({ error: 'Session ID, service ID, and action type required' }, { status: 400 });
+        }
+        const deductResult = await CreditService.deductCreditsForAction(sessionId, serviceId, actionType);
+        return json(deductResult);
 
       case 'complete-demo':
-        const { sessionId, progressData } = await request.json();
         if (!sessionId) {
           return json({ error: 'Session ID required' }, { status: 400 });
         }
+        const { progressData } = await request.json();
         const completeResult = await CreditService.completeDemoSession(sessionId, progressData);
         return json(completeResult);
+
+      case 'get-credit-usage':
+        if (!sessionId) {
+          return json({ error: 'Session ID required' }, { status: 400 });
+        }
+        const usageResult = await CreditService.getSessionCreditUsage(sessionId);
+        return json({ success: true, data: usageResult });
 
       default:
         return json({ error: 'Invalid action' }, { status: 400 });

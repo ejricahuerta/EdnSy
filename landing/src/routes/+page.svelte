@@ -15,16 +15,12 @@
     // Handle OAuth callback - check for tokens in URL hash
     const hash = window.location.hash;
     if (hash && hash.includes('access_token')) {
-      console.log('OAuth callback detected, processing tokens...');
-      
       // Extract tokens from URL hash
       const params = new URLSearchParams(hash.substring(1));
       const accessToken = params.get('access_token');
       const refreshToken = params.get('refresh_token');
       
       if (accessToken) {
-        console.log('Processing OAuth tokens...');
-        
         // Set the session with the tokens
         const { data: { session }, error } = await supabase.auth.setSession({
           access_token: accessToken,
@@ -34,7 +30,6 @@
         if (error) {
           console.error('Error setting session:', error);
         } else if (session) {
-          console.log('Authentication successful:', session.user.email);
           // Redirect to demos page
           goto('/demos');
           return;
@@ -46,19 +41,15 @@
     const { data: { session }, error } = await supabase.auth.getSession();
     
     if (session) {
-      console.log('User is authenticated:', session.user.email);
-      // You can redirect to a dashboard or specific page here if needed
-      // For now, we'll just stay on the main page
+      // User is authenticated, stay on main page
     }
     
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (event === 'SIGNED_IN' && session) {
-          console.log('User signed in:', session.user.email);
           // Handle successful sign in
         } else if (event === 'SIGNED_OUT') {
-          console.log('User signed out');
           // Handle sign out
         }
       }
@@ -108,20 +99,6 @@
     body {
       background: #f4f4f4;
     }
-    @keyframes sparkle {
-      0%,
-      100% {
-        transform: scale(1) rotate(0deg);
-        opacity: 1;
-      }
-      50% {
-        transform: scale(1.3) rotate(20deg);
-        opacity: 0.7;
-      }
-    }
-    .animate-sparkle {
-      animation: sparkle 0.8s ease-in-out;
-    }
   </style>
 </svelte:head>
 
@@ -166,21 +143,6 @@
           alt="WhatsApp"
           class="w-10 h-10"
         />
-        <svg
-          class="pointer-events-none absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 group-hover:animate-sparkle transition-opacity duration-300"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-        >
-          <g>
-            <circle cx="12" cy="12" r="2" fill="#FDE68A" />
-            <circle cx="6" cy="6" r="1" fill="#FDE68A" />
-            <circle cx="18" cy="6" r="1" fill="#FDE68A" />
-            <circle cx="6" cy="18" r="1" fill="#FDE68A" />
-            <circle cx="18" cy="18" r="1" fill="#FDE68A" />
-          </g>
-        </svg>
       </span>
       <span class="relative group inline-block">
         <img
@@ -188,21 +150,6 @@
           alt="Telegram"
           class="w-10 h-10"
         />
-        <svg
-          class="pointer-events-none absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 group-hover:animate-sparkle transition-opacity duration-300"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-        >
-          <g>
-            <circle cx="12" cy="12" r="2" fill="#FDE68A" />
-            <circle cx="6" cy="6" r="1" fill="#FDE68A" />
-            <circle cx="18" cy="6" r="1" fill="#FDE68A" />
-            <circle cx="6" cy="18" r="1" fill="#FDE68A" />
-            <circle cx="18" cy="18" r="1" fill="#FDE68A" />
-          </g>
-        </svg>
       </span>
       <span class="relative group inline-block">
         <img
@@ -210,39 +157,9 @@
           alt="Facebook"
           class="w-10 h-10"
         />
-        <svg
-          class="pointer-events-none absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 group-hover:animate-sparkle transition-opacity duration-300"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-        >
-          <g>
-            <circle cx="12" cy="12" r="2" fill="#FDE68A" />
-            <circle cx="6" cy="6" r="1" fill="#FDE68A" />
-            <circle cx="18" cy="6" r="1" fill="#FDE68A" />
-            <circle cx="6" cy="18" r="1" fill="#FDE68A" />
-            <circle cx="18" cy="18" r="1" fill="#FDE68A" />
-          </g>
-        </svg>
       </span>
       <span class="relative group inline-block">
         <img src="/logos/icons8-gmail.svg" alt="Gmail" class="w-10 h-10" />
-        <svg
-          class="pointer-events-none absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 group-hover:animate-sparkle transition-opacity duration-300"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-        >
-          <g>
-            <circle cx="12" cy="12" r="2" fill="#FDE68A" />
-            <circle cx="6" cy="6" r="1" fill="#FDE68A" />
-            <circle cx="18" cy="6" r="1" fill="#FDE68A" />
-            <circle cx="6" cy="18" r="1" fill="#FDE68A" />
-            <circle cx="18" cy="18" r="1" fill="#FDE68A" />
-          </g>
-        </svg>
       </span>
       <span class="relative group inline-block">
         <img
@@ -250,21 +167,6 @@
           alt="Google Calendar"
           class="w-10 h-10"
         />
-        <svg
-          class="pointer-events-none absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 group-hover:animate-sparkle transition-opacity duration-300"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-        >
-          <g>
-            <circle cx="12" cy="12" r="2" fill="#FDE68A" />
-            <circle cx="6" cy="6" r="1" fill="#FDE68A" />
-            <circle cx="18" cy="6" r="1" fill="#FDE68A" />
-            <circle cx="6" cy="18" r="1" fill="#FDE68A" />
-            <circle cx="18" cy="18" r="1" fill="#FDE68A" />
-          </g>
-        </svg>
       </span>
       <span class="relative group inline-block">
         <img
@@ -272,21 +174,6 @@
           alt="Google Drive"
           class="w-10 h-10"
         />
-        <svg
-          class="pointer-events-none absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 group-hover:animate-sparkle transition-opacity duration-300"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-        >
-          <g>
-            <circle cx="12" cy="12" r="2" fill="#FDE68A" />
-            <circle cx="6" cy="6" r="1" fill="#FDE68A" />
-            <circle cx="18" cy="6" r="1" fill="#FDE68A" />
-            <circle cx="6" cy="18" r="1" fill="#FDE68A" />
-            <circle cx="18" cy="18" r="1" fill="#FDE68A" />
-          </g>
-        </svg>
       </span>
       <span class="relative group inline-block">
         <img
@@ -294,21 +181,6 @@
           alt="Google Maps"
           class="w-10 h-10"
         />
-        <svg
-          class="pointer-events-none absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 group-hover:animate-sparkle transition-opacity duration-300"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-        >
-          <g>
-            <circle cx="12" cy="12" r="2" fill="#FDE68A" />
-            <circle cx="6" cy="6" r="1" fill="#FDE68A" />
-            <circle cx="18" cy="6" r="1" fill="#FDE68A" />
-            <circle cx="6" cy="18" r="1" fill="#FDE68A" />
-            <circle cx="18" cy="18" r="1" fill="#FDE68A" />
-          </g>
-        </svg>
       </span>
       <span class="relative group inline-block">
         <img
@@ -316,39 +188,9 @@
           alt="Google Sheets"
           class="w-10 h-10"
         />
-        <svg
-          class="pointer-events-none absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 group-hover:animate-sparkle transition-opacity duration-300"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-        >
-          <g>
-            <circle cx="12" cy="12" r="2" fill="#FDE68A" />
-            <circle cx="6" cy="6" r="1" fill="#FDE68A" />
-            <circle cx="18" cy="6" r="1" fill="#FDE68A" />
-            <circle cx="6" cy="18" r="1" fill="#FDE68A" />
-            <circle cx="18" cy="18" r="1" fill="#FDE68A" />
-          </g>
-        </svg>
       </span>
       <span class="relative group inline-block">
         <img src="/logos/icons8-notion.svg" alt="Notion" class="w-10 h-10" />
-        <svg
-          class="pointer-events-none absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 group-hover:animate-sparkle transition-opacity duration-300"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-        >
-          <g>
-            <circle cx="12" cy="12" r="2" fill="#FDE68A" />
-            <circle cx="6" cy="6" r="1" fill="#FDE68A" />
-            <circle cx="18" cy="6" r="1" fill="#FDE68A" />
-            <circle cx="6" cy="18" r="1" fill="#FDE68A" />
-            <circle cx="18" cy="18" r="1" fill="#FDE68A" />
-          </g>
-        </svg>
       </span>
     </span>
   </div>
@@ -374,7 +216,7 @@
     Why Partner with Ed <span class="text-blue-600">&</span> Sy?
   </h2>
   <span
-    class="rounded-full bg-gradient-to-r from-blue-400 to-blue-200 px-4 py-2 text-neutral-700 font-display font-semibold tracking-tight mb-10 text-center text-sm shadow"
+    class="rounded-full bg-blue-400 px-4 py-2 text-neutral-700 font-display font-semibold tracking-tight mb-10 text-center text-sm"
     >Your Success is Our Focus</span
   >
   <div
@@ -412,7 +254,7 @@
       How We Partner For Your Success
     </h2>
     <span
-      class="rounded-full bg-gradient-to-r from-blue-400 to-blue-200 px-4 py-2 text-blue-600 font-display font-semibold tracking-tight mb-10 text-center shadow text-sm"
+      class="rounded-full bg-blue-400 px-4 py-2 text-blue-600 font-display font-semibold tracking-tight mb-10 text-center shadow text-sm"
       >Our Solutions</span
     >
   </div>
@@ -572,7 +414,7 @@
     Meet Your Growth Partners
   </h2>
   <span
-    class="rounded-full bg-gradient-to-r from-blue-400 to-blue-200 px-4 py-2 text-neutral-700 font-display font-semibold tracking-tight mb-10 text-center shadow text-sm mb-4"
+    class="rounded-full bg-blue-400 px-4 py-2 text-neutral-700 font-display font-semibold tracking-tight mb-10 text-center text-sm mb-4"
     >The Team</span
   >
 

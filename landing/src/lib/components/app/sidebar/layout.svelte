@@ -3,7 +3,7 @@
 	import * as Sidebar from "$lib/components/ui/sidebar/index.js";
 	import Nav from "./nav.svelte";
 	import NavUser from "./nav-user.svelte";
-	import { Bot, Calendar, ChartLine, BotIcon, LifeBuoyIcon, SendIcon, CommandIcon } from "@lucide/svelte";
+	import { Bot, Calendar, ChartLine, BotIcon, LifeBuoyIcon, SendIcon, CommandIcon, HomeIcon } from "@lucide/svelte";
 	import { supabase } from '$lib/supabase';
 	import { onMount } from 'svelte';
 
@@ -17,6 +17,11 @@
 	const data = $derived({
 		user: user,
 		navMain: [
+			{
+				title: "Demos",
+				url: "/demos",
+				icon: HomeIcon,
+			},
 			{
 				title: "AI Assistant",
 				url: "/demos/ai-assistant",
@@ -41,10 +46,8 @@
 	});
 
 	onMount(async () => {
-		console.log("onMount called in sidebar");
 		try {
 			const { data: { session }, error } = await supabase.auth.getSession();
-			console.log("Session result:", { session, error });
 
 			if (error) {
 				console.error("Session error:", error);
@@ -52,20 +55,10 @@
 			}
 
 			if (session?.user) {
-				console.log("User data from session:", {
-					full_name: session.user.user_metadata?.full_name,
-					name: session.user.user_metadata?.name,
-					email: session.user.email,
-					user_metadata: session.user.user_metadata
-				});
-
 				user = {
 					name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || "Demo User",
 					email: session.user.email || session.user.user_metadata?.email || "demo@ednsy.com",
 				};
-				console.log("Updated user data:", user);
-			} else {
-				console.log("No session found");
 			}
 		} catch (error) {
 			console.error("Error in onMount:", error);
@@ -79,7 +72,7 @@
 			<Sidebar.MenuItem>
 				<Sidebar.MenuButton size="lg">
 					{#snippet child({ props })}
-						<a href="##" {...props}>
+						<a href="/" {...props}>
 							<div
 								class="bg-sidebar-secondary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg"
 							>
@@ -87,7 +80,7 @@
 							</div>
 							<div class="grid flex-1 text-left text-sm leading-tight">
 								<span class="truncate font-medium">Ed & Sy</span>
-								<span class="truncate text-xs">AI Enabler</span>
+								<span class="truncate text-xs">Scale Your Business with AI</span>
 							</div>
 						</a>
 					{/snippet}

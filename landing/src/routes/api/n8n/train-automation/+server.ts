@@ -1,17 +1,11 @@
 import { json } from '@sveltejs/kit';
-import { N8N_DEMO_CHAT_API_URL } from '$env/static/private';
 
-// Validate environment variables
-if (!N8N_DEMO_CHAT_API_URL) {
-  console.error('❌ Missing required N8N environment variable: N8N_DEMO_CHAT_API_URL');
-  if (import.meta.env.PROD) {
-    throw new Error('Missing required N8N environment variable');
-  }
-}
+const AUTOMATION_WEBHOOK_URL = 'https://n8n.ednsy.com/webhook/2d689383-2a6f-4c6d-b60b-d369eacbc45e/chat-automation';
 
 export async function POST({ request }) {
   try {
-    const { website, action } = await request.json();
+    const { website, emailAddress, phone, action } = await request.json();
+    
     // Validate required fields
     if (!website || !action) {
       return json({ 
@@ -19,6 +13,7 @@ export async function POST({ request }) {
         message: 'Missing required fields: website and action' 
       }, { status: 400 });
     }
+    
     // Validate website format
     try {
       new URL(website);
@@ -28,22 +23,27 @@ export async function POST({ request }) {
         message: 'Invalid website URL format' 
       }, { status: 400 });
     }
-    // Use the same n8n URL for training
-    const n8nWebhookUrl = N8N_DEMO_CHAT_API_URL;
-    console.log('Calling n8n webhook:', n8nWebhookUrl);
-    console.log('Training data:', { website, action });
-    // Call n8n webhook
-    const response = await fetch(n8nWebhookUrl, {
+    
+    console.log('Calling automation n8n webhook:', AUTOMATION_WEBHOOK_URL);
+    console.log('Training data:', { website, emailAddress, phone, action });
+    
+    // Call n8n webhook for training
+    const response = await fetch(AUTOMATION_WEBHOOK_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'n8n': 'EDNSY'
       },
       body: JSON.stringify({
         website,
+        emailAddress,
+        phone,
         action,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        demo: 'automation-tasks'
       })
     });
+    
     // Log the N8N response for debugging
     const text = await response.text();
     let result;
@@ -52,24 +52,26 @@ export async function POST({ request }) {
     } catch {
       result = { raw: text };
     }
+    
     if (!response.ok) {
-      console.error('N8N webhook failed:', response.status, result);
+      console.error('N8N automation webhook failed:', response.status, result);
       return json({
         success: false,
-        message: `AI service unavailable (code ${response.status})`,
+        message: `Automation service unavailable (code ${response.status})`,
         details: result
       }, { status: 500 });
     }
+    
     return json({
       success: true,
-      message: 'Chatbot training initiated successfully',
+      message: 'Automation training initiated successfully',
       data: result
     });
   } catch (error) {
-    console.error('Error calling n8n:', error);
+    console.error('Error calling automation n8n:', error);
     return json({
       success: false,
-      message: 'Failed to train chatbot',
+      message: 'Failed to train automation',
       error: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }

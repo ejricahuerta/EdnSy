@@ -1,10 +1,11 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
   import { Button } from '$lib/components/ui/button';
   import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
   import { Badge } from '$lib/components/ui/badge';
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';
+  import { Skeleton } from '$lib/components/ui/skeleton';
   import { 
     BarChart3, 
     TrendingUp, 
@@ -29,6 +30,8 @@
   import { CreditService } from '$lib/services/creditService';
   import CreditDisplay from '$lib/components/ui/CreditDisplay.svelte';
 
+  let currentCredits: any = $state(null);
+  let currentSessionId: string | null = $state(null);
   let isDemoRunning = $state(false);
   let showMobileSetup = $state(true);
   let demoError = $state("");
@@ -42,11 +45,55 @@
     }
   ]);
   let loading = $state(false);
+  let initialLoading = $state(true);
 
-  function startDemo() {
-    isDemoRunning = true;
-    demoSuccess = "Data Insights demo started successfully!";
-    demoError = "";
+  onMount(async () => {
+    try {
+      // Test user setup
+      const testResult = await CreditService.setupUser();
+      if (testResult.error) {
+        console.error('Error setting up user:', testResult.error);
+        return;
+      }
+
+      // Load initial credits
+      currentCredits = await CreditService.getUserCredits();
+    } finally {
+      initialLoading = false;
+    }
+  });
+
+  async function startDemo() {
+    try {
+      // Check if user can start the demo (but don't charge yet)
+      const { canPerform: canStart, userCredits, actionCost: demoCost } = await CreditService.canPerformAction('data-insights', 'training');
+      
+      if (!canStart) {
+        alert(`Insufficient credits. You need ${demoCost} credits to start this demo. You have ${userCredits} credits.`);
+        return;
+      }
+
+      // Start demo session and deduct credits
+      const sessionResult = await CreditService.startDemoSession('data-insights');
+      
+      if (!sessionResult.success) {
+        alert(sessionResult.error || 'Failed to start demo session');
+        return;
+      }
+      
+      currentSessionId = sessionResult.sessionId;
+      currentCredits = await CreditService.getUserCredits();
+      
+      // Ensure UI updates are applied
+      await tick();
+
+      isDemoRunning = true;
+      demoSuccess = "Data Insights demo started successfully!";
+      demoError = "";
+    } catch (error) {
+      console.error('Error starting demo:', error);
+      demoError = "Failed to start demo. Please try again.";
+    }
   }
 
   function resetDemo() {
@@ -61,10 +108,18 @@
       }
     ];
     messageInput = '';
+    currentSessionId = null;
   }
 
-  function sendMessage() {
+  async function sendMessage() {
     if (!messageInput.trim() || !isDemoRunning) return;
+
+    // Check if user has enough credits for a response
+    const { canPerform, userCredits, actionCost } = await CreditService.canPerformAction('data-insights', 'response');
+    if (!canPerform) {
+      alert(`Insufficient credits. You need ${actionCost} credits for this response. You have ${userCredits} credits.`);
+      return;
+    }
 
     const userMessage = {
       id: Date.now().toString(),
@@ -73,13 +128,41 @@
     };
 
     chatHistory = [...chatHistory, userMessage];
+    const currentMessage = messageInput;
     messageInput = '';
     loading = true;
 
-    setTimeout(() => {
-      processMessage(userMessage);
+    try {
+      // Simulate processing time
+      setTimeout(async () => {
+        try {
+          // Deduct credits for the response
+          if (currentSessionId) {
+            const deductResult = await CreditService.deductCreditsForAction(currentSessionId, 'data-insights', 'response');
+            if (!deductResult.success) {
+              throw new Error(deductResult.error || 'Failed to deduct credits');
+            }
+            
+            // Update current credits after deduction
+            currentCredits = await CreditService.getUserCredits();
+            
+            // Ensure UI updates are applied
+            await tick();
+          }
+
+          processMessage(userMessage);
+        } catch (error) {
+          console.error('Error processing message:', error);
+          demoError = "Failed to process message. Please try again.";
+        } finally {
+          loading = false;
+        }
+      }, 1500);
+    } catch (error) {
+      console.error("Error sending message:", error);
       loading = false;
-    }, 1500);
+      throw error;
+    }
   }
 
   function processMessage(userMessage: any) {
@@ -129,10 +212,6 @@
       sendMessage();
     }
   }
-
-  onMount(() => {
-    // Initialize demo
-  });
 </script>
 
 <div class="bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 h-full">
@@ -163,7 +242,7 @@
                   </div>
                 </div>
                 <div class="flex items-center gap-2">
-                  <CreditDisplay />
+                  <CreditDisplay credits={currentCredits} />
                   <!-- Mobile Setup Toggle -->
                   <Button 
                     variant="ghost" 
@@ -233,45 +312,53 @@
 
               <!-- Messages Area -->
               <div class="flex-1 p-3 space-y-3 overflow-y-auto min-h-0">
-                {#if !isDemoRunning}
+                {#if initialLoading}
                   <div class="text-center py-6 text-gray-500">
-                    <BarChart3 class="w-8 h-8 mx-auto mb-3 text-gray-300" />
-                    <p class="text-base font-medium">Welcome to Data Insights</p>
-                    <p class="text-xs">Tap the settings icon above to start the demo, then begin chatting</p>
+                    <Skeleton class="w-8 h-8 mx-auto mb-3 text-gray-300" />
+                    <p class="text-base font-medium">Loading Data Insights</p>
+                    <p class="text-xs">Please wait while we set up your demo.</p>
                   </div>
                 {:else}
-                  {#each chatHistory as message}
-                    <div class="flex w-full {message.role === 'user' ? 'justify-end' : 'justify-start'}">
-                      <div class="flex {message.role === 'user' ? 'flex-row-reverse items-end' : 'flex-row items-start'} gap-2 max-w-[85%]">
-                        <div class="w-8 h-8 flex items-center justify-center rounded-full {message.role === 'user' ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-700'}">
-                          {#if message.role === 'user'}
-                            <User class="w-4 h-4" />
-                          {:else}
-                            <BarChart3 class="w-4 h-4" />
-                          {/if}
-                        </div>
-                        <div class="p-2 rounded-lg min-w-[80px] {message.role === 'user' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-900'}">
-                          <p class="text-xs whitespace-pre-line">{message.content}</p>
-                        </div>
-                      </div>
+                  {#if !isDemoRunning}
+                    <div class="text-center py-6 text-gray-500">
+                      <BarChart3 class="w-8 h-8 mx-auto mb-3 text-gray-300" />
+                      <p class="text-base font-medium">Welcome to Data Insights</p>
+                      <p class="text-xs">Tap the settings icon above to start the demo, then begin chatting</p>
                     </div>
-                  {/each}
-                  
-                  {#if loading}
-                    <div class="flex gap-2 justify-start">
-                      <div class="flex gap-2 max-w-[85%]">
-                        <div class="p-1.5 rounded-full bg-gray-200 text-gray-700">
-                          <BarChart3 class="w-3 h-3" />
-                        </div>
-                        <div class="p-2 rounded-lg bg-gray-100 text-gray-900">
-                          <div class="flex gap-1">
-                            <div class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></div>
-                            <div class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-                            <div class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                  {:else}
+                    {#each chatHistory as message}
+                      <div class="flex w-full {message.role === 'user' ? 'justify-end' : 'justify-start'}">
+                        <div class="flex {message.role === 'user' ? 'flex-row-reverse items-end' : 'flex-row items-start'} gap-2 max-w-[85%]">
+                          <div class="w-8 h-8 flex items-center justify-center rounded-full {message.role === 'user' ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-700'}">
+                            {#if message.role === 'user'}
+                              <User class="w-4 h-4" />
+                            {:else}
+                              <BarChart3 class="w-4 h-4" />
+                            {/if}
+                          </div>
+                          <div class="p-2 rounded-lg min-w-[80px] {message.role === 'user' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-900'}">
+                            <p class="text-xs whitespace-pre-line">{message.content}</p>
                           </div>
                         </div>
                       </div>
-                    </div>
+                    {/each}
+                    
+                    {#if loading}
+                      <div class="flex gap-2 justify-start">
+                        <div class="flex gap-2 max-w-[85%]">
+                          <div class="p-1.5 rounded-full bg-gray-200 text-gray-700">
+                            <BarChart3 class="w-3 h-3" />
+                          </div>
+                          <div class="p-2 rounded-lg bg-gray-100 text-gray-900">
+                            <div class="flex gap-1">
+                              <div class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></div>
+                              <div class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                              <div class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    {/if}
                   {/if}
                 {/if}
               </div>
@@ -335,45 +422,53 @@
             <CardContent class="p-0 flex-1 flex flex-col min-h-0">
               <!-- Messages Area -->
               <div class="flex-1 p-4 space-y-4 overflow-y-auto min-h-0">
-                {#if !isDemoRunning}
+                {#if initialLoading}
                   <div class="text-center py-8 text-gray-500">
-                    <BarChart3 class="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                    <p class="text-lg font-medium">Welcome to Data Insights</p>
-                    <p class="text-sm">Click Start Demo in the sidebar to begin analyzing your business data</p>
+                    <Skeleton class="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                    <p class="text-lg font-medium">Loading Data Insights</p>
+                    <p class="text-sm">Please wait while we set up your demo.</p>
                   </div>
                 {:else}
-                  {#each chatHistory as message}
-                    <div class="flex w-full {message.role === 'user' ? 'justify-end' : 'justify-start'}">
-                      <div class="flex {message.role === 'user' ? 'flex-row-reverse items-end' : 'flex-row items-start'} gap-2 max-w-[80%]">
-                        <div class="w-8 h-8 flex items-center justify-center rounded-full {message.role === 'user' ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-700'}">
-                          {#if message.role === 'user'}
-                            <User class="w-4 h-4" />
-                          {:else}
-                            <BarChart3 class="w-4 h-4" />
-                          {/if}
-                        </div>
-                        <div class="p-3 rounded-lg min-w-[80px] {message.role === 'user' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-900'}">
-                          <p class="text-sm whitespace-pre-line">{message.content}</p>
-                        </div>
-                      </div>
+                  {#if !isDemoRunning}
+                    <div class="text-center py-8 text-gray-500">
+                      <BarChart3 class="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                      <p class="text-lg font-medium">Welcome to Data Insights</p>
+                      <p class="text-sm">Click Start Demo in the sidebar to begin analyzing your business data</p>
                     </div>
-                  {/each}
-                  
-                  {#if loading}
-                    <div class="flex gap-3 justify-start">
-                      <div class="flex gap-3 max-w-[80%]">
-                        <div class="p-2 rounded-full bg-gray-200 text-gray-700">
-                          <BarChart3 class="w-4 h-4" />
-                        </div>
-                        <div class="p-3 rounded-lg bg-gray-100 text-gray-900">
-                          <div class="flex gap-1">
-                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                  {:else}
+                    {#each chatHistory as message}
+                      <div class="flex w-full {message.role === 'user' ? 'justify-end' : 'justify-start'}">
+                        <div class="flex {message.role === 'user' ? 'flex-row-reverse items-end' : 'flex-row items-start'} gap-2 max-w-[80%]">
+                          <div class="w-8 h-8 flex items-center justify-center rounded-full {message.role === 'user' ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-700'}">
+                            {#if message.role === 'user'}
+                              <User class="w-4 h-4" />
+                            {:else}
+                              <BarChart3 class="w-4 h-4" />
+                            {/if}
+                          </div>
+                          <div class="p-3 rounded-lg min-w-[80px] {message.role === 'user' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-900'}">
+                            <p class="text-sm whitespace-pre-line">{message.content}</p>
                           </div>
                         </div>
                       </div>
-                    </div>
+                    {/each}
+                    
+                    {#if loading}
+                      <div class="flex gap-3 justify-start">
+                        <div class="flex gap-3 max-w-[80%]">
+                          <div class="p-2 rounded-full bg-gray-200 text-gray-700">
+                            <BarChart3 class="w-4 h-4" />
+                          </div>
+                          <div class="p-3 rounded-lg bg-gray-100 text-gray-900">
+                            <div class="flex gap-1">
+                              <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                              <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                              <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    {/if}
                   {/if}
                 {/if}
               </div>
@@ -407,7 +502,7 @@
         <!-- Credit Display -->
         <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
           <span class="text-sm font-medium text-gray-700">Credits</span>
-          <CreditDisplay />
+          <CreditDisplay credits={currentCredits} />
         </div>
         <!-- Demo Status -->
         {#if demoError}

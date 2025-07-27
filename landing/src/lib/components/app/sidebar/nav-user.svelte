@@ -9,6 +9,8 @@
 	import * as Avatar from "$lib/components/ui/avatar/index.js";
 	import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
 	import * as Sidebar from "$lib/components/ui/sidebar/index.js";
+	import { supabase } from '$lib/supabase';
+	import { goto } from '$app/navigation';
 
 	let {
 		user,
@@ -20,6 +22,8 @@
 	} = $props();
 
 	const sidebar = Sidebar.useSidebar();
+
+
 </script>
 
 <Sidebar.Menu>
@@ -62,11 +66,18 @@
 					</DropdownMenu.Item>
 				</DropdownMenu.Group>
 				<DropdownMenu.Separator />
-				<DropdownMenu.Item>
-					<LogOutIcon />
-					Log out
+				<DropdownMenu.Item asChild>
+					<button 
+						class="w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground cursor-pointer"
+						on:click={() => goto('/logout')}
+					>
+						<LogOutIcon class="size-4" />
+						Log out
+					</button>
 				</DropdownMenu.Item>
 			</DropdownMenu.Content>
 		</DropdownMenu.Root>
 	</Sidebar.MenuItem>
+	
+
 </Sidebar.Menu>

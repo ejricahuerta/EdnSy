@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
   import { Button } from '$lib/components/ui/button';
   import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
   import { Badge } from '$lib/components/ui/badge';
@@ -26,6 +26,8 @@
   import { CreditService } from '$lib/services/creditService';
   import CreditDisplay from '$lib/components/ui/CreditDisplay.svelte';
 
+  let currentCredits: any = $state(null);
+  let currentSessionId: string | null = $state(null);
   let messageInput = '';
   let loading = false;
   let showEmergencyModal = false;
@@ -46,14 +48,37 @@
 
   let chatWindow: HTMLDivElement | null = null;
 
+  onMount(async () => {
+    // Ensure user record exists in database (creates with 200 credits if new)
+    try {
+      const response = await fetch('/api/credits/test');
+      const testResult = await response.json();
+      console.log('User setup result:', testResult);
+    } catch (error) {
+      console.error('Error setting up user:', error);
+    }
+    
+    // Load initial credits
+    currentCredits = await CreditService.getUserCredits();
+    console.log('Initial credits loaded:', currentCredits);
+    scrollToBottom();
+  });
+
   function scrollToBottom() {
     if (chatWindow) {
       chatWindow.scrollTop = chatWindow.scrollHeight;
     }
   }
 
-  function sendMessage() {
+  async function sendMessage() {
     if (!messageInput.trim() || !isDemoRunning) return;
+
+    // Check if user has enough credits for a response
+    const { canPerform, userCredits, actionCost } = await CreditService.canPerformAction('business-operations', 'response');
+    if (!canPerform) {
+      alert(`Insufficient credits. You need ${actionCost} credits for this response. You have ${userCredits} credits.`);
+      return;
+    }
 
     const userMessage = {
       id: Date.now().toString(),
@@ -62,14 +87,43 @@
     };
 
     chatHistory = [...chatHistory, userMessage];
+    const currentMessage = messageInput;
     messageInput = '';
     loading = true;
 
-    setTimeout(() => {
-      processMessage(userMessage);
+    try {
+      // Simulate processing time
+      setTimeout(async () => {
+        try {
+          // Deduct credits for the response
+          if (currentSessionId) {
+            const deductResult = await CreditService.deductCreditsForAction(currentSessionId, 'business-operations', 'response');
+            if (!deductResult.success) {
+              throw new Error(deductResult.error || 'Failed to deduct credits');
+            }
+            
+            // Update current credits after deduction
+            currentCredits = await CreditService.getUserCredits();
+            console.log('Credits after response deduction:', currentCredits);
+            
+            // Ensure UI updates are applied
+            await tick();
+          }
+
+          processMessage(userMessage);
+        } catch (error) {
+          console.error('Error processing message:', error);
+          demoError = "Failed to process message. Please try again.";
+        } finally {
+          loading = false;
+          scrollToBottom();
+        }
+      }, 1500);
+    } catch (error) {
+      console.error("Error sending message:", error);
       loading = false;
-      scrollToBottom();
-    }, 1500);
+      throw error;
+    }
   }
 
   function processMessage(userMessage: any) {
@@ -121,10 +175,38 @@
     sendMessage();
   }
 
-  function startDemo() {
-    isDemoRunning = true;
-    demoSuccess = "Business Operations demo started successfully!";
-    demoError = "";
+  async function startDemo() {
+    try {
+      // Check if user can start the demo (but don't charge yet)
+      const { canPerform: canStart, userCredits, actionCost: demoCost } = await CreditService.canPerformAction('business-operations', 'training');
+      
+      if (!canStart) {
+        alert(`Insufficient credits. You need ${demoCost} credits to start this demo. You have ${userCredits} credits.`);
+        return;
+      }
+
+      // Start demo session and deduct credits
+      const sessionResult = await CreditService.startDemoSession('business-operations');
+      
+      if (!sessionResult.success) {
+        alert(sessionResult.error || 'Failed to start demo session');
+        return;
+      }
+      
+      currentSessionId = sessionResult.sessionId;
+      currentCredits = await CreditService.getUserCredits();
+      console.log('Credits after demo start:', currentCredits);
+      
+      // Ensure UI updates are applied
+      await tick();
+
+      isDemoRunning = true;
+      demoSuccess = "Business Operations demo started successfully!";
+      demoError = "";
+    } catch (error) {
+      console.error('Error starting demo:', error);
+      demoError = "Failed to start demo. Please try again.";
+    }
   }
 
   function resetDemo() {
@@ -141,6 +223,7 @@
     messageInput = '';
     currentJob = null;
     technicianStatus = 'available';
+    currentSessionId = null;
   }
 
   function handleKeyPress(event: KeyboardEvent) {
@@ -149,10 +232,6 @@
       sendMessage();
     }
   }
-
-  onMount(() => {
-    scrollToBottom();
-  });
 </script>
 
 <div class="bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 h-full">
@@ -183,7 +262,7 @@
                   </div>
                 </div>
                 <div class="flex items-center gap-2">
-                  <CreditDisplay />
+                  <CreditDisplay credits={currentCredits} />
                   <!-- Mobile Setup Toggle -->
                   <Button 
                     variant="ghost" 
@@ -351,7 +430,7 @@
                 </Badge>
               </div>
               <div class="flex items-center gap-2 mt-2">
-                <CreditDisplay />
+                <CreditDisplay credits={currentCredits} />
               </div>
             </CardHeader>
 
@@ -430,7 +509,7 @@
         <!-- Credit Display -->
         <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
           <span class="text-sm font-medium text-gray-700">Credits</span>
-          <CreditDisplay />
+          <CreditDisplay credits={currentCredits} />
         </div>
         <!-- Demo Status -->
         {#if demoError}

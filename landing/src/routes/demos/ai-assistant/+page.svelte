@@ -25,7 +25,7 @@
     CheckCircle
   } from "@lucide/svelte";
   import { goto } from "$app/navigation";
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
   import { supabase } from '$lib/supabase';
   import { marked } from 'marked';
   import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "$lib/components/ui/dialog";
@@ -38,17 +38,28 @@
     return marked.parse(safeText);
   }
 
-  let supabaseSessionId: string | null = null;
-  let supabaseUserId: string | null = null;
+  let supabaseSessionId: string | null = $state(null);
+  let supabaseUserId: string | null = $state(null);
+  let currentSessionId: string | null = $state(null);
+  let currentCredits: any = $state(null);
 
   onMount(async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    supabaseSessionId = session?.access_token ?? null;
-    supabaseUserId = session?.user?.id ?? null;
+    // Ensure user record exists in database (creates with 200 credits if new)
+    try {
+      const response = await fetch('/api/credits/test');
+      const testResult = await response.json();
+      console.log('User setup result:', testResult);
+    } catch (error) {
+      console.error('Error setting up user:', error);
+    }
+    
+    // Load initial credits
+    currentCredits = await CreditService.getUserCredits();
+    console.log('Initial credits loaded:', currentCredits);
   });
 
   let isDemoRunning = $state(false);
-  let websiteUrl = $state("");
+  let website = $state("");
   let isTraining = $state(false);
   let messages: Array<{ id: number; text: string; sender: "user" | "bot"; timestamp: Date }> = $state([]);
   let newMessage = $state("");
@@ -77,6 +88,13 @@
     if (isTraining) return; // Prevent sending during training
     if (!newMessage.trim()) return;
 
+    // Check if user has enough credits for a response
+    const { canPerform, userCredits, actionCost } = await CreditService.canPerformAction('ai-assistant', 'response');
+    if (!canPerform) {
+      alert(`Insufficient credits. You need ${actionCost} credits for this response. You have ${userCredits} credits.`);
+      return;
+    }
+
     const userMessage = {
       id: messages.length + 1,
       text: newMessage,
@@ -98,7 +116,7 @@
         body: JSON.stringify({
           action: 'message',
           message: userMessage.text,
-          websiteUrl: websiteUrl,
+          website: website,
           sessionId: supabaseSessionId, // Add session ID
           userId: supabaseUserId        // Add user ID
         })
@@ -110,9 +128,24 @@
       
       const result = await response.json();
       
+      // Deduct credits for the response
+      if (currentSessionId) {
+        const deductResult = await CreditService.deductCreditsForAction(currentSessionId, 'ai-assistant', 'response');
+        if (!deductResult.success) {
+          throw new Error(deductResult.error || 'Failed to deduct credits');
+        }
+        
+        // Update current credits after deduction
+        currentCredits = await CreditService.getUserCredits();
+        console.log('Credits after response deduction:', currentCredits);
+        
+        // Ensure UI updates are applied
+        await tick();
+      }
+      
       const botResponse = {
         id: messages.length + 1,
-        text: result.output || result.raw || "I'm sorry, I couldn't process your request. Please try again.",
+        text: result.output || result.raw,
         sender: "bot" as const,
         timestamp: new Date()
       };
@@ -121,14 +154,7 @@
       
     } catch (error) {
       console.error("Error getting chatbot response:", error);
-      // Instead of simulated response, show service down message
-      const botResponse = {
-        id: messages.length + 1,
-        text: "AI service is currently unavailable. Please try again later.",
-        sender: "bot" as const,
-        timestamp: new Date()
-      };
-      messages = [...messages, botResponse];
+      throw error;
     } finally {
       isTyping = false;
     }
@@ -158,86 +184,133 @@
   let trainingStepInterval: ReturnType<typeof setInterval> | null = null;
 
   async function startDemo() {
-    console.log("startDemo called", { isDemoRunning, isTraining, websiteUrl });
-    
-    // Check if user has enough credits
-    const { canStart, userCredits, demoCost } = await CreditService.canStartDemo('ai-assistant');
-    if (!canStart) {
-      alert(`Insufficient credits. You have ${userCredits} credits, but this demo costs ${demoCost} credits.`);
-      return;
-    }
-        
-    const validation = validateWebsiteUrl(websiteUrl);
-    console.log("Validation result:", validation);
-    if (validation) {
-      websiteValidation = validation;
-      console.log("Validation failed:", validation);
-      return;
-    }
-    
-    console.log("Starting training with n8n...");
-    websiteValidation = "";
-    isTraining = true;
-    isDemoRunning = false; // Ensure chat is disabled during training
-    trainingError = "";
-    trainingSuccess = "";
-    trainingProgress = 0;
-    trainingStepIndex = 0;
-    currentTrainingStep = trainingSteps[0];
-    if (trainingStepInterval) clearInterval(trainingStepInterval);
-    trainingStepInterval = setInterval(() => {
-      trainingStepIndex = (trainingStepIndex + 1) % trainingSteps.length;
-      currentTrainingStep = trainingSteps[trainingStepIndex];
-    }, 4000); // Change step every 4 seconds
-    
-    console.log("Training state set:", { isTraining, trainingProgress });
-    
+    console.log("startDemo called", { isDemoRunning, isTraining, website });
+    if (isDemoRunning || isTraining) return;
+
     try {
-      console.log("Making API call to /api/n8n/train-chatbot");
+      // Validate website URL first
+      const validation = validateWebsiteUrl(website);
+      if (validation) {
+        websiteValidation = validation;
+        return;
+      }
+
+      // Check if user can start the demo (but don't charge yet)
+      const { canPerform: canStart, userCredits, actionCost: demoCost } = await CreditService.canPerformAction('ai-assistant', 'training');
       
-      // Start demo session and deduct credits
+      if (!canStart) {
+        alert(`Insufficient credits. You need ${demoCost} credits to start this demo. You have ${userCredits} credits.`);
+        return;
+      }
+
+      isTraining = true;
+      trainingProgress = 0;
+      trainingError = "";
+      trainingSuccess = "";
+
+      // Simulate training progress
+      const progressInterval = setInterval(() => {
+        trainingProgress += Math.random() * 15;
+        if (trainingProgress >= 100) {
+          trainingProgress = 100;
+          clearInterval(progressInterval);
+        }
+      }, 200);
+
+      // Call n8n to train the chatbot
+      const trainingResponse = await fetch('/api/n8n/train-chatbot', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          website: website,
+          action: 'train'
+        })
+      });
+      
+      if (!trainingResponse.ok) {
+        throw new Error(`Training failed: ${trainingResponse.status}`);
+      }
+      
+      const trainingResult = await trainingResponse.json();
+      if (!trainingResult.success) {
+        throw new Error(trainingResult.message || 'Training failed');
+      }
+
+      clearInterval(progressInterval);
+      trainingProgress = 100;
+
+      // Only charge credits after successful training
       const sessionResult = await CreditService.startDemoSession('ai-assistant');
+      
       if (!sessionResult.success) {
         alert(sessionResult.error || 'Failed to start demo session');
         isTraining = false;
         return;
       }
       
-      // Call our SvelteKit API route for training
-      const response = await fetch('/api/n8n/train-chatbot', {
+      currentSessionId = sessionResult.sessionId;
+      currentCredits = await CreditService.getUserCredits();
+      console.log('Credits after training:', currentCredits);
+      
+      // Ensure UI updates are applied
+      await tick();
+
+      isDemoRunning = true;
+      isTraining = false;
+      trainingSuccess = "Demo started successfully! You can now chat with your AI assistant.";
+      showDemoReadyDialog = true;
+      
+      // Send initial message to n8n
+      const response = await fetch('/api/n8n/chat', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          websiteUrl: websiteUrl,
-          action: 'train'
+          action: 'message',
+          message: 'hi',
+          website: website,
+          sessionId: supabaseSessionId,
+          userId: supabaseUserId
         })
       });
-      console.log("API response status:", response.status);
+      
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
+      
       const result = await response.json();
-      // Optionally check result.success or result.data if needed
-      trainingProgress = 100;
-      isTraining = false;
-      isDemoRunning = true;
-      trainingSuccess = "Training completed successfully!";
-      trainingError = "";
-      // Get website data for the demo
-      const websiteData = websiteContent[websiteUrl as keyof typeof websiteContent] || websiteContent["https://example.com"];
+      
+    
+      const botResponse = {
+        id: 1,
+        text: result.output || result.raw,
+        sender: "bot" as const,
+        timestamp: new Date()
+      };
+      messages = [botResponse];
 
-      trainingSuccess = trainingSuccess || "Training completed successfully!";
-      console.log("Demo started successfully after training!");
+      // Deduct credits for the initial response
+      if (currentSessionId) {
+          const deductResult = await CreditService.deductCreditsForAction(currentSessionId, 'ai-assistant', 'response');
+        if (!deductResult.success) {
+          throw new Error(deductResult.error || 'Failed to deduct credits');
+        }
+        
+        // Update current credits after deduction
+        currentCredits = await CreditService.getUserCredits();
+        console.log('Credits after initial response deduction:', currentCredits);
+        
+        // Ensure UI updates are applied
+        await tick();
+      }
+
     } catch (error) {
-      trainingError = "Failed to train chatbot. Please try again.";
-      trainingProgress = 100;
+      console.error('Error starting demo:', error);
+      trainingError = "Failed to start demo. Please try again.";
       isTraining = false;
-
-      console.log("Demo started in fallback mode!");
-    } finally {
-      if (trainingStepInterval) clearInterval(trainingStepInterval);
     }
   }
 
@@ -250,16 +323,17 @@
     websiteValidation = "";
     messages = [];
     newMessage = "";
-    websiteUrl = "";
+    website = "";
+    currentSessionId = null;
   }
 
   // Watch for website URL changes to validate
   $effect(() => {
-    console.log("$effect triggered:", { websiteUrl, isTraining, isDemoRunning });
-    if (websiteUrl && !isTraining && !isDemoRunning) {
-      websiteValidation = validateWebsiteUrl(websiteUrl);
+    console.log("$effect triggered:", { website, isTraining, isDemoRunning });
+    if (website && !isTraining && !isDemoRunning) {
+      websiteValidation = validateWebsiteUrl(website);
       console.log("Validation result:", websiteValidation);
-    } else if (!websiteUrl) {
+    } else if (!website) {
       websiteValidation = "";
       console.log("URL is empty, clearing validation");
     }
@@ -307,7 +381,7 @@
 
                 </div>
                 <div class="flex items-center gap-2">
-                  <CreditDisplay />
+                  <CreditDisplay credits={currentCredits} />
                   <!-- Mobile Setup Toggle -->
                   <Button 
                     variant="ghost" 
@@ -337,7 +411,7 @@
                           id="website-mobile"
                           type="url"
                           placeholder="https://yourcompany.com"
-                          bind:value={websiteUrl}
+                          bind:value={website}
                           class="w-full text-sm"
                         />
                         {#if websiteValidation}
@@ -345,7 +419,7 @@
                             <AlertCircle class="w-3 h-3" />
                             {websiteValidation}
                           </p>
-                        {:else if websiteUrl}
+                        {:else if website}
                           <p class="text-xs text-green-500 flex items-center gap-1">
                             <CheckCircle class="w-3 h-3" />
                             Valid URL
@@ -401,19 +475,19 @@
                             console.log("Start Demo button clicked!");
                             startDemo();
                           }}
-                          disabled={isTraining || !websiteUrl.trim() || !!websiteValidation}
+                          disabled={isTraining || !website.trim() || !!websiteValidation}
                           class="w-full flex items-center gap-2 text-sm"
                           size="sm"
                         >
                           <Play class="w-4 h-4" />
-                          {isTraining ? "Training..." : !websiteUrl.trim() ? "Enter Website URL" : !!websiteValidation ? "Invalid URL" : "Start Demo"}
+                          {isTraining ? "Training..." : !website.trim() ? "Enter Website URL" : !!websiteValidation ? "Invalid URL" : "Start Demo"}
                         </Button>
                       {/if}
                       {#if isDemoRunning}
                         <Button 
                           variant="outline"
                           onclick={resetDemo}
-                          disabled={!isDemoRunning && !isTraining && !websiteUrl.trim()}
+                          disabled={!isDemoRunning && !isTraining && !website.trim()}
                           class="w-full flex items-center gap-2 text-sm"
                           size="sm"
                         >
@@ -536,9 +610,6 @@
                   <span>Telegram</span>
                 </Badge>
               </div>
-              <div class="flex items-center gap-2 mt-2">
-                <CreditDisplay />
-              </div>
             </CardHeader>
 
             <CardContent class="p-0 flex-1 flex flex-col min-h-0">
@@ -619,7 +690,7 @@
         <!-- Credit Display -->
         <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
           <span class="text-sm font-medium text-gray-700">Credits</span>
-          <CreditDisplay />
+          <CreditDisplay credits={currentCredits} />
         </div>
         <!-- Website Input -->
         <div class="space-y-3">
@@ -632,7 +703,7 @@
               id="website"
               type="url"
               placeholder="https://yourcompany.com"
-              bind:value={websiteUrl}
+              bind:value={website}
               class="w-full text-base"
             />
             {#if websiteValidation}
@@ -640,7 +711,7 @@
                 <AlertCircle class="w-3 h-3" />
                 {websiteValidation}
               </p>
-            {:else if websiteUrl}
+            {:else if website}
               <p class="text-xs text-green-500 flex items-center gap-1">
                 <CheckCircle class="w-3 h-3" />
                 Valid URL
@@ -715,18 +786,18 @@
                 console.log("Start Demo button clicked (desktop)!");
                 startDemo();
               }}
-              disabled={isTraining || !websiteUrl.trim() || !!websiteValidation}
+              disabled={isTraining || !website.trim() || !!websiteValidation}
               class="w-full flex items-center gap-2 text-base"
             >
               <Play class="w-4 h-4" />
-              {isTraining ? "Training..." : !websiteUrl.trim() ? "Enter Website URL" : !!websiteValidation ? "Invalid URL" : "Start Demo"}
+              {isTraining ? "Training..." : !website.trim() ? "Enter Website URL" : !!websiteValidation ? "Invalid URL" : "Start Demo"}
             </Button>
           {/if}
           {#if isDemoRunning}
             <Button 
               variant="outline"
               onclick={resetDemo}
-              disabled={!isDemoRunning && !isTraining && !websiteUrl.trim()}
+              disabled={!isDemoRunning && !isTraining && !website.trim()}
               class="w-full flex items-center gap-2 text-base"
             >
               <RotateCcw class="w-4 h-4" />

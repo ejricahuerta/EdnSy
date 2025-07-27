@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
   import { Button } from '$lib/components/ui/button';
   import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
   import { Badge } from '$lib/components/ui/badge';
@@ -32,10 +32,17 @@
   import { supabase } from '$lib/supabase';
   import { CreditService } from '$lib/services/creditService';
   import CreditDisplay from '$lib/components/ui/CreditDisplay.svelte';
+  import { marked } from 'marked';
 
+  function formatBotText(text: string): string {
+    // Basic sanitization: escape < and >, then parse markdown
+    const safeText = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return marked.parse(safeText);
+  }
 
   let activeTab = 'demo';
   let supabaseSessionId: string | null = null;
+  let currentCredits: any = $state(null);
 
   let isDemoRunning = $state(false);
   let isTraining = $state(false);
@@ -43,9 +50,9 @@
   let demoError = $state("");
   let demoSuccess = $state("");
   let messageInput = $state("");
-  let websiteUrl = $state("");
+  let website = $state("");
   let emailAddress = $state("");
-  let phoneNumber = $state("");
+  let phone = $state("");
   let websiteValidation = $state("");
   let emailValidation = $state("");
   let phoneValidation = $state("");
@@ -74,6 +81,28 @@
     "Finalizing demo setup...",
     "Demo ready!"
   ];
+
+  onMount(async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    supabaseSessionId = session?.access_token ?? null;
+    
+    // Ensure user record exists in database (creates with 200 credits if new)
+    try {
+      const response = await fetch('/api/credits/test');
+      const testResult = await response.json();
+      console.log('User setup result:', testResult);
+    } catch (error) {
+      console.error('Error setting up user:', error);
+    }
+    
+    // Load initial credits
+    currentCredits = await CreditService.getUserCredits();
+    console.log('Initial credits loaded:', currentCredits);
+    
+    // Test service info retrieval
+    const serviceInfo = await CreditService.getServiceInfo('automation-tasks');
+    console.log('Service info test:', serviceInfo);
+  });
 
   function validateWebsiteUrl(url: string): string {
     if (!url) return "";
@@ -108,11 +137,11 @@
 
   // Watch for input changes to validate
   $effect(() => {
-    console.log("$effect triggered:", { websiteUrl, isTraining, isDemoRunning });
-    if (websiteUrl && !isTraining && !isDemoRunning) {
-      websiteValidation = validateWebsiteUrl(websiteUrl);
+    console.log("$effect triggered:", { website, isTraining, isDemoRunning });
+    if (website && !isTraining && !isDemoRunning) {
+      websiteValidation = validateWebsiteUrl(website);
       console.log("Validation result:", websiteValidation);
-    } else if (!websiteUrl) {
+    } else if (!website) {
       websiteValidation = "";
       console.log("URL is empty, clearing validation");
     }
@@ -127,9 +156,9 @@
   });
 
   $effect(() => {
-    if (phoneNumber && !isTraining && !isDemoRunning) {
-      phoneValidation = validatePhone(phoneNumber);
-    } else if (!phoneNumber) {
+    if (phone && !isTraining && !isDemoRunning) {
+      phoneValidation = validatePhone(phone);
+    } else if (!phone) {
       phoneValidation = "";
     }
   });
@@ -141,116 +170,164 @@
     }
   });
 
-
-
   async function startDemo() {
-    console.log("startDemo called", { isDemoRunning, isTraining, websiteUrl, emailAddress, phoneNumber });
-    
-    // Check if user has enough credits
-    const { canStart, userCredits, demoCost } = await CreditService.canStartDemo('automation-tasks');
-    if (!canStart) {
-      alert(`Insufficient credits. You have ${userCredits} credits, but this demo costs ${demoCost} credits.`);
-      return;
-    }
-        
-    // Validate website URL
-    const websiteValidationResult = validateWebsiteUrl(websiteUrl);
-    console.log("Website validation result:", websiteValidationResult);
-    if (websiteValidationResult) {
-      websiteValidation = websiteValidationResult;
-      console.log("Website validation failed:", websiteValidationResult);
-      return;
-    }
-    
-    // Validate email
-    const emailValidationResult = validateEmail(emailAddress);
-    console.log("Email validation result:", emailValidationResult);
-    if (emailValidationResult) {
-      emailValidation = emailValidationResult;
-      console.log("Email validation failed:", emailValidationResult);
-      return;
-    }
-    
-    // Validate phone
-    const phoneValidationResult = validatePhone(phoneNumber);
-    console.log("Phone validation result:", phoneValidationResult);
-    if (phoneValidationResult) {
-      phoneValidation = phoneValidationResult;
-      console.log("Phone validation failed:", phoneValidationResult);
-      return;
-    }
-    
-    console.log("Starting training with n8n...");
-    websiteValidation = "";
-    isTraining = true;
-    isDemoRunning = false; // Ensure chat is disabled during training
-    demoError = "";
-    demoSuccess = "";
-    trainingError = "";
-    trainingSuccess = "";
-    trainingProgress = 0;
-    trainingStepIndex = 0;
-    currentTrainingStep = trainingSteps[0];
-    if (trainingStepInterval) clearInterval(trainingStepInterval);
-    trainingStepInterval = setInterval(() => {
-      trainingStepIndex = (trainingStepIndex + 1) % trainingSteps.length;
-      currentTrainingStep = trainingSteps[trainingStepIndex];
-    }, 4000); // Change step every 4 seconds
-    
-    console.log("Training state set:", { isTraining, trainingProgress });
-    
+    console.log("startDemo called", { isDemoRunning, isTraining, website, emailAddress, phone });
+    if (isDemoRunning || isTraining) return;
+
     try {
-      console.log("Starting automation demo setup");
+      // Validate website URL first
+      const validation = validateWebsiteUrl(website);
+      if (validation) {
+        websiteValidation = validation;
+        return;
+      }
+
+      // Validate email
+      const emailValidationResult = validateEmail(emailAddress);
+      if (emailValidationResult) {
+        emailValidation = emailValidationResult;
+        return;
+      }
+
+      // Validate phone
+      const phoneValidationResult = validatePhone(phone);
+      if (phoneValidationResult) {
+        phoneValidation = phoneValidationResult;
+        return;
+      }
+
+      // Check if user can start the demo (but don't charge yet)
+      const { canPerform: canStart, userCredits, actionCost: demoCost } = await CreditService.canPerformAction('automation-tasks', 'training');
       
-      // Start demo session and deduct credits
+      if (!canStart) {
+        alert(`Insufficient credits. You need ${demoCost} credits to start this demo. You have ${userCredits} credits.`);
+        return;
+      }
+
+      isTraining = true;
+      trainingProgress = 0;
+      trainingError = "";
+      trainingSuccess = "";
+
+      // Simulate training progress
+      const progressInterval = setInterval(() => {
+        trainingProgress += Math.random() * 15;
+        if (trainingProgress >= 100) {
+          trainingProgress = 100;
+          clearInterval(progressInterval);
+        }
+      }, 200);
+
+      // Call n8n to train the automation
+      const trainingResponse = await fetch('/api/n8n/train-automation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          website: website,
+          emailAddress: emailAddress,
+          phone: phone,
+          action: 'train'
+        })
+      });
+      
+      if (!trainingResponse.ok) {
+        const errorText = await trainingResponse.text();
+        console.error('Training response error:', errorText);
+        throw new Error(`Training failed: ${trainingResponse.status} - ${errorText}`);
+      }
+      
+      const trainingResult = await trainingResponse.json();
+      if (!trainingResult.success) {
+        throw new Error(trainingResult.message || 'Training failed');
+      }
+
+      clearInterval(progressInterval);
+      trainingProgress = 100;
+
+      // Only charge credits after successful training
       const sessionResult = await CreditService.startDemoSession('automation-tasks');
+      
       if (!sessionResult.success) {
         alert(sessionResult.error || 'Failed to start demo session');
         isTraining = false;
         return;
       }
-      currentSessionId = sessionResult.sessionId;
       
-      // Call the automation-tasks API route for training
+      currentSessionId = sessionResult.sessionId;
+      currentCredits = await CreditService.getUserCredits();
+      console.log('Credits after training:', currentCredits);
+      
+      // Ensure UI updates are applied
+      await tick();
+
+      isDemoRunning = true;
+      isTraining = false;
+      trainingSuccess = "Demo started successfully! You can now test automated workflows.";
+      showDemoReadyDialog = true;
+      
+      // Check if user has enough credits for initial response
+      const { canPerform: canPerformInitial, userCredits: userCreditsInitial, actionCost: actionCostInitial } = await CreditService.canPerformAction('automation-tasks', 'response');
+      if (!canPerformInitial) {
+        throw new Error(`Insufficient credits. You need ${actionCostInitial} credits for this response. You have ${userCreditsInitial} credits.`);
+      }
+
+      // Send initial message to n8n
       const response = await fetch(webhookUrl, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          action: 'train',
-          website: websiteUrl,
+          sessionId: supabaseSessionId,
+          action: 'message',
+          message: 'Send Welcome Message through SMS and Email to all the customers. make the message personalized based on the customer info and the our company services',
+          website: website,
           email: emailAddress,
-          phone: phoneNumber,
+          phone: phone,
           timestamp: new Date().toISOString(),
           demo: 'automation-tasks'
         })
       });
       
-      trainingProgress = 100;
-      isTraining = false;
-      isDemoRunning = true;
-      trainingSuccess = "Demo ready!";
-      trainingError = "";
-      demoSuccess = "Automation Tasks demo started successfully!";
-      console.log("Demo started successfully!");
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Initial message response error:', errorText);
+        throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
+      }
       
-      // Send welcome message and display the response
-      await sendWelcomeMessage();
+      const result = await response.json();
+      
+      // Deduct credits for the initial response
+      if (currentSessionId) {
+        const deductResult = await CreditService.deductCreditsForAction(currentSessionId, 'automation-tasks', 'response');
+        if (!deductResult.success) {
+          throw new Error(deductResult.error || 'Failed to deduct credits');
+        }
+        
+        // Update current credits after deduction
+        currentCredits = await CreditService.getUserCredits();
+        console.log('Credits after initial response deduction:', currentCredits);
+        
+        // Ensure UI updates are applied
+        await tick();
+      }
+      
+      const botResponse = {
+        id: 1,
+        role: 'ai',
+        content: result.output || result.raw,
+        timestamp: new Date()
+      };
+      chatHistory = [botResponse];
+
     } catch (error) {
-      console.error("Demo start error:", error);
-      trainingProgress = 100;
+      console.error('Error starting demo:', error);
+      trainingError = "Failed to start demo. Please try again.";
       isTraining = false;
-      isDemoRunning = true;
-      trainingError = "Demo started in fallback mode.";
-      demoSuccess = "Demo started in fallback mode - some features may be limited.";
-      console.log("Demo started in fallback mode!");
-    } finally {
-      if (trainingStepInterval) clearInterval(trainingStepInterval);
     }
   }
-
-
 
   function resetDemo() {
     isDemoRunning = false;
@@ -260,14 +337,15 @@
     trainingError = "";
     trainingSuccess = "";
     trainingProgress = 0;
-    websiteUrl = "";
+    website = "";
     emailAddress = "";
-    phoneNumber = "";
+    phone = "";
     websiteValidation = "";
     emailValidation = "";
     phoneValidation = "";
     chatHistory = [];
     messageInput = '';
+    currentSessionId = null;
     if (trainingStepInterval) clearInterval(trainingStepInterval);
   }
 
@@ -283,49 +361,43 @@
           sessionId: supabaseSessionId,
           action: 'message',
           message: 'Send Welcome Message through SMS and Email. make the message personalized based on the customer and the company',
-          website: websiteUrl,
+          website: website,
           email: emailAddress,
-          phone: phoneNumber,
+          phone: phone,
           timestamp: new Date().toISOString(),
           demo: 'automation-tasks'
         })
       });
       
       if (!response.ok) {
-        console.error("Welcome message failed:", response.status);
-        // Add a fallback welcome message
-        const fallbackMessage = {
-          id: Date.now().toString(),
-          role: 'ai',
-          content: "Welcome to Ed & Sy Automation Services! I'm here to help you with our automation solutions. How can I assist you today?"
-        };
-        chatHistory = [...chatHistory, fallbackMessage];
-      } else {
-        console.log("Welcome message sent successfully");
-        const result = await response.json();
-        
-        // Display the welcome message response in chat
-        const welcomeMessage = {
-          id: Date.now().toString(),
-          role: 'ai',
-          content: result.output || result.raw || "Welcome to Ed & Sy Automation Services! I'm here to help you with our automation solutions. How can I assist you today?"
-        };
-        chatHistory = [...chatHistory, welcomeMessage];
+        throw new Error(`Welcome message failed: ${response.status}`);
       }
-    } catch (error) {
-      console.error("Error sending welcome message:", error);
-      // Add a fallback welcome message
-      const fallbackMessage = {
+      
+      console.log("Welcome message sent successfully");
+      const result = await response.json();
+      
+      // Display the welcome message response in chat
+      const welcomeMessage = {
         id: Date.now().toString(),
         role: 'ai',
-        content: "Welcome to Ed & Sy Automation Services! I'm here to help you with our automation solutions. How can I assist you today?"
+        content: result.output || result.raw
       };
-      chatHistory = [...chatHistory, fallbackMessage];
+      chatHistory = [...chatHistory, welcomeMessage];
+    } catch (error) {
+      console.error("Error sending welcome message:", error);
+      throw error;
     }
   }
 
   async function sendMessage() {
     if (!messageInput.trim() || !isDemoRunning || isTraining) return;
+
+    // Check if user has enough credits for a response
+    const { canPerform, userCredits, actionCost } = await CreditService.canPerformAction('automation-tasks', 'response');
+    if (!canPerform) {
+      alert(`Insufficient credits. You need ${actionCost} credits for this response. You have ${userCredits} credits.`);
+      return;
+    }
 
     const userMessage = {
       id: Date.now().toString(),
@@ -349,43 +421,52 @@
           sessionId: supabaseSessionId,
           action: 'message',
           message: currentMessage,
-          website: websiteUrl,
+          website: website,
           email: emailAddress,
-          phone: phoneNumber,
+          phone: phone,
           timestamp: new Date().toISOString(),
           demo: 'automation-tasks'
         })
       });
       
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        console.error('Message response error:', errorText);
+        throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
       }
       
       const result = await response.json();
       
+      // Deduct credits for the response
+      if (currentSessionId) {
+        const deductResult = await CreditService.deductCreditsForAction(currentSessionId, 'automation-tasks', 'response');
+        if (!deductResult.success) {
+          throw new Error(deductResult.error || 'Failed to deduct credits');
+        }
+        
+        // Update current credits after deduction
+        currentCredits = await CreditService.getUserCredits();
+        console.log('Credits after response deduction:', currentCredits);
+        
+        // Ensure UI updates are applied
+        await tick();
+      }
+      
       const botResponse = {
         id: Date.now().toString(),
         role: 'ai',
-        content: result.output || result.raw || "I'm sorry, I couldn't process your request. Please try again."
+        content: result.output || result.raw
       };
       
       chatHistory = [...chatHistory, botResponse];
       
     } catch (error) {
       console.error("Error getting chatbot response:", error);
-      // Show service down message like ai-assistant demo
-      const botResponse = {
-        id: Date.now().toString(),
-        role: 'ai',
-        content: "Automation service is currently unavailable. Please try again later."
-      };
-      chatHistory = [...chatHistory, botResponse];
+      throw error;
     } finally {
       loading = false;
     }
   }
-
-
 
   function handleKeyPress(event: KeyboardEvent) {
     if (event.key === "Enter" && !event.shiftKey) {
@@ -393,12 +474,6 @@
       sendMessage();
     }
   }
-
-  onMount(async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    supabaseSessionId = session?.access_token ?? null;
-    // Initialize demo
-  });
 </script>
 
 <div class="bg-gradient-to-br from-purple-50 via-violet-50 to-indigo-50 h-full">
@@ -429,7 +504,7 @@
                     </div>
                   </div>
                   <div class="flex items-center gap-2">
-                    <CreditDisplay />
+                    <CreditDisplay credits={currentCredits} />
                     <!-- Mobile Setup Toggle -->
                     <Button 
                       variant="ghost" 
@@ -459,7 +534,7 @@
                           id="website-mobile"
                           type="url"
                           placeholder="https://yourcompany.com"
-                          bind:value={websiteUrl}
+                          bind:value={website}
                           class="w-full text-sm"
                         />
                         {#if websiteValidation}
@@ -467,7 +542,7 @@
                             <AlertCircle class="w-3 h-3" />
                             {websiteValidation}
                           </p>
-                        {:else if websiteUrl}
+                        {:else if website}
                           <p class="text-xs text-green-500 flex items-center gap-1">
                             <CheckCircle class="w-3 h-3" />
                             Valid URL
@@ -523,7 +598,7 @@
                           id="phone-mobile"
                           type="tel"
                           placeholder="+1 (555) 123-4567"
-                          bind:value={phoneNumber}
+                          bind:value={phone}
                           class="w-full text-sm"
                         />
                         {#if phoneValidation}
@@ -531,7 +606,7 @@
                             <AlertCircle class="w-3 h-3" />
                             {phoneValidation}
                           </p>
-                        {:else if phoneNumber}
+                        {:else if phone}
                           <p class="text-xs text-green-500 flex items-center gap-1">
                             <CheckCircle class="w-3 h-3" />
                             Valid Phone
@@ -630,19 +705,19 @@
                         <Button 
                           variant={isDemoRunning ? "outline" : "default"}
                           onclick={startDemo}
-                          disabled={isTraining || !websiteUrl.trim() || !!websiteValidation || !emailAddress.trim() || !!emailValidation || !phoneNumber.trim() || !!phoneValidation}
+                          disabled={isTraining || !website.trim() || !!websiteValidation || !emailAddress.trim() || !!emailValidation || !phone.trim() || !!phoneValidation}
                           class="w-full flex items-center gap-2 text-sm"
                           size="sm"
                         >
                           <Play class="w-4 h-4" />
-                          {isTraining ? "Training..." : !websiteUrl.trim() ? "Enter Website URL" : !!websiteValidation ? "Invalid URL" : !emailAddress.trim() ? "Enter Email" : !!emailValidation ? "Invalid Email" : !phoneNumber.trim() ? "Enter Phone" : !!phoneValidation ? "Invalid Phone" : "Start Demo"}
+                          {isTraining ? "Training..." : !website.trim() ? "Enter Website URL" : !!websiteValidation ? "Invalid URL" : !emailAddress.trim() ? "Enter Email" : !!emailValidation ? "Invalid Email" : !phone.trim() ? "Enter Phone" : !!phoneValidation ? "Invalid Phone" : "Start Demo"}
                         </Button>
                       {/if}
                       {#if isDemoRunning}
                         <Button 
                           variant="outline"
                           onclick={resetDemo}
-                          disabled={!isDemoRunning && !isTraining && !websiteUrl.trim()}
+                          disabled={!isDemoRunning && !isTraining && !website.trim()}
                           class="w-full flex items-center gap-2 text-sm"
                           size="sm"
                         >
@@ -675,7 +750,11 @@
                           {/if}
                         </div>
                         <div class="p-2 rounded-lg min-w-[80px] {message.role === 'user' ? 'bg-purple-500 text-white' : 'bg-gray-100 text-gray-900'}">
-                          <p class="text-xs whitespace-pre-line">{message.content}</p>
+                          {#if message.role === 'user'}
+                            <p class="text-xs whitespace-pre-line">{message.content}</p>
+                          {:else}
+                            <div class="text-xs prose prose-sm max-w-none" set:html={formatBotText(message.content)} />
+                          {/if}
                         </div>
                       </div>
                     </div>
@@ -777,7 +856,11 @@
                           {/if}
                         </div>
                         <div class="p-3 rounded-lg min-w-[80px] {message.role === 'user' ? 'bg-purple-500 text-white' : 'bg-gray-100 text-gray-900'}">
-                          <p class="text-sm whitespace-pre-line">{message.content}</p>
+                          {#if message.role === 'user'}
+                            <p class="text-sm whitespace-pre-line">{message.content}</p>
+                          {:else}
+                            <div class="text-sm prose prose-sm max-w-none" set:html={formatBotText(message.content)} />
+                          {/if}
                         </div>
                       </div>
                     </div>
@@ -831,7 +914,7 @@
         <!-- Credit Display -->
         <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
           <span class="text-sm font-medium text-gray-700">Credits</span>
-          <CreditDisplay />
+          <CreditDisplay credits={currentCredits} />
         </div>
         <!-- Website Input -->
         <div class="space-y-3">
@@ -844,7 +927,7 @@
               id="website"
               type="url"
               placeholder="https://yourcompany.com"
-              bind:value={websiteUrl}
+              bind:value={website}
               class="w-full text-base"
             />
             {#if websiteValidation}
@@ -852,7 +935,7 @@
                 <AlertCircle class="w-3 h-3" />
                 {websiteValidation}
               </p>
-            {:else if websiteUrl}
+            {:else if website}
               <p class="text-xs text-green-500 flex items-center gap-1">
                 <CheckCircle class="w-3 h-3" />
                 Valid URL
@@ -908,7 +991,7 @@
               id="phone"
               type="tel"
               placeholder="+1 (555) 123-4567"
-              bind:value={phoneNumber}
+              bind:value={phone}
               class="w-full text-base"
             />
             {#if phoneValidation}
@@ -916,7 +999,7 @@
                 <AlertCircle class="w-3 h-3" />
                 {phoneValidation}
               </p>
-            {:else if phoneNumber}
+            {:else if phone}
               <p class="text-xs text-green-500 flex items-center gap-1">
                 <CheckCircle class="w-3 h-3" />
                 Valid Phone
@@ -990,18 +1073,18 @@
             <Button 
               variant={isDemoRunning ? "outline" : "default"}
               onclick={startDemo}
-              disabled={isTraining || !websiteUrl.trim() || !!websiteValidation || !emailAddress.trim() || !!emailValidation || !phoneNumber.trim() || !!phoneValidation}
+              disabled={isTraining || !website.trim() || !!websiteValidation || !emailAddress.trim() || !!emailValidation || !phone.trim() || !!phoneValidation}
               class="w-full flex items-center gap-2 text-base"
             >
               <Play class="w-4 h-4" />
-              {isTraining ? "Training..." : !websiteUrl.trim() ? "Enter Website URL" : !!websiteValidation ? "Invalid URL" : !emailAddress.trim() ? "Enter Email" : !!emailValidation ? "Invalid Email" : !phoneNumber.trim() ? "Enter Phone" : !!phoneValidation ? "Invalid Phone" : "Start Demo"}
+              {isTraining ? "Training..." : !website.trim() ? "Enter Website URL" : !!websiteValidation ? "Invalid URL" : !emailAddress.trim() ? "Enter Email" : !!emailValidation ? "Invalid Email" : !phone.trim() ? "Enter Phone" : !!phoneValidation ? "Invalid Phone" : "Start Demo"}
             </Button>
           {/if}
           {#if isDemoRunning}
             <Button 
               variant="outline"
               onclick={resetDemo}
-              disabled={!isDemoRunning && !isTraining && !websiteUrl.trim()}
+              disabled={!isDemoRunning && !isTraining && !website.trim()}
               class="w-full flex items-center gap-2 text-base"
             >
               <RotateCcw class="w-4 h-4" />

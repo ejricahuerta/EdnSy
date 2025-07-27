@@ -1,40 +1,56 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { supabase } from '$lib/supabase';
   import { goto } from '$app/navigation';
-
-  let isLoading = true;
-  let errorMessage = '';
+  import { supabase } from '$lib/supabase';
 
   onMount(async () => {
+    // Check if user is already authenticated
     const { data: { session } } = await supabase.auth.getSession();
     if (session) {
       goto('/demos');
       return;
     }
-    const url = new URL(window.location.href);
-    const code = url.searchParams.get('code');
-    if (code) {
-      const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-      if (error) {
-        errorMessage = 'Authentication failed. Please try again.';
-        isLoading = false;
-        return;
-      }
-      goto('/demos');
+
+    // Get URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const error = urlParams.get('error');
+    const errorDescription = urlParams.get('error_description');
+
+    if (error) {
+      console.error('OAuth error:', error, errorDescription);
+      goto('/login?error=' + encodeURIComponent(error));
       return;
     }
-    errorMessage = 'No authentication code found. Please try logging in again.';
-    isLoading = false;
+
+    if (code) {
+      // Exchange code for session
+      const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+      
+      if (exchangeError) {
+        console.error('Session exchange error:', exchangeError);
+        goto('/login?error=authentication_failed');
+        return;
+      }
+
+      if (data.session) {
+        goto('/demos');
+        return;
+      }
+    }
+
+    // No code found, redirect to login
+    goto('/login?error=no_code_found');
   });
 </script>
 
-<div class="flex flex-col items-center justify-center h-screen">
-  {#if isLoading}
-    <h1 class="text-2xl font-bold">Logging in...</h1>
-  {:else}
-    <h1 class="text-2xl font-bold text-red-600 mb-4">Authentication Error</h1>
-    <p class="text-lg text-gray-700 mb-6">{errorMessage}</p>
-    <a href="/login" class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-semibold">Return to Login</a>
-  {/if}
+<svelte:head>
+  <title>Processing Authentication - Ed&Sy</title>
+</svelte:head>
+
+<div class="min-h-screen flex items-center justify-center bg-secondary">
+  <div class="text-center">
+    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+    <p class="text-gray-600">Processing authentication...</p>
+  </div>
 </div> 

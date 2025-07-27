@@ -37,9 +37,12 @@ export const supabase = createClient(
   }
 )
 
+// Helper function to access demo schema
+export const demoSupabase = supabase.schema('demo')
+
 // Database types for TypeScript
 export interface Database {
-  public: {
+  demo: {
     Tables: {
       users: {
         Row: {
@@ -70,13 +73,15 @@ export interface Database {
           consultation_booked?: boolean
         }
       }
-      demos: {
+      services: {
         Row: {
           id: string
           title: string
           description: string
           industry: string
-          credit_cost: number
+          training_cost: number
+          response_cost: number
+          action_cost: number
           estimated_time: number
           difficulty: string
           benefits: string[]
@@ -87,7 +92,9 @@ export interface Database {
           title: string
           description: string
           industry: string
-          credit_cost: number
+          training_cost: number
+          response_cost: number
+          action_cost: number
           estimated_time: number
           difficulty: string
           benefits: string[]
@@ -98,18 +105,20 @@ export interface Database {
           title?: string
           description?: string
           industry?: string
-          credit_cost?: number
+          training_cost?: number
+          response_cost?: number
+          action_cost?: number
           estimated_time?: number
           difficulty?: string
           benefits?: string[]
           created_at?: string
         }
       }
-      demo_sessions: {
+      sessions: {
         Row: {
           id: string
           user_id: string
-          demo_id: string
+          service_id: string
           started_at: string
           completed_at: string | null
           credits_used: number
@@ -119,7 +128,7 @@ export interface Database {
         Insert: {
           id?: string
           user_id: string
-          demo_id: string
+          service_id: string
           started_at: string
           completed_at?: string | null
           credits_used: number
@@ -129,7 +138,7 @@ export interface Database {
         Update: {
           id?: string
           user_id?: string
-          demo_id?: string
+          service_id?: string
           started_at?: string
           completed_at?: string | null
           credits_used?: number
@@ -137,11 +146,40 @@ export interface Database {
           created_at?: string
         }
       }
+      credit_usage: {
+        Row: {
+          id: string
+          session_id: string
+          user_id: string
+          service_id: string
+          action_type: string
+          credits_used: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          session_id: string
+          user_id: string
+          service_id: string
+          action_type: string
+          credits_used: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          session_id?: string
+          user_id?: string
+          service_id?: string
+          action_type?: string
+          credits_used?: number
+          created_at?: string
+        }
+      }
       consultations: {
         Row: {
           id: string
           user_id: string
-          demo_id: string | null
+          service_id: string | null
           scheduled_at: string
           calendly_link: string
           status: string
@@ -151,7 +189,7 @@ export interface Database {
         Insert: {
           id?: string
           user_id: string
-          demo_id?: string | null
+          service_id?: string | null
           scheduled_at: string
           calendly_link: string
           status?: string
@@ -161,7 +199,7 @@ export interface Database {
         Update: {
           id?: string
           user_id?: string
-          demo_id?: string | null
+          service_id?: string | null
           scheduled_at?: string
           calendly_link?: string
           status?: string
