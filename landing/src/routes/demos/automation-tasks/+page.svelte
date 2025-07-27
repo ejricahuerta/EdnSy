@@ -42,6 +42,7 @@
 
   let activeTab = 'demo';
   let supabaseSessionId: string | null = null;
+  let supabaseUserId: string | null = null;
   let currentCredits: any = $state(null);
 
   let isDemoRunning = $state(false);
@@ -85,6 +86,7 @@
   onMount(async () => {
     const { data: { session } } = await supabase.auth.getSession();
     supabaseSessionId = session?.access_token ?? null;
+    supabaseUserId = session?.user?.id ?? null;
     
     // Ensure user record exists in database (creates with 200 credits if new)
     try {
@@ -280,7 +282,6 @@
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          sessionId: supabaseSessionId,
           action: 'message',
           message: 'Send Welcome Message through SMS and Email to all the customers. make the message personalized based on the customer info and the our company services',
           website: website,
@@ -317,7 +318,7 @@
       const botResponse = {
         id: 1,
         role: 'ai',
-        content: result.output || result.raw,
+        text: result.output || result.raw,
         timestamp: new Date()
       };
       chatHistory = [botResponse];
@@ -358,7 +359,6 @@
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          sessionId: supabaseSessionId,
           action: 'message',
           message: 'Send Welcome Message through SMS and Email. make the message personalized based on the customer and the company',
           website: website,
@@ -380,7 +380,7 @@
       const welcomeMessage = {
         id: Date.now().toString(),
         role: 'ai',
-        content: result.output || result.raw
+        text: result.output || result.raw
       };
       chatHistory = [...chatHistory, welcomeMessage];
     } catch (error) {
@@ -402,7 +402,7 @@
     const userMessage = {
       id: Date.now().toString(),
       role: 'user',
-      content: messageInput
+      text: messageInput
     };
 
     chatHistory = [...chatHistory, userMessage];
@@ -418,7 +418,6 @@
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          sessionId: supabaseSessionId,
           action: 'message',
           message: currentMessage,
           website: website,
@@ -455,7 +454,7 @@
       const botResponse = {
         id: Date.now().toString(),
         role: 'ai',
-        content: result.output || result.raw
+        text: result.output || result.raw
       };
       
       chatHistory = [...chatHistory, botResponse];
@@ -751,9 +750,9 @@
                         </div>
                         <div class="p-2 rounded-lg min-w-[80px] {message.role === 'user' ? 'bg-purple-500 text-white' : 'bg-gray-100 text-gray-900'}">
                           {#if message.role === 'user'}
-                            <p class="text-xs whitespace-pre-line">{message.content}</p>
+                            <p class="text-xs whitespace-pre-line">{@html message.text}</p>
                           {:else}
-                            <div class="text-xs prose prose-sm max-w-none" set:html={formatBotText(message.content)} />
+                            <div class="text-xs prose prose-sm max-w-none">{@html formatBotText(message.text)}</div>
                           {/if}
                         </div>
                       </div>
@@ -857,9 +856,9 @@
                         </div>
                         <div class="p-3 rounded-lg min-w-[80px] {message.role === 'user' ? 'bg-purple-500 text-white' : 'bg-gray-100 text-gray-900'}">
                           {#if message.role === 'user'}
-                            <p class="text-sm whitespace-pre-line">{message.content}</p>
+                            <p class="text-sm whitespace-pre-line">{@html message.text}</p>
                           {:else}
-                            <div class="text-sm prose prose-sm max-w-none" set:html={formatBotText(message.content)} />
+                            <div class="text-sm prose prose-sm max-w-none">{@html formatBotText(message.text)}</div>
                           {/if}
                         </div>
                       </div>

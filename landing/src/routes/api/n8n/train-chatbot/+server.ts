@@ -9,7 +9,7 @@ if (!N8N_DEMO_CHAT_API_URL) {
   }
 }
 
-export async function POST({ request }) {
+export async function POST({ request, locals }) {
   try {
     const { website, action } = await request.json();
     // Validate required fields
@@ -28,10 +28,28 @@ export async function POST({ request }) {
         message: 'Invalid website URL format' 
       }, { status: 400 });
     }
+    
+    // Get session and user data from server context
+    const { session, user } = await locals.safeGetSession();
+    
+    // Try multiple ways to get session and user IDs
+    const sessionId = session?.access_token || null;
+    const userId = user?.id || session?.user?.id || null;
+    
+    // Debug logging
+    console.log('🔍 Train Chatbot Session data:', { 
+      hasSession: !!session, 
+      hasUser: !!user, 
+      sessionId: sessionId ? 'present' : 'null',
+      userId: userId ? 'present' : 'null',
+      sessionKeys: session ? Object.keys(session) : [],
+      userKeys: user ? Object.keys(user) : []
+    });
+
     // Use the same n8n URL for training
     const n8nWebhookUrl = N8N_DEMO_CHAT_API_URL;
     console.log('Calling n8n webhook:', n8nWebhookUrl);
-    console.log('Training data:', { website, action });
+    console.log('Training data:', { website, action, sessionId, userId });
     // Call n8n webhook
     const response = await fetch(n8nWebhookUrl, {
       method: 'POST',
@@ -41,6 +59,8 @@ export async function POST({ request }) {
       body: JSON.stringify({
         website,
         action,
+        sessionId, // Add session ID to n8n request
+        userId,    // Add user ID to n8n request
         timestamp: new Date().toISOString()
       })
     });

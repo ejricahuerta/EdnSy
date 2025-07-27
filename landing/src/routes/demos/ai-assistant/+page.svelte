@@ -44,6 +44,10 @@
   let currentCredits: any = $state(null);
 
   onMount(async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    supabaseSessionId = session?.access_token ?? null;
+    supabaseUserId = session?.user?.id ?? null;
+    
     // Ensure user record exists in database (creates with 200 credits if new)
     try {
       const response = await fetch('/api/credits/test');
@@ -116,9 +120,7 @@
         body: JSON.stringify({
           action: 'message',
           message: userMessage.text,
-          website: website,
-          sessionId: supabaseSessionId, // Add session ID
-          userId: supabaseUserId        // Add user ID
+          website: website
         })
       });
       
@@ -271,9 +273,7 @@
         body: JSON.stringify({
           action: 'message',
           message: 'hi',
-          website: website,
-          sessionId: supabaseSessionId,
-          userId: supabaseUserId
+          website: website
         })
       });
       
