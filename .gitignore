@@ -18,8 +18,8 @@ Thumbs.db
 # Environment files
 .env
 .env.*
-!.env.example
-!.env.test
+.env.example
+.env.test
 
 # Vite cache
 .vite/
@@ -64,6 +64,8 @@ internal-apps/*
 landing/.svelte-kit/generated/client/app.js
 landing/.svelte-kit/*
 landing/node_modules/
+
+.keys.json
 
 
 
