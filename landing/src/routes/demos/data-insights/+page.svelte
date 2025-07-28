@@ -64,36 +64,8 @@
   });
 
   async function startDemo() {
-    try {
-      // Check if user can start the demo (but don't charge yet)
-      const { canPerform: canStart, userCredits, actionCost: demoCost } = await CreditService.canPerformAction('data-insights', 'training');
-      
-      if (!canStart) {
-        alert(`Insufficient credits. You need ${demoCost} credits to start this demo. You have ${userCredits} credits.`);
-        return;
-      }
-
-      // Start demo session and deduct credits
-      const sessionResult = await CreditService.startDemoSession('data-insights');
-      
-      if (!sessionResult.success) {
-        alert(sessionResult.error || 'Failed to start demo session');
-        return;
-      }
-      
-      currentSessionId = sessionResult.sessionId;
-      currentCredits = await CreditService.getUserCredits();
-      
-      // Ensure UI updates are applied
-      await tick();
-
-      isDemoRunning = true;
-      demoSuccess = "Data Insights demo started successfully!";
-      demoError = "";
-    } catch (error) {
-      console.error('Error starting demo:', error);
-      demoError = "Failed to start demo. Please try again.";
-    }
+    // Demo is disabled - show coming soon message
+    demoError = "This demo is coming soon! We're working hard to bring you powerful data insights capabilities.";
   }
 
   function resetDemo() {
@@ -112,98 +84,12 @@
   }
 
   async function sendMessage() {
-    if (!messageInput.trim() || !isDemoRunning) return;
-
-    // Check if user has enough credits for a response
-    const { canPerform, userCredits, actionCost } = await CreditService.canPerformAction('data-insights', 'response');
-    if (!canPerform) {
-      alert(`Insufficient credits. You need ${actionCost} credits for this response. You have ${userCredits} credits.`);
-      return;
-    }
-
-    const userMessage = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: messageInput
-    };
-
-    chatHistory = [...chatHistory, userMessage];
-    const currentMessage = messageInput;
-    messageInput = '';
-    loading = true;
-
-    try {
-      // Simulate processing time
-      setTimeout(async () => {
-        try {
-          // Deduct credits for the response
-          if (currentSessionId) {
-            const deductResult = await CreditService.deductCreditsForAction(currentSessionId, 'data-insights', 'response');
-            if (!deductResult.success) {
-              throw new Error(deductResult.error || 'Failed to deduct credits');
-            }
-            
-            // Update current credits after deduction
-            currentCredits = await CreditService.getUserCredits();
-            
-            // Ensure UI updates are applied
-            await tick();
-          }
-
-          processMessage(userMessage);
-        } catch (error) {
-          console.error('Error processing message:', error);
-          demoError = "Failed to process message. Please try again.";
-        } finally {
-          loading = false;
-        }
-      }, 1500);
-    } catch (error) {
-      console.error("Error sending message:", error);
-      loading = false;
-      throw error;
-    }
+    // Demo is disabled - show coming soon message
+    demoError = "This demo is coming soon! We're working hard to bring you powerful data insights capabilities.";
   }
 
   function processMessage(userMessage: any) {
-    const text = userMessage.content.toLowerCase();
-    
-    if (text.includes('revenue') || text.includes('sales') || text.includes('income')) {
-      const response = {
-        id: Date.now().toString(),
-        role: 'ai',
-        content: `📊 Revenue Analysis\n\nCurrent Month: $45,230 (+12% vs last month)\n• Top Service: Plumbing ($18,450)\n• Average Job Value: $342\n• Conversion Rate: 23.4%\n\nTrends:\n• Weekend jobs up 15%\n• Emergency calls peak 6-8 PM\n• Seasonal growth in HVAC services`
-      };
-      chatHistory = [...chatHistory, response];
-    } else if (text.includes('customer') || text.includes('client') || text.includes('satisfaction')) {
-      const response = {
-        id: Date.now().toString(),
-        role: 'ai',
-        content: `👥 Customer Insights\n\nCustomer Satisfaction: 4.8/5\n• Repeat Customers: 67%\n• Average Lifetime Value: $2,340\n• Referral Rate: 34%\n\nTop Feedback Themes:\n• "Quick response time" (89%)\n• "Professional service" (92%)\n• "Fair pricing" (78%)\n\nAreas for Improvement:\n• Communication during delays\n• Follow-up scheduling`
-      };
-      chatHistory = [...chatHistory, response];
-    } else if (text.includes('performance') || text.includes('efficiency') || text.includes('productivity')) {
-      const response = {
-        id: Date.now().toString(),
-        role: 'ai',
-        content: `⚡ Performance Metrics\n\nTeam Productivity:\n• Jobs per day: 8.2 (target: 7.5)\n• Average completion time: 2.3 hours\n• First-time fix rate: 94%\n\nEfficiency Gains:\n• Route optimization: 23% time saved\n• Digital paperwork: 45 min/day saved\n• Automated scheduling: 67% reduction in conflicts\n\nROI Impact:\n• 18% increase in jobs completed\n• 12% reduction in fuel costs\n• 31% improvement in customer satisfaction`
-      };
-      chatHistory = [...chatHistory, response];
-    } else if (text.includes('forecast') || text.includes('prediction') || text.includes('trend')) {
-      const response = {
-        id: Date.now().toString(),
-        role: 'ai',
-        content: `🔮 Predictive Insights\n\nNext 30 Days Forecast:\n• Expected Revenue: $52,400 (+15%)\n• Peak Days: Tuesday, Thursday\n• High-Demand Services:\n  - HVAC maintenance (seasonal)\n  - Emergency plumbing\n  - Smart home installations\n\nRecommendations:\n• Increase HVAC tech availability\n• Stock up on common plumbing parts\n• Promote preventive maintenance packages`
-      };
-      chatHistory = [...chatHistory, response];
-    } else {
-      const defaultMessage = {
-        id: Date.now().toString(),
-        role: 'ai',
-        content: 'I can help you analyze:\n• Revenue trends and projections\n• Customer satisfaction metrics\n• Team performance and efficiency\n• Predictive analytics and forecasting\n• Service demand patterns\n• ROI and profitability analysis\n\nWhat would you like to explore?'
-      };
-      chatHistory = [...chatHistory, defaultMessage];
-    }
+    // Demo is disabled
   }
 
   function handleKeyPress(event: KeyboardEvent) {
@@ -237,7 +123,7 @@
                   <div>
                     <h3 class="font-semibold text-gray-900 text-sm">Data Insights</h3>
                     <p class="text-xs text-gray-600">
-                      {isDemoRunning ? "Online - Ready to help" : "Offline - Start demo to begin"}
+                      Coming Soon
                     </p>
                   </div>
                 </div>
@@ -283,28 +169,16 @@
 
                     <!-- Demo Controls -->
                     <div class="space-y-3 pt-4 border-t border-gray-200">
-                      {#if !isDemoRunning}
-                        <Button 
-                          variant="default"
-                          onclick={startDemo}
-                          class="w-full flex items-center gap-2 text-sm"
-                          size="sm"
-                        >
-                          <Play class="w-4 h-4" />
-                          Start Demo
-                        </Button>
-                      {/if}
-                      {#if isDemoRunning}
-                        <Button 
-                          variant="outline"
-                          onclick={resetDemo}
-                          class="w-full flex items-center gap-2 text-sm"
-                          size="sm"
-                        >
-                          <RotateCcw class="w-4 h-4" />
-                          Reset Demo
-                        </Button>
-                      {/if}
+                      <Button 
+                        variant="default"
+                        onclick={startDemo}
+                        class="w-full flex items-center gap-2 text-sm"
+                        size="sm"
+                        disabled
+                      >
+                        <Play class="w-4 h-4" />
+                        Coming Soon
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -319,67 +193,27 @@
                     <p class="text-xs">Please wait while we set up your demo.</p>
                   </div>
                 {:else}
-                  {#if !isDemoRunning}
-                    <div class="text-center py-6 text-gray-500">
-                      <BarChart3 class="w-8 h-8 mx-auto mb-3 text-gray-300" />
-                      <p class="text-base font-medium">Welcome to Data Insights</p>
-                      <p class="text-xs">Tap the settings icon above to start the demo, then begin chatting</p>
-                    </div>
-                  {:else}
-                    {#each chatHistory as message}
-                      <div class="flex w-full {message.role === 'user' ? 'justify-end' : 'justify-start'}">
-                        <div class="flex {message.role === 'user' ? 'flex-row-reverse items-end' : 'flex-row items-start'} gap-2 max-w-[85%]">
-                          <div class="w-8 h-8 flex items-center justify-center rounded-full {message.role === 'user' ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-700'}">
-                            {#if message.role === 'user'}
-                              <User class="w-4 h-4" />
-                            {:else}
-                              <BarChart3 class="w-4 h-4" />
-                            {/if}
-                          </div>
-                          <div class="p-2 rounded-lg min-w-[80px] {message.role === 'user' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-900'}">
-                            <p class="text-xs whitespace-pre-line">{message.content}</p>
-                          </div>
-                        </div>
-                      </div>
-                    {/each}
-                    
-                    {#if loading}
-                      <div class="flex gap-2 justify-start">
-                        <div class="flex gap-2 max-w-[85%]">
-                          <div class="p-1.5 rounded-full bg-gray-200 text-gray-700">
-                            <BarChart3 class="w-3 h-3" />
-                          </div>
-                          <div class="p-2 rounded-lg bg-gray-100 text-gray-900">
-                            <div class="flex gap-1">
-                              <div class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></div>
-                              <div class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-                              <div class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    {/if}
-                  {/if}
+                  <div class="text-center py-6 text-gray-500">
+                    <BarChart3 class="w-8 h-8 mx-auto mb-3 text-gray-300" />
+                    <p class="text-base font-medium">Coming Soon</p>
+                    <p class="text-xs">We're working hard to bring you powerful data insights capabilities.</p>
+                  </div>
                 {/if}
               </div>
 
               <!-- Message Input -->
-              {#if isDemoRunning}
-                <div class="border-t border-gray-200 p-3 flex-shrink-0">
-                  <div class="flex gap-2">
-                    <Input
-                      placeholder="Type your message..."
-                      bind:value={messageInput}
-                      onkeydown={handleKeyPress}
-                      class="flex-1 text-sm"
-                      disabled={loading}
-                    />
-                    <Button onclick={sendMessage} disabled={loading || !messageInput.trim()} size="sm">
-                      <Send class="w-3 h-3" />
-                    </Button>
-                  </div>
+              <div class="border-t border-gray-200 p-3 flex-shrink-0">
+                <div class="flex gap-2">
+                  <Input
+                    placeholder="Demo coming soon..."
+                    class="flex-1 text-sm"
+                    disabled
+                  />
+                  <Button size="sm" disabled>
+                    <Send class="w-3 h-3" />
+                  </Button>
                 </div>
-              {/if}
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -395,7 +229,7 @@
                 <div>
                   <h3 class="font-semibold text-gray-900 text-base">Data Insights</h3>
                   <p class="text-sm text-gray-600">
-                    {isDemoRunning ? "Online - Ready to help" : "Offline - Start demo to begin"}
+                    Coming Soon
                   </p>
                 </div>
               </div>
@@ -429,67 +263,27 @@
                     <p class="text-sm">Please wait while we set up your demo.</p>
                   </div>
                 {:else}
-                  {#if !isDemoRunning}
-                    <div class="text-center py-8 text-gray-500">
-                      <BarChart3 class="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                      <p class="text-lg font-medium">Welcome to Data Insights</p>
-                      <p class="text-sm">Click Start Demo in the sidebar to begin analyzing your business data</p>
-                    </div>
-                  {:else}
-                    {#each chatHistory as message}
-                      <div class="flex w-full {message.role === 'user' ? 'justify-end' : 'justify-start'}">
-                        <div class="flex {message.role === 'user' ? 'flex-row-reverse items-end' : 'flex-row items-start'} gap-2 max-w-[80%]">
-                          <div class="w-8 h-8 flex items-center justify-center rounded-full {message.role === 'user' ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-700'}">
-                            {#if message.role === 'user'}
-                              <User class="w-4 h-4" />
-                            {:else}
-                              <BarChart3 class="w-4 h-4" />
-                            {/if}
-                          </div>
-                          <div class="p-3 rounded-lg min-w-[80px] {message.role === 'user' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-900'}">
-                            <p class="text-sm whitespace-pre-line">{message.content}</p>
-                          </div>
-                        </div>
-                      </div>
-                    {/each}
-                    
-                    {#if loading}
-                      <div class="flex gap-3 justify-start">
-                        <div class="flex gap-3 max-w-[80%]">
-                          <div class="p-2 rounded-full bg-gray-200 text-gray-700">
-                            <BarChart3 class="w-4 h-4" />
-                          </div>
-                          <div class="p-3 rounded-lg bg-gray-100 text-gray-900">
-                            <div class="flex gap-1">
-                              <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                              <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-                              <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    {/if}
-                  {/if}
+                  <div class="text-center py-8 text-gray-500">
+                    <BarChart3 class="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                    <p class="text-lg font-medium">Coming Soon</p>
+                    <p class="text-sm">We're working hard to bring you powerful data insights capabilities.</p>
+                  </div>
                 {/if}
               </div>
 
               <!-- Message Input -->
-              {#if isDemoRunning}
-                <div class="border-t border-gray-200 p-4 flex-shrink-0">
-                  <div class="flex gap-2">
-                    <Input
-                      placeholder="Type your message..."
-                      bind:value={messageInput}
-                      onkeydown={handleKeyPress}
-                      class="flex-1 text-base"
-                      disabled={loading}
-                    />
-                    <Button onclick={sendMessage} disabled={loading || !messageInput.trim()}>
-                      <Send class="w-4 h-4" />
-                    </Button>
-                  </div>
+              <div class="border-t border-gray-200 p-4 flex-shrink-0">
+                <div class="flex gap-2">
+                  <Input
+                    placeholder="Demo coming soon..."
+                    class="flex-1 text-base"
+                    disabled
+                  />
+                  <Button disabled>
+                    <Send class="w-4 h-4" />
+                  </Button>
                 </div>
-              {/if}
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -561,26 +355,15 @@
 
         <!-- Demo Controls -->
         <div class="space-y-3 pt-4 border-t border-gray-200">
-          {#if !isDemoRunning}
-            <Button 
-              variant="default"
-              onclick={startDemo}
-              class="w-full flex items-center gap-2 text-base"
-            >
-              <Play class="w-4 h-4" />
-              Start Demo
-            </Button>
-          {/if}
-          {#if isDemoRunning}
-            <Button 
-              variant="outline"
-              onclick={resetDemo}
-              class="w-full flex items-center gap-2 text-base"
-            >
-              <RotateCcw class="w-4 h-4" />
-              Reset Demo
-            </Button>
-          {/if}
+          <Button 
+            variant="default"
+            onclick={startDemo}
+            class="w-full flex items-center gap-2 text-base"
+            disabled
+          >
+            <Play class="w-4 h-4" />
+            Coming Soon
+          </Button>
         </div>
       </div>
     </div>

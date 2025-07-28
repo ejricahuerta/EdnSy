@@ -71,97 +71,12 @@
   }
 
   async function sendMessage() {
-    if (!messageInput.trim() || !isDemoRunning) return;
-
-    // Check if user has enough credits for a response
-    const { canPerform, userCredits, actionCost } = await CreditService.canPerformAction('business-operations', 'response');
-    if (!canPerform) {
-      alert(`Insufficient credits. You need ${actionCost} credits for this response. You have ${userCredits} credits.`);
-      return;
-    }
-
-    const userMessage = {
-      id: Date.now().toString(),
-      role: 'customer',
-      content: messageInput
-    };
-
-    chatHistory = [...chatHistory, userMessage];
-    const currentMessage = messageInput;
-    messageInput = '';
-    loading = true;
-
-    try {
-      // Simulate processing time
-      setTimeout(async () => {
-        try {
-          // Deduct credits for the response
-          if (currentSessionId) {
-            const deductResult = await CreditService.deductCreditsForAction(currentSessionId, 'business-operations', 'response');
-            if (!deductResult.success) {
-              throw new Error(deductResult.error || 'Failed to deduct credits');
-            }
-            
-            // Update current credits after deduction
-            currentCredits = await CreditService.getUserCredits();
-            console.log('Credits after response deduction:', currentCredits);
-            
-            // Ensure UI updates are applied
-            await tick();
-          }
-
-          processMessage(userMessage);
-        } catch (error) {
-          console.error('Error processing message:', error);
-          demoError = "Failed to process message. Please try again.";
-        } finally {
-          loading = false;
-          scrollToBottom();
-        }
-      }, 1500);
-    } catch (error) {
-      console.error("Error sending message:", error);
-      loading = false;
-      throw error;
-    }
+    // Demo is disabled - show coming soon message
+    demoError = "This demo is coming soon! We're working hard to bring you powerful business operations capabilities.";
   }
 
   function processMessage(userMessage: any) {
-    const text = userMessage.content.toLowerCase();
-    
-    if (text.includes('emergency') || text.includes('urgent') || text.includes('burst') || text.includes('leak')) {
-      const emergencyJob = {
-        jobId: 'EMG-' + Date.now().toString().slice(-6),
-        service: text.includes('pipe') ? 'Emergency Plumbing' : 'Emergency Service',
-        address: '123 Main St, Anytown, USA',
-        technician: 'Mike Johnson',
-        eta: '15 minutes'
-      };
-
-      const dispatchMessage = {
-        id: Date.now().toString(),
-        role: 'ai',
-        content: `🚨 URGENT JOB DISPATCHED!\n\nService: ${emergencyJob.service}\nAddress: ${emergencyJob.address}\nTechnician: ${emergencyJob.technician}\nETA: ${emergencyJob.eta}\n\nTechnician notified and en route.`
-      };
-
-      chatHistory = [...chatHistory, dispatchMessage];
-      currentJob = emergencyJob;
-      technicianStatus = 'en-route';
-    } else if (text.includes('status') || text.includes('update')) {
-      const statusMessage = {
-        id: Date.now().toString(),
-        role: 'system',
-        content: `📊 Current Status:\n• Active Jobs: 3\n• Available Technicians: 2\n• Average Response Time: 12 minutes\n• Customer Satisfaction: 4.8/5`
-      };
-      chatHistory = [...chatHistory, statusMessage];
-    } else {
-      const defaultMessage = {
-        id: Date.now().toString(),
-        role: 'ai',
-        content: 'I can help with:\n• Emergency dispatch\n• Job scheduling\n• Status updates\n• Technician coordination\n\nWhat do you need?'
-      };
-      chatHistory = [...chatHistory, defaultMessage];
-    }
+    // Demo is disabled
   }
 
   function triggerEmergency() {
@@ -176,37 +91,8 @@
   }
 
   async function startDemo() {
-    try {
-      // Check if user can start the demo (but don't charge yet)
-      const { canPerform: canStart, userCredits, actionCost: demoCost } = await CreditService.canPerformAction('business-operations', 'training');
-      
-      if (!canStart) {
-        alert(`Insufficient credits. You need ${demoCost} credits to start this demo. You have ${userCredits} credits.`);
-        return;
-      }
-
-      // Start demo session and deduct credits
-      const sessionResult = await CreditService.startDemoSession('business-operations');
-      
-      if (!sessionResult.success) {
-        alert(sessionResult.error || 'Failed to start demo session');
-        return;
-      }
-      
-      currentSessionId = sessionResult.sessionId;
-      currentCredits = await CreditService.getUserCredits();
-      console.log('Credits after demo start:', currentCredits);
-      
-      // Ensure UI updates are applied
-      await tick();
-
-      isDemoRunning = true;
-      demoSuccess = "Business Operations demo started successfully!";
-      demoError = "";
-    } catch (error) {
-      console.error('Error starting demo:', error);
-      demoError = "Failed to start demo. Please try again.";
-    }
+    // Demo is disabled - show coming soon message
+    demoError = "This demo is coming soon! We're working hard to bring you powerful business operations capabilities.";
   }
 
   function resetDemo() {
@@ -257,7 +143,7 @@
               <div>
                     <h3 class="font-semibold text-gray-900 text-sm">Business Operations</h3>
                     <p class="text-xs text-gray-600">
-                      {isDemoRunning ? "Online - Ready to help" : "Offline - Start demo to begin"}
+                      Coming Soon
                     </p>
                   </div>
                 </div>
@@ -303,28 +189,16 @@
 
                     <!-- Demo Controls -->
                     <div class="space-y-3 pt-4 border-t border-gray-200">
-                      {#if !isDemoRunning}
-                        <Button 
-                          variant="default"
-                          onclick={startDemo}
-                          class="w-full flex items-center gap-2 text-sm"
-                          size="sm"
-                        >
-                          <Play class="w-4 h-4" />
-                          Start Demo
-                        </Button>
-                      {/if}
-                      {#if isDemoRunning}
-                        <Button 
-                          variant="outline"
-                          onclick={resetDemo}
-                          class="w-full flex items-center gap-2 text-sm"
-                          size="sm"
-                        >
-                          <RotateCcw class="w-4 h-4" />
-                          Reset Demo
-                        </Button>
-                      {/if}
+                      <Button 
+                        variant="default"
+                        onclick={startDemo}
+                        class="w-full flex items-center gap-2 text-sm"
+                        size="sm"
+                        disabled
+                      >
+                        <Play class="w-4 h-4" />
+                        Coming Soon
+                      </Button>
             </div>
             </div>
           </div>
@@ -332,66 +206,26 @@
 
               <!-- Messages Area -->
               <div class="flex-1 p-3 space-y-3 overflow-y-auto min-h-0" bind:this={chatWindow}>
-                {#if !isDemoRunning}
-                  <div class="text-center py-6 text-gray-500">
-                    <Truck class="w-8 h-8 mx-auto mb-3 text-gray-300" />
-                    <p class="text-base font-medium">Welcome to Business Operations</p>
-                    <p class="text-xs">Tap the settings icon above to start the demo, then begin chatting</p>
-                  </div>
-                {:else}
-            {#each chatHistory as message}
-                    <div class="flex w-full {message.role === 'customer' ? 'justify-end' : 'justify-start'}">
-                      <div class="flex {message.role === 'customer' ? 'flex-row-reverse items-end' : 'flex-row items-start'} gap-2 max-w-[85%]">
-                        <div class="w-8 h-8 flex items-center justify-center rounded-full {message.role === 'customer' ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700'}">
-                          {#if message.role === 'customer'}
-                            <User class="w-4 h-4" />
-                          {:else}
-                            <Truck class="w-4 h-4" />
-                          {/if}
-                        </div>
-                        <div class="p-2 rounded-lg min-w-[80px] {message.role === 'customer' ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-900'}">
-                          <p class="text-xs whitespace-pre-line">{message.content}</p>
-                        </div>
-                      </div>
-                    </div>
-                  {/each}
-                  
-                  {#if loading}
-                    <div class="flex gap-2 justify-start">
-                      <div class="flex gap-2 max-w-[85%]">
-                        <div class="p-1.5 rounded-full bg-gray-200 text-gray-700">
-                          <Truck class="w-3 h-3" />
-                        </div>
-                        <div class="p-2 rounded-lg bg-gray-100 text-gray-900">
-                          <div class="flex gap-1">
-                            <div class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></div>
-                            <div class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-                            <div class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  {/if}
-                {/if}
+                <div class="text-center py-6 text-gray-500">
+                  <Truck class="w-8 h-8 mx-auto mb-3 text-gray-300" />
+                  <p class="text-base font-medium">Coming Soon</p>
+                  <p class="text-xs">We're working hard to bring you powerful business operations capabilities.</p>
+                </div>
               </div>
 
               <!-- Message Input -->
-              {#if isDemoRunning}
-                <div class="border-t border-gray-200 p-3 flex-shrink-0">
-                  <div class="flex gap-2">
-                    <Input
-                      placeholder="Type your message..."
-                      bind:value={messageInput}
-                      onkeydown={handleKeyPress}
-                      class="flex-1 text-sm"
-                      disabled={loading}
-                    />
-                    <Button onclick={sendMessage} disabled={loading || !messageInput.trim()} size="sm">
-                      <Send class="w-3 h-3" />
-                    </Button>
-                  </div>
+              <div class="border-t border-gray-200 p-3 flex-shrink-0">
+                <div class="flex gap-2">
+                  <Input
+                    placeholder="Demo coming soon..."
+                    class="flex-1 text-sm"
+                    disabled
+                  />
+                  <Button size="sm" disabled>
+                    <Send class="w-3 h-3" />
+                  </Button>
                 </div>
-              {/if}
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -407,7 +241,7 @@
                 <div>
                   <h3 class="font-semibold text-gray-900 text-base">Business Operations</h3>
                   <p class="text-sm text-gray-600">
-                    {isDemoRunning ? "Online - Ready to help" : "Offline - Start demo to begin"}
+                    Coming Soon
                   </p>
                 </div>
               </div>
@@ -437,66 +271,27 @@
             <CardContent class="p-0 flex-1 flex flex-col min-h-0">
               <!-- Messages Area -->
               <div class="flex-1 p-4 space-y-4 overflow-y-auto min-h-0" bind:this={chatWindow}>
-                {#if !isDemoRunning}
-                  <div class="text-center py-8 text-gray-500">
-                    <Truck class="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                    <p class="text-lg font-medium">Welcome to Business Operations</p>
-                    <p class="text-sm">Click Start Demo in the sidebar to begin managing your operations</p>
-                  </div>
-                {:else}
-                  {#each chatHistory as message}
-                    <div class="flex w-full {message.role === 'customer' ? 'justify-end' : 'justify-start'}">
-                      <div class="flex {message.role === 'customer' ? 'flex-row-reverse items-end' : 'flex-row items-start'} gap-2 max-w-[80%]">
-                        <div class="w-8 h-8 flex items-center justify-center rounded-full {message.role === 'customer' ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700'}">
-                          {#if message.role === 'customer'}
-                            <User class="w-4 h-4" />
-                          {:else}
-                            <Truck class="w-4 h-4" />
-                          {/if}
-                        </div>
-                        <div class="p-3 rounded-lg min-w-[80px] {message.role === 'customer' ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-900'}">
-                          <p class="text-sm whitespace-pre-line">{message.content}</p>
-                        </div>
+                <div class="text-center py-8 text-gray-500">
+                  <Truck class="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                  <p class="text-lg font-medium">Coming Soon</p>
+                  <p class="text-sm">We're working hard to bring you powerful business operations capabilities.</p>
                 </div>
-              </div>
-            {/each}
-                  
-            {#if loading}
-                    <div class="flex gap-3 justify-start">
-                      <div class="flex gap-3 max-w-[80%]">
-                        <div class="p-2 rounded-full bg-gray-200 text-gray-700">
-                          <Truck class="w-4 h-4" />
-                        </div>
-                        <div class="p-3 rounded-lg bg-gray-100 text-gray-900">
-                          <div class="flex gap-1">
-                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-                  </div>
-                </div>
-              </div>
-                    </div>
-                  {/if}
-            {/if}
           </div>
 
               <!-- Message Input -->
-              {#if isDemoRunning}
-                <div class="border-t border-gray-200 p-4 flex-shrink-0">
-                  <div class="flex gap-2">
-                    <Input
-                      placeholder="Type your message..."
+              <div class="border-t border-gray-200 p-4 flex-shrink-0">
+                <div class="flex gap-2">
+                  <Input
+                    placeholder="Demo coming soon..."
                 bind:value={messageInput}
-                      onkeydown={handleKeyPress}
                       class="flex-1 text-base"
-                      disabled={loading}
+                      disabled
                     />
-                    <Button onclick={sendMessage} disabled={loading || !messageInput.trim()}>
+                    <Button disabled>
                       <Send class="w-4 h-4" />
               </Button>
                   </div>
           </div>
-              {/if}
         </CardContent>
       </Card>
         </div>
@@ -568,26 +363,15 @@
 
         <!-- Demo Controls -->
         <div class="space-y-3 pt-4 border-t border-gray-200">
-          {#if !isDemoRunning}
-            <Button 
-              variant="default"
-              onclick={startDemo}
-              class="w-full flex items-center gap-2 text-base"
-            >
-              <Play class="w-4 h-4" />
-              Start Demo
+          <Button 
+            variant="default"
+            onclick={startDemo}
+            class="w-full flex items-center gap-2 text-base"
+            disabled
+          >
+            <Play class="w-4 h-4" />
+            Coming Soon
           </Button>
-          {/if}
-          {#if isDemoRunning}
-            <Button 
-              variant="outline"
-              onclick={resetDemo}
-              class="w-full flex items-center gap-2 text-base"
-            >
-              <RotateCcw class="w-4 h-4" />
-              Reset Demo
-          </Button>
-          {/if}
         </div>
       </div>
     </div>
