@@ -28,7 +28,7 @@
 				icon: Bot,
 			},
 			{
-				title: "Automation Tasks",
+				title: "Lead Conversion Assistant",
 				url: "/demos/automation-tasks",
 				icon: Calendar,
 			},

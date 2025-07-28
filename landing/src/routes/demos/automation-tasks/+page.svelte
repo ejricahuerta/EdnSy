@@ -496,7 +496,7 @@
                       <Zap class="w-4 h-4" />
                     </div>
                     <div>
-                      <h3 class="font-semibold text-gray-900 text-sm">Automation Tasks</h3>
+                      <h3 class="font-semibold text-gray-900 text-sm">Lead Conversion Assistant</h3>
                       <p class="text-xs text-gray-600">
                         {isDemoRunning ? "Online - Ready to help" : "Offline - Start demo to begin"}
                       </p>
@@ -734,7 +734,7 @@
                 {#if !isDemoRunning}
                   <div class="text-center py-6 text-gray-500">
                     <Zap class="w-8 h-8 mx-auto mb-3 text-gray-300" />
-                    <p class="text-base font-medium">Welcome to Automation Tasks</p>
+                    <p class="text-base font-medium">Welcome to Lead Conversion Assistant</p>
                     <p class="text-xs">Tap the settings icon above to start the demo, then begin chatting</p>
                   </div>
                 {:else}
@@ -808,7 +808,7 @@
                   <Zap class="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 class="font-semibold text-gray-900 text-base">Automation Tasks</h3>
+                  <h3 class="font-semibold text-gray-900 text-base">Lead Conversion Assistant</h3>
                   <p class="text-sm text-gray-600">
                     {isDemoRunning ? "Online - Ready to help" : "Offline - Start demo to begin"}
                   </p>
@@ -840,7 +840,7 @@
                 {#if !isDemoRunning}
                   <div class="text-center py-8 text-gray-500">
                     <Zap class="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                    <p class="text-lg font-medium">Welcome to Automation Tasks</p>
+                    <p class="text-lg font-medium">Welcome to Lead Conversion Assistant</p>
                     <p class="text-sm">Click Start Demo in the sidebar to begin setting up automated workflows</p>
                   </div>
                 {:else}
@@ -1101,7 +1101,7 @@
     <DialogHeader>
       <DialogTitle>Demo Ready!</DialogTitle>
       <DialogDescription>
-        The Automation Tasks demo is now ready. You can start chatting with the automation assistant below.
+        The Lead Conversion Assistant demo is now ready. You can start chatting with the automation assistant below.
       </DialogDescription>
     </DialogHeader>
     <DialogFooter>
