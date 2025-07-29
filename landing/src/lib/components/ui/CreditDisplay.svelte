@@ -15,7 +15,21 @@
 
 
   onMount(() => {
+    loadCredits();
   });
+
+  async function loadCredits() {
+    try {
+      loading = true;
+      error = '';
+      credits = await CreditService.getUserCredits();
+    } catch (err) {
+      error = 'Failed to load credits';
+      console.error('Error loading credits:', err);
+    } finally {
+      loading = false;
+    }
+  }
 
   // Update credits when prop changes
   $effect(() => {

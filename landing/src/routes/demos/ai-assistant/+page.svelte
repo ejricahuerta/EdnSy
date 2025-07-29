@@ -22,10 +22,12 @@
     Smartphone,
     Mail,
     AlertCircle,
-    CheckCircle
+    CheckCircle,
+    Coins
   } from "@lucide/svelte";
   import { goto } from "$app/navigation";
-  import { onMount, tick } from 'svelte';
+  import { onMount, tick, onDestroy } from 'svelte';
+  import { beforeNavigate } from '$app/navigation';
   import { supabase } from '$lib/supabase';
   import { marked } from 'marked';
   import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "$lib/components/ui/dialog";
@@ -35,13 +37,52 @@
   function formatBotText(text: string): string {
     // Basic sanitization: escape < and >, then parse markdown
     const safeText = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    return marked.parse(safeText);
+    return marked.parse(safeText) as string;
   }
 
   let supabaseSessionId: string | null = $state(null);
   let supabaseUserId: string | null = $state(null);
   let currentSessionId: string | null = $state(null);
   let currentCredits: any = $state(null);
+  let isDemoRunning = $state(false);
+  let website = $state("");
+  let isTraining = $state(false);
+  let messages: Array<{ id: number; text: string; sender: "user" | "bot"; timestamp: Date }> = $state([]);
+  let newMessage = $state("");
+  let isTyping = $state(false);
+  let showMobileSetup = $state(true); // Show by default for testing
+  let trainingProgress = $state(0);
+  let trainingError = $state("");
+  let websiteValidation = $state("");
+  let trainingSuccess = $state("");
+  let showDemoReadyDialog = $state(false);
+
+  const trainingSteps = [
+    "Connecting to Ed & Sy AI Assistant...",
+    "Uploading website data...",
+    "Preparing AI model...",
+    "Training AI model...",
+    "Connecting to Ed & Sy AI messaging services...",
+    "Integrating with Chatbot APIs...",
+    "Creating AI assistant...",
+    "Creating chat API integration...",
+    "Building chat component...",
+    "Finalizing setup..."
+  ];
+  let currentTrainingStep = $state(trainingSteps[0]);
+  let trainingStepIndex = 0;
+  let trainingStepInterval: ReturnType<typeof setInterval> | null = null;
+  
+  // Add missing variables
+  let estimatedTime = 5;
+  let trainingCost = 2;
+  
+  // Fix window property type
+  declare global {
+    interface Window {
+      _demoCleanup?: () => void;
+    }
+  }
 
   onMount(async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -59,21 +100,105 @@
     
     // Load initial credits
     currentCredits = await CreditService.getUserCredits();
-    console.log('Initial credits loaded:', currentCredits);
+    console.log('Initial credits:', currentCredits);
+
+    // Add event listeners for browser close/unload
+    const handleBeforeUnload = async (event: BeforeUnloadEvent) => {
+      if (currentSessionId && isDemoRunning) {
+        try {
+          // Complete the session when user closes browser
+          await CreditService.completeDemoSession(currentSessionId, {
+            messages: messages,
+            lastActivity: new Date().toISOString(),
+            reason: 'browser_closed'
+          });
+          console.log('Demo session completed due to browser close');
+        } catch (error) {
+          console.error('Error completing session on browser close:', error);
+        }
+      }
+    };
+
+    const handlePageHide = async (event: PageTransitionEvent) => {
+      if (currentSessionId && isDemoRunning) {
+        try {
+          // Complete the session when user navigates away
+          await CreditService.completeDemoSession(currentSessionId, {
+            messages: messages,
+            lastActivity: new Date().toISOString(),
+            reason: 'page_navigation'
+          });
+          console.log('Demo session completed due to page navigation');
+        } catch (error) {
+          console.error('Error completing session on page hide:', error);
+        }
+      }
+    };
+
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'hidden' && currentSessionId && isDemoRunning) {
+        try {
+          // Complete the session when user switches tabs or minimizes browser
+          await CreditService.completeDemoSession(currentSessionId, {
+            messages: messages,
+            lastActivity: new Date().toISOString(),
+            reason: 'tab_switch'
+          });
+          console.log('Demo session completed due to tab switch');
+        } catch (error) {
+          console.error('Error completing session on visibility change:', error);
+        }
+      }
+    };
+
+    // Add event listeners
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('pagehide', handlePageHide);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Store cleanup function for onDestroy
+    window._demoCleanup = () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('pagehide', handlePageHide);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   });
 
-  let isDemoRunning = $state(false);
-  let website = $state("");
-  let isTraining = $state(false);
-  let messages: Array<{ id: number; text: string; sender: "user" | "bot"; timestamp: Date }> = $state([]);
-  let newMessage = $state("");
-  let isTyping = $state(false);
-  let showMobileSetup = $state(true); // Show by default for testing
-  let trainingProgress = $state(0);
-  let trainingError = $state("");
-  let websiteValidation = $state("");
-  let trainingSuccess = $state("");
-  let showDemoReadyDialog = $state(false);
+  // Handle SvelteKit navigation (internal page navigation)
+  beforeNavigate(async ({ to, cancel }) => {
+    if (currentSessionId && isDemoRunning) {
+      try {
+        // Complete the session when user navigates to another page
+        await CreditService.completeDemoSession(currentSessionId, {
+          messages: messages,
+          lastActivity: new Date().toISOString(),
+          reason: 'internal_navigation',
+          destination: to?.url.pathname || 'unknown'
+        });
+        console.log('Demo session completed due to internal navigation');
+      } catch (error) {
+        console.error('Error completing session on navigation:', error);
+      }
+    }
+  });
+
+  onDestroy(() => {
+    // Clean up event listeners
+    if (window._demoCleanup) {
+      window._demoCleanup();
+    }
+    
+    // Complete session if still running
+    if (currentSessionId && isDemoRunning) {
+      CreditService.completeDemoSession(currentSessionId, {
+        messages: messages,
+        lastActivity: new Date().toISOString(),
+        reason: 'component_destroy'
+      }).catch(error => {
+        console.error('Error completing session on destroy:', error);
+      });
+    }
+  });
 
   function validateWebsiteUrl(url: string): string {
     if (!url) return "";
@@ -169,22 +294,6 @@
     }
   }
 
-  const trainingSteps = [
-    "Connecting to Ed & Sy AI Assistant...",
-    "Uploading website data...",
-    "Preparing AI model...",
-    "Training AI model...",
-    "Connecting to Ed & Sy AI messaging services...",
-    "Integrating with Chatbot APIs...",
-    "Creating AI assistant...",
-    "Creating chat API integration...",
-    "Building chat component...",
-    "Finalizing setup..."
-  ];
-  let currentTrainingStep = $state(trainingSteps[0]);
-  let trainingStepIndex = 0;
-  let trainingStepInterval: ReturnType<typeof setInterval> | null = null;
-
   async function startDemo() {
     console.log("startDemo called", { isDemoRunning, isTraining, website });
     if (isDemoRunning || isTraining) return;
@@ -252,7 +361,7 @@
         return;
       }
       
-      currentSessionId = sessionResult.sessionId;
+      currentSessionId = sessionResult.sessionId || null;
       currentCredits = await CreditService.getUserCredits();
       console.log('Credits after training:', currentCredits);
       
@@ -369,11 +478,11 @@
             <CardHeader class="border-b border-gray-200 flex-shrink-0">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                  <div class="p-2 rounded-lg bg-blue-500 text-white">
+                  <div class="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg transform hover:scale-105 transition-all duration-200">
                     <Bot class="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 class="font-semibold text-gray-900 text-sm">AI Customer Support</h3>
+                    <h3 class="font-semibold text-gray-900 text-sm">AI Assistant</h3>
                     <p class="text-xs text-gray-600">
                       {isDemoRunning ? "Online - Ready to help" : "Offline - Start demo to begin"}
                     </p>
@@ -505,7 +614,7 @@
                 {#if !isDemoRunning}
                   <div class="text-center py-6 text-gray-500">
                     <Bot class="w-8 h-8 mx-auto mb-3 text-gray-300" />
-                    <p class="text-base font-medium">Welcome to AI Customer Support</p>
+                    <p class="text-base font-medium">Welcome to AI Assistant</p>
                     <p class="text-xs">Tap the settings icon above to configure your website URL, then click Start Demo to begin chatting</p>
                   </div>
                 {:else}
@@ -574,38 +683,38 @@
           <Card class="h-full h-[calc(100vh-100px)] bg-white/90 backdrop-blur-sm shadow-xl flex flex-col">
             <CardHeader class="border-b border-gray-200 flex-shrink-0">
               <div class="flex items-center gap-3">
-                <div class="p-2 rounded-lg bg-blue-500 text-white">
+                <div class="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg transform hover:scale-105 transition-all duration-200">
                   <Bot class="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 class="font-semibold text-gray-900 text-base">AI Customer Support</h3>
+                  <h3 class="font-semibold text-gray-900 text-base">AI Assistant</h3>
                   <p class="text-sm text-gray-600">
                     {isDemoRunning ? "Online - Ready to help" : "Offline - Start demo to begin"}
                   </p>
                 </div>
               </div>
-              <div class="flex items-center gap-2 mt-2 flex-wrap ">
-                <Badge variant="outline">
+              <div class="flex items-center gap-2 mt-2 flex-wrap">
+                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-blue-200 text-blue-700 hover:bg-blue-50 transition-colors">
                   <MessageCircle class="w-4 h-4" />
                   <span>Chat</span>
                 </Badge>
-                <Badge variant="outline">
+                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-blue-200 text-blue-700 hover:bg-blue-50 transition-colors">
                   <Smartphone class="w-4 h-4" />
                   <span>WhatsApp</span>
                 </Badge>
-                <Badge variant="outline">
+                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-blue-200 text-blue-700 hover:bg-blue-50 transition-colors">
                   <Mail class="w-4 h-4" />
                   <span>Email</span>
                 </Badge>
-                <Badge variant="outline">
+                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-blue-200 text-blue-700 hover:bg-blue-50 transition-colors">
                   <MessageSquare class="w-4 h-4" />
                   <span>Facebook Messenger</span>
                 </Badge>
-                <Badge variant="outline">
+                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-blue-200 text-blue-700 hover:bg-blue-50 transition-colors">
                   <MessageSquare class="w-4 h-4" />
                   <span>Instagram</span>
                 </Badge>
-                <Badge variant="outline">
+                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-blue-200 text-blue-700 hover:bg-blue-50 transition-colors">
                   <MessageSquare class="w-4 h-4" />
                   <span>Telegram</span>
                 </Badge>
@@ -618,7 +727,7 @@
                 {#if !isDemoRunning}
                   <div class="text-center py-8 text-gray-500">
                     <Bot class="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                    <p class="text-lg font-medium">Welcome to AI Customer Support</p>
+                    <p class="text-lg font-medium">Welcome to AI Assistant</p>
                     <p class="text-sm">Enter your website URL in the sidebar on the right, then click Start Demo to begin chatting</p>
                   </div>
                 {:else}
@@ -748,13 +857,15 @@
 
         <!-- Demo Information -->
         <div class="space-y-4">
-          <div class="flex items-center gap-2 text-sm text-gray-600">
-            <Clock class="w-4 h-4" />
-            <span>Duration 5-10 minutes</span>
-          </div>
-          <div class="flex items-center gap-2 text-sm text-gray-600">
-            <Star class="w-4 h-4" />
-            <span>Difficulty: Easy</span>
+          <div class="flex items-center gap-4 text-sm text-gray-600">
+            <div class="flex items-center gap-1">
+              <Clock class="h-4 w-4" />
+              <span>~{estimatedTime} min</span>
+            </div>
+            <div class="flex items-center gap-1">
+              <Coins class="h-4 w-4" />
+              <span>{trainingCost} credits</span>
+            </div>
           </div>
         </div>
 
@@ -814,7 +925,7 @@
     <DialogHeader>
       <DialogTitle>Demo Ready!</DialogTitle>
       <DialogDescription>
-        The AI Customer Support demo is now ready. You can start chatting with the AI assistant below.
+        The AI Assistant demo is now ready. You can start chatting with the AI assistant below.
       </DialogDescription>
     </DialogHeader>
     <DialogFooter>

@@ -12,7 +12,6 @@
   let loading = $state(true);
   let searchTerm = $state('');
   let selectedIndustry = $state('all');
-  let creditDisplay: CreditDisplay;
 
   const industries = [
     { id: 'all', name: 'All Services', icon: Building2 }
@@ -59,12 +58,6 @@
     filterServices();
   }
 
-  function refreshCredits() {
-    if (creditDisplay) {
-      creditDisplay.refresh();
-    }
-  }
-
   onMount(() => {
     loadServices();
   });
@@ -89,7 +82,7 @@
           <p class="mt-2 text-gray-600">Experience the power of AI automation for your business</p>
         </div>
         <div class="flex items-center gap-4">
-          <CreditDisplay bind:this={creditDisplay} />
+          <CreditDisplay />
           <a
             href="/demos/history"
             class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
@@ -164,7 +157,6 @@
             description={service.description}
             industry={service.industry}
             estimatedTime={service.estimated_time}
-            difficulty={service.difficulty}
             benefits={service.benefits}
           />
         {/each}

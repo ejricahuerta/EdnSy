@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { onMount, tick } from 'svelte';
+  import { onMount, tick, onDestroy } from 'svelte';
+  import { beforeNavigate } from '$app/navigation';
   import { Button } from '$lib/components/ui/button';
   import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
   import { Badge } from '$lib/components/ui/badge';
@@ -25,7 +26,8 @@
     CheckCircle,
     DollarSign,
     Users,
-    Calendar
+    Calendar,
+    Coins
   } from 'lucide-svelte';
   import { CreditService } from '$lib/services/creditService';
   import CreditDisplay from '$lib/components/ui/CreditDisplay.svelte';
@@ -46,6 +48,8 @@
   ]);
   let loading = $state(false);
   let initialLoading = $state(true);
+  let estimatedTime = $state(0);
+  let trainingCost = $state(0);
 
   onMount(async () => {
     try {
@@ -63,9 +67,40 @@
     }
   });
 
+  // Handle SvelteKit navigation (internal page navigation)
+  beforeNavigate(async ({ to, cancel }) => {
+    if (currentSessionId && isDemoRunning) {
+      try {
+        // Complete the session when user navigates to another page
+        await CreditService.completeDemoSession(currentSessionId, {
+          chatHistory: chatHistory,
+          lastActivity: new Date().toISOString(),
+          reason: 'internal_navigation',
+          destination: to?.url.pathname || 'unknown'
+        });
+        console.log('Demo session completed due to internal navigation');
+      } catch (error) {
+        console.error('Error completing session on navigation:', error);
+      }
+    }
+  });
+
+  onDestroy(() => {
+    // Complete session if still running
+    if (currentSessionId && isDemoRunning) {
+      CreditService.completeDemoSession(currentSessionId, {
+        chatHistory: chatHistory,
+        lastActivity: new Date().toISOString(),
+        reason: 'component_destroy'
+      }).catch(error => {
+        console.error('Error completing session on destroy:', error);
+      });
+    }
+  });
+
   async function startDemo() {
     // Demo is disabled - show coming soon message
-    demoError = "This demo is coming soon! We're working hard to bring you powerful data insights capabilities.";
+    demoError = "This data insights demo is coming soon! We're working hard to bring you powerful analytics, charting, and business intelligence capabilities.";
   }
 
   function resetDemo() {
@@ -85,7 +120,67 @@
 
   async function sendMessage() {
     // Demo is disabled - show coming soon message
-    demoError = "This demo is coming soon! We're working hard to bring you powerful data insights capabilities.";
+    demoError = "This data insights demo is coming soon! We're working hard to bring you powerful analytics, charting, and business intelligence capabilities.";
+  }
+
+  async function processDataInsightsMessage(userMessage: string): Promise<string> {
+    const lowerMessage = userMessage.toLowerCase();
+    
+    if (lowerMessage.includes('chart') || lowerMessage.includes('graph') || lowerMessage.includes('visualization')) {
+      return `I can help you create various charts and visualizations! Here are some options:
+
+📊 **Sales Performance Chart**: Track revenue trends over time
+📈 **Customer Growth Graph**: Monitor user acquisition rates  
+🍕 **Market Share Pie Chart**: Analyze competitive positioning
+📉 **Conversion Funnel**: Track lead-to-customer journey
+
+Which type of chart would you like to create? I can generate sample data and create interactive visualizations.`;
+    }
+    
+    if (lowerMessage.includes('metric') || lowerMessage.includes('kpi') || lowerMessage.includes('performance')) {
+      return `Great! Let's track your key business metrics. Here are some important KPIs to monitor:
+
+🎯 **Revenue Metrics**: Monthly Recurring Revenue (MRR), Annual Recurring Revenue (ARR)
+👥 **Customer Metrics**: Customer Acquisition Cost (CAC), Customer Lifetime Value (CLV)
+📈 **Growth Metrics**: Month-over-Month growth, Churn rate
+💰 **Financial Metrics**: Gross margin, Net profit margin
+
+Which metrics are most important for your business? I can help you set up automated tracking and reporting.`;
+    }
+    
+    if (lowerMessage.includes('report') || lowerMessage.includes('analysis') || lowerMessage.includes('insight')) {
+      return `I can generate comprehensive business reports! Here's what I can analyze:
+
+📋 **Executive Summary**: High-level business performance overview
+📊 **Sales Analysis**: Revenue trends, top products, customer segments
+👥 **Customer Analysis**: Demographics, behavior patterns, satisfaction scores
+📈 **Growth Analysis**: Market expansion, new product performance
+⚠️ **Risk Assessment**: Churn indicators, market threats
+
+What type of report would you like me to generate? I can create automated reports that update in real-time.`;
+    }
+    
+    if (lowerMessage.includes('dashboard') || lowerMessage.includes('monitor') || lowerMessage.includes('track')) {
+      return `Perfect! Let's set up a real-time business dashboard. I can create:
+
+📊 **Executive Dashboard**: Key metrics at a glance
+📈 **Sales Dashboard**: Revenue, deals, pipeline tracking
+👥 **Customer Dashboard**: User engagement, satisfaction, retention
+📉 **Operations Dashboard**: Efficiency, costs, productivity metrics
+🎯 **Marketing Dashboard**: Campaign performance, lead generation
+
+What's your primary business focus? I'll customize the dashboard with the most relevant metrics for your needs.`;
+    }
+
+    return `I'm here to help with your data analysis needs! I can assist with:
+
+📊 **Creating Charts & Visualizations**: Sales trends, customer analytics, market data
+📈 **Tracking Key Metrics**: Revenue, growth, customer KPIs
+📋 **Generating Reports**: Executive summaries, detailed analysis
+📊 **Building Dashboards**: Real-time monitoring and alerts
+🔍 **Data Analysis**: Identifying trends, patterns, and insights
+
+What would you like to explore first?`;
   }
 
   function processMessage(userMessage: any) {
@@ -223,8 +318,8 @@
           <Card class="h-full h-[calc(100vh-100px)] bg-white/90 backdrop-blur-sm shadow-xl flex flex-col">
             <CardHeader class="border-b border-gray-200 flex-shrink-0">
               <div class="flex items-center gap-3">
-                <div class="p-2 rounded-lg bg-orange-500 text-white">
-                  <BarChart3 class="w-5 h-5" />
+                <div class="p-3 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 text-white shadow-lg transform hover:scale-105 transition-all duration-200">
+                  <BarChart3 class="w-4 h-4" />
                 </div>
                 <div>
                   <h3 class="font-semibold text-gray-900 text-base">Data Insights</h3>
@@ -234,19 +329,19 @@
                 </div>
               </div>
               <div class="flex items-center gap-2 mt-2 flex-wrap">
-                <Badge variant="outline">
+                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-orange-200 text-orange-700 hover:bg-orange-50 transition-colors">
                   <BarChart3 class="w-4 h-4" />
                   <span>Analytics</span>
                 </Badge>
-                <Badge variant="outline">
+                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-orange-200 text-orange-700 hover:bg-orange-50 transition-colors">
                   <TrendingUp class="w-4 h-4" />
                   <span>Trends</span>
                 </Badge>
-                <Badge variant="outline">
+                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-orange-200 text-orange-700 hover:bg-orange-50 transition-colors">
                   <PieChart class="w-4 h-4" />
                   <span>Reports</span>
                 </Badge>
-                <Badge variant="outline">
+                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-orange-200 text-orange-700 hover:bg-orange-50 transition-colors">
                   <Activity class="w-4 h-4" />
                   <span>Performance</span>
                 </Badge>
@@ -320,13 +415,15 @@
 
         <!-- Demo Information -->
         <div class="space-y-4">
-          <div class="flex items-center gap-2 text-sm text-gray-600">
-            <Clock class="w-4 h-4" />
-            <span>Duration 4-6 minutes</span>
-          </div>
-          <div class="flex items-center gap-2 text-sm text-gray-600">
-            <Star class="w-4 h-4" />
-            <span>Difficulty: Easy</span>
+          <div class="flex items-center gap-4 text-sm text-gray-600">
+            <div class="flex items-center gap-1">
+              <Clock class="h-4 w-4" />
+              <span>~{estimatedTime} min</span>
+            </div>
+            <div class="flex items-center gap-1">
+              <Coins class="h-4 w-4" />
+              <span>{trainingCost} credits</span>
+            </div>
           </div>
         </div>
 

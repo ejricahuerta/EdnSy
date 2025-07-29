@@ -53,10 +53,6 @@
           <Clock class="h-3 w-3" />
           <span>{estimatedTime}</span>
         </div>
-        <div class="flex items-center gap-1">
-          <TrendingUp class="h-3 w-3" />
-          <span>{difficulty}</span>
-        </div>
       </div>
     </div>
   </div>

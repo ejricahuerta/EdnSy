@@ -297,6 +297,34 @@ export class CreditService {
         return { success: false, error: 'Failed to update credits' };
       }
 
+      // Update session's total credits used
+      const { data: currentSession, error: sessionFetchError } = await supabase
+        .schema('demo')
+        .from('sessions')
+        .select('credits_used')
+        .eq('id', sessionId)
+        .eq('user_id', user.id)
+        .single();
+
+      if (sessionFetchError) {
+        console.error('Error fetching session credits:', sessionFetchError);
+        return { success: false, error: 'Failed to fetch session credits' };
+      }
+
+      const { error: sessionUpdateError } = await supabase
+        .schema('demo')
+        .from('sessions')
+        .update({ 
+          credits_used: currentSession.credits_used + actionCost
+        })
+        .eq('id', sessionId)
+        .eq('user_id', user.id);
+
+      if (sessionUpdateError) {
+        console.error('Error updating session credits used:', sessionUpdateError);
+        return { success: false, error: 'Failed to update session credits' };
+      }
+
       // Record credit usage
       const { error: usageError } = await supabase
         .schema('demo')
@@ -351,6 +379,37 @@ export class CreditService {
     }
   }
 
+  // Complete all in-progress sessions for a user (utility function)
+  static async completeAllInProgressSessions(): Promise<{ success: boolean; completedCount?: number; error?: string }> {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        return { success: false, error: 'User not authenticated' };
+      }
+
+      const { data, error } = await supabase
+        .schema('demo')
+        .from('sessions')
+        .update({
+          completed_at: new Date().toISOString(),
+          progress_data: { reason: 'auto_completed', completed_at: new Date().toISOString() }
+        })
+        .eq('user_id', user.id)
+        .is('completed_at', null)
+        .select('id');
+
+      if (error) {
+        console.error('Error completing in-progress sessions:', error);
+        return { success: false, error: 'Failed to complete sessions' };
+      }
+
+      return { success: true, completedCount: data?.length || 0 };
+    } catch (error) {
+      console.error('Error in completeAllInProgressSessions:', error);
+      return { success: false, error: 'An unexpected error occurred' };
+    }
+  }
+
   // Get user's demo history
   static async getDemoHistory(): Promise<any[]> {
     try {
@@ -365,7 +424,8 @@ export class CreditService {
           services (
             title,
             description,
-            industry
+            industry,
+            difficulty
           )
         `)
         .eq('user_id', user.id)

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, tick } from 'svelte';
+  import { onMount, tick, onDestroy } from 'svelte';
   import { Button } from '$lib/components/ui/button';
   import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
   import { Badge } from '$lib/components/ui/badge';
@@ -26,18 +26,20 @@
     Globe,
     Headphones,
     Mail,
-    Phone
+    Phone,
+    Coins
   } from 'lucide-svelte';
   import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "$lib/components/ui/dialog";
   import { supabase } from '$lib/supabase';
   import { CreditService } from '$lib/services/creditService';
   import CreditDisplay from '$lib/components/ui/CreditDisplay.svelte';
   import { marked } from 'marked';
+  import { beforeNavigate } from '$app/navigation';
 
   function formatBotText(text: string): string {
     // Basic sanitization: escape < and >, then parse markdown
     const safeText = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    return marked.parse(safeText);
+    return marked.parse(safeText) as string;
   }
 
   let activeTab = 'demo';
@@ -57,7 +59,7 @@
   let websiteValidation = $state("");
   let emailValidation = $state("");
   let phoneValidation = $state("");
-  let chatHistory = $state([]);
+  let chatHistory: Array<{ id: string; role: string; text: string; timestamp?: Date }> = $state([]);
   let loading = $state(false);
   let trainingProgress = $state(0);
   let trainingError = $state("");
@@ -69,6 +71,17 @@
 
   let webhookUrl = "/api/n8n/automation-chat";
   let currentSessionId: string | null = null;
+  
+  // Add missing variables
+  let estimatedTime = 8;
+  let trainingCost = 3;
+  
+  // Fix window property type
+  declare global {
+    interface Window {
+      _demoCleanup?: () => void;
+    }
+  }
 
   const trainingSteps = [
     "Initializing automation demo...",
@@ -99,11 +112,108 @@
     
     // Load initial credits
     currentCredits = await CreditService.getUserCredits();
-    console.log('Initial credits loaded:', currentCredits);
+    console.log('Initial credits:', currentCredits);
     
     // Test service info retrieval
     const serviceInfo = await CreditService.getServiceInfo('automation-tasks');
     console.log('Service info test:', serviceInfo);
+
+    // Add event listeners for browser close/unload
+    const handleBeforeUnload = async (event: BeforeUnloadEvent) => {
+      if (currentSessionId && isDemoRunning) {
+        try {
+          // Complete the session when user closes browser
+          await CreditService.completeDemoSession(currentSessionId, {
+            chatHistory: chatHistory,
+            lastActivity: new Date().toISOString(),
+            reason: 'browser_closed'
+          });
+          console.log('Demo session completed due to browser close');
+        } catch (error) {
+          console.error('Error completing session on browser close:', error);
+        }
+      }
+    };
+
+    const handlePageHide = async (event: PageTransitionEvent) => {
+      if (currentSessionId && isDemoRunning) {
+        try {
+          // Complete the session when user navigates away
+          await CreditService.completeDemoSession(currentSessionId, {
+            chatHistory: chatHistory,
+            lastActivity: new Date().toISOString(),
+            reason: 'page_navigation'
+          });
+          console.log('Demo session completed due to page navigation');
+        } catch (error) {
+          console.error('Error completing session on page hide:', error);
+        }
+      }
+    };
+
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'hidden' && currentSessionId && isDemoRunning) {
+        try {
+          // Complete the session when user switches tabs or minimizes browser
+          await CreditService.completeDemoSession(currentSessionId, {
+            chatHistory: chatHistory,
+            lastActivity: new Date().toISOString(),
+            reason: 'tab_switch'
+          });
+          console.log('Demo session completed due to tab switch');
+        } catch (error) {
+          console.error('Error completing session on visibility change:', error);
+        }
+      }
+    };
+
+    // Add event listeners
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('pagehide', handlePageHide);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Store cleanup function for onDestroy
+    window._demoCleanup = () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('pagehide', handlePageHide);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  });
+
+  // Handle SvelteKit navigation (internal page navigation)
+  beforeNavigate(async ({ to, cancel }) => {
+    if (currentSessionId && isDemoRunning) {
+      try {
+        // Complete the session when user navigates to another page
+        await CreditService.completeDemoSession(currentSessionId, {
+          chatHistory: chatHistory,
+          lastActivity: new Date().toISOString(),
+          reason: 'internal_navigation',
+          destination: to?.url.pathname || 'unknown'
+        });
+        console.log('Demo session completed due to internal navigation');
+      } catch (error) {
+        console.error('Error completing session on navigation:', error);
+      }
+    }
+  });
+
+  onDestroy(() => {
+    // Clean up event listeners
+    if (window._demoCleanup) {
+      window._demoCleanup();
+    }
+    
+    // Complete session if still running
+    if (currentSessionId && isDemoRunning) {
+      CreditService.completeDemoSession(currentSessionId, {
+        chatHistory: chatHistory,
+        lastActivity: new Date().toISOString(),
+        reason: 'component_destroy'
+      }).catch(error => {
+        console.error('Error completing session on destroy:', error);
+      });
+    }
   });
 
   function validateWebsiteUrl(url: string): string {
@@ -257,7 +367,7 @@
         return;
       }
       
-      currentSessionId = sessionResult.sessionId;
+      currentSessionId = sessionResult.sessionId || null;
       currentCredits = await CreditService.getUserCredits();
       console.log('Credits after training:', currentCredits);
       
@@ -492,7 +602,7 @@
             <CardHeader class="border-b border-gray-200 flex-shrink-0">
                               <div class="flex items-center justify-between">
                   <div class="flex items-center gap-3">
-                    <div class="p-2 rounded-lg bg-purple-500 text-white">
+                    <div class="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 text-white shadow-lg transform hover:scale-105 transition-all duration-200">
                       <Zap class="w-4 h-4" />
                     </div>
                     <div>
@@ -804,7 +914,7 @@
           <Card class="h-full h-[calc(100vh-100px)] bg-white/90 backdrop-blur-sm shadow-xl flex flex-col">
             <CardHeader class="border-b border-gray-200 flex-shrink-0">
               <div class="flex items-center gap-3">
-                <div class="p-2 rounded-lg bg-purple-500 text-white">
+                <div class="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 text-white shadow-lg transform hover:scale-105 transition-all duration-200">
                   <Zap class="w-5 h-5" />
                 </div>
                 <div>
@@ -815,24 +925,24 @@
                 </div>
               </div>
               <div class="flex items-center gap-2 mt-2 flex-wrap">
-                <Badge variant="outline">
+                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-purple-200 text-purple-700 hover:bg-purple-50 transition-colors">
                   <MessageSquare class="w-4 h-4" />
                   <span>Lead Capture</span>
                 </Badge>
-                <Badge variant="outline">
+                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-purple-200 text-purple-700 hover:bg-purple-50 transition-colors">
                   <Workflow class="w-4 h-4" />
                   <span>Follow-ups</span>
                 </Badge>
-                <Badge variant="outline">
+                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-purple-200 text-purple-700 hover:bg-purple-50 transition-colors">
                   <Users class="w-4 h-4" />
                   <span>CRM Integration</span>
                 </Badge>
-                <Badge variant="outline">
+                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-purple-200 text-purple-700 hover:bg-purple-50 transition-colors">
                   <FileText class="w-4 h-4" />
                   <span>Work Orders</span>
-              </Badge>
-            </div>
-          </CardHeader>
+                </Badge>
+              </div>
+            </CardHeader>
 
             <CardContent class="p-0 flex-1 flex flex-col min-h-0">
               <!-- Messages Area -->
@@ -1033,67 +1143,69 @@
 
         <!-- Demo Information -->
         <div class="space-y-4">
-          <div class="flex items-center gap-2 text-sm text-gray-600">
-            <Clock class="w-4 h-4" />
-            <span>Duration 5-8 minutes</span>
-              </div>
-          <div class="flex items-center gap-2 text-sm text-gray-600">
-            <Star class="w-4 h-4" />
-            <span>Difficulty: Medium</span>
-              </div>
+          <div class="flex items-center gap-4 text-sm text-gray-600">
+            <div class="flex items-center gap-1">
+              <Clock class="h-4 w-4" />
+              <span>~{estimatedTime} min</span>
             </div>
-
-        <!-- Key Features -->
-        <div class="space-y-3">
-          <h4 class="font-medium text-gray-900">Key Features</h4>
-          <div class="space-y-2">
-            <div class="flex items-center gap-2 text-sm text-gray-600">
-              <MessageSquare class="w-4 h-4 text-purple-600" />
-              <span>Lead capture automation</span>
-            </div>
-            <div class="flex items-center gap-2 text-sm text-gray-600">
-              <Workflow class="w-4 h-4 text-purple-600" />
-              <span>Follow-up sequences</span>
-            </div>
-            <div class="flex items-center gap-2 text-sm text-gray-600">
-              <Users class="w-4 h-4 text-purple-600" />
-              <span>CRM integration</span>
-            </div>
-            <div class="flex items-center gap-2 text-sm text-gray-600">
-              <FileText class="w-4 h-4 text-purple-600" />
-              <span>Work order processing</span>
+            <div class="flex items-center gap-1">
+              <Coins class="h-4 w-4" />
+              <span>{trainingCost} credits</span>
             </div>
           </div>
-              </div>
 
-                <!-- Demo Controls -->
-        <div class="space-y-3 pt-4 border-t border-gray-200">
-          {#if !isDemoRunning}
-            <Button 
-              variant={isDemoRunning ? "outline" : "default"}
-              onclick={startDemo}
-              disabled={isTraining || !website.trim() || !!websiteValidation || !emailAddress.trim() || !!emailValidation || !phone.trim() || !!phoneValidation}
-              class="w-full flex items-center gap-2 text-base"
-            >
-              <Play class="w-4 h-4" />
-              {isTraining ? "Training..." : !website.trim() ? "Enter Website URL" : !!websiteValidation ? "Invalid URL" : !emailAddress.trim() ? "Enter Email" : !!emailValidation ? "Invalid Email" : !phone.trim() ? "Enter Phone" : !!phoneValidation ? "Invalid Phone" : "Start Demo"}
-            </Button>
-          {/if}
-          {#if isDemoRunning}
-            <Button 
-              variant="outline"
-              onclick={resetDemo}
-              disabled={!isDemoRunning && !isTraining && !website.trim()}
-              class="w-full flex items-center gap-2 text-base"
-            >
-              <RotateCcw class="w-4 h-4" />
-              Reset Demo
-            </Button>
-          {/if}
+          <!-- Key Features -->
+          <div class="space-y-3">
+            <h4 class="font-medium text-gray-900">Key Features</h4>
+            <div class="space-y-2">
+              <div class="flex items-center gap-2 text-sm text-gray-600">
+                <MessageSquare class="w-4 h-4 text-purple-600" />
+                <span>Lead capture automation</span>
+              </div>
+              <div class="flex items-center gap-2 text-sm text-gray-600">
+                <Workflow class="w-4 h-4 text-purple-600" />
+                <span>Follow-up sequences</span>
+              </div>
+              <div class="flex items-center gap-2 text-sm text-gray-600">
+                <Users class="w-4 h-4 text-purple-600" />
+                <span>CRM integration</span>
+              </div>
+              <div class="flex items-center gap-2 text-sm text-gray-600">
+                <FileText class="w-4 h-4 text-purple-600" />
+                <span>Work order processing</span>
               </div>
             </div>
           </div>
+
+          <!-- Demo Controls -->
+          <div class="space-y-3 pt-4 border-t border-gray-200">
+            {#if !isDemoRunning}
+              <Button 
+                variant={isDemoRunning ? "outline" : "default"}
+                onclick={startDemo}
+                disabled={isTraining || !website.trim() || !!websiteValidation || !emailAddress.trim() || !!emailValidation || !phone.trim() || !!phoneValidation}
+                class="w-full flex items-center gap-2 text-base"
+              >
+                <Play class="w-4 h-4" />
+                {isTraining ? "Training..." : !website.trim() ? "Enter Website URL" : !!websiteValidation ? "Invalid URL" : !emailAddress.trim() ? "Enter Email" : !!emailValidation ? "Invalid Email" : !phone.trim() ? "Enter Phone" : !!phoneValidation ? "Invalid Phone" : "Start Demo"}
+              </Button>
+            {/if}
+            {#if isDemoRunning}
+              <Button 
+                variant="outline"
+                onclick={resetDemo}
+                disabled={!isDemoRunning && !isTraining && !website.trim()}
+                class="w-full flex items-center gap-2 text-base"
+              >
+                <RotateCcw class="w-4 h-4" />
+                Reset Demo
+              </Button>
+            {/if}
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
 
 <Dialog open={showDemoReadyDialog} on:openChange={e => showDemoReadyDialog = e.detail}>
