@@ -119,3 +119,137 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Responsive Background Images */
+@layer components {
+  /* Hero Background - Responsive */
+  .hero-bg {
+    background-image: url("/imgs/mobile/hero-bg-mobile.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+  }
+
+  /* Tablet and up */
+  @media (min-width: 768px) {
+    .hero-bg {
+      background-image: url("/imgs/tablet/hero-bg-tablet.jpg");
+    }
+  }
+
+  /* Desktop and up */
+  @media (min-width: 1024px) {
+    .hero-bg {
+      background-image: url("/imgs/desktop/hero-bg-desktop.jpg");
+    }
+  }
+
+  /* Game Nights Background - Responsive */
+  .game-nights-bg {
+    background-image: url("/imgs/mobile/game-nights-mobile.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 10px;
+  }
+
+  /* Tablet and up */
+  @media (min-width: 768px) {
+    .game-nights-bg {
+      background-image: url("/imgs/tablet/game-nights-tablet.jpg");
+    }
+  }
+
+  /* Desktop and up */
+  @media (min-width: 1024px) {
+    .game-nights-bg {
+      background-image: url("/imgs/desktop/game-nights-desktop.jpg");
+    }
+  }
+
+  /* Creative Hobbies Background - Responsive */
+  .creative-hobbies-bg {
+    background-image: url("/imgs/mobile/creative-hobbies-mobile.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 10px;
+  }
+
+  /* Tablet and up */
+  @media (min-width: 768px) {
+    .creative-hobbies-bg {
+      background-image: url("/imgs/tablet/creative-hobbies-tablet.jpg");
+    }
+  }
+
+  /* Desktop and up */
+  @media (min-width: 1024px) {
+    .creative-hobbies-bg {
+      background-image: url("/imgs/desktop/creative-hobbies-desktop.jpg");
+    }
+  }
+
+  /* Outdoor Activities Background - Responsive */
+  .outdoor-activities-bg {
+    background-image: url("/imgs/mobile/outdoor-activities-mobile.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 10px;
+  }
+
+  /* Tablet and up */
+  @media (min-width: 768px) {
+    .outdoor-activities-bg {
+      background-image: url("/imgs/tablet/outdoor-activities-tablet.jpg");
+    }
+  }
+
+  /* Desktop and up */
+  @media (min-width: 1024px) {
+    .outdoor-activities-bg {
+      background-image: url("/imgs/desktop/outdoor-activities-desktop.jpg");
+    }
+  }
+
+  /* Overlay styles for all background images */
+  .hero-bg::before,
+  .game-nights-bg::before,
+  .creative-hobbies-bg::before,
+  .outdoor-activities-bg::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+  }
+
+  .hero-bg::before {
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  .game-nights-bg::before,
+  .creative-hobbies-bg::before,
+  .outdoor-activities-bg::before {
+    background: linear-gradient(
+      to right,
+      rgba(0, 0, 0, 0.8) 0%,
+      rgba(0, 0, 0, 0.7) 30%,
+      rgba(0, 0, 0, 0.6) 60%,
+      rgba(0, 0, 0, 0.4) 100%
+    );
+  }
+}
