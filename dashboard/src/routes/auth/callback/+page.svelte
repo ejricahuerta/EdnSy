@@ -45,7 +45,7 @@
 </script>
 
 <svelte:head>
-  <title>Processing Authentication - Ed&Sy</title>
+  <title>Processing Authentication - Ed & Sy</title>
 </svelte:head>
 
 <div class="min-h-screen flex items-center justify-center bg-secondary">

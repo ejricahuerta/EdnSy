@@ -33,7 +33,7 @@
 </script>
 
 <svelte:head>
-  <title>Logging Out - Ed&Sy</title>
+  <title>Logging Out - Ed & Sy</title>
 </svelte:head>
 
 <div class="min-h-screen flex items-center justify-center bg-secondary">

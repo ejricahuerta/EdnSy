@@ -62,7 +62,7 @@
 </script>
 
 <svelte:head>
-  <title>Add Credits - Ed&Sy</title>
+  <title>Add Credits - Ed & Sy</title>
   <meta name="description" content="Add credits to your account" />
 </svelte:head>
 

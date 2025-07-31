@@ -67,7 +67,7 @@
 </script>
 
 <svelte:head>
-  <title>Demo History - Ed&Sy</title>
+  <title>Demo History - Ed & Sy</title>
   <meta name="description" content="Your demo history and credit usage" />
 </svelte:head>
 

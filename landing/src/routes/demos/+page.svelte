@@ -68,7 +68,7 @@
 </script>
 
 <svelte:head>
-  <title>Services - Ed&Sy</title>
+  <title>Services - Ed & Sy</title>
   <meta name="description" content="Try our AI automation services" />
 </svelte:head>
 

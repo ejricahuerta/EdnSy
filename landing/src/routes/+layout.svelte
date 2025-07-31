@@ -56,23 +56,23 @@
 </script>
 
 <svelte:head>
-  <title>Ed&Sy: AI Automation Made Simple for Local Businesses</title>
+  <title>Ed & Sy: AI Automation Made Simple for Local Businesses</title>
   <meta
     name="description"
-    content="Ed&Sy helps small and medium businesses automate admin, scheduling, lead capture, reviews, marketing, dashboards, and training with easy-to-use AI tools. Designed for non-technical teams and older business owners."
+    content="Ed & Sy helps small and medium businesses automate admin, scheduling, lead capture, reviews, marketing, dashboards, and training with easy-to-use AI tools. Designed for non-technical teams and older business owners."
   />
   <meta
     name="keywords"
-    content="AI automation, business automation, admin automation, appointment booking, lead capture, online reviews, local SEO, dashboards, SOPs, training, small business, non-technical, Ed&Sy, Toronto, Google Business, Zapier, Notion, ChatGPT, Twilio, Calendly, Gmail, Google Sheets, Wave, Framer, Buffer, Tally.so, Loom"
+    content="AI automation, business automation, admin automation, appointment booking, lead capture, online reviews, local SEO, dashboards, SOPs, training, small business, non-technical, Ed & Sy, Toronto, Google Business, Zapier, Notion, ChatGPT, Twilio, Calendly, Gmail, Google Sheets, Wave, Framer, Buffer, Tally.so, Loom"
   />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta
     property="og:title"
-    content="Ed&Sy: AI Automation Made Simple for Local Businesses"
+    content="Ed & Sy: AI Automation Made Simple for Local Businesses"
   />
   <meta
     property="og:description"
-    content="Automate admin, scheduling, lead capture, reviews, marketing, dashboards, and training. Ed&Sy makes AI easy for non-technical and older business owners. See our services!"
+    content="Automate admin, scheduling, lead capture, reviews, marketing, dashboards, and training. Ed & Sy makes AI easy for non-technical and older business owners. See our services!"
   />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://ednsy.com" />
@@ -80,11 +80,11 @@
   <meta name="twitter:card" content="summary_large_image" />
   <meta
     name="twitter:title"
-    content="Ed&Sy: AI Automation Made Simple for Local Businesses"
+    content="Ed & Sy: AI Automation Made Simple for Local Businesses"
   />
   <meta
     name="twitter:description"
-    content="Automate admin, scheduling, lead capture, reviews, marketing, dashboards, and training. Ed&Sy makes AI easy for non-technical and older business owners. See our services!"
+    content="Automate admin, scheduling, lead capture, reviews, marketing, dashboards, and training. Ed & Sy makes AI easy for non-technical and older business owners. See our services!"
   />
   <meta name="twitter:image" content="/logo.png" />
   <link rel="canonical" href="https://ednsy.com" />
@@ -97,11 +97,11 @@
     {
       "@context": "https://schema.org",
       "@type": "LocalBusiness",
-      "name": "Ed&Sy",
+      "name": "Ed & Sy",
       "url": "https://ednsy.com",
       "logo": "https://ednsy.com/logo.png",
       "image": "https://ednsy.com/logo.png",
-      "description": "Ed&Sy helps small and medium businesses automate admin, scheduling, lead capture, reviews, marketing, dashboards, and training with easy-to-use AI tools. Designed for non-technical teams and older business owners.",
+      "description": "Ed & Sy helps small and medium businesses automate admin, scheduling, lead capture, reviews, marketing, dashboards, and training with easy-to-use AI tools. Designed for non-technical teams and older business owners.",
       "address": {
         "@type": "PostalAddress",
         "addressLocality": "Toronto",
@@ -304,7 +304,7 @@
 
          <!-- Bottom Bar -->
          <div class="border-t border-white/10 mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center">
-           <p class="text-white/60 text-sm">© 2025 Ed&Sy. All rights reserved.</p>
+           <p class="text-white/60 text-sm">© 2025 Ed & Sy. All rights reserved.</p>
            <div class="flex items-center gap-4 mt-4 sm:mt-0">
              <a
                href="https://www.instagram.com/dev.exd/"

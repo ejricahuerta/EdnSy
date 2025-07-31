@@ -33,9 +33,10 @@
 
   let navOpen = false;
 
-  onMount(async () => {
+  onMount(() => {
     if (!browser) return;
 
+    const initAuth = async () => {
     // Handle OAuth callback - check for tokens in URL hash
     const hash = window.location.hash;
     if (hash && hash.includes("access_token")) {
@@ -86,40 +87,250 @@
     });
 
     return () => subscription?.unsubscribe();
+    };
+
+    initAuth();
   });
 
 </script>
 <svelte:head>
-  <title
-    >Get Your Time Back | Ed&Sy - Business Automation for Traditional Owners</title
-  >
-  <meta
-    name="description"
-    content="Stop working 60+ hour weeks. We give traditional business owners 15-20 hours back each week through smart automation. Book your free consultation today."
-  />
-  <meta
-    property="og:title"
-    content="Get Your Time Back | Ed&Sy - Business Automation for Traditional Owners"
-  />
-  <meta
-    property="og:description"
-    content="Stop working 60+ hour weeks. We give traditional business owners 15-20 hours back each week through smart automation. Book your free consultation today."
-  />
-  <meta property="og:image" content="/logo.png" />
-  <meta property="og:url" content="https://ednsy.com" />
-  <meta
-    name="twitter:title"
-    content="Get Your Time Back | Ed&Sy - Business Automation for Traditional Owners"
-  />
-  <meta
-    name="twitter:description"
-    content="Stop working 60+ hour weeks. We give traditional business owners 15-20 hours back each week through smart automation. Book your free consultation today."
-  />
-  <meta name="twitter:image" content="/logo.png" />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap"
-    rel="stylesheet"
-  />
+  <!-- Primary Meta Tags -->
+  <title>Get Your Time Back | Ed & Sy - Business Automation for Traditional Owners</title>
+  <meta name="title" content="Get Your Time Back | Ed & Sy - Business Automation for Traditional Owners" />
+  <meta name="description" content="Stop working 60+ hour weeks. We give traditional business owners 15-20 hours back each week through smart automation. Book your free consultation today." />
+  <meta name="keywords" content="business automation, time management, small business automation, Toronto business consultants, AI automation, workflow automation, business efficiency, work-life balance, family time, business optimization, traditional business owners, automation consulting, productivity tools, business process automation, time reclamation, weekend automation, evening automation, business systems, operational efficiency, cost reduction, revenue increase" />
+  <meta name="author" content="Ed & Sy" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <meta name="language" content="English" />
+  <meta name="revisit-after" content="7 days" />
+  <meta name="distribution" content="global" />
+  <meta name="rating" content="general" />
+  <meta name="theme-color" content="#3B82F6" />
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://ednsy.com/" />
+  <meta property="og:title" content="Get Your Time Back | Ed & Sy - Business Automation for Traditional Owners" />
+  <meta property="og:description" content="Stop working 60+ hour weeks. We give traditional business owners 15-20 hours back each week through smart automation. Book your free consultation today." />
+  <meta property="og:image" content="https://ednsy.com/logo.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Ed & Sy - Business Automation Services" />
+  <meta property="og:site_name" content="Ed & Sy" />
+  <meta property="og:locale" content="en_US" />
+  
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://ednsy.com/" />
+  <meta name="twitter:title" content="Get Your Time Back | Ed & Sy - Business Automation for Traditional Owners" />
+  <meta name="twitter:description" content="Stop working 60+ hour weeks. We give traditional business owners 15-20 hours back each week through smart automation. Book your free consultation today." />
+  <meta name="twitter:image" content="https://ednsy.com/logo.png" />
+  <meta name="twitter:image:alt" content="Ed & Sy - Business Automation Services" />
+  
+  <!-- Additional SEO Meta Tags -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Ed & Sy" />
+  
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://ednsy.com/" />
+  
+  <!-- Favicon and App Icons -->
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  
+  <!-- Preconnect to external domains for performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+  <link rel="preconnect" href="https://www.google-analytics.com" />
+  <link rel="preconnect" href="https://www.googletagmanager.com" />
+  
+  <!-- DNS Prefetch for performance -->
+  <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+  <link rel="dns-prefetch" href="//www.google-analytics.com" />
+  <link rel="dns-prefetch" href="//www.googletagmanager.com" />
+  
+  <!-- Fonts with display=swap for performance -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  
+  <!-- Structured Data for Local Business -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "Ed & Sy",
+      "url": "https://ednsy.com",
+      "logo": "https://ednsy.com/logo.png",
+      "image": "https://ednsy.com/logo.png",
+      "description": "Ed & Sy helps traditional business owners automate their operations to reclaim 15-20 hours per week. We specialize in business automation, workflow optimization, and time management for small to medium businesses.",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Toronto",
+        "addressRegion": "ON",
+        "addressCountry": "CA"
+      },
+      "contactPoint": [
+        {
+          "@type": "ContactPoint",
+          "email": "hello@ednsy.com",
+          "contactType": "customer support",
+          "areaServed": "CA",
+          "availableLanguage": "English"
+        }
+      ],
+      "sameAs": [
+        "https://www.instagram.com/dev.exd/",
+        "https://www.linkedin.com/in/syronsuerte/"
+      ],
+      "serviceArea": {
+        "@type": "GeoCircle",
+        "geoMidpoint": {
+          "@type": "GeoCoordinates",
+          "latitude": 43.6532,
+          "longitude": -79.3832
+        },
+        "geoRadius": "50000"
+      },
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Business Automation Services",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Business Process Automation",
+              "description": "Automate repetitive tasks and workflows to save 15-20 hours per week"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Workflow Optimization",
+              "description": "Streamline business operations for increased efficiency and cost reduction"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Time Management Consulting",
+              "description": "Help business owners reclaim their time for family and personal activities"
+            }
+          }
+        ]
+      }
+    }
+  </script>
+  
+  <!-- Structured Data for Organization -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Ed & Sy",
+      "url": "https://ednsy.com",
+      "logo": "https://ednsy.com/logo.png",
+      "description": "Business automation consultants helping traditional business owners reclaim their time through smart automation solutions.",
+      "foundingDate": "2025",
+      "founder": [
+        {
+          "@type": "Person",
+          "name": "Ed",
+          "jobTitle": "Systems Specialist"
+        },
+        {
+          "@type": "Person",
+          "name": "Sy",
+          "jobTitle": "Implementation Specialist"
+        }
+      ],
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Toronto",
+        "addressRegion": "ON",
+        "addressCountry": "CA"
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "hello@ednsy.com",
+        "contactType": "customer service"
+      }
+    }
+  </script>
+  
+  <!-- Structured Data for WebPage -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Get Your Time Back | Ed & Sy",
+      "description": "Stop working 60+ hour weeks. We give traditional business owners 15-20 hours back each week through smart automation. Book your free consultation today.",
+      "url": "https://ednsy.com/",
+      "mainEntity": {
+        "@type": "Service",
+        "name": "Business Automation Services",
+        "description": "Comprehensive business automation solutions that help traditional business owners reclaim 15-20 hours per week through smart workflow optimization and process automation.",
+        "provider": {
+          "@type": "Organization",
+          "name": "Ed & Sy"
+        },
+        "areaServed": {
+          "@type": "Country",
+          "name": "Canada"
+        },
+        "serviceType": "Business Automation",
+        "offers": {
+          "@type": "Offer",
+          "description": "Free 30-minute consultation to discuss your business automation needs",
+          "price": "0",
+          "priceCurrency": "CAD"
+        }
+      }
+    }
+  </script>
+  
+  <!-- Structured Data for FAQ -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How much time can I save with Ed & Sy automation?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Our clients typically save 15-20 hours per week through our business automation services, allowing them to focus on what they love and spend more time with family."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What types of businesses do you work with?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "We work with traditional business owners who are tired of working 60+ hour weeks. Our automation solutions are designed for non-technical teams and older business owners who want to reclaim their time."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do I need to change my existing tools?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No, we integrate with your existing tools like Google Calendar, WhatsApp, Telegram, Notion, Facebook, Stripe, Google Maps, Google Sheets, Google Drive, and Gmail."
+          }
+        }
+      ]
+    }
+  </script>
+  
   <style>
     body,
     .font-sans {
@@ -148,7 +359,7 @@
     }
 
     .hero-bg {
-      background-image: url("/imgs/hero-bg.jpg");
+      background-image: url("/imgs/hero-bg.webp"), url("/imgs/hero-bg.jpg");
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
@@ -167,7 +378,7 @@
     }
 
     .game-nights-bg {
-      background-image: url("/imgs/game-nights.jpg");
+      background-image: url("/imgs/game-nights.webp"), url("/imgs/game-nights.jpg");
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
@@ -195,7 +406,7 @@
     }
 
     .creative-hobbies-bg {
-      background-image: url("/imgs/creative-hobbies.jpg");
+      background-image: url("/imgs/creative-hobbies.webp"), url("/imgs/creative-hobbies.jpg");
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
@@ -223,7 +434,7 @@
     }
 
     .outdoor-activities-bg {
-      background-image: url("/imgs/outdoor-activities.jpg");
+      background-image: url("/imgs/outdoor-activities.webp"), url("/imgs/outdoor-activities.jpg");
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
@@ -251,7 +462,7 @@
     }
 
     .team-bg {
-      background-image: url("/imgs/hero-bg.jpg");
+      background-image: url("/imgs/hero-bg.webp"), url("/imgs/hero-bg.jpg");
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
@@ -310,6 +521,8 @@
 <!-- HERO SECTION - Focus on Time Reclamation -->
 <section
   class="min-h-screen flex items-center justify-center hero-bg bg-gray-900"
+  role="banner"
+  aria-label="Hero section - Get your time back"
 >
   <div class="relative z-10 px-8 sm:px-16 w-full">
     <div class="text-left max-w-4xl">
@@ -323,6 +536,7 @@
 
       <p
         class="text-md sm:text-lg text-white text-left max-w-2xl font-sans mb-8 sm:mb-10 drop-shadow-md"
+        role="doc-subtitle"
       >
         Two Toronto locals helping business owners automate the boring stuff.
         You focus on what you love. We handle the rest.
@@ -383,18 +597,14 @@
 </section>
 
 <!-- VALUE PROPOSITION SECTION - Work-Life Balance Focus -->
-<section id="value" class="mx-auto py-20">
+<section id="value" class="mx-auto py-20" role="region" aria-label="Value proposition">
   <div class=" mx-auto">
     <div class="text-center my-16">
       <h2
         class="font-display text-3xl font-semibold tracking-tight text-balance text-neutral-700 sm:text-5xl mb-6"
       >
-        Get Your Time Back - Work-Life Balance for Business Owners
+      Scale Your Business, Reclaim Your Weekends
       </h2>
-      <p class="text-lg text-neutral-600 max-w-3xl mx-auto">
-        Stop working 60+ hour weeks. Get 15-20 hours back each week <span class="text-primary">&</span> enjoy
-        your life again.
-      </p>
     </div>
 
     <div class="space-y-0">
@@ -743,7 +953,7 @@
 </section>
 
 <!-- TEAM SECTION - Ed & Sy -->
-<section id="team" class="mx-auto px-6 sm:px-16 my-20">
+<section id="team" class="mx-auto px-6 sm:px-16 my-20" role="region" aria-label="About our team">
   <div class="max-w-6xl mx-auto">
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
       <!-- Left Section - Text Content -->
@@ -821,7 +1031,7 @@
 <Separator class="my-12" />
 
 <!-- LOGOS SECTION - We Work With Your Existing Tools -->
-<section class="mx-auto px-6 sm:px-16 py-16 bg-gray-50">
+<section class="mx-auto px-6 sm:px-16 py-16 bg-gray-50" role="region" aria-label="Integration partners">
   <div class="max-w-6xl mx-auto">
     <div class="text-center mb-12">
       <h2
@@ -919,7 +1129,7 @@
             class="h-12 w-auto opacity-60 hover:opacity-100 transition-opacity"
           />
           <img
-            src="/logos/icons8-stripe.svg"
+            src="/logos/stripe.png"
             alt="Stripe"
             class="h-12 w-auto opacity-60 hover:opacity-100 transition-opacity"
           />
@@ -955,6 +1165,8 @@
 <section
   id="contact"
   class="flex justify-center items-center my-24 px-6 sm:px-16 mx-auto"
+  role="region"
+  aria-label="Contact us"
 >
   <Card.Root
     class="bg-gradient-to-br from-blue-600 to-blue-700 border-0 shadow-xl w-full"

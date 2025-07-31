@@ -1,4 +1,4 @@
-# SEO Optimization Summary for Ed&Sy Landing Page
+# SEO Optimization Summary for Ed & Sy Landing Page
 
 ## 🎯 **SEO Improvements Implemented**
 
@@ -8,7 +8,7 @@
 - ✅ **Title Tag**: Optimized with primary keyword "Get Your Time Back" + brand name
 - ✅ **Meta Description**: Compelling 155-character description with call-to-action
 - ✅ **Keywords**: Comprehensive keyword list targeting business automation, time management, Toronto business consultants
-- ✅ **Author**: Proper attribution to Ed&Sy
+- ✅ **Author**: Proper attribution to Ed & Sy
 - ✅ **Robots**: Optimized for search engine crawling and indexing
 - ✅ **Language**: Explicitly set to English
 - ✅ **Theme Color**: Set for mobile browser theming

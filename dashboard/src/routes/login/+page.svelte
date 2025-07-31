@@ -89,8 +89,8 @@
   </script>
   
   <svelte:head>
-	<title>Login - Ed&Sy</title>
-	<meta name="description" content="Sign in to your Ed&Sy account" />
+	<title>Login - Ed & Sy</title>
+	<meta name="description" content="Sign in to your Ed & Sy account" />
   </svelte:head>
   
   <div class="min-h-screen flex items-center justify-center bg-secondary space-y-4">
