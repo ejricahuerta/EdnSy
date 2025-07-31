@@ -58,10 +58,18 @@ export const handle: Handle = async ({ event, resolve }) => {
     const { session, user } = await event.locals.safeGetSession();
     
     if (!session) {
-      console.log('Unauthenticated user trying to access /dashboard, redirecting to login');
       throw redirect(303, '/login');
     }
   }
+
+  // TODO: Re-enable API protection once authentication is working properly
+  // if (event.url.pathname.startsWith('/api/')) {
+  //   const { session, user } = await event.locals.safeGetSession();
+  //   
+  //   if (!session) {
+  //     throw redirect(303, '/login');
+  //   }
+  // }
 
   return resolve(event, {
     filterSerializedResponseHeaders(name) {

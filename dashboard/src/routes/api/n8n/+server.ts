@@ -14,8 +14,6 @@ export async function GET() {
       'Content-Type': 'application/json'
     };
 
-    console.log(`Attempting to connect to n8n at: ${baseUrl}`);
-
     // Test connection first with a simple health check
     try {
       const healthResponse = await fetch(`${baseUrl}/healthz`, {
@@ -23,11 +21,7 @@ export async function GET() {
         method: 'GET'
       });
       
-      console.log(`n8n health check status: ${healthResponse.status}`);
-      
       if (!healthResponse.ok) {
-        console.log('n8n health check failed, trying alternative endpoints...');
-        
         // Try alternative health endpoints
         const altHealthResponse = await fetch(`${baseUrl}/api/v1/health`, {
           headers,
@@ -45,17 +39,13 @@ export async function GET() {
     // Get workflows
     let workflowsData = [];
     try {
-      console.log('Fetching workflows from n8n...');
       const workflowsResponse = await fetch(`${baseUrl}/api/v1/workflows`, {
         headers,
         method: 'GET'
       });
       
-      console.log(`Workflows response status: ${workflowsResponse.status}`);
-      
       if (workflowsResponse.ok) {
         const workflowsResponseData = await workflowsResponse.json();
-        console.log('Workflows response data:', JSON.stringify(workflowsResponseData, null, 2));
         
         // Handle different response formats
         if (Array.isArray(workflowsResponseData)) {
@@ -67,11 +57,7 @@ export async function GET() {
         } else {
           throw new Error('Unexpected workflows response format');
         }
-        
-        console.log(`Found ${workflowsData.length} workflows`);
       } else {
-        console.log('Failed to fetch workflows, trying alternative endpoint...');
-        
         // Try alternative workflow endpoint
         const altWorkflowsResponse = await fetch(`${baseUrl}/api/workflows`, {
           headers,
@@ -88,8 +74,6 @@ export async function GET() {
           } else {
             throw new Error('Alternative workflows endpoint also has unexpected format');
           }
-          
-          console.log(`Found ${workflowsData.length} workflows via alternative endpoint`);
         } else {
           throw new Error('Failed to fetch workflows from n8n');
         }
@@ -101,17 +85,13 @@ export async function GET() {
     // Get executions
     let executionsData = [];
     try {
-      console.log('Fetching executions from n8n...');
       const executionsResponse = await fetch(`${baseUrl}/api/v1/executions?limit=100`, {
         headers,
         method: 'GET'
       });
       
-      console.log(`Executions response status: ${executionsResponse.status}`);
-      
       if (executionsResponse.ok) {
         const executionsResponseData = await executionsResponse.json();
-        console.log('Executions response data:', JSON.stringify(executionsResponseData, null, 2));
         
         // Handle different response formats
         if (Array.isArray(executionsResponseData)) {
@@ -123,11 +103,7 @@ export async function GET() {
         } else {
           throw new Error('Unexpected executions response format');
         }
-        
-        console.log(`Found ${executionsData.length} executions`);
       } else {
-        console.log('Failed to fetch executions, trying alternative endpoint...');
-        
         // Try alternative executions endpoint
         const altExecutionsResponse = await fetch(`${baseUrl}/api/executions?limit=100`, {
           headers,
@@ -144,8 +120,6 @@ export async function GET() {
           } else {
             throw new Error('Alternative executions endpoint also has unexpected format');
           }
-          
-          console.log(`Found ${executionsData.length} executions via alternative endpoint`);
         } else {
           throw new Error('Failed to fetch executions from n8n');
         }
@@ -275,7 +249,6 @@ export async function GET() {
       isRealData: true
     };
 
-    console.log('Real n8n metrics:', metrics);
     return json(metrics);
   } catch (error) {
     console.error('Error fetching n8n metrics:', error);

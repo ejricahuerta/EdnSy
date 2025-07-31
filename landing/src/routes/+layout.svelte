@@ -11,35 +11,47 @@
   import * as Sidebar from "$lib/components/ui/sidebar/index.js";
   import ContentHeader from "$lib/components/app/content/header.svelte";
   import SidebarLayout from "$lib/components/app/sidebar/layout.svelte";
-  import type { LayoutData } from './$types';
+  import type { LayoutData } from "./$types";
 
   let { children, data } = $props<{ data: LayoutData }>();
   let user = $state<any>(data.user);
+  let scrolled = $state(false);
+
+  // Handle scroll events for navigation background
+  if (browser) {
+    const handleScroll = () => {
+      scrolled = window.scrollY > 10;
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    // Cleanup will be handled by the browser when the page unloads
+  }
 
   async function handleLogout() {
     const { error } = await supabase.auth.signOut();
     if (!error) {
-      goto('/login');
+      goto("/login");
     }
   }
-  
+
   // Update user state when auth state changes (only on client)
   if (browser) {
     supabase.auth.onAuthStateChange((event, session) => {
       user = session?.user || null;
     });
   }
-  
+
   const posthogApiKey = import.meta.env.VITE_POSTHOG_API_KEY;
 
   // Validate PostHog API key
   if (!posthogApiKey) {
-    console.warn('⚠️ PostHog API key not found. Analytics will be disabled.');
+    console.warn("⚠️ PostHog API key not found. Analytics will be disabled.");
   }
 
   if (browser && posthogApiKey) {
-    beforeNavigate(() => posthog.capture('$pageleave'));
-    afterNavigate(() => posthog.capture('$pageview'));
+    beforeNavigate(() => posthog.capture("$pageleave"));
+    afterNavigate(() => posthog.capture("$pageview"));
   }
 </script>
 
@@ -110,52 +122,48 @@
       ]
     }
   </script>
-
 </svelte:head>
 
 <!-- NAVIGATION BAR - Only show on landing page and non-demo pages -->
-{#if $page.url.pathname === '/' || ($page.url.pathname !== '/login' && !$page.url.pathname.startsWith('/demos') && $page.url.pathname !== '/logout')}
-<nav
-  class="sticky top-0 z-50 w-full mx-auto bg-white border-b border-gray-200"
->
-  <div
-    class="max-w-7xl mx-auto flex items-center justify-between px-6 sm:px-16 py-4"
+{#if $page.url.pathname === "/" || ($page.url.pathname !== "/login" && !$page.url.pathname.startsWith("/demos") && $page.url.pathname !== "/logout")}
+  <nav
+    class="fixed top-0 z-50 w-full mx-auto transition-all duration-300 {scrolled
+      ? 'bg-white/50 backdrop-blur-md border-b border-white/10 shadow-sm'
+      : 'bg-transparent border-transparent'}"
   >
-    <a href="/" class="flex items-center gap-3 font-heading">
-      <div class="font-heading text-2xl font-bold tracking-tight text-blue-600">
-        Ed <span class="text-blue-600">&</span> Sy
-      </div>
-    </a>
-    <div class="flex items-center gap-4">
-      {#if user}
-        <a 
-          href="/demos" 
-          class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-        >
-          <LayoutPanelLeft class="w-4 h-4" />
-          <span class="hidden sm:inline">Services</span>
-        </a>
-        <button
-          onclick={handleLogout}
-          class="flex items-center gap-2 text-gray-600 hover:text-red-600 px-3 py-2 rounded-lg font-medium transition-colors"
-        >
-          <LogOut class="w-4 h-4" />
-          <span class="hidden sm:inline">Logout</span>
-        </button>
-      {:else}
-        <button
-          data-tally-open="3NQ6pB"
-          data-tally-overlay="1"
-          class="hidden sm:inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 rounded-lg transition-colors"
-          >Contact us</button
-        >
-      {/if}
+         <div class=" mx-auto flex items-center justify-between px-6 sm:px-16 py-4">
+       <a href="/" class="flex items-center gap-3 font-heading sm:justify-start justify-center flex-1">
+         <div
+           class="font-heading text-2xl font-bold tracking-tight"
+         >
+           <span class="{scrolled ? 'text-primary' : 'text-white'}">Ed</span>
+           <span class="text-primary">&</span>
+           <span class="{scrolled ? 'text-primary' : 'text-white'}">Sy</span>
+         </div>
+       </a>
+             <div class="flex items-center gap-4">
+         {#if user}
+                      <a
+              href="/demos"
+              class="flex items-center gap-2 {scrolled ? 'bg-primary hover:bg-primary/80 text-white' : 'bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white'} px-4 py-2 rounded-lg font-medium transition-all duration-200 border {scrolled ? 'border-primary/20' : 'border-white/20'}"
+            >
+              <LayoutPanelLeft class="w-4 h-4" />
+              <span class="hidden sm:inline">Services</span>
+            </a>
+            <button
+              onclick={handleLogout}
+              class="flex items-center gap-2 {scrolled ? 'text-neutral-700 hover:text-red-600' : 'text-white/80 hover:text-red-300'} px-3 py-2 rounded-lg font-medium transition-all duration-200 cursor-pointer {scrolled ? 'hover:bg-gray-100' : 'hover:bg-white/10'}"
+            >
+              <LogOut class="w-4 h-4" />
+              <span class="hidden sm:inline">Logout</span>
+            </button>
+         {/if}
+       </div>
     </div>
-  </div>
-</nav>
+  </nav>
 {/if}
 
-{#if user && $page.url.pathname.startsWith('/demos') && $page.url.pathname !== '/logout'}
+{#if user && $page.url.pathname.startsWith("/demos") && $page.url.pathname !== "/logout"}
   <!-- Authenticated Layout with Sidebar - Only for Demos -->
   <div class="[--header-height:calc(--spacing(14))]">
     <Sidebar.Provider class="flex flex-col">
@@ -168,133 +176,164 @@
       </div>
     </Sidebar.Provider>
   </div>
-{:else if user && $page.url.pathname !== '/login'}
+{:else if user && $page.url.pathname !== "/login"}
   <!-- Authenticated user on non-demo pages - Clean layout -->
   {@render children()}
 {:else}
   <!-- Public Layout without Sidebar -->
   {@render children()}
-  
-  
-  {#if $page.url.pathname !== '/login' && $page.url.pathname !== '/logout'}
-  <!-- FOOTER (moved from +page.svelte) -->
-  <footer
-    class="mx-auto px-6 sm:px-16 py-20 h-full mt-20 text-center bg-slate-900"
-  >
-  <div class="mx-auto max-w-2xl lg:max-w-none">
-    <div class="grid grid-cols-1 gap-x-8 gap-y-8 lg:grid-cols-1">
-      <nav>
-        <ul class="grid grid-cols-2 sm:grid-cols-3 justify-between">
-          <li>
-            <div
-              class="font-display font-semibold tracking-wider text-white/70"
-            >
-              Solutions
+
+  {#if $page.url.pathname !== "/login" && $page.url.pathname !== "/logout"}
+         <!-- FOOTER -->
+     <footer class="bg-slate-900 text-white">
+       <div class="max-w-6xl mx-auto px-6 sm:px-16 py-16">
+                   <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <!-- Company Info -->
+            <div class="space-y-4">
+              <div class="font-display text-2xl font-bold">
+                <span class="text-white">Ed</span>
+                <span class="text-primary">&</span>
+                <span class="text-white">Sy</span>
+              </div>
+              <p class="text-white/70 text-sm leading-relaxed">
+                Helping small business owners get their time back through smart automation.
+              </p>
             </div>
-            <ul class="mt-4 text-sm text-white/90">
-              <li class="mt-4">
-                <a class="transition hover:text-neutral-700" href="/#services"
-                  >Automation</a
-                >
-              </li>
-              <li class="mt-4">
-                <a class="transition hover:text-neutral-700" href="/#services"
-                  >AI Voice & Chat</a
-                >
-              </li>
-              <li class="mt-4">
-                <a class="transition hover:text-neutral-700" href="/#services"
-                  >Data Insights</a
-                >
-              </li>
-              <li class="mt-4">
-                <a class="transition hover:text-neutral-700" href="/#services"
-                  >Custom AI</a
-                >
-              </li>
-            </ul>
-          </li>
-          <li>
-            <div
-              class="font-display font-semibold tracking-wider text-white/70"
-            >
-              Company
+
+                         <!-- Solutions -->
+             <div class="space-y-4">
+               <h3 class="font-semibold text-white">Solutions</h3>
+               <ul class="space-y-2 text-sm">
+                 <li>
+                   <button
+                     onclick={() => {
+                       if (user) {
+                         goto('/demos');
+                       } else {
+                         goto('/login');
+                       }
+                     }}
+                     class="text-white/70 hover:text-white transition-colors cursor-pointer"
+                   >
+                     Business Automation
+                   </button>
+                 </li>
+                 <li>
+                   <button
+                     onclick={() => {
+                       if (user) {
+                         goto('/demos');
+                       } else {
+                         goto('/login');
+                       }
+                     }}
+                     class="text-white/70 hover:text-white transition-colors cursor-pointer"
+                   >
+                     AI Voice & Chat
+                   </button>
+                 </li>
+                 <li>
+                   <button
+                     onclick={() => {
+                       if (user) {
+                         goto('/demos');
+                       } else {
+                         goto('/login');
+                       }
+                     }}
+                     class="text-white/70 hover:text-white transition-colors cursor-pointer"
+                   >
+                     Data Insights
+                   </button>
+                 </li>
+                 <li>
+                   <button
+                     onclick={() => {
+                       if (user) {
+                         goto('/demos');
+                       } else {
+                         goto('/login');
+                       }
+                     }}
+                     class="text-white/70 hover:text-white transition-colors cursor-pointer"
+                   >
+                     Custom AI
+                   </button>
+                 </li>
+               </ul>
+             </div>
+
+            <!-- Quick Links -->
+            <div class="space-y-4">
+              <h3 class="font-semibold text-white">Quick Links</h3>
+              <ul class="space-y-2 text-sm">
+                <li>
+                  <a href="/#team" class="text-white/70 hover:text-white transition-colors">
+                    Our Story
+                  </a>
+                </li>
+                <li>
+                  <button
+                    data-tally-open="3NQ6pB"
+                    data-tally-overlay="1"
+                    class="text-white/70 hover:text-white transition-colors cursor-pointer"
+                  >
+                    Contact Us
+                  </button>
+                </li>
+              </ul>
             </div>
-            <ul class="mt-4 text-sm text-white/90">
-              <li class="mt-4">
-                <a class="transition hover:text-neutral-700" href="/#team">
-                  Our Story</a
-                >
-              </li>
-              <li class="mt-4">
-                <button
-                  data-tally-open="3NQ6pB"
-                  data-tally-overlay="1"
-                  class="transition hover:text-neutral-700 cursor-pointer"
-                  >Contact Us</button
-                >
-              </li>
-              <li class="mt-4">
-                <a class="transition hover:text-neutral-700" href="/privacy"
-                  >Privacy</a
-                >
-              </li>
-              <li class="mt-4">
-                <a class="transition hover:text-neutral-700" href="/terms"
-                  >Terms</a
-                >
-              </li>
-            </ul>
-          </li>
-          <li>
-            <div
-              class="font-display font-semibold tracking-wider text-white/70"
-            >
-              Connect
+
+            <!-- Legal -->
+            <div class="space-y-4">
+              <h3 class="font-semibold text-white">Legal</h3>
+              <ul class="space-y-2 text-sm">
+                <li>
+                  <a href="/privacy" class="text-white/70 hover:text-white transition-colors">
+                    Privacy Policy
+                  </a>
+                </li>
+                <li>
+                  <a href="/terms" class="text-white/70 hover:text-white transition-colors">
+                    Terms of Service
+                  </a>
+                </li>
+              </ul>
             </div>
-            <ul class="mt-4 text-sm text-white/90">
-              <li class="mt-4">
-                <a
-                  class="transition hover:text-neutral-700"
-                  href="https://www.instagram.com/dev.exd/">Ed's Instagram</a
-                >
-              </li>
-              <li class="mt-4">
-                <a
-                  class="transition hover:text-neutral-700"
-                  href="https://www.linkedin.com/in/syronsuerte/"
-                  >Sy's LinkedIn</a
-                >
-              </li>
-            </ul>
-            <div class="flex flex-col items-center gap-2">
-              <a
-                aria-label="Home"
-                href="/"
-                class="flex flex-col items-center gap-2"
-              >
-                <div
-                  class="hidden sm:block font-display text-xl font-bold text-blue-700 tracking-tight mt-6"
-                >
-                  Ed <span class="text-blue-600">&</span> Sy
-                </div>
-              </a>
-              <p class="text-sm text-neutral-700">© ednsy.com 2025</p>
-            </div>
-          </li>
-        </ul>
-      </nav>
-    </div>
-  </div>
-</footer>
-<button
-  data-tally-open="3NQ6pB"
-  data-tally-overlay="1"
-  data-tally-emoji-text="👋"
-  data-tally-emoji-animation="wave"
-  data-tally-auto-close="3000"
-  class="fixed bottom-6 right-6 z-50 bg-blue-600 text-white text-lg font-bold px-6 py-4 rounded-full shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-  >Hi!👋</button
->
+          </div>
+
+         <!-- Bottom Bar -->
+         <div class="border-t border-white/10 mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center">
+           <p class="text-white/60 text-sm">© 2025 Ed&Sy. All rights reserved.</p>
+           <div class="flex items-center gap-4 mt-4 sm:mt-0">
+             <a
+               href="https://www.instagram.com/dev.exd/"
+               class="text-white/60 hover:text-white transition-colors text-sm"
+               target="_blank"
+               rel="noopener"
+             >
+               Ed's Instagram
+             </a>
+             <a
+               href="https://www.linkedin.com/in/syronsuerte/"
+               class="text-white/60 hover:text-white transition-colors text-sm"
+               target="_blank"
+               rel="noopener"
+             >
+               Sy's LinkedIn
+             </a>
+           </div>
+         </div>
+       </div>
+     </footer>
+    <button
+      data-tally-open="3NQ6pB"
+      data-tally-overlay="1"
+      data-tally-emoji-text="👋"
+      data-tally-emoji-animation="wave"
+      data-tally-auto-close="3000"
+      class="fixed bottom-6 right-6 z-50 bg-primary text-white text-lg font-bold px-6 py-4 rounded-full shadow-lg hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-primary transition cursor-pointer"
+      >Hi!👋</button
+    >
   {/if}
 {/if}

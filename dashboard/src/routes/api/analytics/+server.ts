@@ -14,8 +14,6 @@ export async function GET() {
       'User-Agent': 'EdnSy-Dashboard/1.0'
     };
 
-    console.log(`Attempting to connect to PostHog for project: ${POSTHOG_PROJECT_ID}`);
-
     // Get basic metrics for the last 30 days
     const endDate = new Date();
     const startDate = new Date();
@@ -26,14 +24,65 @@ export async function GET() {
       headers
     });
 
-    console.log(`PostHog total users response status: ${totalUsersResponse.status}`);
-
     if (!totalUsersResponse.ok) {
-      throw new Error('PostHog API is not accessible');
+      // Return mock data instead of throwing error
+      return json({
+        totalUsers: 1250,
+        newUsers: 89,
+        sessions: 2100,
+        pageViews: 4500,
+        bounceRate: 45.2,
+        averageSessionDuration: 180.5,
+        topPages: [
+          {
+            path: '/',
+            title: 'Homepage',
+            domain: 'ednsy.com',
+            views: 1200,
+            uniqueViews: 960,
+            averageTimeOnPage: 120.5,
+            bounceRate: 45.2
+          },
+          {
+            path: '/dashboard',
+            title: 'Dashboard',
+            domain: 'ednsy.com',
+            views: 850,
+            uniqueViews: 680,
+            averageTimeOnPage: 300.0,
+            bounceRate: 25.1
+          }
+        ],
+        trafficSources: [
+          {
+            source: 'google.com',
+            medium: 'organic',
+            sessions: 1260,
+            users: 750,
+            bounceRate: 42.1,
+            conversionRate: 2.3
+          },
+          {
+            source: 'direct',
+            medium: 'none',
+            sessions: 630,
+            users: 375,
+            bounceRate: 35.2,
+            conversionRate: 3.1
+          }
+        ],
+        userRetention: {
+          day1: 85.5,
+          day7: 45.2,
+          day14: 32.1,
+          day30: 18.7
+        },
+        isRealData: false,
+        error: 'PostHog API not accessible - showing mock data'
+      });
     }
     
     const totalUsersData = await totalUsersResponse.json();
-    console.log('PostHog response:', JSON.stringify(totalUsersData, null, 2));
 
     // Get new users (first time pageviews) - simplified
     const newUsersResponse = await fetch(`${baseUrl}/api/projects/${POSTHOG_PROJECT_ID}/insights/trend/?events=%5B%7B%22id%22%3A%22%24pageview%22%2C%22type%22%3A%22events%22%7D%5D&date_from=${startDate.toISOString().split('T')[0]}&date_to=${endDate.toISOString().split('T')[0]}`, {
@@ -153,7 +202,6 @@ export async function GET() {
       isRealData: true
     };
 
-    console.log('Real PostHog metrics:', metrics);
     return json(metrics);
   } catch (error) {
     console.error('Error fetching PostHog analytics metrics:', error);
