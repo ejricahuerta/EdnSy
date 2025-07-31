@@ -105,18 +105,18 @@
     try {
       const response = await fetch('/api/credits/test');
       const testResult = await response.json();
-      console.log('User setup result:', testResult);
+      // console.log('User setup result:', testResult);
     } catch (error) {
       console.error('Error setting up user:', error);
     }
     
     // Load initial credits
     currentCredits = await CreditService.getUserCredits();
-    console.log('Initial credits:', currentCredits);
+    // console.log('Initial credits:', currentCredits);
     
     // Test service info retrieval
     const serviceInfo = await CreditService.getServiceInfo('automation-tasks');
-    console.log('Service info test:', serviceInfo);
+    // console.log('Service info test:', serviceInfo);
 
     // Add event listeners for browser close/unload
     const handleBeforeUnload = async (event: BeforeUnloadEvent) => {
@@ -128,7 +128,7 @@
             lastActivity: new Date().toISOString(),
             reason: 'browser_closed'
           });
-          console.log('Demo session completed due to browser close');
+          // console.log('Demo session completed due to browser close');
         } catch (error) {
           console.error('Error completing session on browser close:', error);
         }
@@ -144,7 +144,7 @@
             lastActivity: new Date().toISOString(),
             reason: 'page_navigation'
           });
-          console.log('Demo session completed due to page navigation');
+          // console.log('Demo session completed due to page navigation');
         } catch (error) {
           console.error('Error completing session on page hide:', error);
         }
@@ -160,7 +160,7 @@
             lastActivity: new Date().toISOString(),
             reason: 'tab_switch'
           });
-          console.log('Demo session completed due to tab switch');
+          // console.log('Demo session completed due to tab switch');
         } catch (error) {
           console.error('Error completing session on visibility change:', error);
         }
@@ -191,7 +191,7 @@
           reason: 'internal_navigation',
           destination: to?.url.pathname || 'unknown'
         });
-        console.log('Demo session completed due to internal navigation');
+        // console.log('Demo session completed due to internal navigation');
       } catch (error) {
         console.error('Error completing session on navigation:', error);
       }
@@ -249,13 +249,13 @@
 
   // Watch for input changes to validate
   $effect(() => {
-    console.log("$effect triggered:", { website, isTraining, isDemoRunning });
+    // console.log("$effect triggered:", { website, isTraining, isDemoRunning });
     if (website && !isTraining && !isDemoRunning) {
       websiteValidation = validateWebsiteUrl(website);
-      console.log("Validation result:", websiteValidation);
+      // console.log("Validation result:", websiteValidation);
     } else if (!website) {
       websiteValidation = "";
-      console.log("URL is empty, clearing validation");
+      // console.log("URL is empty, clearing validation");
     }
   });
 
@@ -283,7 +283,7 @@
   });
 
   async function startDemo() {
-    console.log("startDemo called", { isDemoRunning, isTraining, website, emailAddress, phone });
+    // console.log("startDemo called", { isDemoRunning, isTraining, website, emailAddress, phone });
     if (isDemoRunning || isTraining) return;
 
     try {
@@ -369,7 +369,7 @@
       
       currentSessionId = sessionResult.sessionId || null;
       currentCredits = await CreditService.getUserCredits();
-      console.log('Credits after training:', currentCredits);
+      // console.log('Credits after training:', currentCredits);
       
       // Ensure UI updates are applied
       await tick();
@@ -419,7 +419,7 @@
         
         // Update current credits after deduction
         currentCredits = await CreditService.getUserCredits();
-        console.log('Credits after initial response deduction:', currentCredits);
+        // console.log('Credits after initial response deduction:', currentCredits);
         
         // Ensure UI updates are applied
         await tick();
@@ -483,7 +483,7 @@
         throw new Error(`Welcome message failed: ${response.status}`);
       }
       
-      console.log("Welcome message sent successfully");
+      // console.log("Welcome message sent successfully");
       const result = await response.json();
       
       // Display the welcome message response in chat
@@ -555,7 +555,7 @@
         
         // Update current credits after deduction
         currentCredits = await CreditService.getUserCredits();
-        console.log('Credits after response deduction:', currentCredits);
+        // console.log('Credits after response deduction:', currentCredits);
         
         // Ensure UI updates are applied
         await tick();
@@ -625,6 +625,8 @@
                     </Button>
                   </div>
                 </div>
+                
+                
             </CardHeader>
 
             <CardContent class="p-0 flex-1 flex flex-col min-h-0">
@@ -924,7 +926,10 @@
                   </p>
                 </div>
               </div>
-              <div class="flex items-center gap-2 mt-2 flex-wrap">
+              
+                              
+              
+              <div class="flex items-center gap-2 mt-3 flex-wrap">
                 <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-purple-200 text-purple-700 hover:bg-purple-50 transition-colors">
                   <MessageSquare class="w-4 h-4" />
                   <span>Lead Capture</span>
@@ -1218,7 +1223,7 @@
     </DialogHeader>
     <DialogFooter>
       <DialogClose asChild>
-        <Button on:click={() => showDemoReadyDialog = false}>Start Chatting</Button>
+        <Button onclick={() => showDemoReadyDialog = false}>Start Chatting</Button>
       </DialogClose>
     </DialogFooter>
   </DialogContent>

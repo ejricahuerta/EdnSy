@@ -69,7 +69,7 @@
 				<DropdownMenu.Item asChild>
 					<button 
 						class="w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground cursor-pointer"
-						on:click={() => goto('/logout')}
+						onclick={() => goto('/logout')}
 					>
 						<LogOutIcon class="size-4" />
 						Log out

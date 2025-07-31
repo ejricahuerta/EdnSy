@@ -161,7 +161,7 @@
       <button 
         type="button" 
         class="bg-[#25d366] hover:bg-[#128c7e] text-white rounded-full p-2 transition-colors duration-150 {isListening ? 'animate-pulse' : ''}" 
-        on:click={isListening ? stopVoiceRecognition : startVoiceRecognition}
+        onclick={isListening ? stopVoiceRecognition : startVoiceRecognition}
         aria-label="Voice input"
         disabled={!recognition}
       >

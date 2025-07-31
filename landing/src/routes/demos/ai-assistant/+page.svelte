@@ -502,6 +502,8 @@
                   </Button>
                 </div>
               </div>
+              
+                              
             </CardHeader>
 
             <CardContent class="p-0 flex-1 flex flex-col min-h-0">
@@ -693,7 +695,10 @@
                   </p>
                 </div>
               </div>
-              <div class="flex items-center gap-2 mt-2 flex-wrap">
+              
+                              
+              
+              <div class="flex items-center gap-2 mt-3 flex-wrap">
                 <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-blue-200 text-blue-700 hover:bg-blue-50 transition-colors">
                   <MessageCircle class="w-4 h-4" />
                   <span>Chat</span>
@@ -930,7 +935,7 @@
     </DialogHeader>
     <DialogFooter>
       <DialogClose asChild>
-        <Button on:click={() => showDemoReadyDialog = false}>Start Chatting</Button>
+        <Button onclick={() => showDemoReadyDialog = false}>Start Chatting</Button>
       </DialogClose>
     </DialogFooter>
   </DialogContent>

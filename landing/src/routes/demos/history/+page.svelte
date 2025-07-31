@@ -138,7 +138,7 @@
         <h3 class="text-lg font-medium text-gray-900 mb-2">Error loading history</h3>
         <p class="text-gray-600">{error}</p>
         <button
-          on:click={loadDemoHistory}
+          onclick={loadDemoHistory}
           class="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
         >
           Try Again

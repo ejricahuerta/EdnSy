@@ -235,6 +235,8 @@ What would you like to explore first?`;
                   </Button>
                 </div>
               </div>
+              
+
             </CardHeader>
 
             <CardContent class="p-0 flex-1 flex flex-col min-h-0">
@@ -328,7 +330,10 @@ What would you like to explore first?`;
                   </p>
                 </div>
               </div>
-              <div class="flex items-center gap-2 mt-2 flex-wrap">
+              
+
+              
+              <div class="flex items-center gap-2 mt-3 flex-wrap">
                 <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-orange-200 text-orange-700 hover:bg-orange-50 transition-colors">
                   <BarChart3 class="w-4 h-4" />
                   <span>Analytics</span>

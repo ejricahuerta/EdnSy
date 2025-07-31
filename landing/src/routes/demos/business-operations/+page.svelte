@@ -384,6 +384,8 @@ What would you like to manage first?`;
                   </Button>
                 </div>
               </div>
+              
+
             </CardHeader>
 
             <CardContent class="p-0 flex-1 flex flex-col min-h-0">
@@ -469,7 +471,10 @@ What would you like to manage first?`;
                   </p>
                 </div>
               </div>
-              <div class="flex items-center gap-2 mt-2 flex-wrap">
+              
+
+              
+              <div class="flex items-center gap-2 mt-3 flex-wrap">
                 <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-green-200 text-green-700 hover:bg-green-50 transition-colors">
                   <Truck class="w-4 h-4" />
                   <span>Dispatch</span>

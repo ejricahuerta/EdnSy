@@ -139,7 +139,7 @@
         <!-- Google Login -->
         <button
           disabled={isLoading}
-          on:click={loginWithGoogle}
+          onclick={loginWithGoogle}
           class="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           type="button"
         >

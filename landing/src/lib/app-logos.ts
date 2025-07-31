@@ -8,7 +8,7 @@ export const scatteredAppLogos: AppLogo[] = [
   { src: '/logos/icons8-telegram-app.svg', alt: 'Telegram' },
   { src: '/logos/icons8-notion.svg', alt: 'Notion' },
   { src: '/logos/icons8-gmail.svg', alt: 'Gmail' },
-  { src: '/logos/icons8-stripe.svg', alt: 'Stripe' },
+  { src: '/logos/stripe.png', alt: 'Stripe' },
   { src: '/logos/icons8-google-maps.svg', alt: 'Google Maps' },
   { src: '/logos/icons8-google-sheets.svg', alt: 'Google Sheets' },
   { src: '/logos/icons8-google-drive.svg', alt: 'Google Drive' },

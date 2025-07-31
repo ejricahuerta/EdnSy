@@ -172,7 +172,7 @@
             {#each services as service}
               <div 
                 class="p-4 border rounded-lg cursor-pointer transition-all duration-200 hover:shadow-md {selectedService === service.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}"
-                on:click={() => selectService(service.id)}
+                onclick={() => selectService(service.id)}
               >
                 <div class="flex items-center gap-3">
                   <div class={`p-2 rounded-lg ${service.color} text-white`}>
@@ -208,7 +208,7 @@
             {#each consultants as consultant}
               <div 
                 class="p-4 border rounded-lg cursor-pointer transition-all duration-200 hover:shadow-md {consultantName === consultant.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}"
-                on:click={() => selectConsultant(consultant.id)}
+                onclick={() => selectConsultant(consultant.id)}
               >
                 <div class="flex items-center gap-3">
                   <div class="text-2xl">{consultant.avatar}</div>
@@ -264,7 +264,7 @@
                 {#each timeSlots as time}
                   <button
                     class="p-2 text-sm border rounded-md transition-colors {selectedTime === time ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-300 hover:border-gray-400'}"
-                    on:click={() => selectedTime = time}
+                    onclick={() => selectedTime = time}
                   >
                     {time}
                   </button>
@@ -298,7 +298,7 @@
 
               <Button 
                 class="w-full" 
-                on:click={openBookingModal}
+                onclick={openBookingModal}
                 disabled={!selectedService || !consultantName || !selectedDate || !selectedTime}
               >
                 <Calendar class="w-4 h-4 mr-2" />
@@ -454,10 +454,10 @@
           </div>
         </div>
         <div class="flex gap-3">
-          <Button variant="outline" on:click={() => showBookingModal = false}>
+          <Button variant="outline" onclick={() => showBookingModal = false}>
             Cancel
           </Button>
-          <Button on:click={confirmBooking}>
+          <Button onclick={confirmBooking}>
             <CheckCircle class="w-4 h-4 mr-2" />
             Confirm Booking
           </Button>
