@@ -641,13 +641,14 @@
                         <Label for="website-mobile" class="text-sm font-medium">Your Website</Label>
                       </div>
                       <div class="space-y-2">
-                        <Input
-                          id="website-mobile"
-                          type="url"
-                          placeholder="https://yourcompany.com"
-                          bind:value={website}
-                          class="w-full text-sm"
-                        />
+                                                 <Input
+                           id="website-mobile"
+                           type="url"
+                           placeholder="https://yourcompany.com"
+                           bind:value={website}
+                           class="w-full text-sm"
+                           disabled={isDemoRunning || isTraining}
+                         />
                         {#if websiteValidation}
                           <p class="text-xs text-red-500 flex items-center gap-1">
                             <AlertCircle class="w-3 h-3" />
@@ -673,13 +674,14 @@
                         <Label for="email-mobile" class="text-sm font-medium">Your Email</Label>
                       </div>
                       <div class="space-y-2">
-                        <Input
-                          id="email-mobile"
-                          type="email"
-                          placeholder="your@email.com"
-                          bind:value={emailAddress}
-                          class="w-full text-sm"
-                        />
+                                                 <Input
+                           id="email-mobile"
+                           type="email"
+                           placeholder="your@email.com"
+                           bind:value={emailAddress}
+                           class="w-full text-sm"
+                           disabled={isDemoRunning || isTraining}
+                         />
                         {#if emailValidation}
                           <p class="text-xs text-red-500 flex items-center gap-1">
                             <AlertCircle class="w-3 h-3" />
@@ -705,13 +707,14 @@
                         <Label for="phone-mobile" class="text-sm font-medium">Your Phone</Label>
                       </div>
                       <div class="space-y-2">
-                        <Input
-                          id="phone-mobile"
-                          type="tel"
-                          placeholder="+1 (555) 123-4567"
-                          bind:value={phone}
-                          class="w-full text-sm"
-                        />
+                                                 <Input
+                           id="phone-mobile"
+                           type="tel"
+                           placeholder="+1 (555) 123-4567"
+                           bind:value={phone}
+                           class="w-full text-sm"
+                           disabled={isDemoRunning || isTraining}
+                         />
                         {#if phoneValidation}
                           <p class="text-xs text-red-500 flex items-center gap-1">
                             <AlertCircle class="w-3 h-3" />
@@ -1037,13 +1040,14 @@
             <Label for="website" class="text-sm font-medium">Your Website</Label>
               </div>
           <div class="space-y-2">
-            <Input
-              id="website"
-              type="url"
-              placeholder="https://yourcompany.com"
-              bind:value={website}
-              class="w-full text-base"
-            />
+                         <Input
+               id="website"
+               type="url"
+               placeholder="https://yourcompany.com"
+               bind:value={website}
+               class="w-full text-base"
+               disabled={isDemoRunning || isTraining}
+             />
             {#if websiteValidation}
               <p class="text-xs text-red-500 flex items-center gap-1">
                 <AlertCircle class="w-3 h-3" />
@@ -1069,13 +1073,14 @@
             <Label for="email" class="text-sm font-medium">Your Email</Label>
       </div>
           <div class="space-y-2">
-            <Input
-              id="email"
-              type="email"
-              placeholder="your@email.com"
-              bind:value={emailAddress}
-              class="w-full text-base"
-            />
+                         <Input
+               id="email"
+               type="email"
+               placeholder="your@email.com"
+               bind:value={emailAddress}
+               class="w-full text-base"
+               disabled={isDemoRunning || isTraining}
+             />
             {#if emailValidation}
               <p class="text-xs text-red-500 flex items-center gap-1">
                 <AlertCircle class="w-3 h-3" />
@@ -1101,13 +1106,14 @@
             <Label for="phone" class="text-sm font-medium">Your Phone</Label>
             </div>
           <div class="space-y-2">
-            <Input
-              id="phone"
-              type="tel"
-              placeholder="+1 (555) 123-4567"
-              bind:value={phone}
-              class="w-full text-base"
-            />
+                         <Input
+               id="phone"
+               type="tel"
+               placeholder="+1 (555) 123-4567"
+               bind:value={phone}
+               class="w-full text-base"
+               disabled={isDemoRunning || isTraining}
+             />
             {#if phoneValidation}
               <p class="text-xs text-red-500 flex items-center gap-1">
                 <AlertCircle class="w-3 h-3" />

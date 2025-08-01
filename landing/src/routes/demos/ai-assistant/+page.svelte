@@ -524,6 +524,7 @@
                           placeholder="https://yourcompany.com"
                           bind:value={website}
                           class="w-full text-sm"
+                          disabled={isDemoRunning || isTraining}
                         />
                         {#if websiteValidation}
                           <p class="text-xs text-red-500 flex items-center gap-1">
@@ -819,6 +820,7 @@
               placeholder="https://yourcompany.com"
               bind:value={website}
               class="w-full text-base"
+              disabled={isDemoRunning || isTraining}
             />
             {#if websiteValidation}
               <p class="text-xs text-red-500 flex items-center gap-1">
