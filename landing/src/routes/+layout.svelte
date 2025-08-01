@@ -16,6 +16,21 @@
   let { children, data } = $props<{ data: LayoutData }>();
   let user = $state<any>(data.user);
   let scrolled = $state(false);
+  let isAnimating = $state(false);
+
+  // Animate wave emoji every 5 seconds
+  if (browser) {
+    $effect(() => {
+      const interval = setInterval(() => {
+        isAnimating = true;
+        setTimeout(() => {
+          isAnimating = false;
+        }, 1000); // Animation duration
+      }, 5000); // Trigger every 5 seconds
+
+      return () => clearInterval(interval);
+    });
+  }
 
   // Handle scroll events for navigation background
   if (browser) {
@@ -136,9 +151,9 @@
          <div
            class="font-heading text-2xl font-bold tracking-tight drop-shadow-lg"
          >
-           <span class="{scrolled ? 'text-blue-600' : 'text-white'}">Ed</span>
-           <span class="{scrolled ? 'text-blue-600' : 'text-primary'}">&</span>
-           <span class="{scrolled ? 'text-blue-600' : 'text-white'}">Sy</span>
+           <span class="{scrolled ? 'text-blue-700' : 'text-white'}">Ed</span>
+           <span class="{scrolled ? 'text-blue-700' : 'text-primary'}">&</span>
+           <span class="{scrolled ? 'text-blue-700' : 'text-white'}">Sy</span>
          </div>
        </a>
              <div class="flex items-center gap-4">
@@ -332,8 +347,8 @@
       data-tally-emoji-text="👋"
       data-tally-emoji-animation="wave"
       data-tally-auto-close="3000"
-      class="fixed bottom-6 right-6 z-50 bg-primary text-white text-lg font-bold px-6 py-4 rounded-full shadow-lg hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-primary transition cursor-pointer"
-      >Hi!👋</button
+      class="fixed bottom-6 right-6 z-50 bg-white text-blue-700  border-1 border-white/10 text-lg font-bold px-6 py-4 rounded-full shadow-xl hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-300 cursor-pointer"
+      >Hi!<span class={isAnimating ? 'animate-bounce' : ''}>👋</span></button
     >
   {/if}
 {/if}

@@ -453,7 +453,8 @@
 <section
   class="min-h-screen flex items-center justify-center hero-bg bg-gray-900"
   role="banner"
-  aria-label="Hero section - Get your time back">
+  aria-label="Hero section - Get your time back"
+>
   <div class="relative z-10 px-8 sm:px-16 w-full">
     <div class="text-left max-w-4xl">
       <h1
@@ -468,7 +469,8 @@
         class="text-md sm:text-lg text-white/80 text-left max-w-2xl font-sans mb-8 sm:mb-10 drop-shadow-md"
         role="doc-subtitle"
       >
-      From emails to invoices, our AI powered solutions scales your business while you focus on what really matters.
+        From emails to invoices, our AI powered solutions scales your business
+        while you focus on what really matters.
       </p>
 
       <button
@@ -479,7 +481,7 @@
             goto("/login");
           }
         }}
-        class="bg-white text-black hover:bg-gray-100 font-bold px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg rounded-full shadow-lg mb-8 sm:mb-10 cursor-pointer hover:scale-105 transition-all duration-300"
+        class="bg-white text-blue-900 hover:bg-gray-100 font-bold px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg rounded-full shadow-lg mb-8 sm:mb-10 cursor-pointer hover:scale-105 transition-all duration-300"
       >
         How It Works →
       </button>
@@ -540,7 +542,7 @@
         Scale Your Business <br class="hidden sm:block" />
       </h2>
       <p class="text-lg sm:text-xl leading-relaxed text-neutral-700">
-      Reclaim Your Nights <span class="text-primary">&</span> Weekends
+        Reclaim Your Nights <span class="text-primary">&</span> Weekends
       </p>
     </div>
 
@@ -550,7 +552,9 @@
         class="min-h-[90vh] sm:min-h-[60vh] flex items-center justify-center relative game-nights-bg m-4"
       >
         <div class="relative z-10 px-8 sm:px-16 w-full">
-          <div class="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-8 lg:gap-12">
+          <div
+            class="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-8 lg:gap-12"
+          >
             <!-- Text Content -->
             <div class="text-center sm:text-left max-w-2xl lg:max-w-xl">
               <h3
@@ -594,7 +598,7 @@
               <Alert.Root
                 class="bg-white/10 backdrop-blur-sm border-white/20 text-left"
               >
-                <Calendar class="w-4 h-4 text-blue-600" />
+                <Calendar class="w-4 h-4 text-blue-900" />
                 <Alert.Title class="text-white text-sm font-semibold text-left"
                   >Smart Scheduling</Alert.Title
                 >
@@ -605,7 +609,7 @@
               <Alert.Root
                 class="bg-white/10 backdrop-blur-sm border-white/20 text-left"
               >
-                <Mail class="w-4 h-4 text-blue-600" />
+                <Mail class="w-4 h-4 text-blue-900" />
                 <Alert.Title class="text-white text-sm font-semibold text-left"
                   >Inbox Automation</Alert.Title
                 >
@@ -616,7 +620,7 @@
               <Alert.Root
                 class="bg-white/10 backdrop-blur-sm border-white/20 text-left"
               >
-                <Zap class="w-4 h-4 text-blue-600" />
+                <Zap class="w-4 h-4 text-blue-900" />
                 <Alert.Title class="text-white text-sm font-semibold text-left"
                   >Workflow Tools</Alert.Title
                 >
@@ -635,7 +639,7 @@
               <Alert.Root
                 class="bg-white/10 backdrop-blur-sm border-white/20 text-left"
               >
-                <Calendar class="w-4 h-4 text-blue-600" />
+                <Calendar class="w-4 h-4 text-blue-900" />
                 <Alert.Title class="text-white text-sm font-semibold text-left"
                   >Smart Scheduling</Alert.Title
                 >
@@ -646,7 +650,7 @@
               <Alert.Root
                 class="bg-white/10 backdrop-blur-sm border-white/20 text-left"
               >
-                <Mail class="w-4 h-4 text-blue-600" />
+                <Mail class="w-4 h-4 text-blue-900" />
                 <Alert.Title class="text-white text-sm font-semibold text-left"
                   >Inbox Automation</Alert.Title
                 >
@@ -657,7 +661,7 @@
               <Alert.Root
                 class="bg-white/10 backdrop-blur-sm border-white/20 text-left"
               >
-                <Zap class="w-4 h-4 text-blue-600" />
+                <Zap class="w-4 h-4 text-blue-900" />
                 <Alert.Title class="text-white text-sm font-semibold text-left"
                   >Workflow Tools</Alert.Title
                 >
@@ -674,7 +678,9 @@
         class="min-h-[90vh] sm:min-h-[60vh] flex items-center justify-center relative creative-hobbies-bg"
       >
         <div class="relative z-10 px-8 sm:px-16 w-full">
-          <div class="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-8 lg:gap-12">
+          <div
+            class="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-8 lg:gap-12"
+          >
             <!-- Text Content -->
             <div class="text-center sm:text-left max-w-2xl lg:max-w-xl">
               <h3
@@ -719,7 +725,7 @@
               <Alert.Root
                 class="bg-white/10 backdrop-blur-sm border-white/20 text-left"
               >
-                <DollarSign class="w-4 h-4 text-blue-600" />
+                <DollarSign class="w-4 h-4 text-blue-900" />
                 <Alert.Title class="text-white text-sm font-semibold text-left"
                   >Accounting Automation</Alert.Title
                 >
@@ -728,25 +734,27 @@
                 >
               </Alert.Root>
               <Alert.Root
-              class="bg-white/10 backdrop-blur-sm border-white/20 text-left"  >
-              <FileText class="w-4 h-4 text-blue-600" />
-              <Alert.Title class="text-white text-sm font-semibold text-left"
-                >Billing Workflows</Alert.Title
+                class="bg-white/10 backdrop-blur-sm border-white/20 text-left"
               >
-              <Alert.Description class="text-white/80 text-xs text-left"
-                >Invoices sent & tracked without lifting a finger</Alert.Description
+                <FileText class="w-4 h-4 text-blue-900" />
+                <Alert.Title class="text-white text-sm font-semibold text-left"
+                  >Billing Workflows</Alert.Title
+                >
+                <Alert.Description class="text-white/80 text-xs text-left"
+                  >Invoices sent & tracked without lifting a finger</Alert.Description
+                >
+              </Alert.Root>
+              <Alert.Root
+                class="bg-white/10 backdrop-blur-sm border-white/20 text-left"
               >
-            </Alert.Root>
-            <Alert.Root
-              class="bg-white/10 backdrop-blur-sm border-white/20 text-left" >
-              <Calculator class="w-4 h-4 text-blue-600" />
-              <Alert.Title class="text-white text-sm font-semibold text-left"
-                >Reconciliations</Alert.Title
-              >
-              <Alert.Description class="text-white/80 text-xs text-left"
-                >Real-time financial syncing</Alert.Description
-              >
-            </Alert.Root>
+                <Calculator class="w-4 h-4 text-blue-900" />
+                <Alert.Title class="text-white text-sm font-semibold text-left"
+                  >Reconciliations</Alert.Title
+                >
+                <Alert.Description class="text-white/80 text-xs text-left"
+                  >Real-time financial syncing</Alert.Description
+                >
+              </Alert.Root>
             </div>
 
             <!-- Mobile alerts - below text -->
@@ -759,7 +767,7 @@
               <Alert.Root
                 class="bg-white/10 backdrop-blur-sm border-white/20 text-left"
               >
-                <DollarSign class="w-4 h-4 text-blue-600" />
+                <DollarSign class="w-4 h-4 text-blue-900" />
                 <Alert.Title class="text-white text-sm font-semibold text-left"
                   >Accounting Automation</Alert.Title
                 >
@@ -768,27 +776,27 @@
                 >
               </Alert.Root>
               <Alert.Root
-              class="bg-white/10 backdrop-blur-sm border-white/20 text-left"
-            >
-              <FileText class="w-4 h-4 text-blue-600" />
-              <Alert.Title class="text-white text-sm font-semibold text-left"
-                >Billing Workflows</Alert.Title
+                class="bg-white/10 backdrop-blur-sm border-white/20 text-left"
               >
-              <Alert.Description class="text-white/80 text-xs text-left"
-                >Invoices sent & tracked without lifting a finger</Alert.Description
+                <FileText class="w-4 h-4 text-blue-900" />
+                <Alert.Title class="text-white text-sm font-semibold text-left"
+                  >Billing Workflows</Alert.Title
+                >
+                <Alert.Description class="text-white/80 text-xs text-left"
+                  >Invoices sent & tracked without lifting a finger</Alert.Description
+                >
+              </Alert.Root>
+              <Alert.Root
+                class="bg-white/10 backdrop-blur-sm border-white/20 text-left"
               >
-            </Alert.Root>
-            <Alert.Root
-              class="bg-white/10 backdrop-blur-sm border-white/20 text-left"
-            >
-              <Calculator class="w-4 h-4 text-blue-600" />
-              <Alert.Title class="text-white text-sm font-semibold text-left"
-                >Reconciliations</Alert.Title
-              >
-              <Alert.Description class="text-white/80 text-xs text-left"
-                >Real-time financial syncing</Alert.Description
-              >
-            </Alert.Root>
+                <Calculator class="w-4 h-4 text-blue-900" />
+                <Alert.Title class="text-white text-sm font-semibold text-left"
+                  >Reconciliations</Alert.Title
+                >
+                <Alert.Description class="text-white/80 text-xs text-left"
+                  >Real-time financial syncing</Alert.Description
+                >
+              </Alert.Root>
             </div>
           </div>
         </div>
@@ -799,7 +807,9 @@
         class="min-h-[90vh] sm:min-h-[60vh] flex items-center justify-center relative outdoor-activities-bg"
       >
         <div class="relative z-10 px-8 sm:px-16 w-full">
-          <div class="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-8 lg:gap-12">
+          <div
+            class="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-8 lg:gap-12"
+          >
             <!-- Text Content -->
             <div class="text-center sm:text-left max-w-2xl lg:max-w-xl">
               <h3
@@ -843,7 +853,7 @@
               <Alert.Root
                 class="bg-white/10 backdrop-blur-sm border-white/20 text-left"
               >
-                <MessageSquare class="w-4 h-4 text-blue-600" />
+                <MessageSquare class="w-4 h-4 text-blue-900" />
                 <Alert.Title class="text-white text-sm font-semibold text-left"
                   >Lead Follow-Ups</Alert.Title
                 >
@@ -854,7 +864,7 @@
               <Alert.Root
                 class="bg-white/10 backdrop-blur-sm border-white/20 text-left"
               >
-                <Package class="w-4 h-4 text-blue-600" />
+                <Package class="w-4 h-4 text-blue-900" />
                 <Alert.Title class="text-white text-sm font-semibold text-left"
                   >24/7 Customer Care</Alert.Title
                 >
@@ -865,7 +875,7 @@
               <Alert.Root
                 class="bg-white/10 backdrop-blur-sm border-white/20 text-left"
               >
-                <Clock class="w-4 h-4 text-blue-600" />
+                <Clock class="w-4 h-4 text-blue-900" />
                 <Alert.Title class="text-white text-sm font-semibold text-left"
                   >Business AI Assistant</Alert.Title
                 >
@@ -884,7 +894,7 @@
               <Alert.Root
                 class="bg-white/10 backdrop-blur-sm border-white/20 text-left"
               >
-                <MessageSquare class="w-4 h-4 text-blue-600" />
+                <MessageSquare class="w-4 h-4 text-blue-900" />
                 <Alert.Title class="text-white text-sm font-semibold text-left"
                   >Lead Follow-Ups</Alert.Title
                 >
@@ -895,7 +905,7 @@
               <Alert.Root
                 class="bg-white/10 backdrop-blur-sm border-white/20 text-left"
               >
-                <Package class="w-4 h-4 text-blue-600" />
+                <Package class="w-4 h-4 text-blue-900" />
                 <Alert.Title class="text-white text-sm font-semibold text-left"
                   >24/7 Customer Care</Alert.Title
                 >
@@ -906,7 +916,7 @@
               <Alert.Root
                 class="bg-white/10 backdrop-blur-sm border-white/20 text-left"
               >
-                <Clock class="w-4 h-4 text-blue-600" />
+                <Clock class="w-4 h-4 text-blue-900" />
                 <Alert.Title class="text-white text-sm font-semibold text-left"
                   >Business AI Assistant</Alert.Title
                 >
@@ -927,7 +937,8 @@
   id="team"
   class="mx-auto px-6 sm:px-16 my-20"
   role="region"
-  aria-label="About our team">
+  aria-label="About our team"
+>
   <div class="max-w-6xl mx-auto">
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
       <!-- Left Section - Text Content -->
@@ -944,9 +955,10 @@
         <div class="space-y-4 text-lg text-neutral-500 leading-relaxed">
           <p>
             We started this because we saw incredible business owners burning
-            out over basics. <span class="text-primary">Ed</span>’s a system architect. <span class="text-primary">Sy</span>’s an operations expert.
-            Together, we turn clunky routines into smooth flows with practical
-            AI.
+            out over basics. <span class="text-primary">Ed</span>’s a system
+            architect. <span class="text-primary">Sy</span>’s an operations
+            expert. Together, we turn clunky routines into smooth flows with
+            practical AI.
           </p>
 
           <p>
@@ -1004,7 +1016,6 @@
     </div>
   </div>
 </section>
-
 
 <!-- LOGOS SECTION - We Work With Your Existing Tools -->
 <section
@@ -1139,7 +1150,6 @@
   </div>
 </section>
 
-
 <!-- CTA SECTION - Simple and Direct -->
 <section
   id="contact"
@@ -1147,16 +1157,14 @@
   role="region"
   aria-label="Contact us"
 >
-  <Card.Root
-    class="bg-blue-900 border-0 shadow-xl w-full"
-  >
+  <Card.Root class="bg-blue-900 border-0 shadow-xl w-full">
     <Card.Content class="px-10 py-16 flex flex-col items-center text-center">
       <h2
-        class="font-display text-3xl font-semibold tracking-tight text-balance text-white sm:text-5xl mb-6"
+        class="font-display text-3xl font-semibold tracking-tight text-balance text-white/90 sm:text-5xl mb-6"
       >
         Ready to reclaim your time?
       </h2>
-      <p class="text-blue-100 text-lg mb-8 max-w-2xl">
+      <p class="text-white/60 text-lg mb-8 max-w-2xl">
         Join founders who've already reclaimed their evenings, weekends, and
         sanity with Ed & Sy.
       </p>
@@ -1165,11 +1173,13 @@
         data-tally-overlay="1"
         variant="secondary"
         size="lg"
-        class="bg-white text-blue-600 hover:bg-gray-100 font-bold px-10 py-5 text-xl rounded-full shadow-2xl transform hover:scale-105 transition-all duration-200 cursor-pointer"
+        class="bg-white text-blue-900 hover:bg-gray-100 font-bold text-xl rounded-full shadow-2xl transform hover:scale-105 transition-all duration-200 cursor-pointer hover:shadow-xl px-6 sm:px-10 py-4 sm:py-6"
       >
-         Partner with us →
+        Partner with us →
       </Button>
-      <p class="text-blue-200 text-sm mt-6">Book a free 30-min consultation. No obligation, just impact.</p>
+      <small class="text-white/60 text-sm mt-6"
+        >Book a free 30-min consultation. No obligation, just impact.</small
+      >
     </Card.Content>
   </Card.Root>
 </section>
