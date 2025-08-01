@@ -55,9 +55,9 @@
 
   function getDemoStatus(session: any) {
     if (session.completed_at) {
-      return { status: 'completed', text: 'Completed', color: 'text-green-600 bg-green-100' };
+      return { status: 'completed', text: 'Completed', color: 'text-primary bg-primary/10' };
     } else {
-      return { status: 'in-progress', text: 'In Progress', color: 'text-yellow-600 bg-yellow-100' };
+      return { status: 'in-progress', text: 'In Progress', color: 'text-primary bg-primary/10' };
     }
   }
 
@@ -212,7 +212,7 @@
       <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
         <div class="bg-white rounded-lg border border-gray-200 p-6">
           <div class="flex items-center gap-3">
-            <div class="p-2 rounded-lg bg-blue-100 text-blue-600">
+            <div class="p-2 rounded-lg bg-primary/10 text-primary">
               <Zap class="h-5 w-5" />
             </div>
             <div>
@@ -224,7 +224,7 @@
         
         <div class="bg-white rounded-lg border border-gray-200 p-6">
           <div class="flex items-center gap-3">
-            <div class="p-2 rounded-lg bg-green-100 text-green-600">
+            <div class="p-2 rounded-lg bg-primary/10 text-primary">
               <CheckCircle class="h-5 w-5" />
             </div>
             <div>
@@ -238,7 +238,7 @@
         
         <div class="bg-white rounded-lg border border-gray-200 p-6">
           <div class="flex items-center gap-3">
-            <div class="p-2 rounded-lg bg-yellow-100 text-yellow-600">
+            <div class="p-2 rounded-lg bg-primary/10 text-primary">
               <Coins class="h-5 w-5" />
             </div>
             <div>

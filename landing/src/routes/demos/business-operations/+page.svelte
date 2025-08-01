@@ -28,6 +28,7 @@
   import { CreditService } from '$lib/services/creditService';
   import CreditDisplay from '$lib/components/ui/CreditDisplay.svelte';
   import { supabase } from '$lib/supabase';
+  import NoCreditsDialog from '$lib/components/ui/NoCreditsDialog.svelte';
 
   let currentCredits: any = $state(null);
   let currentSessionId: string | null = $state(null);
@@ -44,6 +45,7 @@
   let trainingCost = $state(0);
   let supabaseSessionId: string | null = null;
   let supabaseUserId: string | null = null;
+  let showNoCreditsDialog = $state(false);
 
   let chatHistory = [
     {
@@ -72,6 +74,11 @@
     // Load initial credits
     currentCredits = await CreditService.getUserCredits();
     console.log('Initial credits:', currentCredits);
+
+    // Check if user has no credits and show dialog
+    if (currentCredits && currentCredits.demo_credits <= 0) {
+      showNoCreditsDialog = true;
+    }
 
     // Add event listeners for browser close/unload
     const handleBeforeUnload = async (event: BeforeUnloadEvent) => {
@@ -344,7 +351,7 @@ What would you like to manage first?`;
   }
 </script>
 
-<div class="bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 h-full">
+<div class="bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 h-full">
   <!-- Background Pattern -->
   <div class="absolute inset-0 opacity-10">
     <div class="absolute inset-0" style="background-image: radial-gradient(circle at 1px 1px, #10b981 1px, transparent 0); background-size: 20px 20px;"></div>
@@ -361,7 +368,7 @@ What would you like to manage first?`;
             <CardHeader class="border-b border-gray-200 flex-shrink-0">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
-              <div class="p-3 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg transform hover:scale-105 transition-all duration-200">
+                              <div class="p-3 rounded-xl bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-lg transform hover:scale-105 transition-all duration-200">
                 <Truck class="w-4 h-4" />
               </div>
               <div>
@@ -395,8 +402,8 @@ What would you like to manage first?`;
                   <div class="space-y-4">
                     <!-- Demo Status -->
                     {#if demoError}
-                      <div class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                        <div class="flex items-center gap-2 text-yellow-700">
+                      <div class="p-3 bg-primary/10 border border-primary/20 rounded-lg">
+                        <div class="flex items-center gap-2 text-primary">
                           <AlertCircle class="w-4 h-4" />
                           <span class="text-sm">{demoError}</span>
                         </div>
@@ -405,8 +412,8 @@ What would you like to manage first?`;
 
                     <!-- Demo Success -->
                     {#if demoSuccess}
-                      <div class="p-3 bg-green-50 border border-green-200 rounded-lg">
-                        <div class="flex items-center gap-2 text-green-700">
+                      <div class="p-3 bg-primary/10 border border-primary/20 rounded-lg">
+                        <div class="flex items-center gap-2 text-primary">
                           <CheckCircle class="w-4 h-4" />
                           <span class="text-sm">{demoSuccess}</span>
                         </div>
@@ -461,7 +468,7 @@ What would you like to manage first?`;
           <Card class="h-full h-[calc(100vh-100px)] bg-white/90 backdrop-blur-sm shadow-xl flex flex-col">
             <CardHeader class="border-b border-gray-200 flex-shrink-0">
               <div class="flex items-center gap-3">
-                <div class="p-3 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg transform hover:scale-105 transition-all duration-200">
+                <div class="p-3 rounded-xl bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-lg transform hover:scale-105 transition-all duration-200">
                   <Truck class="w-5 h-5" />
                 </div>
                 <div>
@@ -475,19 +482,19 @@ What would you like to manage first?`;
 
               
               <div class="flex items-center gap-2 mt-3 flex-wrap">
-                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-green-200 text-green-700 hover:bg-green-50 transition-colors">
+                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-primary/20 text-primary hover:bg-primary/10 transition-colors">
                   <Truck class="w-4 h-4" />
                   <span>Dispatch</span>
                 </Badge>
-                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-green-200 text-green-700 hover:bg-green-50 transition-colors">
+                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-primary/20 text-primary hover:bg-primary/10 transition-colors">
                   <MessageSquare class="w-4 h-4" />
                   <span>Coordination</span>
                 </Badge>
-                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-green-200 text-green-700 hover:bg-green-50 transition-colors">
+                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-primary/20 text-primary hover:bg-primary/10 transition-colors">
                   <Zap class="w-4 h-4" />
                   <span>Automation</span>
                 </Badge>
-                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-green-200 text-green-700 hover:bg-green-50 transition-colors">
+                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-primary/20 text-primary hover:bg-primary/10 transition-colors">
                   <AlertTriangle class="w-4 h-4" />
                   <span>Emergency</span>
                 </Badge>
@@ -534,8 +541,8 @@ What would you like to manage first?`;
         </div>
         <!-- Demo Status -->
         {#if demoError}
-          <div class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <div class="flex items-center gap-2 text-yellow-700">
+          <div class="p-3 bg-primary/10 border border-primary/20 rounded-lg">
+            <div class="flex items-center gap-2 text-primary">
               <AlertCircle class="w-4 h-4" />
               <span class="text-sm">{demoError}</span>
             </div>
@@ -544,8 +551,8 @@ What would you like to manage first?`;
 
         <!-- Demo Success -->
         {#if demoSuccess}
-          <div class="p-3 bg-green-50 border border-green-200 rounded-lg">
-            <div class="flex items-center gap-2 text-green-700">
+          <div class="p-3 bg-primary/10 border border-primary/20 rounded-lg">
+            <div class="flex items-center gap-2 text-primary">
               <CheckCircle class="w-4 h-4" />
               <span class="text-sm">{demoSuccess}</span>
             </div>
@@ -571,19 +578,19 @@ What would you like to manage first?`;
           <h4 class="font-medium text-gray-900">Key Features</h4>
           <div class="space-y-2">
             <div class="flex items-center gap-2 text-sm text-gray-600">
-              <Truck class="w-4 h-4 text-green-600" />
+              <Truck class="w-4 h-4 text-primary" />
               <span>Emergency dispatch</span>
             </div>
             <div class="flex items-center gap-2 text-sm text-gray-600">
-              <MessageSquare class="w-4 h-4 text-green-600" />
+              <MessageSquare class="w-4 h-4 text-primary" />
               <span>Technician coordination</span>
             </div>
             <div class="flex items-center gap-2 text-sm text-gray-600">
-              <Zap class="w-4 h-4 text-green-600" />
+              <Zap class="w-4 h-4 text-primary" />
               <span>Automated workflows</span>
             </div>
             <div class="flex items-center gap-2 text-sm text-gray-600">
-              <Headphones class="w-4 h-4 text-green-600" />
+              <Headphones class="w-4 h-4 text-primary" />
               <span>Real-time updates</span>
             </div>
           </div>

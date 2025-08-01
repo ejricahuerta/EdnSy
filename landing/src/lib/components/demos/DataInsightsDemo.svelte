@@ -85,11 +85,11 @@ function getInsightText(type: DataType) {
 
 <div class="w-full max-w-md mx-auto rounded-2xl shadow-lg overflow-hidden bg-white border border-gray-200" style="font-family: 'Segoe UI', 'Inter', sans-serif;">
   <!-- WhatsApp-style header -->
-  <div class="flex items-center gap-3 px-4 py-3 bg-[#075e54] text-white">
-    <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[#25d366] text-xl">🛠️</span>
+  <div class="flex items-center gap-3 px-4 py-3 bg-primary text-primary-foreground">
+    <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary text-xl">🛠️</span>
     <div class="flex flex-col">
       <span class="font-semibold text-base leading-tight">Data Insights Assistant</span>
-      <span class="text-xs text-[#d9fdd3]">data insights</span>
+      <span class="text-xs opacity-80">data insights</span>
     </div>
   </div>
   <div class="relative bg-[#ece5dd] flex flex-col h-[520px] sm:h-[520px] md:h-[520px] lg:h-[520px] xl:h-[520px]" style="height:520px;">
@@ -98,7 +98,7 @@ function getInsightText(type: DataType) {
         {#if msg.type === 'text'}
           <div class={msg.role === 'user' ? 'flex justify-end' : 'flex justify-start'}>
             <div class={msg.role === 'user'
-              ? 'rounded-2xl px-4 py-2 max-w-[75%] break-words shadow bg-[#25d366] text-white rounded-br-md'
+              ? 'rounded-2xl px-4 py-2 max-w-[75%] break-words shadow bg-primary text-primary-foreground rounded-br-md'
               : 'rounded-2xl px-4 py-2 max-w-[75%] break-words shadow bg-white text-gray-900 rounded-bl-md border border-gray-200'}>
               {msg.content}
             </div>
@@ -107,9 +107,9 @@ function getInsightText(type: DataType) {
           <div class="flex justify-start">
             <div class="rounded-2xl px-0 py-0 max-w-[90%] shadow bg-white text-gray-900 border border-gray-200 overflow-x-auto">
               {#if typeof msg.content === 'object'}
-                <div class="text-base font-semibold text-[#075e54] px-4 pt-3">{msg.content.title}</div>
+                <div class="text-base font-semibold text-primary px-4 pt-3">{msg.content.title}</div>
                 <table class="min-w-full text-base text-left rounded-xl overflow-hidden mb-2">
-                  <thead class="bg-[#25d366] text-white">
+                  <thead class="bg-primary text-primary-foreground">
                     <tr>
                       <th class="px-4 py-3 font-semibold">{msg.content.colLabel === 'Amount ($)' ? 'Category' : msg.content.colLabel === 'Leads' ? 'Source' : msg.content.colLabel === 'Jobs' ? 'Month' : 'Service'}</th>
                       <th class="px-4 py-3 font-semibold">{msg.content.colLabel}</th>
@@ -140,11 +140,11 @@ function getInsightText(type: DataType) {
       <input
         type="text"
         placeholder="e.g., Show me top requested services"
-        class="flex-1 rounded-full px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#25d366] bg-white text-gray-900"
+        class="flex-1 rounded-full px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary bg-white text-gray-900"
         bind:value={prompt}
         autocomplete="off"
       />
-      <button type="submit" class="bg-[#25d366] hover:bg-[#128c7e] text-white rounded-full p-2 transition-colors duration-150" aria-label="Send message">
+      <button type="submit" class="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full p-2 transition-colors duration-150" aria-label="Send message">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M22 2L11 13"/><path stroke-linecap="round" stroke-linejoin="round" d="M22 2L15 22l-4-9-9-4 20-7z"/></svg>
       </button>
     </form>

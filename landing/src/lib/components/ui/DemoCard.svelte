@@ -70,7 +70,7 @@
       <div class="flex items-center justify-between">
         <span class="text-sm text-gray-600">Training Cost:</span>
         <div class="flex items-center gap-1">
-          <Coins class="h-4 w-4 text-yellow-500" />
+          <Coins class="h-4 w-4 text-primary" />
           <span class="font-medium">{demoInfo.training_cost} credits</span>
         </div>
       </div>
@@ -78,7 +78,7 @@
       <div class="flex items-center justify-between">
         <span class="text-sm text-gray-600">Response Cost:</span>
         <div class="flex items-center gap-1">
-          <Zap class="h-4 w-4 text-blue-500" />
+          <Zap class="h-4 w-4 text-primary" />
           <span class="font-medium">{demoInfo.response_cost} credit</span>
         </div>
       </div>
@@ -87,7 +87,7 @@
         <div class="flex items-center justify-between">
           <span class="text-sm text-gray-600">Action Cost:</span>
           <div class="flex items-center gap-1">
-            <Zap class="h-4 w-4 text-green-500" />
+            <Zap class="h-4 w-4 text-primary" />
             <span class="font-medium">{demoInfo.action_cost} credits</span>
           </div>
         </div>
@@ -98,7 +98,7 @@
   <div class="mt-4">
     <a
       href="/demos/{demoId === 'ai-assistant' ? 'ai-assistant' : demoId === 'automation-tasks' ? 'automation-tasks' : demoId === 'data-insights' ? 'data-insights' : 'business-operations'}"
-      class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors text-center block"
+      class="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-2 px-4 rounded-lg transition-colors text-center block"
     >
       Try Demo
     </a>
@@ -110,7 +110,7 @@
       <ul class="space-y-1">
         {#each benefits as benefit}
           <li class="text-xs text-gray-600 flex items-start gap-2">
-            <div class="w-1 h-1 bg-blue-500 rounded-full mt-1.5 flex-shrink-0"></div>
+            <div class="w-1 h-1 bg-primary rounded-full mt-1.5 flex-shrink-0"></div>
             <span>{benefit}</span>
           </li>
         {/each}

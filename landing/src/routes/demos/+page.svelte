@@ -118,7 +118,7 @@
           {#each industries as industry}
             <button
               onclick={() => { selectedIndustry = industry.id; handleIndustryChange(); }}
-              class="flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors {selectedIndustry === industry.id ? 'bg-primary text-white border-primary' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}"
+              class="flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors {selectedIndustry === industry.id ? 'bg-primary text-primary-foreground border-primary' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}"
             >
               <industry.icon class="h-4 w-4" />
               <span class="text-sm font-medium">{industry.name}</span>

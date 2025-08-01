@@ -33,6 +33,7 @@
   import { supabase } from '$lib/supabase';
   import { CreditService } from '$lib/services/creditService';
   import CreditDisplay from '$lib/components/ui/CreditDisplay.svelte';
+  import NoCreditsDialog from '$lib/components/ui/NoCreditsDialog.svelte';
   import { marked } from 'marked';
   import { beforeNavigate } from '$app/navigation';
 
@@ -68,6 +69,7 @@
   let trainingStepIndex = 0;
   let trainingStepInterval: ReturnType<typeof setInterval> | null = null;
   let showDemoReadyDialog = $state(false);
+  let showNoCreditsDialog = $state(false);
 
 
   let webhookUrl = "/api/n8n/automation-chat";
@@ -114,6 +116,11 @@
     // Load initial credits
     currentCredits = await CreditService.getUserCredits();
     // console.log('Initial credits:', currentCredits);
+
+    // Check if user has no credits and show dialog
+    if (currentCredits && currentCredits.demo_credits <= 0) {
+      showNoCreditsDialog = true;
+    }
     
     // Test service info retrieval
     const serviceInfo = await CreditService.getServiceInfo('automation-tasks');
@@ -594,10 +601,10 @@
   }
 </script>
 
-<div class="bg-gradient-to-br from-purple-50 via-violet-50 to-indigo-50 h-full">
+  <div class="bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 h-full">
   <!-- Background Pattern -->
   <div class="absolute inset-0 opacity-10">
-    <div class="absolute inset-0" style="background-image: radial-gradient(circle at 1px 1px, #8b5cf6 1px, transparent 0); background-size: 20px 20px;"></div>
+    <div class="absolute inset-0" style="background-image: radial-gradient(circle at 1px 1px, var(--primary) 1px, transparent 0); background-size: 20px 20px;"></div>
   </div>
 
   <div class="relative z-10 flex h-[calc(100vh-60px)]">
@@ -611,7 +618,7 @@
             <CardHeader class="border-b border-gray-200 flex-shrink-0">
                               <div class="flex items-center justify-between">
                   <div class="flex items-center gap-3">
-                    <div class="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 text-white shadow-lg transform hover:scale-105 transition-all duration-200">
+                    <div class="p-3 rounded-xl bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-lg transform hover:scale-105 transition-all duration-200">
                       <Zap class="w-4 h-4" />
                     </div>
                     <div>
@@ -646,7 +653,7 @@
                     <!-- Website Input -->
                     <div class="space-y-2">
                       <div class="flex items-center gap-2">
-                        <Globe class="w-4 h-4 text-purple-600" />
+                        <Globe class="w-4 h-4 text-primary" />
                         <Label for="website-mobile" class="text-sm font-medium">Your Website</Label>
                       </div>
                       <div class="space-y-2">
@@ -664,7 +671,7 @@
                             {websiteValidation}
                           </p>
                         {:else if website}
-                          <p class="text-xs text-green-500 flex items-center gap-1">
+                          <p class="text-xs text-primary flex items-center gap-1">
                             <CheckCircle class="w-3 h-3" />
                             Valid URL
                           </p>
@@ -679,7 +686,7 @@
                     <!-- Email Input -->
                     <div class="space-y-2">
                       <div class="flex items-center gap-2">
-                        <Mail class="w-4 h-4 text-purple-600" />
+                        <Mail class="w-4 h-4 text-primary" />
                         <Label for="email-mobile" class="text-sm font-medium">Your Email</Label>
                       </div>
                       <div class="space-y-2">
@@ -697,7 +704,7 @@
                             {emailValidation}
                           </p>
                         {:else if emailAddress}
-                          <p class="text-xs text-green-500 flex items-center gap-1">
+                          <p class="text-xs text-primary flex items-center gap-1">
                             <CheckCircle class="w-3 h-3" />
                             Valid Email
                           </p>
@@ -712,7 +719,7 @@
                     <!-- Phone Input -->
                     <div class="space-y-2">
       <div class="flex items-center gap-2">
-                        <Phone class="w-4 h-4 text-purple-600" />
+                        <Phone class="w-4 h-4 text-primary" />
                         <Label for="phone-mobile" class="text-sm font-medium">Your Phone</Label>
                       </div>
                       <div class="space-y-2">
@@ -730,7 +737,7 @@
                             {phoneValidation}
                           </p>
                         {:else if phone}
-                          <p class="text-xs text-green-500 flex items-center gap-1">
+                          <p class="text-xs text-primary flex items-center gap-1">
                             <CheckCircle class="w-3 h-3" />
                             Valid Phone
                           </p>
@@ -744,9 +751,9 @@
 
                     <!-- Training Status -->
                     {#if isTraining}
-                      <div class="p-3 bg-purple-50 border border-purple-200 rounded-lg">
-                        <div class="flex items-center gap-2 text-purple-700">
-                          <div class="animate-pulse rounded-full h-4 w-4 bg-purple-600"></div>
+                      <div class="p-3 bg-primary/10 border border-primary/20 rounded-lg">
+                        <div class="flex items-center gap-2 text-primary">
+                          <div class="animate-pulse rounded-full h-4 w-4 bg-primary"></div>
                           <span class="text-sm font-medium">{currentTrainingStep}</span>
                         </div>
                       </div>
@@ -754,8 +761,8 @@
 
                     <!-- Training Error -->
                     {#if trainingError && !isDemoRunning}
-                      <div class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                        <div class="flex items-center gap-2 text-yellow-700">
+                      <div class="p-3 bg-primary/10 border border-primary/20 rounded-lg">
+                        <div class="flex items-center gap-2 text-primary">
                           <AlertCircle class="w-4 h-4" />
                           <span class="text-sm">{trainingError}</span>
                         </div>
@@ -764,8 +771,8 @@
 
                     <!-- Training Success -->
                     {#if trainingSuccess}
-                      <div class="p-3 bg-green-50 border border-green-200 rounded-lg">
-                        <div class="flex items-center gap-2 text-green-700">
+                      <div class="p-3 bg-primary/10 border border-primary/20 rounded-lg">
+                        <div class="flex items-center gap-2 text-primary">
                           <CheckCircle class="w-4 h-4" />
                           <span class="text-sm">{trainingSuccess}</span>
                         </div>
@@ -774,9 +781,9 @@
 
                             <!-- Training Status -->
         {#if isTraining}
-          <div class="p-3 bg-purple-50 border border-purple-200 rounded-lg">
-            <div class="flex items-center gap-2 text-purple-700">
-              <div class="animate-pulse rounded-full h-4 w-4 bg-purple-600"></div>
+          <div class="p-3 bg-primary/10 border border-primary/20 rounded-lg">
+            <div class="flex items-center gap-2 text-primary">
+              <div class="animate-pulse rounded-full h-4 w-4 bg-primary"></div>
               <span class="text-sm font-medium">{currentTrainingStep}</span>
             </div>
           </div>
@@ -784,8 +791,8 @@
 
         <!-- Training Error -->
         {#if trainingError && !isDemoRunning}
-          <div class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <div class="flex items-center gap-2 text-yellow-700">
+          <div class="p-3 bg-primary/10 border border-primary/20 rounded-lg">
+            <div class="flex items-center gap-2 text-primary">
               <AlertCircle class="w-4 h-4" />
               <span class="text-sm">{trainingError}</span>
             </div>
@@ -794,8 +801,8 @@
 
         <!-- Training Success -->
         {#if trainingSuccess}
-          <div class="p-3 bg-green-50 border border-green-200 rounded-lg">
-            <div class="flex items-center gap-2 text-green-700">
+          <div class="p-3 bg-primary/10 border border-primary/20 rounded-lg">
+            <div class="flex items-center gap-2 text-primary">
               <CheckCircle class="w-4 h-4" />
               <span class="text-sm">{trainingSuccess}</span>
             </div>
@@ -804,8 +811,8 @@
 
         <!-- Demo Status -->
         {#if demoError}
-          <div class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <div class="flex items-center gap-2 text-yellow-700">
+          <div class="p-3 bg-primary/10 border border-primary/20 rounded-lg">
+            <div class="flex items-center gap-2 text-primary">
               <AlertCircle class="w-4 h-4" />
               <span class="text-sm">{demoError}</span>
             </div>
@@ -814,8 +821,8 @@
 
                     <!-- Demo Success -->
                     {#if demoSuccess}
-                      <div class="p-3 bg-green-50 border border-green-200 rounded-lg">
-                        <div class="flex items-center gap-2 text-green-700">
+                      <div class="p-3 bg-primary/10 border border-primary/20 rounded-lg">
+                        <div class="flex items-center gap-2 text-primary">
                           <CheckCircle class="w-4 h-4" />
                           <span class="text-sm">{demoSuccess}</span>
                         </div>
@@ -865,14 +872,14 @@
                   {#each chatHistory as message}
                     <div class="flex w-full {message.role === 'user' ? 'justify-end' : 'justify-start'}">
                       <div class="flex {message.role === 'user' ? 'flex-row-reverse items-end' : 'flex-row items-start'} gap-2 max-w-[85%]">
-                        <div class="w-8 h-8 flex items-center justify-center rounded-full {message.role === 'user' ? 'bg-purple-500 text-white' : 'bg-gray-200 text-gray-700'}">
+                        <div class="w-8 h-8 flex items-center justify-center rounded-full {message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-gray-200 text-gray-700'}">
                           {#if message.role === 'user'}
                             <User class="w-4 h-4" />
                           {:else}
                             <Zap class="w-4 h-4" />
                           {/if}
                         </div>
-                        <div class="p-2 rounded-lg min-w-[80px] {message.role === 'user' ? 'bg-purple-500 text-white' : 'bg-gray-100 text-gray-900'}">
+                        <div class="p-2 rounded-lg min-w-[80px] {message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-gray-100 text-gray-900'}">
                           {#if message.role === 'user'}
                             <p class="text-xs whitespace-pre-line">{@html message.text}</p>
                           {:else}
@@ -928,7 +935,7 @@
           <Card class="h-full h-[calc(100vh-100px)] bg-white/90 backdrop-blur-sm shadow-xl flex flex-col">
             <CardHeader class="border-b border-gray-200 flex-shrink-0">
               <div class="flex items-center gap-3">
-                <div class="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 text-white shadow-lg transform hover:scale-105 transition-all duration-200">
+                <div class="p-3 rounded-xl bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-lg transform hover:scale-105 transition-all duration-200">
                   <Zap class="w-5 h-5" />
                 </div>
                 <div>
@@ -942,19 +949,19 @@
                               
               
               <div class="flex items-center gap-2 mt-3 flex-wrap">
-                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-purple-200 text-purple-700 hover:bg-purple-50 transition-colors">
+                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-primary/20 text-primary hover:bg-primary/10 transition-colors">
                   <MessageSquare class="w-4 h-4" />
                   <span>Lead Capture</span>
                 </Badge>
-                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-purple-200 text-purple-700 hover:bg-purple-50 transition-colors">
+                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-primary/20 text-primary hover:bg-primary/10 transition-colors">
                   <Workflow class="w-4 h-4" />
                   <span>Follow-ups</span>
                 </Badge>
-                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-purple-200 text-purple-700 hover:bg-purple-50 transition-colors">
+                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-primary/20 text-primary hover:bg-primary/10 transition-colors">
                   <Users class="w-4 h-4" />
                   <span>CRM Integration</span>
                 </Badge>
-                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-purple-200 text-purple-700 hover:bg-purple-50 transition-colors">
+                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-primary/20 text-primary hover:bg-primary/10 transition-colors">
                   <FileText class="w-4 h-4" />
                   <span>Work Orders</span>
                 </Badge>
@@ -974,14 +981,14 @@
                   {#each chatHistory as message}
                     <div class="flex w-full {message.role === 'user' ? 'justify-end' : 'justify-start'}">
                       <div class="flex {message.role === 'user' ? 'flex-row-reverse items-end' : 'flex-row items-start'} gap-2 max-w-[80%]">
-                        <div class="w-8 h-8 flex items-center justify-center rounded-full {message.role === 'user' ? 'bg-purple-500 text-white' : 'bg-gray-200 text-gray-700'}">
+                        <div class="w-8 h-8 flex items-center justify-center rounded-full {message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-gray-200 text-gray-700'}">
                           {#if message.role === 'user'}
                             <User class="w-4 h-4" />
                           {:else}
                             <Zap class="w-4 h-4" />
                           {/if}
                         </div>
-                        <div class="p-3 rounded-lg min-w-[80px] {message.role === 'user' ? 'bg-purple-500 text-white' : 'bg-gray-100 text-gray-900'}">
+                        <div class="p-3 rounded-lg min-w-[80px] {message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-gray-100 text-gray-900'}">
                           {#if message.role === 'user'}
                             <p class="text-sm whitespace-pre-line">{@html message.text}</p>
                           {:else}
@@ -1045,7 +1052,7 @@
         <!-- Website Input -->
         <div class="space-y-3">
           <div class="flex items-center gap-2">
-            <Globe class="w-4 h-4 text-purple-600" />
+            <Globe class="w-4 h-4 text-primary" />
             <Label for="website" class="text-sm font-medium">Your Website</Label>
               </div>
           <div class="space-y-2">
@@ -1063,7 +1070,7 @@
                 {websiteValidation}
               </p>
             {:else if website}
-              <p class="text-xs text-green-500 flex items-center gap-1">
+              <p class="text-xs text-primary flex items-center gap-1">
                 <CheckCircle class="w-3 h-3" />
                 Valid URL
               </p>
@@ -1078,7 +1085,7 @@
         <!-- Email Input -->
         <div class="space-y-3">
           <div class="flex items-center gap-2">
-            <Mail class="w-4 h-4 text-purple-600" />
+            <Mail class="w-4 h-4 text-primary" />
             <Label for="email" class="text-sm font-medium">Your Email</Label>
       </div>
           <div class="space-y-2">
@@ -1096,7 +1103,7 @@
                 {emailValidation}
               </p>
             {:else if emailAddress}
-              <p class="text-xs text-green-500 flex items-center gap-1">
+              <p class="text-xs text-primary flex items-center gap-1">
                 <CheckCircle class="w-3 h-3" />
                 Valid Email
               </p>
@@ -1111,7 +1118,7 @@
         <!-- Phone Input -->
         <div class="space-y-3">
             <div class="flex items-center gap-2">
-            <Phone class="w-4 h-4 text-purple-600" />
+            <Phone class="w-4 h-4 text-primary" />
             <Label for="phone" class="text-sm font-medium">Your Phone</Label>
             </div>
           <div class="space-y-2">
@@ -1129,7 +1136,7 @@
                 {phoneValidation}
               </p>
             {:else if phone}
-              <p class="text-xs text-green-500 flex items-center gap-1">
+              <p class="text-xs text-primary flex items-center gap-1">
                 <CheckCircle class="w-3 h-3" />
                 Valid Phone
               </p>
@@ -1143,8 +1150,8 @@
 
         <!-- Demo Status -->
         {#if demoError}
-          <div class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <div class="flex items-center gap-2 text-yellow-700">
+          <div class="p-3 bg-primary/10 border border-primary/20 rounded-lg">
+            <div class="flex items-center gap-2 text-primary">
               <AlertCircle class="w-4 h-4" />
               <span class="text-sm">{demoError}</span>
             </div>
@@ -1153,8 +1160,8 @@
 
         <!-- Demo Success -->
         {#if demoSuccess}
-          <div class="p-3 bg-green-50 border border-green-200 rounded-lg">
-            <div class="flex items-center gap-2 text-green-700">
+          <div class="p-3 bg-primary/10 border border-primary/20 rounded-lg">
+            <div class="flex items-center gap-2 text-primary">
               <CheckCircle class="w-4 h-4" />
               <span class="text-sm">{demoSuccess}</span>
             </div>
@@ -1179,19 +1186,19 @@
             <h4 class="font-medium text-gray-900">Key Features</h4>
             <div class="space-y-2">
               <div class="flex items-center gap-2 text-sm text-gray-600">
-                <MessageSquare class="w-4 h-4 text-purple-600" />
+                <MessageSquare class="w-4 h-4 text-primary" />
                 <span>Lead capture automation</span>
               </div>
               <div class="flex items-center gap-2 text-sm text-gray-600">
-                <Workflow class="w-4 h-4 text-purple-600" />
+                <Workflow class="w-4 h-4 text-primary" />
                 <span>Follow-up sequences</span>
               </div>
               <div class="flex items-center gap-2 text-sm text-gray-600">
-                <Users class="w-4 h-4 text-purple-600" />
+                <Users class="w-4 h-4 text-primary" />
                 <span>CRM integration</span>
               </div>
               <div class="flex items-center gap-2 text-sm text-gray-600">
-                <FileText class="w-4 h-4 text-purple-600" />
+                <FileText class="w-4 h-4 text-primary" />
                 <span>Work order processing</span>
               </div>
             </div>
@@ -1228,6 +1235,9 @@
   </div>
 </div>
 
+<!-- No Credits Dialog -->
+<NoCreditsDialog bind:open={showNoCreditsDialog} currentCredits={currentCredits?.demo_credits || 0} />
+
 <Dialog open={showDemoReadyDialog} on:openChange={e => showDemoReadyDialog = e.detail}>
   <DialogContent>
     <DialogHeader>
@@ -1243,7 +1253,3 @@
     </DialogFooter>
   </DialogContent>
 </Dialog>
-
-
-
-

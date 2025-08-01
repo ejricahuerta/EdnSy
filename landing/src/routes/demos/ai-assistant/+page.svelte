@@ -33,6 +33,7 @@
   import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "$lib/components/ui/dialog";
   import { CreditService } from '$lib/services/creditService';
   import CreditDisplay from '$lib/components/ui/CreditDisplay.svelte';
+  import NoCreditsDialog from '$lib/components/ui/NoCreditsDialog.svelte';
 
   function formatBotText(text: string): string {
     // Basic sanitization: escape < and >, then parse markdown
@@ -56,6 +57,7 @@
   let websiteValidation = $state("");
   let trainingSuccess = $state("");
   let showDemoReadyDialog = $state(false);
+  let showNoCreditsDialog = $state(false);
 
 
   const trainingSteps = [
@@ -102,6 +104,11 @@
     // Load initial credits
     currentCredits = await CreditService.getUserCredits();
     console.log('Initial credits:', currentCredits);
+
+    // Check if user has no credits and show dialog
+    if (currentCredits && currentCredits.demo_credits <= 0) {
+      showNoCreditsDialog = true;
+    }
 
     // Add event listeners for browser close/unload
     const handleBeforeUnload = async (event: BeforeUnloadEvent) => {
@@ -470,10 +477,10 @@
   console.log("AI Assistant demo component loaded");
 </script>
 
-<div class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 h-full">
+<div class="bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 h-full">
   <!-- Background Pattern -->
   <div class="absolute inset-0 opacity-10">
-    <div class="absolute inset-0" style="background-image: radial-gradient(circle at 1px 1px, #3b82f6 1px, transparent 0); background-size: 20px 20px;"></div>
+    <div class="absolute inset-0" style="background-image: radial-gradient(circle at 1px 1px, var(--primary) 1px, transparent 0); background-size: 20px 20px;"></div>
   </div>
 
   <div class="relative z-10 flex h-[calc(100vh-60px)]">
@@ -487,7 +494,7 @@
             <CardHeader class="border-b border-gray-200 flex-shrink-0">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                  <div class="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg transform hover:scale-105 transition-all duration-200">
+                  <div class="p-3 rounded-xl bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-lg transform hover:scale-105 transition-all duration-200">
                     <Bot class="w-4 h-4" />
                   </div>
                   <div>
@@ -523,7 +530,7 @@
                     <!-- Website Input -->
                     <div class="space-y-2">
                       <div class="flex items-center gap-2">
-                        <Globe class="w-4 h-4 text-blue-600" />
+                        <Globe class="w-4 h-4 text-primary" />
                         <Label for="website-mobile" class="text-sm font-medium">Your Website</Label>
                       </div>
                       <div class="space-y-2">
@@ -541,7 +548,7 @@
                             {websiteValidation}
                           </p>
                         {:else if website}
-                          <p class="text-xs text-green-500 flex items-center gap-1">
+                          <p class="text-xs text-primary flex items-center gap-1">
                             <CheckCircle class="w-3 h-3" />
                             Valid URL
                           </p>
@@ -557,9 +564,9 @@
 
                     <!-- Training Status -->
                     {#if isTraining}
-                      <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                        <div class="flex items-center gap-2 text-blue-700">
-                          <div class="animate-pulse rounded-full h-4 w-4 bg-blue-600"></div>
+                      <div class="p-3 bg-primary/10 border border-primary/20 rounded-lg">
+                        <div class="flex items-center gap-2 text-primary">
+                          <div class="animate-pulse rounded-full h-4 w-4 bg-primary"></div>
                           <span class="text-sm font-medium">{currentTrainingStep}</span>
                         </div>
                       </div>
@@ -569,8 +576,8 @@
 
                             <!-- Training Error -->
         {#if trainingError && !isDemoRunning}
-          <div class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <div class="flex items-center gap-2 text-yellow-700">
+          <div class="p-3 bg-primary/10 border border-primary/20 rounded-lg">
+            <div class="flex items-center gap-2 text-primary">
               <AlertCircle class="w-4 h-4" />
               <span class="text-sm">{trainingError}</span>
             </div>
@@ -579,8 +586,8 @@
 
                     <!-- Training Success -->
                     {#if trainingSuccess}
-                      <div class="p-3 bg-green-50 border border-green-200 rounded-lg">
-                        <div class="flex items-center gap-2 text-green-700">
+                      <div class="p-3 bg-primary/10 border border-primary/20 rounded-lg">
+                        <div class="flex items-center gap-2 text-primary">
                           <CheckCircle class="w-4 h-4" />
                           <span class="text-sm">{trainingSuccess}</span>
                         </div>
@@ -633,14 +640,14 @@
                   {#each messages as message}
                     <div class="flex w-full {message.sender === 'user' ? 'justify-end' : 'justify-start'}">
                       <div class="flex {message.sender === 'user' ? 'flex-row-reverse items-end' : 'flex-row items-start'} gap-2 max-w-[85%]">
-                        <div class="w-8 h-8 flex items-center justify-center rounded-full {message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}">
+                        <div class="w-8 h-8 flex items-center justify-center rounded-full {message.sender === 'user' ? 'bg-primary text-primary-foreground' : 'bg-gray-200 text-gray-700'}">
                           {#if message.sender === 'user'}
                             <User class="w-4 h-4" />
                           {:else}
                             <Bot class="w-4 h-4" />
                           {/if}
                         </div>
-                        <div class="p-2 rounded-lg min-w-[80px] {message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-900'}">
+                        <div class="p-2 rounded-lg min-w-[80px] {message.sender === 'user' ? 'bg-primary text-primary-foreground' : 'bg-gray-100 text-gray-900'}">
                           <p class="text-xs">{@html formatBotText(message.text)}</p>
                           <p class="text-xs mt-1 opacity-70">
                             {message.timestamp.toLocaleTimeString()}
@@ -695,7 +702,7 @@
           <Card class="h-full h-[calc(100vh-100px)] bg-white/90 backdrop-blur-sm shadow-xl flex flex-col">
             <CardHeader class="border-b border-gray-200 flex-shrink-0">
               <div class="flex items-center gap-3">
-                <div class="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg transform hover:scale-105 transition-all duration-200">
+                <div class="p-3 rounded-xl bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-lg transform hover:scale-105 transition-all duration-200">
                   <Bot class="w-5 h-5" />
                 </div>
                 <div>
@@ -709,27 +716,27 @@
                               
               
               <div class="flex items-center gap-2 mt-3 flex-wrap">
-                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-blue-200 text-blue-700 hover:bg-blue-50 transition-colors">
+                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-primary/20 text-primary hover:bg-primary/10 transition-colors">
                   <MessageCircle class="w-4 h-4" />
                   <span>Chat</span>
                 </Badge>
-                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-blue-200 text-blue-700 hover:bg-blue-50 transition-colors">
+                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-primary/20 text-primary hover:bg-primary/10 transition-colors">
                   <Smartphone class="w-4 h-4" />
                   <span>WhatsApp</span>
                 </Badge>
-                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-blue-200 text-blue-700 hover:bg-blue-50 transition-colors">
+                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-primary/20 text-primary hover:bg-primary/10 transition-colors">
                   <Mail class="w-4 h-4" />
                   <span>Email</span>
                 </Badge>
-                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-blue-200 text-blue-700 hover:bg-blue-50 transition-colors">
+                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-primary/20 text-primary hover:bg-primary/10 transition-colors">
                   <MessageSquare class="w-4 h-4" />
                   <span>Facebook Messenger</span>
                 </Badge>
-                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-blue-200 text-blue-700 hover:bg-blue-50 transition-colors">
+                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-primary/20 text-primary hover:bg-primary/10 transition-colors">
                   <MessageSquare class="w-4 h-4" />
                   <span>Instagram</span>
                 </Badge>
-                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-blue-200 text-blue-700 hover:bg-blue-50 transition-colors">
+                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-primary/20 text-primary hover:bg-primary/10 transition-colors">
                   <MessageSquare class="w-4 h-4" />
                   <span>Telegram</span>
                 </Badge>
@@ -749,14 +756,14 @@
                   {#each messages as message}
                     <div class="flex w-full {message.sender === 'user' ? 'justify-end' : 'justify-start'}">
                       <div class="flex {message.sender === 'user' ? 'flex-row-reverse items-end' : 'flex-row items-start'} gap-2 max-w-[80%]">
-                        <div class="w-8 h-8 flex items-center justify-center rounded-full {message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}">
+                        <div class="w-8 h-8 flex items-center justify-center rounded-full {message.sender === 'user' ? 'bg-primary text-primary-foreground' : 'bg-gray-200 text-gray-700'}">
                           {#if message.sender === 'user'}
                             <User class="w-4 h-4" />
                           {:else}
                             <Bot class="w-4 h-4" />
                           {/if}
                         </div>
-                        <div class="p-3 rounded-lg min-w-[80px] {message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-900'}">
+                        <div class="p-3 rounded-lg min-w-[80px] {message.sender === 'user' ? 'bg-primary text-primary-foreground' : 'bg-gray-100 text-gray-900'}">
                           <p class="text-sm">{@html formatBotText(message.text)}</p>
                           <p class="text-xs mt-1 opacity-70">
                             {message.timestamp.toLocaleTimeString()}
@@ -819,7 +826,7 @@
         <!-- Website Input -->
         <div class="space-y-3">
           <div class="flex items-center gap-2">
-            <Globe class="w-4 h-4 text-blue-600" />
+            <Globe class="w-4 h-4 text-primary" />
             <Label for="website" class="text-sm font-medium">Your Website</Label>
           </div>
           <div class="space-y-2">
@@ -837,7 +844,7 @@
                 {websiteValidation}
               </p>
             {:else if website}
-              <p class="text-xs text-green-500 flex items-center gap-1">
+              <p class="text-xs text-primary flex items-center gap-1">
                 <CheckCircle class="w-3 h-3" />
                 Valid URL
               </p>
@@ -851,9 +858,9 @@
 
         <!-- Training Status -->
         {#if isTraining}
-          <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <div class="flex items-center gap-2 text-blue-700">
-              <div class="animate-pulse rounded-full h-4 w-4 bg-blue-600"></div>
+          <div class="p-3 bg-primary/10 border border-primary/20 rounded-lg">
+            <div class="flex items-center gap-2 text-primary">
+              <div class="animate-pulse rounded-full h-4 w-4 bg-primary"></div>
               <span class="text-sm font-medium">{currentTrainingStep}</span>
             </div>
           </div>
@@ -863,8 +870,8 @@
 
         <!-- Training Error -->
         {#if trainingError && !isDemoRunning}
-          <div class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <div class="flex items-center gap-2 text-yellow-700">
+          <div class="p-3 bg-primary/10 border border-primary/20 rounded-lg">
+            <div class="flex items-center gap-2 text-primary">
               <AlertCircle class="w-4 h-4" />
               <span class="text-sm">{trainingError}</span>
             </div>
@@ -890,15 +897,15 @@
           <h4 class="font-medium text-gray-900">Key Features</h4>
           <div class="space-y-2">
             <div class="flex items-center gap-2 text-sm text-gray-600">
-              <Bot class="w-4 h-4 text-blue-600" />
+              <Bot class="w-4 h-4 text-primary" />
               <span>AI-powered responses</span>
             </div>
             <div class="flex items-center gap-2 text-sm text-gray-600">
-              <Headphones class="w-4 h-4 text-blue-600" />
+              <Headphones class="w-4 h-4 text-primary" />
               <span>24/7 customer support</span>
             </div>
             <div class="flex items-center gap-2 text-sm text-gray-600">
-              <Settings class="w-4 h-4 text-blue-600" />
+              <Settings class="w-4 h-4 text-primary" />
               <span>Easy customization</span>
             </div>
           </div>
@@ -936,6 +943,10 @@
     </div>
   </div>
 </div> 
+
+<!-- No Credits Dialog -->
+<NoCreditsDialog bind:open={showNoCreditsDialog} currentCredits={currentCredits?.demo_credits || 0} />
+
 <Dialog open={showDemoReadyDialog} on:openChange={e => showDemoReadyDialog = e.detail}>
   <DialogContent>
     <DialogHeader>
@@ -951,5 +962,3 @@
     </DialogFooter>
   </DialogContent>
 </Dialog>
-
- 

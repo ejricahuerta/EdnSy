@@ -195,7 +195,7 @@ What would you like to explore first?`;
   }
 </script>
 
-<div class="bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 h-full">
+<div class="bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 h-full">
   <!-- Background Pattern -->
   <div class="absolute inset-0 opacity-10">
     <div class="absolute inset-0" style="background-image: radial-gradient(circle at 1px 1px, #f59e0b 1px, transparent 0); background-size: 20px 20px;"></div>
@@ -212,7 +212,7 @@ What would you like to explore first?`;
             <CardHeader class="border-b border-gray-200 flex-shrink-0">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                  <div class="p-2 rounded-lg bg-orange-500 text-white">
+                  <div class="p-2 rounded-lg bg-primary text-primary-foreground">
                     <BarChart3 class="w-4 h-4" />
                   </div>
                   <div>
@@ -246,8 +246,8 @@ What would you like to explore first?`;
                   <div class="space-y-4">
                     <!-- Demo Status -->
                     {#if demoError}
-                      <div class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                        <div class="flex items-center gap-2 text-yellow-700">
+                      <div class="p-3 bg-primary/10 border border-primary/20 rounded-lg">
+                        <div class="flex items-center gap-2 text-primary">
                           <AlertCircle class="w-4 h-4" />
                           <span class="text-sm">{demoError}</span>
                         </div>
@@ -256,8 +256,8 @@ What would you like to explore first?`;
 
                     <!-- Demo Success -->
                     {#if demoSuccess}
-                      <div class="p-3 bg-green-50 border border-green-200 rounded-lg">
-                        <div class="flex items-center gap-2 text-green-700">
+                      <div class="p-3 bg-primary/10 border border-primary/20 rounded-lg">
+                        <div class="flex items-center gap-2 text-primary">
                           <CheckCircle class="w-4 h-4" />
                           <span class="text-sm">{demoSuccess}</span>
                         </div>
@@ -320,7 +320,7 @@ What would you like to explore first?`;
           <Card class="h-full h-[calc(100vh-100px)] bg-white/90 backdrop-blur-sm shadow-xl flex flex-col">
             <CardHeader class="border-b border-gray-200 flex-shrink-0">
               <div class="flex items-center gap-3">
-                <div class="p-3 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 text-white shadow-lg transform hover:scale-105 transition-all duration-200">
+                <div class="p-3 rounded-xl bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-lg transform hover:scale-105 transition-all duration-200">
                   <BarChart3 class="w-4 h-4" />
                 </div>
                 <div>
@@ -334,19 +334,19 @@ What would you like to explore first?`;
 
               
               <div class="flex items-center gap-2 mt-3 flex-wrap">
-                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-orange-200 text-orange-700 hover:bg-orange-50 transition-colors">
+                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-primary/20 text-primary hover:bg-primary/10 transition-colors">
                   <BarChart3 class="w-4 h-4" />
                   <span>Analytics</span>
                 </Badge>
-                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-orange-200 text-orange-700 hover:bg-orange-50 transition-colors">
+                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-primary/20 text-primary hover:bg-primary/10 transition-colors">
                   <TrendingUp class="w-4 h-4" />
                   <span>Trends</span>
                 </Badge>
-                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-orange-200 text-orange-700 hover:bg-orange-50 transition-colors">
+                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-primary/20 text-primary hover:bg-primary/10 transition-colors">
                   <PieChart class="w-4 h-4" />
                   <span>Reports</span>
                 </Badge>
-                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-orange-200 text-orange-700 hover:bg-orange-50 transition-colors">
+                <Badge variant="outline" class="bg-white/80 backdrop-blur-sm border-primary/20 text-primary hover:bg-primary/10 transition-colors">
                   <Activity class="w-4 h-4" />
                   <span>Performance</span>
                 </Badge>
@@ -400,8 +400,8 @@ What would you like to explore first?`;
         </div>
         <!-- Demo Status -->
         {#if demoError}
-          <div class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <div class="flex items-center gap-2 text-yellow-700">
+          <div class="p-3 bg-primary/10 border border-primary/20 rounded-lg">
+            <div class="flex items-center gap-2 text-primary">
               <AlertCircle class="w-4 h-4" />
               <span class="text-sm">{demoError}</span>
             </div>
@@ -410,8 +410,8 @@ What would you like to explore first?`;
 
         <!-- Demo Success -->
         {#if demoSuccess}
-          <div class="p-3 bg-green-50 border border-green-200 rounded-lg">
-            <div class="flex items-center gap-2 text-green-700">
+          <div class="p-3 bg-primary/10 border border-primary/20 rounded-lg">
+            <div class="flex items-center gap-2 text-primary">
               <CheckCircle class="w-4 h-4" />
               <span class="text-sm">{demoSuccess}</span>
             </div>
@@ -437,19 +437,19 @@ What would you like to explore first?`;
           <h4 class="font-medium text-gray-900">Key Features</h4>
           <div class="space-y-2">
             <div class="flex items-center gap-2 text-sm text-gray-600">
-              <BarChart3 class="w-4 h-4 text-orange-600" />
+              <BarChart3 class="w-4 h-4 text-primary" />
               <span>Real-time analytics</span>
             </div>
             <div class="flex items-center gap-2 text-sm text-gray-600">
-              <TrendingUp class="w-4 h-4 text-orange-600" />
+              <TrendingUp class="w-4 h-4 text-primary" />
               <span>Trend analysis</span>
             </div>
             <div class="flex items-center gap-2 text-sm text-gray-600">
-              <PieChart class="w-4 h-4 text-orange-600" />
+              <PieChart class="w-4 h-4 text-primary" />
               <span>Custom reports</span>
             </div>
             <div class="flex items-center gap-2 text-sm text-gray-600">
-              <Activity class="w-4 h-4 text-orange-600" />
+              <Activity class="w-4 h-4 text-primary" />
               <span>Performance tracking</span>
             </div>
           </div>
