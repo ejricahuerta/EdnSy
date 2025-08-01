@@ -69,6 +69,7 @@
   let trainingStepInterval: ReturnType<typeof setInterval> | null = null;
   let showDemoReadyDialog = $state(false);
 
+
   let webhookUrl = "/api/n8n/automation-chat";
   let currentSessionId: string | null = null;
   
@@ -312,7 +313,15 @@
       const { canPerform: canStart, userCredits, actionCost: demoCost } = await CreditService.canPerformAction('automation-tasks', 'training');
       
       if (!canStart) {
-        alert(`Insufficient credits. You need ${demoCost} credits to start this demo. You have ${userCredits} credits.`);
+        // Trigger Cal.com modal directly instead of showing custom modal
+        const calButton = document.createElement('button');
+        calButton.setAttribute('data-cal-link', 'edmel-ednsy/enable-ai');
+        calButton.setAttribute('data-cal-namespace', 'enable-ai');
+        calButton.setAttribute('data-cal-config', JSON.stringify({layout: "month_view"}));
+        calButton.style.display = 'none';
+        document.body.appendChild(calButton);
+        calButton.click();
+        document.body.removeChild(calButton);
         return;
       }
 
@@ -1234,3 +1243,7 @@
     </DialogFooter>
   </DialogContent>
 </Dialog>
+
+
+
+

@@ -5,10 +5,12 @@
 	import CreditCardIcon from "@lucide/svelte/icons/credit-card";
 	import LogOutIcon from "@lucide/svelte/icons/log-out";
 	import SparklesIcon from "@lucide/svelte/icons/sparkles";
+	import CalendarIcon from "@lucide/svelte/icons/calendar";
 
 	import * as Avatar from "$lib/components/ui/avatar/index.js";
 	import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
 	import * as Sidebar from "$lib/components/ui/sidebar/index.js";
+	import { Button } from "$lib/components/ui/button";
 	import { supabase } from '$lib/supabase';
 	import { goto } from '$app/navigation';
 
@@ -27,6 +29,21 @@
 </script>
 
 <Sidebar.Menu>
+	<!-- Book Consultation Button -->
+	<Sidebar.MenuItem>
+		      <Button
+        class="w-full justify-start gap-2"
+        variant="default"
+        size="sm"
+                            data-cal-link="edmel-ednsy/enable-ai"
+                    data-cal-namespace="enable-ai"
+        data-cal-config={JSON.stringify({layout: "month_view"})}
+      >
+			<CalendarIcon class="size-4" />
+			Book Consultation
+		</Button>
+	</Sidebar.MenuItem>
+	
 	<Sidebar.MenuItem>
 		<DropdownMenu.Root>
 			<DropdownMenu.Trigger>
@@ -81,3 +98,5 @@
 	
 
 </Sidebar.Menu>
+
+

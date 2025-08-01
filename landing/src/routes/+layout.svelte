@@ -107,6 +107,9 @@
   <!-- Social profile links for SEO -->
   <link rel="me" href="https://www.instagram.com/dev.exd/" />
   <link rel="me" href="https://www.linkedin.com/in/syronsuerte/" />
+  
+  <!-- Cal.com element-click embed script -->
+  <script src="/lib/cal-embed.js"></script>
   <!-- JSON-LD Structured Data for LocalBusiness/Organization -->
   <script type="application/ld+json">
     {
