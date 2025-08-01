@@ -134,11 +134,11 @@
          <div class=" mx-auto flex items-center justify-between px-6 sm:px-16 py-4">
        <a href="/" class="flex items-center gap-3 font-heading sm:justify-start justify-center flex-1">
          <div
-           class="font-heading text-2xl font-bold tracking-tight"
+           class="font-heading text-2xl font-bold tracking-tight drop-shadow-lg"
          >
-           <span class="{scrolled ? 'text-primary' : 'text-white'}">Ed</span>
-           <span class="text-primary">&</span>
-           <span class="{scrolled ? 'text-primary' : 'text-white'}">Sy</span>
+           <span class="{scrolled ? 'text-blue-600' : 'text-white'}">Ed</span>
+           <span class="{scrolled ? 'text-blue-600' : 'text-primary'}">&</span>
+           <span class="{scrolled ? 'text-blue-600' : 'text-white'}">Sy</span>
          </div>
        </a>
              <div class="flex items-center gap-4">

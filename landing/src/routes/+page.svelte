@@ -480,7 +480,7 @@
             goto("/login");
           }
         }}
-        class="bg-white text-black hover:bg-gray-100 font-bold px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg rounded-full shadow-lg mb-8 sm:mb-10 cursor-pointer"
+        class="bg-white text-black hover:bg-gray-100 font-bold px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg rounded-full shadow-lg mb-8 sm:mb-10 cursor-pointer hover:scale-105 transition-all duration-300"
       >
         See How It Works →
       </button>
@@ -577,7 +577,7 @@
                       goto("/login");
                     }
                   }}
-                  class="text-white/90 hover:text-white font-semibold text-lg transition-colors duration-200 cursor-pointer decoration-white/30 hover:underline"
+                  class="text-white/90 hover:text-white transition-colors duration-200 cursor-pointer decoration-white/30 hover:underline"
                 >
                   Try Now →
                 </button>
@@ -661,7 +661,7 @@
                   >Workflow Tools</Alert.Title
                 >
                 <Alert.Description class="text-white/80 text-xs text-left"
-                  >Streamlined workflows save 2-3 hours weekly</Alert.Description
+                  >Daily tasks streamlined, just the way you like</Alert.Description
                 >
               </Alert.Root>
             </div>
@@ -701,7 +701,7 @@
                       goto("/login");
                     }
                   }}
-                  class="text-white/90 hover:text-white font-semibold text-lg transition-colors duration-200 cursor-pointer decoration-white/30 hover:underline"
+                  class="text-white/90 hover:text-white transition-colors duration-200 cursor-pointer decoration-white/30 hover:underline"
                 >
                   Try Now →
                 </button>
@@ -826,7 +826,7 @@
                       goto("/login");
                     }
                   }}
-                  class="text-white/90 hover:text-white font-semibold text-lg transition-colors duration-200 cursor-pointer decoration-white/30 hover:underline"
+                  class="text-white/90 hover:text-white transition-colors duration-200 cursor-pointer decoration-white/30 hover:underline"
                 >
                   Try Now →
                 </button>
