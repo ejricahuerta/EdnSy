@@ -44,22 +44,22 @@
 
 <header class="bg-background sticky top-0 z-50 flex w-full items-center border-b">
 	<div class="h-(--header-height) flex w-full items-center gap-2 px-4">
-		<Button class="size-8" variant="ghost" size="icon" onclick={sidebar.toggle}>
+		<Button class="size-8 flex-shrink-0" variant="ghost" size="icon" onclick={sidebar.toggle}>
 			<SidebarIcon />
 		</Button>
-		<Separator orientation="vertical" class="mr-2 h-4" />
-		<Breadcrumb.Root class="hidden sm:block">
-			<Breadcrumb.List>
+		<Separator orientation="vertical" class="mr-2 h-4 flex-shrink-0" />
+		<Breadcrumb.Root class="flex-1 min-w-0 overflow-hidden">
+			<Breadcrumb.List class="text-xs sm:text-sm md:text-base">
 				{#each breadcrumbItems as item, index}
-					<Breadcrumb.Item>
+					<Breadcrumb.Item class="flex-shrink-0">
 						{#if item.href}
-							<Breadcrumb.Link href={item.href}>{item.text}</Breadcrumb.Link>
+							<Breadcrumb.Link href={item.href} class="truncate max-w-[120px] sm:max-w-none">{item.text}</Breadcrumb.Link>
 						{:else}
-							<Breadcrumb.Page>{item.text}</Breadcrumb.Page>
+							<Breadcrumb.Page class="truncate max-w-[120px] sm:max-w-none">{item.text}</Breadcrumb.Page>
 						{/if}
 					</Breadcrumb.Item>
 					{#if index < breadcrumbItems.length - 1}
-						<Breadcrumb.Separator />
+						<Breadcrumb.Separator class="flex-shrink-0" />
 					{/if}
 				{/each}
 			</Breadcrumb.List>
