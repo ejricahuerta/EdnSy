@@ -468,8 +468,7 @@
         class="text-md sm:text-lg text-white/80 text-left max-w-2xl font-sans mb-8 sm:mb-10 drop-shadow-md"
         role="doc-subtitle"
       >
-        Two Toronto locals helping business owners automate the boring stuff.
-        You focus on what you love. We handle the rest.
+      From emails to invoices, our AI powered solutions scales your business while you focus on what really matters.
       </p>
 
       <button
@@ -482,7 +481,7 @@
         }}
         class="bg-white text-black hover:bg-gray-100 font-bold px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg rounded-full shadow-lg mb-8 sm:mb-10 cursor-pointer hover:scale-105 transition-all duration-300"
       >
-        See How It Works →
+        How It Works →
       </button>
 
       <!-- Key Statistics - Better mobile layout -->
@@ -493,7 +492,7 @@
           <div
             class="font-display text-2xl sm:text-2xl md:text-4xl font-bold text-white drop-shadow-md"
           >
-            15-20
+            20+
           </div>
           <div class="text-sm text-white/80 drop-shadow-sm">
             Hours reclaimed <br class="block sm:hidden" /> weekly
@@ -539,14 +538,16 @@
         class="font-display text-3xl font-semibold tracking-tight text-balance text-neutral-700 sm:text-5xl mb-6"
       >
         Scale Your Business <br class="hidden sm:block" />
-        Reclaim Your Nights <span class="text-primary">&</span> Weekends
       </h2>
+      <p class="text-lg sm:text-xl leading-relaxed text-neutral-700">
+      Reclaim Your Nights <span class="text-primary">&</span> Weekends
+      </p>
     </div>
 
     <div class="grid grid-cols-1 gap-4">
       <!-- Family Game Nights Card - Left Aligned -->
       <section
-        class="min-h-[85vh] sm:min-h-[60vh] flex items-center justify-center relative game-nights-bg m-4"
+        class="min-h-[90vh] sm:min-h-[60vh] flex items-center justify-center relative game-nights-bg m-4"
       >
         <div class="relative z-10 px-8 sm:px-16 w-full">
           <div class="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-8 lg:gap-12">
@@ -670,7 +671,7 @@
       </section>
 
       <section
-        class="min-h-[85vh] sm:min-h-[60vh] flex items-center justify-center relative creative-hobbies-bg"
+        class="min-h-[90vh] sm:min-h-[60vh] flex items-center justify-center relative creative-hobbies-bg"
       >
         <div class="relative z-10 px-8 sm:px-16 w-full">
           <div class="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-8 lg:gap-12">
@@ -714,28 +715,7 @@
                 class="text-white/80 text-xs text-center italic w-full block mb-2"
                 >We make it happen with</small
               >
-              <Alert.Root
-                class="bg-white/10 backdrop-blur-sm border-white/20 text-left"
-              >
-                <FileText class="w-4 h-4 text-blue-600" />
-                <Alert.Title class="text-white text-sm font-semibold text-left"
-                  >Billing Workflows</Alert.Title
-                >
-                <Alert.Description class="text-white/80 text-xs text-left"
-                  >Invoices sent & tracked without lifting a finger</Alert.Description
-                >
-              </Alert.Root>
-              <Alert.Root
-                class="bg-white/10 backdrop-blur-sm border-white/20 text-left"
-              >
-                <Calculator class="w-4 h-4 text-blue-600" />
-                <Alert.Title class="text-white text-sm font-semibold text-left"
-                  >Reconciliations</Alert.Title
-                >
-                <Alert.Description class="text-white/80 text-xs text-left"
-                  >Real-time financial syncing</Alert.Description
-                >
-              </Alert.Root>
+
               <Alert.Root
                 class="bg-white/10 backdrop-blur-sm border-white/20 text-left"
               >
@@ -747,6 +727,26 @@
                   >Peace of mind without the spreadsheets</Alert.Description
                 >
               </Alert.Root>
+              <Alert.Root
+              class="bg-white/10 backdrop-blur-sm border-white/20 text-left"  >
+              <FileText class="w-4 h-4 text-blue-600" />
+              <Alert.Title class="text-white text-sm font-semibold text-left"
+                >Billing Workflows</Alert.Title
+              >
+              <Alert.Description class="text-white/80 text-xs text-left"
+                >Invoices sent & tracked without lifting a finger</Alert.Description
+              >
+            </Alert.Root>
+            <Alert.Root
+              class="bg-white/10 backdrop-blur-sm border-white/20 text-left" >
+              <Calculator class="w-4 h-4 text-blue-600" />
+              <Alert.Title class="text-white text-sm font-semibold text-left"
+                >Reconciliations</Alert.Title
+              >
+              <Alert.Description class="text-white/80 text-xs text-left"
+                >Real-time financial syncing</Alert.Description
+              >
+            </Alert.Root>
             </div>
 
             <!-- Mobile alerts - below text -->
@@ -755,28 +755,7 @@
                 class="text-white text-xs text-center italic w-full block mb-2"
                 >We make it happen with</small
               >
-              <Alert.Root
-                class="bg-white/10 backdrop-blur-sm border-white/20 text-left"
-              >
-                <FileText class="w-4 h-4 text-blue-600" />
-                <Alert.Title class="text-white text-sm font-semibold text-left"
-                  >Billing Workflows</Alert.Title
-                >
-                <Alert.Description class="text-white/80 text-xs text-left"
-                  >Invoices sent & tracked without lifting a finger</Alert.Description
-                >
-              </Alert.Root>
-              <Alert.Root
-                class="bg-white/10 backdrop-blur-sm border-white/20 text-left"
-              >
-                <Calculator class="w-4 h-4 text-blue-600" />
-                <Alert.Title class="text-white text-sm font-semibold text-left"
-                  >Reconciliations</Alert.Title
-                >
-                <Alert.Description class="text-white/80 text-xs text-left"
-                  >Real-time financial syncing</Alert.Description
-                >
-              </Alert.Root>
+
               <Alert.Root
                 class="bg-white/10 backdrop-blur-sm border-white/20 text-left"
               >
@@ -788,6 +767,28 @@
                   >Peace of mind without the spreadsheets</Alert.Description
                 >
               </Alert.Root>
+              <Alert.Root
+              class="bg-white/10 backdrop-blur-sm border-white/20 text-left"
+            >
+              <FileText class="w-4 h-4 text-blue-600" />
+              <Alert.Title class="text-white text-sm font-semibold text-left"
+                >Billing Workflows</Alert.Title
+              >
+              <Alert.Description class="text-white/80 text-xs text-left"
+                >Invoices sent & tracked without lifting a finger</Alert.Description
+              >
+            </Alert.Root>
+            <Alert.Root
+              class="bg-white/10 backdrop-blur-sm border-white/20 text-left"
+            >
+              <Calculator class="w-4 h-4 text-blue-600" />
+              <Alert.Title class="text-white text-sm font-semibold text-left"
+                >Reconciliations</Alert.Title
+              >
+              <Alert.Description class="text-white/80 text-xs text-left"
+                >Real-time financial syncing</Alert.Description
+              >
+            </Alert.Root>
             </div>
           </div>
         </div>
@@ -795,7 +796,7 @@
 
       <!-- Outdoor Adventures Card - Left Aligned -->
       <section
-        class="min-h-[85vh] sm:min-h-[60vh] flex items-center justify-center relative outdoor-activities-bg"
+        class="min-h-[90vh] sm:min-h-[60vh] flex items-center justify-center relative outdoor-activities-bg"
       >
         <div class="relative z-10 px-8 sm:px-16 w-full">
           <div class="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-8 lg:gap-12">
@@ -844,10 +845,10 @@
               >
                 <MessageSquare class="w-4 h-4 text-blue-600" />
                 <Alert.Title class="text-white text-sm font-semibold text-left"
-                  >Customer Follow-Ups</Alert.Title
+                  >Lead Follow-Ups</Alert.Title
                 >
                 <Alert.Description class="text-white/80 text-xs text-left"
-                  >Set-and-forget communication</Alert.Description
+                  >Personalized outreach</Alert.Description
                 >
               </Alert.Root>
               <Alert.Root
@@ -855,10 +856,10 @@
               >
                 <Package class="w-4 h-4 text-blue-600" />
                 <Alert.Title class="text-white text-sm font-semibold text-left"
-                  >Inventory Tracking</Alert.Title
+                  >24/7 Customer Care</Alert.Title
                 >
                 <Alert.Description class="text-white/80 text-xs text-left"
-                  >Never over-order again</Alert.Description
+                  >AI powered support</Alert.Description
                 >
               </Alert.Root>
               <Alert.Root
@@ -866,10 +867,10 @@
               >
                 <Clock class="w-4 h-4 text-blue-600" />
                 <Alert.Title class="text-white text-sm font-semibold text-left"
-                  >Weekend Automation</Alert.Title
+                  >Business AI Assistant</Alert.Title
                 >
                 <Alert.Description class="text-white/80 text-xs text-left"
-                  >Let your business run while you rest</Alert.Description
+                  >Handles your business while you live life</Alert.Description
                 >
               </Alert.Root>
             </div>
@@ -885,10 +886,10 @@
               >
                 <MessageSquare class="w-4 h-4 text-blue-600" />
                 <Alert.Title class="text-white text-sm font-semibold text-left"
-                  >Customer Follow-Ups</Alert.Title
+                  >Lead Follow-Ups</Alert.Title
                 >
                 <Alert.Description class="text-white/80 text-xs text-left"
-                  >Set-and-forget communication</Alert.Description
+                  >Personalized outreach</Alert.Description
                 >
               </Alert.Root>
               <Alert.Root
@@ -896,10 +897,10 @@
               >
                 <Package class="w-4 h-4 text-blue-600" />
                 <Alert.Title class="text-white text-sm font-semibold text-left"
-                  >Inventory Tracking</Alert.Title
+                  >24/7 Customer Care</Alert.Title
                 >
                 <Alert.Description class="text-white/80 text-xs text-left"
-                  >Never over-order again</Alert.Description
+                  >AI powered support</Alert.Description
                 >
               </Alert.Root>
               <Alert.Root
@@ -907,10 +908,10 @@
               >
                 <Clock class="w-4 h-4 text-blue-600" />
                 <Alert.Title class="text-white text-sm font-semibold text-left"
-                  >Weekend Automation</Alert.Title
+                  >Business AI Assistant</Alert.Title
                 >
                 <Alert.Description class="text-white/80 text-xs text-left"
-                  >Let your business run while you rest</Alert.Description
+                  >Handles your business while you live life</Alert.Description
                 >
               </Alert.Root>
             </div>
@@ -943,9 +944,9 @@
         <div class="space-y-4 text-lg text-neutral-500 leading-relaxed">
           <p>
             We started this because we saw incredible business owners burning
-            out over basics. Ed’s a system architect. Sy’s an ops genius.
+            out over basics. <span class="text-primary">Ed</span>’s a system architect. <span class="text-primary">Sy</span>’s an operations expert.
             Together, we turn clunky routines into smooth flows with practical
-            AI
+            AI.
           </p>
 
           <p>
@@ -1147,7 +1148,7 @@
   aria-label="Contact us"
 >
   <Card.Root
-    class="bg-gradient-to-br from-blue-600 to-blue-700 border-0 shadow-xl w-full"
+    class="bg-blue-900 border-0 shadow-xl w-full"
   >
     <Card.Content class="px-10 py-16 flex flex-col items-center text-center">
       <h2
