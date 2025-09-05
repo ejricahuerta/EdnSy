@@ -1,7 +1,10 @@
 import { json, error } from '@sveltejs/kit';
 import { TokenManager, type ServiceName } from '$lib/services/token-manager';
-import { MCP_API_KEY } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import type { RequestHandler } from './$types';
+
+// Get MCP API key with fallback
+const getMcpApiKey = () => env.getMcpApiKey() || 'your_secure_mcp_api_key';
 
 export const POST: RequestHandler = async ({ request }) => {
   try {
@@ -12,7 +15,7 @@ export const POST: RequestHandler = async ({ request }) => {
     }
 
     const providedApiKey = authHeader.slice(7); // Remove 'Bearer ' prefix
-    if (providedApiKey !== MCP_API_KEY) {
+    if (providedApiKey !== getMcpApiKey()) {
       throw error(401, 'Invalid MCP API key');
     }
 
@@ -73,7 +76,7 @@ export const GET: RequestHandler = async ({ request, url }) => {
     }
 
     const providedApiKey = authHeader.slice(7); // Remove 'Bearer ' prefix
-    if (providedApiKey !== MCP_API_KEY) {
+    if (providedApiKey !== getMcpApiKey()) {
       throw error(401, 'Invalid MCP API key');
     }
 

@@ -1,13 +1,8 @@
 import { json } from '@sveltejs/kit';
-import { N8N_DEMO_CHAT_API_URL } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 
-// Validate environment variables
-if (!N8N_DEMO_CHAT_API_URL) {
-  console.error('❌ Missing required N8N environment variable: N8N_DEMO_CHAT_API_URL');
-  if (import.meta.env.PROD) {
-    throw new Error('Missing required N8N environment variable');
-  }
-}
+// Get N8N API URL with fallback
+const getN8nApiUrl = () => env.N8N_DEMO_CHAT_API_URL || 'https://your-n8n-instance.com/webhook/your-webhook-id/chat';
 
 export async function POST({ request, locals }) {
   try {
@@ -47,7 +42,7 @@ export async function POST({ request, locals }) {
     });
 
     // Use the same n8n URL for training
-    const n8nWebhookUrl = N8N_DEMO_CHAT_API_URL;
+    const n8nWebhookUrl = getN8nApiUrl();
     console.log('Calling n8n webhook:', n8nWebhookUrl);
     console.log('Training data:', { website, action, sessionId, userId });
     // Call n8n webhook

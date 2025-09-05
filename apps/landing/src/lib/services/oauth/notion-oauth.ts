@@ -1,8 +1,9 @@
-import { 
-  NOTION_CLIENT_ID, 
-  NOTION_CLIENT_SECRET, 
-  NOTION_REDIRECT_URI 
-} from '$env/static/private';
+import { env } from '$env/dynamic/private';
+
+// Get environment variables with fallbacks
+const getNotionClientId = () => env.NOTION_CLIENT_ID || 'your_notion_client_id';
+const getNotionClientSecret = () => env.NOTION_CLIENT_SECRET || 'your_notion_client_secret';
+const getNotionRedirectUri = () => env.NOTION_REDIRECT_URI || 'https://yourdomain.com/auth/notion/callback';
 
 export interface NotionTokenData {
   access_token: string;
@@ -39,8 +40,8 @@ export class NotionOAuthService {
    */
   static getAuthUrl(state?: string): string {
     const params = new URLSearchParams({
-      client_id: NOTION_CLIENT_ID,
-      redirect_uri: NOTION_REDIRECT_URI,
+      client_id: getNotionClientId(),
+      redirect_uri: getNotionRedirectUri(),
       response_type: 'code',
       owner: 'user',
       ...(state && { state })
@@ -53,7 +54,7 @@ export class NotionOAuthService {
    * Exchange authorization code for access token
    */
   static async exchangeCodeForTokens(code: string): Promise<NotionTokenData> {
-    const credentials = Buffer.from(`${NOTION_CLIENT_ID}:${NOTION_CLIENT_SECRET}`).toString('base64');
+    const credentials = Buffer.from(`${getNotionClientId()}:${getNotionClientSecret()}`).toString('base64');
     
     const response = await fetch(this.TOKEN_URL, {
       method: 'POST',
@@ -65,7 +66,7 @@ export class NotionOAuthService {
       body: JSON.stringify({
         grant_type: 'authorization_code',
         code,
-        redirect_uri: NOTION_REDIRECT_URI,
+        redirect_uri: getNotionRedirectUri(),
       }),
     });
 

@@ -1,8 +1,9 @@
-import { 
-  GOOGLE_CLIENT_ID, 
-  GOOGLE_CLIENT_SECRET, 
-  GOOGLE_REDIRECT_URI 
-} from '$env/static/private';
+import { env } from '$env/dynamic/private';
+
+// Get environment variables with fallbacks
+const getGoogleClientId = () => env.GOOGLE_CLIENT_ID || 'your_google_client_id';
+const getGoogleClientSecret = () => env.GOOGLE_CLIENT_SECRET || 'your_google_client_secret';
+const getGoogleRedirectUri = () => env.GOOGLE_REDIRECT_URI || 'https://yourdomain.com/auth/google/callback';
 
 export interface GoogleTokenData {
   access_token: string;
@@ -42,8 +43,8 @@ export class GoogleOAuthService {
    */
   static getAuthUrl(state?: string): string {
     const params = new URLSearchParams({
-      client_id: GOOGLE_CLIENT_ID,
-      redirect_uri: GOOGLE_REDIRECT_URI,
+      client_id: getGoogleClientId(),
+      redirect_uri: getGoogleRedirectUri(),
       response_type: 'code',
       scope: this.SCOPES,
       access_type: 'offline',
@@ -65,9 +66,9 @@ export class GoogleOAuthService {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: new URLSearchParams({
-        client_id: GOOGLE_CLIENT_ID,
-        client_secret: GOOGLE_CLIENT_SECRET,
-        redirect_uri: GOOGLE_REDIRECT_URI,
+        client_id: getGoogleClientId(),
+        client_secret: getGoogleClientSecret(),
+        redirect_uri: getGoogleRedirectUri(),
         grant_type: 'authorization_code',
         code,
       }),
@@ -99,8 +100,8 @@ export class GoogleOAuthService {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: new URLSearchParams({
-        client_id: GOOGLE_CLIENT_ID,
-        client_secret: GOOGLE_CLIENT_SECRET,
+        client_id: getGoogleClientId(),
+        client_secret: getGoogleClientSecret(),
         refresh_token: refreshToken,
         grant_type: 'refresh_token',
       }),
