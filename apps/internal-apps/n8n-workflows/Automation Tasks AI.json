@@ -1,0 +1,717 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://r.jina.ai",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "DNT",
+              "value": "1"
+            },
+            {
+              "name": "X-Base",
+              "value": "final"
+            },
+            {
+              "name": "X-Engine",
+              "value": "browser"
+            },
+            {
+              "name": "X-Md-Heading-Style",
+              "value": "setext"
+            },
+            {
+              "name": "X-No-Cache",
+              "value": "true"
+            },
+            {
+              "name": "X-Retain-Images",
+              "value": "none"
+            },
+            {
+              "name": "X-With-Links-Summary",
+              "value": "true"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $json.body.website }}"
+            }
+          ]
+        },
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "id": "28234851-67e3-4ec1-b86b-e9b00e7a1a15",
+      "name": "Jina Fetch",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -736,
+        160
+      ],
+      "typeVersion": 4.1,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "kBtZ4VopGwL1q5Ka",
+          "name": "Jina.ai API Key"
+        },
+        "httpBearerAuth": {
+          "id": "JFRcdu1ZCmTOx9pj",
+          "name": "Jina"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -384,
+        272
+      ],
+      "id": "c67503e9-9521-4aad-865e-4b2fc5622e32",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "xe52ky6hsna43t1j",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json }}",
+        "options": {
+          "systemMessage": "=# Web Scraping & Data Analysis Agent\n\n## Core Function\nYou are a specialized web scraping and data analysis agent designed to extract, analyze, and structure business data from websites and URLs to generate actionable business intelligence and automation tools.\n\n## Scope Limitations\n**ONLY respond to requests involving:**\n- Web scraping and data extraction from business websites\n- Business data analysis and structuring\n- Demo customer profile and lead notification generation based on website analysis\n- Business automation system prompt creation\n\n**For any other topics, respond exactly:** \"I specialize exclusively in web scraping and data analysis for business intelligence. Please provide websites or business data for me to process.\"\n\n## Data Extraction Requirements\n\n### Company Information\nExtract and analyze the following from provided websites/URLs:\n\n- **Website URL and domain**\n- **Company/organization name**\n- **Business description** (2-3 sentences capturing core mission)\n- **Industry/sector classification** (use standard industry categories)\n- **Contact information** (phone, email, address when publicly available)\n- **Key products/services** (specific offerings with brief descriptions)\n- **Target market/audience** (demographics, business types, geographic focus)\n- **Unique value propositions** (competitive advantages and differentiators)\n- **Business model** (B2B, B2C, subscription, e-commerce, etc.)\n- **Company size indicators** (team size, locations, years in business if available)\n\n### Demo Customer & New Lead Notification Generation\n\nCreate both a demo customer profile AND a new lead notification based on that customer. This provides a complete example of how leads would appear when they contact the business.\n\n**Demo Customer Requirements:**\n- Generate realistic name appropriate to the target demographic\n- Use consistent contact format with email variation for tracking\n- Select the most representative customer segment for the business\n- Include realistic budget based on business pricing/market\n- Create appropriate urgency level and inquiry type\n- Ensure inquiry matches actual services offered\n\n**Output Format:**\n\n**1. Demo Customer Profile:**\n```markdown\n### Demo Customer Profile\n\n**[Realistic Full Name]**\n- Phone: [Use provided phone variable or format] (use {{ $('Fetch').item.json.body.phone }})\n- Email: [base_email]+[initials]@[domain].com (use  {{ $('Fetch').item.json.body.email }})\n- Type: [Primary customer segment]\n- Background: [Detailed context matching primary target audience]\n- Budget: [Market-appropriate range]\n- Timeline: [Realistic timeline with reason]\n```\n\n**2. New Lead Notification (Based on Demo Customer):**\n```markdown\n### NEW LEAD NOTIFICATION\n\n**📩 New Customer Inquiry Received**\n\n**Customer Information:**\n- **Name:** [Same name as demo customer]\n- **Phone:** [Same phone as demo customer]\n- **Email:** [Same email as demo customer]\n- **Source:** Website Contact Form\n\n**Inquiry Details:**\n- **Service Interest:** [Specific service/product they're inquiring about]\n- **Message:** \"[Realistic customer inquiry message in their own words]\"\n- **Estimated Budget:** [Same budget range as demo customer]\n- **Timeline:** [Same timeline as demo customer]\n- **Customer Type:** [Same type as demo customer]\n\n**Lead Qualification:**\n- **Priority Level:** [High/Medium/Low based on inquiry details]\n- **Next Steps:** [Recommended immediate actions for follow-up]\n- **Notes:** [Any additional context or observations about the lead]\n\n---\n*Notification sent: [Current timestamp]*\n```\n\n### Business Automation System Prompt Generation\n\nGenerate a comprehensive, actionable system prompt for business automation AI tailored to the specific business analyzed.\n\n**System Prompt Structure:**\n\n**1. ROLE & PURPOSE**\n```\nYou are [Business Owner Name]'s AI business automation assistant for [Company Name], specializing in [specific business focus].\n\nPRIMARY FUNCTIONS:\n- Customer inquiry management and lead qualification\n- Appointment scheduling and calendar management\n- Order processing and fulfillment tracking\n- Follow-up sequence automation\n- Customer relationship maintenance\n- Performance analytics and reporting\n```\n\n**2. BUSINESS KNOWLEDGE BASE**\n```\nCOMPANY PROFILE:\n- Business: [Company name and core mission]\n- Services: [Specific services with brief descriptions]\n- Pricing: [Price ranges or structure if available]\n- Hours: [Business hours and time zone]\n- Location: [Service areas or physical locations]\n- Capacity: [Appointment types, duration, availability]\n\nCUSTOMER BASE:\n- Primary segments: [Based on website analysis]\n- Common needs: [Specific pain points and requirements]\n- Typical journey: [Customer acquisition to fulfillment]\n- Communication preferences: [Based on business type]\n```\n\n**3. AUTOMATION WORKFLOWS**\n```\nLEAD MANAGEMENT:\n- Respond to inquiries within [specific timeframe]\n- Qualify leads using [specific criteria based on business]\n- Route qualified leads to appropriate workflows\n- Track engagement metrics and conversion rates\n\nSCHEDULING AUTOMATION:\n- Send booking confirmations with service details\n- Automated reminders [X hours] before appointments\n- Handle rescheduling with availability checks\n- Post-appointment follow-up and feedback collection\n- Calendar integration and conflict management\n\nORDER & SERVICE DELIVERY:\n- Process service requests with detailed confirmations\n- Provide project updates and milestone notifications\n- Handle delivery or completion confirmations\n- Manage post-service follow-ups and reviews\n- Track customer satisfaction and retention\n```\n\n**4. COMMUNICATION PROTOCOLS**\n```\nEMAIL USAGE:\n- Detailed service information and proposals\n- Formal contracts and documentation\n- Project updates and reports\n- Educational content and newsletters\n- Long-form relationship building\n\nSMS/TEXT USAGE:\n- Urgent appointment reminders\n- Quick status updates\n- Time-sensitive notifications\n- Brief confirmations\n- Emergency communications\n\nTIMING RULES:\n- Business hours: [Specific hours and timezone]\n- Response time targets: [Based on communication type]\n- Follow-up intervals: [Appropriate for business type]\n- Frequency limits: [To avoid over-communication]\n```\n\n**5. DECISION FRAMEWORK**\n```\nAUTOMATIC HANDLING:\n- [Service-specific] information requests\n- Standard appointment booking\n- Basic pricing and availability questions  \n- Order status and timeline inquiries\n- Routine follow-ups and check-ins\n\nESCALATE TO OWNER:\n- Complex [service-specific] requirements\n- Custom pricing negotiations\n- Complaint resolution beyond standard policies\n- High-value opportunity discussions\n- Technical issues requiring expertise\n\nPERSONALIZATION RULES:\n- Address customers by name and reference history\n- Tailor responses to customer segment and needs\n- Adjust communication style based on relationship stage\n- Use business-specific terminology and expertise\n- Maintain consistent brand voice and values\n```\n\n## Required Output Format\n\n**Always respond with valid JSON in this exact structure:**\n\n```json\n{\n  \"extraction_metadata\": {\n    \"website_url\": \"\",\n    \"extraction_date\": \"\",\n    \"data_quality_score\": \"1-5 with explanation\",\n    \"extraction_method\": \"manual/automated\",\n    \"completeness_percentage\": \"percentage of fields successfully extracted\"\n  },\n  \"company_profile\": {\n    \"company_name\": \"\",\n    \"industry\": \"\",\n    \"business_model\": \"\",\n    \"description\": \"\",\n    \"products_services\": [],\n    \"target_audience\": \"\",\n    \"value_proposition\": \"\",\n    \"contact_info\": {\n      \"phone\": \"\",\n      \"email\": \"\",\n      \"address\": \"\"\n    },\n    \"business_indicators\": {\n      \"size\": \"\",\n      \"years_active\": \"\",\n      \"locations\": \"\"\n    }\n  },\n  \"business_automation_prompt\": \"[Complete system prompt following the structure above, customized for the specific business]\",\n  \"demo_customer\": \"[Markdown formatted demo customer profile as specified]\",\n  \"new_lead_notification\": \"[Markdown formatted lead notification based on the demo customer]\",\n  \"analysis_notes\": {\n    \"data_sources\": \"List of pages/sections analyzed\",\n    \"limitations\": \"Any data gaps or assumptions made\",\n    \"recommendations\": \"Suggestions for additional data collection\"\n  }\n}\n```\n\n## Quality Standards & Processing Guidelines\n\n### Data Validation\n- Cross-reference information from multiple website sections\n- Verify contact information format and accessibility\n- Ensure industry classification accuracy\n- Validate service descriptions against actual offerings\n\n### Demo Customer & Lead Notification Accuracy\n- Base both demo customer and lead notification on actual target market indicators from website\n- Ensure budget range aligns with visible pricing or market standards\n- Create realistic inquiry matching business's service delivery model\n- Focus on the most likely customer inquiry type for the business\n- Ensure consistency between demo customer profile and lead notification\n- Format lead notification as professional alert the owner would actually receive\n\n### System Prompt Specificity\n- Include business-specific terminology and processes\n- Reference actual services and capabilities found on website\n- Set realistic automation boundaries based on business complexity\n- Provide clear escalation criteria relevant to the business type\n\n### Processing Workflow\n1. **Initial Analysis**: Scan entire website structure and main content areas\n2. **Data Extraction**: Systematically extract information per requirements\n3. **Validation**: Cross-check extracted data for consistency and accuracy\n4. **Customer Modeling**: Analyze target audience to create realistic profiles\n5. **Automation Design**: Build system prompt based on business operational needs\n6. **Quality Assessment**: Score completeness and reliability of extraction\n7. **JSON Formatting**: Structure all findings in required output format\n\n### Error Handling\n- If website is inaccessible, provide clear error message and alternative suggestions\n- For incomplete data, specify which fields couldn't be extracted and why\n- Include confidence levels for inferred information not explicitly stated\n- Flag any assumptions made during analysis process"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        -416,
+        48
+      ],
+      "id": "e3b1a682-ff0b-4658-83d2-b0c5c717c6e6",
+      "name": "Basic Web Scraping AI"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.action }}",
+                    "rightValue": "train",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "3e7a604f-c779-4409-9852-38181a78db6c"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "TRAIN"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "76206925-9196-42ca-85f7-84e8fad452c5",
+                    "leftValue": "={{ $json.body.action }}",
+                    "rightValue": "message",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "MESSAGE"
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -960,
+        352
+      ],
+      "id": "8e192460-65c9-4b2d-a9de-e2e86878bad7",
+      "name": "action"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1z2S4lLpB07tOqCK8AGtVxY4DPu-DlvXt1arlhL5ODpI",
+          "mode": "list",
+          "cachedResultName": "AI Assistant Website Contents",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1z2S4lLpB07tOqCK8AGtVxY4DPu-DlvXt1arlhL5ODpI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Contents",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1z2S4lLpB07tOqCK8AGtVxY4DPu-DlvXt1arlhL5ODpI/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Content": "={{ $('Jina Fetch').item.json[\"data\"] }}",
+            "Website URL": "={{ $('Fetch').item.json[\"body\"][\"website\"] }}",
+            "Company Name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Company_Name', ``, 'string') }}",
+            "Business Description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Business_Description', ``, 'string') }}",
+            "Industry": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Industry', ``, 'string') }}",
+            "Target Audience": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Target_Audience', ``, 'string') }}",
+            "Communication Style": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Communication_Style', ``, 'string') }}",
+            "Date Processed": "={{ $now }}",
+            "Prompt": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt', `Generated AI Agent Prompt`, 'string') }}",
+            "Key Products and Services": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Key_Products_and_Services', ``, 'string') }}",
+            "Demo Customer": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Demo_Customer', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "Website URL"
+          ],
+          "schema": [
+            {
+              "id": "Website URL",
+              "displayName": "Website URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Company Name",
+              "displayName": "Company Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Business Description",
+              "displayName": "Business Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Content",
+              "displayName": "Content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Prompt",
+              "displayName": "Prompt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Industry",
+              "displayName": "Industry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Key Products and Services",
+              "displayName": "Key Products and Services",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Target Audience",
+              "displayName": "Target Audience",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Communication Style",
+              "displayName": "Communication Style",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Date Processed",
+              "displayName": "Date Processed",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Demo Customer",
+              "displayName": "Demo Customer",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.6,
+      "position": [
+        -256,
+        272
+      ],
+      "id": "67b1d33c-ff9d-49f1-aa4d-41951ef9c326",
+      "name": "Add or Update Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "qeo46NfLv29wQvBe",
+          "name": "Google Sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1z2S4lLpB07tOqCK8AGtVxY4DPu-DlvXt1arlhL5ODpI",
+          "mode": "list",
+          "cachedResultName": "AI Assistant Website Contents",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1z2S4lLpB07tOqCK8AGtVxY4DPu-DlvXt1arlhL5ODpI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Contents",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1z2S4lLpB07tOqCK8AGtVxY4DPu-DlvXt1arlhL5ODpI/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Website URL",
+              "lookupValue": "={{ $json.body.website }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -736,
+        560
+      ],
+      "id": "5ce7acde-2f64-4785-a915-ac5c62b65bb9",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "qeo46NfLv29wQvBe",
+          "name": "Google Sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -512,
+        784
+      ],
+      "id": "2814a73d-7a0b-4fb6-b7a1-625302fa8ead",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "xe52ky6hsna43t1j",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=  {{ $('Fetch').item.json.body.sessionId}}.{{ $('Fetch').item.json.body.websiteUrl }}",
+        "contextWindowLength": 25
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -384,
+        784
+      ],
+      "id": "9c054482-50d1-4579-9f53-e8a47cff9675",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        80,
+        352
+      ],
+      "id": "cebe013c-3a51-4860-98df-335a6636e499",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $item(\"0\").$node[\"Fetch\"].json[\"body\"][\"message\"] }}",
+        "options": {
+          "systemMessage": "=Communication Style: {{ $json['Communication Style'] }}\n----\n{{ $json.Prompt }}\n----\nhere is the data:\nCompany - {{ $json['Company Name'] }}\nDescription - {{ $json['Business Description'] }}\nIndustry - {{ $json.Industry }}\nProducts and Services-  {{ $json['Key Products and Services'] }}\nAudience - {{ $json['Target Audience'] }}\n\nCustomers Demo Details: {{$json[\"Demo Customer\"]}}\nnote: format the number as (1**********)\n----\n\nraw data content:\n{{ $json.Content }}\n\n",
+          "batching": {
+            "delayBetweenBatches": 1000
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        -416,
+        560
+      ],
+      "id": "2d1d2459-6c5a-4edf-9c03-aec2434a0e10",
+      "name": "AI Assistant"
+    },
+    {
+      "parameters": {
+        "from": "15873298939",
+        "to": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', `format: (e.g. 15819985673)`, 'string') }}",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', `format the message to display properly in SMS`, 'string') }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.vonageTool",
+      "typeVersion": 1,
+      "position": [
+        -256,
+        784
+      ],
+      "id": "c4989d1f-1a47-4814-8be1-e86c1b76b672",
+      "name": "Send SMS",
+      "credentials": {
+        "vonageApi": {
+          "id": "GmjvaDW1dsETlyXm",
+          "name": "Vonage account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "2d689383-2a6f-4c6d-b60b-d369eacbc45e/chat-automation",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1184,
+        352
+      ],
+      "id": "1e864356-e73d-49c2-a7df-41d99c659163",
+      "name": "Fetch",
+      "webhookId": "2d689383-2a6f-4c6d-b60b-d369eacbc45e"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', ``, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "emailType": "text",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        -128,
+        784
+      ],
+      "id": "911e7295-a709-40b4-99f6-7f796f3e91c4",
+      "name": "Send Email",
+      "webhookId": "417c2b53-0664-4d73-9d62-ca2469e22a4c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "RuiDAZ9rt7pSvqOx",
+          "name": "Ed & Sy Gmail"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Jina Fetch": {
+      "main": [
+        [
+          {
+            "node": "Basic Web Scraping AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic Web Scraping AI",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic Web Scraping AI": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "action": {
+      "main": [
+        [
+          {
+            "node": "Jina Fetch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add or Update Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "Basic Web Scraping AI",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "AI Assistant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Assistant",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Assistant",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        []
+      ]
+    },
+    "AI Assistant": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send SMS": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch": {
+      "main": [
+        [
+          {
+            "node": "action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "Fetch": [
+      {
+        "headers": {
+          "connection": "keep-alive",
+          "host": "n8n.ednsy.com",
+          "x-forwarded-scheme": "https",
+          "x-forwarded-proto": "https",
+          "x-forwarded-for": "142.181.66.197",
+          "x-real-ip": "142.181.66.197",
+          "content-length": "202",
+          "content-type": "application/json",
+          "n8n": "EDNSY",
+          "accept": "*/*",
+          "accept-language": "*",
+          "sec-fetch-mode": "cors",
+          "user-agent": "node",
+          "accept-encoding": "br, gzip, deflate"
+        },
+        "params": {},
+        "query": {},
+        "body": {
+          "website": "https://www.ednsy.com",
+          "emailAddress": "edmel@ednsy.com",
+          "phone": "5819985673",
+          "action": "train",
+          "sessionId": null,
+          "userId": null,
+          "timestamp": "2025-07-27T02:51:13.487Z",
+          "demo": "automation-tasks"
+        },
+        "webhookUrl": "https://n8n.ednsy.com/webhook/2d689383-2a6f-4c6d-b60b-d369eacbc45e/chat-automation",
+        "executionMode": "production"
+      }
+    ]
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6cf14cc3e8eb21a489b634c42add1c1473a68abb6d5980d3bda83c628b9c7e64"
+  }
+}

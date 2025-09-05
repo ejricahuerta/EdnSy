@@ -1,0 +1,82 @@
+{
+  "project": {
+    "name": "Ed & Sy Digital Agency Website",
+    "description": "Website overhaul and pivot to full-service digital agency specializing in time-saving solutions",
+    "version": "1.0.0",
+    "lastUpdated": "2025-01-27"
+  },
+  "global": {
+    "defaultTag": "master"
+  },
+  "tags": {
+  "master": {
+      "name": "master",
+      "description": "Home Services Platform (Previous Focus)",
+      "created": "2025-01-27T00:00:00Z"
+    },
+    "digital-agency": {
+      "name": "digital-agency",
+      "description": "Website overhaul and pivot to full-service digital agency specializing in time-saving solutions",
+      "created": "2025-01-27T00:00:00Z"
+    }
+  },
+  "tasksByTag": {
+    "digital-agency": [
+      {
+        "id": 1,
+        "title": "Strategic Planning & Brand Foundation",
+        "description": "Establish digital agency positioning, messaging framework, and brand identity aligned with time-savings value proposition",
+        "status": "pending",
+        "priority": "high",
+        "dependencies": [],
+        "details": "Define the core messaging 'Get Your Time Back with AI-Powered Digital Solutions', establish target personas (Scale-Up Business Owners, Service-Based Entrepreneurs, Traditional Industry Owners), and create comprehensive brand guidelines including color palette (Deep blue #1a365d, Electric blue #4299e1, Warm orange #ed8936), typography (Inter fonts), and visual identity principles.",
+        "testStrategy": "Validate messaging with target audience surveys and brand consistency audit across all materials",
+            "subtasks": []
+      },
+      {
+        "id": 2,
+        "title": "Content Strategy & Copywriting",
+        "description": "Develop compelling copy for all website pages focusing on time-savings benefits and business results",
+        "status": "pending",
+        "priority": "high",
+        "dependencies": [1],
+        "details": "Create homepage hero copy, service descriptions for Voice AI Assistants (flagship), Workflow Automation, Website Development, SEO Services, and Chatbots. Develop case studies format (Problem → Solution → Time Saved → Results), About page storytelling, and conversion-focused CTAs throughout the site.",
+        "testStrategy": "A/B test key headlines and CTAs, measure time-on-page and conversion metrics",
+            "subtasks": []
+      },
+      {
+        "id": 3,
+        "title": "Website Design & Visual Identity",
+        "description": "Create modern, professional website design that emphasizes time-savings and digital transformation",
+        "status": "pending",
+        "priority": "high",
+        "dependencies": [1],
+        "details": "Design homepage with split-screen 'before/after' hero visual, create service cards highlighting time-savings, design interactive elements like animated counters and progress bars, develop mobile-first responsive layouts, and create visual elements including time-focused imagery (clocks, calendars, family moments).",
+        "testStrategy": "User testing on mobile devices, performance testing for <3 second load times, accessibility audit",
+            "subtasks": []
+      },
+      {
+        "id": 4,
+        "title": "Homepage Development",
+        "description": "Build conversion-optimized homepage with time-savings messaging and clear service positioning",
+        "status": "pending",
+        "priority": "high",
+        "dependencies": [2, 3],
+        "details": "Implement hero section with 'Get Your Time Back' messaging, create problem statement section addressing late nights/weekends work, build solution overview with 5 service cards (Voice AI prominent), add social proof section with time-savings testimonials, implement 'Ed & Sy Difference' section, and multiple consultation CTAs.",
+        "testStrategy": "Heat mapping analysis, conversion rate tracking, page load speed verification",
+            "subtasks": []
+      },
+      {
+        "id": 5,
+        "title": "Voice AI Assistants Service Page",
+        "description": "Develop flagship service page for Voice AI Assistants with detailed use cases and pricing",
+        "status": "pending",
+        "priority": "high",
+        "dependencies": [2, 3],
+        "details": "Create service page structure: Problem (repetitive phone calls) → Solution (24/7 AI handling) → Benefits (time savings, lead capture, professional image) → Use Cases (appointment booking, customer support, lead qualification) → Pricing tiers ($3K-$15K setup + monthly) → FAQ section → Consultation CTA.",
+        "testStrategy": "Track consultation bookings from this page, measure engagement with pricing section",
+            "subtasks": []
+          }
+        ]
+  }
+}

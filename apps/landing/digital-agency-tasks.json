@@ -1,0 +1,215 @@
+{
+  "project": {
+    "name": "Ed & Sy Digital Agency Website",
+    "description": "Website overhaul and pivot to full-service digital agency specializing in time-saving solutions",
+    "version": "1.0.0",
+    "lastUpdated": "2025-01-27"
+  },
+  "tags": {
+    "digital-agency": {
+      "name": "digital-agency",
+      "description": "Website overhaul and pivot to full-service digital agency specializing in time-saving solutions",
+      "created": "2025-01-27T00:00:00Z",
+      "tasks": [
+        {
+          "id": 1,
+          "title": "Strategic Planning & Brand Foundation",
+          "description": "Establish digital agency positioning, messaging framework, and brand identity aligned with time-savings value proposition",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": [],
+          "details": "Define the core messaging 'Get Your Time Back with AI-Powered Digital Solutions', establish target personas (Scale-Up Business Owners, Service-Based Entrepreneurs, Traditional Industry Owners), and create comprehensive brand guidelines including color palette (Deep blue #1a365d, Electric blue #4299e1, Warm orange #ed8936), typography (Inter fonts), and visual identity principles.",
+          "testStrategy": "Validate messaging with target audience surveys and brand consistency audit across all materials",
+          "subtasks": []
+        },
+        {
+          "id": 2,
+          "title": "Content Strategy & Copywriting",
+          "description": "Develop compelling copy for all website pages focusing on time-savings benefits and business results",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": [1],
+          "details": "Create homepage hero copy, service descriptions for Voice AI Assistants (flagship), Workflow Automation, Website Development, SEO Services, and Chatbots. Develop case studies format (Problem → Solution → Time Saved → Results), About page storytelling, and conversion-focused CTAs throughout the site.",
+          "testStrategy": "A/B test key headlines and CTAs, measure time-on-page and conversion metrics",
+          "subtasks": []
+        },
+        {
+          "id": 3,
+          "title": "Website Design & Visual Identity",
+          "description": "Create modern, professional website design that emphasizes time-savings and digital transformation",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": [1],
+          "details": "Design homepage with split-screen 'before/after' hero visual, create service cards highlighting time-savings, design interactive elements like animated counters and progress bars, develop mobile-first responsive layouts, and create visual elements including time-focused imagery (clocks, calendars, family moments).",
+          "testStrategy": "User testing on mobile devices, performance testing for <3 second load times, accessibility audit",
+          "subtasks": []
+        },
+        {
+          "id": 4,
+          "title": "Homepage Development",
+          "description": "Build conversion-optimized homepage with time-savings messaging and clear service positioning",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": [2, 3],
+          "details": "Implement hero section with 'Get Your Time Back' messaging, create problem statement section addressing late nights/weekends work, build solution overview with 5 service cards (Voice AI prominent), add social proof section with time-savings testimonials, implement 'Ed & Sy Difference' section, and multiple consultation CTAs.",
+          "testStrategy": "Heat mapping analysis, conversion rate tracking, page load speed verification",
+          "subtasks": []
+        },
+        {
+          "id": 5,
+          "title": "Voice AI Assistants Service Page",
+          "description": "Develop flagship service page for Voice AI Assistants with detailed use cases and pricing",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": [2, 3],
+          "details": "Create service page structure: Problem (repetitive phone calls) → Solution (24/7 AI handling) → Benefits (time savings, lead capture, professional image) → Use Cases (appointment booking, customer support, lead qualification) → Pricing tiers ($3K-$15K setup + monthly) → FAQ section → Consultation CTA.",
+          "testStrategy": "Track consultation bookings from this page, measure engagement with pricing section",
+          "subtasks": []
+        },
+        {
+          "id": 6,
+          "title": "Additional Service Pages",
+          "description": "Develop service pages for Workflow Automation, Website Development, SEO Services, and Chatbots",
+          "status": "pending",
+          "priority": "medium",
+          "dependencies": [5],
+          "details": "Create consistent service page template and develop: Workflow Automation (eliminate 10+ hours weekly), Website Development (conversion-focused), SEO Services (Toronto local focus), and Chatbots (24/7 support). Each page should include time benefits, use cases, pricing ranges, and consultation CTAs.",
+          "testStrategy": "Compare conversion rates across service pages, optimize based on performance",
+          "subtasks": []
+        },
+        {
+          "id": 7,
+          "title": "Case Studies Development",
+          "description": "Create detailed case studies showcasing time savings and business impact for different industries",
+          "status": "pending",
+          "priority": "medium",
+          "dependencies": [2],
+          "details": "Develop minimum 3 case studies following format: Problem → Solution → Time Saved → Results. Include industries like service businesses, retail, and professional services. Focus on quantifiable time savings (15-20 hours weekly) and business impact. Include client testimonials and before/after metrics.",
+          "testStrategy": "Track engagement with case studies, measure impact on consultation bookings",
+          "subtasks": []
+        },
+        {
+          "id": 8,
+          "title": "About Page & Company Positioning",
+          "description": "Develop About page emphasizing Toronto connection, personal touch, and mission of giving business owners their life back",
+          "status": "pending",
+          "priority": "medium",
+          "dependencies": [1, 2],
+          "details": "Create About page content including Ed & Sy background story, Toronto local connection with global reach, company mission 'Giving business owners their life back', team photos and credentials, company values, and credibility indicators.",
+          "testStrategy": "Monitor About page engagement, track trust indicators effectiveness",
+          "subtasks": []
+        },
+        {
+          "id": 9,
+          "title": "Consultation Booking System",
+          "description": "Implement Calendly integration with pre-qualification forms and consultation process optimization",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": [4],
+          "details": "Integrate Calendly booking system, create pre-qualification form before booking, implement consultation process: Audit Focus → Solution Mapping → Proposal → Follow-up. Set up 7-day email sequence for follow-ups and multiple CTA placements throughout site.",
+          "testStrategy": "Track booking completion rates, measure consultation show-up rates, monitor conversion to proposals",
+          "subtasks": []
+        },
+        {
+          "id": 10,
+          "title": "Technical Infrastructure & Performance",
+          "description": "Implement technical requirements including hosting, security, and performance optimization",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": [],
+          "details": "Set up mobile responsive design, ensure <3 second page load times, implement SSL certificate, integrate Google Analytics 4 with custom events, set up contact forms with CRM integration, implement blog functionality for SEO, and create testimonial management system.",
+          "testStrategy": "Lighthouse performance audits, mobile responsiveness testing, security vulnerability scanning",
+          "subtasks": []
+        },
+        {
+          "id": 11,
+          "title": "SEO Foundation & Local Optimization",
+          "description": "Implement comprehensive SEO strategy with focus on Toronto local search and digital agency keywords",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": [4, 6],
+          "details": "Implement schema markup for local business, optimize images with alt tags, create XML sitemap, write meta descriptions for all pages, develop internal linking strategy, optimize for Toronto local SEO, target keywords around digital agency services and time-saving solutions.",
+          "testStrategy": "Track local search rankings, monitor organic traffic growth, measure keyword position improvements",
+          "subtasks": []
+        },
+        {
+          "id": 12,
+          "title": "Third-Party Integrations",
+          "description": "Integrate essential tools for lead management, analytics, and customer support",
+          "status": "pending",
+          "priority": "medium",
+          "dependencies": [9, 10],
+          "details": "Integrate HubSpot or Pipedrive for CRM and lead management, set up Google My Business for local SEO, implement Hotjar for user behavior tracking, add LiveChat for real-time support, and ensure all integrations work seamlessly with the consultation booking flow.",
+          "testStrategy": "Test all integrations end-to-end, verify data flow between systems, monitor integration performance",
+          "subtasks": []
+        },
+        {
+          "id": 13,
+          "title": "Content Marketing Foundation",
+          "description": "Develop blog content strategy and initial articles focused on business time-saving and automation",
+          "status": "pending",
+          "priority": "medium",
+          "dependencies": [11],
+          "details": "Create blog content plan including 'How to Reclaim 20 Hours Per Week with AI', 'Voice AI vs Virtual Assistant: Which Saves More Time?', 'Toronto Business Automation Success Stories', and 'The Real Cost of Manual Processes'. Establish content tone and editorial calendar.",
+          "testStrategy": "Track blog engagement metrics, monitor SEO impact of content, measure lead generation from blog",
+          "subtasks": []
+        },
+        {
+          "id": 14,
+          "title": "Lead Magnets & Conversion Optimization",
+          "description": "Create lead magnets and implement conversion optimization strategies",
+          "status": "pending",
+          "priority": "medium",
+          "dependencies": [9],
+          "details": "Develop 'Time Audit Checklist for Business Owners', 'ROI Calculator: How Much Is Your Time Worth?', and 'Automation Readiness Assessment'. Implement A/B testing for key pages, optimize conversion paths, and create targeted landing pages for different personas.",
+          "testStrategy": "A/B test lead magnets, track conversion rates, measure lead quality from different sources",
+          "subtasks": []
+        },
+        {
+          "id": 15,
+          "title": "Analytics & Performance Tracking",
+          "description": "Implement comprehensive analytics setup for tracking business goals and user behavior",
+          "status": "pending",
+          "priority": "medium",
+          "dependencies": [10, 12],
+          "details": "Set up Google Analytics 4 with custom events for consultation bookings, implement conversion tracking for all CTAs, create monthly reporting dashboard, set up quarterly strategy review process, track primary metrics (consultation bookings 20-30/month, 15% conversion rate, 25% project value increase).",
+          "testStrategy": "Verify all tracking is working correctly, validate data accuracy, test reporting dashboards",
+          "subtasks": []
+        },
+        {
+          "id": 16,
+          "title": "Launch Strategy & Marketing",
+          "description": "Execute launch strategy including Google Ads, social media, and local business directories",
+          "status": "pending",
+          "priority": "medium",
+          "dependencies": [11, 13],
+          "details": "Set up Google Ads campaigns targeting Toronto businesses looking for automation solutions, create social media integration, implement email marketing automation, submit to local business directories, and create launch announcement strategy.",
+          "testStrategy": "Track campaign performance, monitor lead quality from different channels, measure cost per acquisition",
+          "subtasks": []
+        },
+        {
+          "id": 17,
+          "title": "Testing & Quality Assurance",
+          "description": "Comprehensive testing of all website functionality, forms, and user journeys",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": [4, 5, 6, 9],
+          "details": "Test all contact forms and booking systems, verify mobile responsiveness across devices, test page load speeds, validate all links and CTAs, test consultation booking flow end-to-end, verify analytics tracking, and conduct user acceptance testing.",
+          "testStrategy": "Comprehensive QA checklist completion, user testing with target personas, performance benchmarking",
+          "subtasks": []
+        },
+        {
+          "id": 18,
+          "title": "Launch Preparation & Go-Live",
+          "description": "Final preparations for website launch including DNS, hosting, and launch coordination",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": [17],
+          "details": "Configure production hosting environment, set up DNS and SSL certificates, conduct final security review, prepare launch checklist, coordinate with team for go-live, set up monitoring and alerting systems, and prepare post-launch support plan.",
+          "testStrategy": "Final production environment testing, security audit completion, monitoring system verification",
+          "subtasks": []
+        }
+      ]
+    }
+  }
+}
