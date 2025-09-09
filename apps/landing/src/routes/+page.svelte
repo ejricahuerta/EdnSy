@@ -10,7 +10,17 @@
     MessageSquare,
     CheckCircle,
     Star,
-    Play
+    Play,
+    Clock,
+    Building2,
+    Workflow,
+    Smartphone,
+    Headphones,
+    BarChart3,
+    Shield,
+    Users,
+    Target,
+    Sparkles
   } from "lucide-svelte";
 </script>
 
@@ -149,7 +159,7 @@
                 </div>
 
       <!-- Right side - KPIs -->
-      <div class="grid grid-cols-2 gap-8">
+      <div class="space-y-8">
         <div class="text-center">
           <div class="text-4xl md:text-5xl font-bold text-white mb-2">15-20</div>
           <div class="text-sm text-slate-400">Hours Saved Weekly</div>
@@ -157,10 +167,6 @@
         <div class="text-center">
           <div class="text-4xl md:text-5xl font-bold text-white mb-2">95%</div>
           <div class="text-sm text-slate-400">Client Satisfaction</div>
-        </div>
-        <div class="text-center">
-          <div class="text-4xl md:text-5xl font-bold text-white mb-2">50+</div>
-          <div class="text-sm text-slate-400">Businesses Helped</div>
         </div>
         <div class="text-center">
           <div class="text-4xl md:text-5xl font-bold text-white mb-2">24/7</div>
@@ -206,41 +212,49 @@
                   </div>
     
     <!-- Two Column Feature Layout -->
-    <div class="grid lg:grid-cols-2 gap-16 items-start">
+    <div class="grid lg:grid-cols-2 gap-12 items-start">
       <!-- Feature 01 -->
-      <div class="space-y-6">
-        <div class="relative mb-8">
-          <img 
-            src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop&crop=center" 
-            alt="Weekend getaway representing work-life balance" 
-            class="w-full h-80 object-cover rounded-2xl"
-          />
-          <div class="absolute top-6 right-6 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full text-lg font-bold text-slate-900">
-            01
-                </div>
+      <div class="group bg-white rounded-3xl p-8 border border-slate-200 hover:border-blue-300 hover:shadow-xl transition-all duration-300">
+        <div class="flex items-start gap-6">
+          <div class="flex-shrink-0">
+            <div class="relative w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center">
+              <Clock class="w-8 h-8 text-white" />
+              <div class="absolute -top-2 -right-2 w-6 h-6 bg-slate-900 rounded-full flex items-center justify-center">
+                <span class="text-white text-xs font-bold">01</span>
               </div>
-        
-        <h3 class="text-2xl lg:text-3xl font-bold text-slate-900 leading-relaxed">
-          We don't just build automation—we create business systems that give you your evenings <span class="text-blue-600">&</span> weekends back, running smoothly without you.
-        </h3>
             </div>
-
-      <!-- Feature 02 -->
-      <div class="space-y-6">
-        <div class="relative mb-8">
-          <img 
-            src="https://images.unsplash.com/photo-1517935706615-2717063c2225?w=800&h=600&fit=crop&crop=center" 
-            alt="Toronto business district skyline" 
-            class="w-full h-80 object-cover rounded-2xl"
-          />
-          <div class="absolute top-6 right-6 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full text-lg font-bold text-slate-900">
-            02
+          </div>
+          <div class="flex-1">
+            <h3 class="text-2xl font-bold text-slate-900 leading-tight mb-4">
+              We don't just build automation—we create business systems that give you your evenings <span class="text-blue-600">&</span> weekends back, running smoothly without you.
+            </h3>
+            <p class="text-slate-600 leading-relaxed">
+              Stop working around the clock. Our AI-powered systems handle the heavy lifting so you can focus on what matters most—growing your business and enjoying your life.
+            </p>
           </div>
         </div>
-        
-        <h3 class="text-2xl lg:text-3xl font-bold text-slate-900 leading-relaxed">
-          With our proven Toronto expertise, you'll discover how local businesses save thousands in labor costs while improving customer experience.
-        </h3>
+      </div>
+
+      <!-- Feature 02 -->
+      <div class="group bg-white rounded-3xl p-8 border border-slate-200 hover:border-slate-400 hover:shadow-xl transition-all duration-300">
+        <div class="flex items-start gap-6">
+          <div class="flex-shrink-0">
+            <div class="relative w-16 h-16 bg-gradient-to-br from-slate-600 to-slate-700 rounded-2xl flex items-center justify-center">
+              <Building2 class="w-8 h-8 text-white" />
+              <div class="absolute -top-2 -right-2 w-6 h-6 bg-slate-900 rounded-full flex items-center justify-center">
+                <span class="text-white text-xs font-bold">02</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-2xl font-bold text-slate-900 leading-tight mb-4">
+              With our proven Toronto expertise, you'll discover how local businesses save thousands in labor costs while improving customer experience.
+            </h3>
+            <p class="text-slate-600 leading-relaxed">
+              We understand the unique challenges Toronto businesses face. Our solutions are tailored to local market dynamics, helping you compete and win in the GTA.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -264,70 +278,87 @@
     <!-- Solutions Grid -->
     <div class="grid md:grid-cols-3 gap-8 mb-16">
       <!-- Solution 1 -->
-      <div class="group cursor-pointer">
-        <div class="relative mb-6 overflow-hidden rounded-2xl">
-          <img 
-            src="https://images.unsplash.com/photo-1577563908411-5077b6dc7624?w=500&h=400&fit=crop&crop=center" 
-            alt="Voice AI phone call system" 
-            class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
-          />
+      <div class="group cursor-pointer bg-white rounded-2xl p-6 border border-slate-200 hover:border-blue-300 hover:shadow-lg transition-all duration-300">
+        <div class="relative mb-6 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl p-8 border border-blue-200/50">
+          <div class="flex items-center justify-center h-32">
+            <Headphones class="w-16 h-16 text-blue-600" />
+          </div>
         </div>
-        <h3 class="text-xl font-bold text-slate-900 mb-2">Voice AI Business Growth</h3>
-        <p class="text-slate-600 text-sm mb-4">
+        <h3 class="text-xl font-bold text-slate-900 mb-3">Voice AI Business Growth</h3>
+        <p class="text-slate-600 text-sm mb-6 leading-relaxed">
           Revolutionary phone systems that handle customer calls with trained AI, 
           ensuring every lead is captured <span class="text-blue-600">&</span> nurtured professionally.
         </p>
-        <div class="flex items-center gap-4 text-sm">
-          <span class="text-slate-500">From $197</span>
-          <Button size="sm" class="bg-slate-900 text-white hover:bg-slate-800 rounded-lg">
+        <div class="flex justify-end">
+          <Button 
+            size="sm" 
+            class="bg-slate-900 text-white hover:bg-slate-800 rounded-lg px-4 py-2"
+            data-cal-link="edmel-ednsy/enable-ai"
+            data-cal-namespace="enable-ai"
+            data-cal-config={JSON.stringify({layout: "month_view"})}
+          >
             Book now
           </Button>
         </div>
       </div>
       
       <!-- Solution 2 -->
-      <div class="group cursor-pointer">
-        <div class="relative mb-6 overflow-hidden rounded-2xl">
-          <img 
-            src="https://images.unsplash.com/photo-1646617747563-4f080bddf282?w=500&h=400&fit=crop&crop=center" 
-            alt="Workflow automation flowchart" 
-            class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
-          />
+      <div class="group cursor-pointer bg-white rounded-2xl p-6 border border-slate-200 hover:border-green-300 hover:shadow-lg transition-all duration-300">
+        <div class="relative mb-6 bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl p-8 border border-green-200/50">
+          <div class="flex items-center justify-center h-32">
+            <Workflow class="w-16 h-16 text-green-600" />
+          </div>
         </div>
-        <h3 class="text-xl font-bold text-slate-900 mb-2">Workflow Freedom Package</h3>
-        <p class="text-slate-600 text-sm mb-4">
+        <h3 class="text-xl font-bold text-slate-900 mb-3">Workflow Freedom Package</h3>
+        <p class="text-slate-600 text-sm mb-6 leading-relaxed">
           Complete workflow automation that eliminates repetitive tasks, from invoice 
           processing to customer follow-ups, giving you your life back.
         </p>
-        <div class="flex items-center gap-4 text-sm">
-          <span class="text-slate-500">From $297</span>
-          <Button size="sm" class="bg-slate-900 text-white hover:bg-slate-800 rounded-lg">
-            Book now
-          </Button>
-    </div>
-  </div>
-      
-      <!-- Solution 3 -->
-      <div class="group cursor-pointer">
-        <div class="relative mb-6 overflow-hidden rounded-2xl">
-          <img 
-            src="https://images.unsplash.com/photo-1518365050014-70fe7232897f?w=500&h=400&fit=crop&crop=center" 
-            alt="High-converting website design" 
-            class="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-        </div>
-        <h3 class="text-xl font-bold text-slate-900 mb-2">High-Converting Websites</h3>
-        <p class="text-slate-600 text-sm mb-4">
-          Conversion-focused websites that turn visitors into customers while you sleep, 
-          with built-in SEO <span class="text-blue-600">&</span> mobile optimization for Toronto businesses.
-        </p>
-        <div class="flex items-center gap-4 text-sm">
-          <span class="text-slate-500">From $5,000</span>
-          <Button size="sm" class="bg-slate-900 text-white hover:bg-slate-800 rounded-lg">
+        <div class="flex justify-end">
+          <Button 
+            size="sm" 
+            class="bg-slate-900 text-white hover:bg-slate-800 rounded-lg px-4 py-2"
+            data-cal-link="edmel-ednsy/enable-ai"
+            data-cal-namespace="enable-ai"
+            data-cal-config={JSON.stringify({layout: "month_view"})}
+          >
             Book now
           </Button>
         </div>
       </div>
+      
+      <!-- Solution 3 -->
+      <div class="group cursor-pointer bg-white rounded-2xl p-6 border border-slate-200 hover:border-purple-300 hover:shadow-lg transition-all duration-300">
+        <div class="relative mb-6 bg-gradient-to-br from-purple-50 to-violet-100 rounded-xl p-8 border border-purple-200/50">
+          <div class="flex items-center justify-center h-32">
+            <Smartphone class="w-16 h-16 text-purple-600" />
+          </div>
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 mb-3">High-Converting Websites</h3>
+        <p class="text-slate-600 text-sm mb-6 leading-relaxed">
+          Conversion-focused websites that turn visitors into customers while you sleep, 
+          with built-in SEO <span class="text-blue-600">&</span> mobile optimization for Toronto businesses.
+        </p>
+        <div class="flex justify-end">
+          <Button 
+            size="sm" 
+            class="bg-slate-900 text-white hover:bg-slate-800 rounded-lg px-4 py-2"
+            data-cal-link="edmel-ednsy/enable-ai"
+            data-cal-namespace="enable-ai"
+            data-cal-config={JSON.stringify({layout: "month_view"})}
+          >
+            Book now
+          </Button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Package Together Notice -->
+    <div class="text-center mt-12">
+      <p class="text-slate-600 text-lg leading-relaxed max-w-2xl mx-auto">
+        <span class="font-semibold text-slate-900">Custom packages available:</span> 
+        Mix and match any of these solutions to create a comprehensive automation package tailored to your business needs.
+      </p>
     </div>
 
   </div>
