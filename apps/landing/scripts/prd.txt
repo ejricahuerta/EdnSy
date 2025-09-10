@@ -1,0 +1,586 @@
+# Product Requirements Document (PRD)
+## Ednsy.com - AI Automation Made Simple for Local Businesses
+
+### Executive Summary
+
+**Product Name:** Ed & Sy (Ednsy)  
+**Website:** https://ednsy.com  
+**Document Version:** 2.0  
+**Last Updated:** July 19, 2025  
+**Document Owner:** [Product Owner Name]  
+**Target Launch:** Q1 2026  
+
+**Vision Statement:** Transform local businesses through accessible AI automation solutions, empowering them to compete with larger enterprises while maintaining their personal touch and community focus.
+
+**Key Success Metrics:**
+- Lead generation: 100 qualified leads per month by month 6
+- Demo engagement: 75% of authenticated users complete at least one demo
+- Consultation conversion: 40% of demo users book consultations
+- Client acquisition: 20 new automation clients per month by month 12
+- Revenue: $50,000 MRR from automation services by month 12
+
+---
+
+## Problem Statement
+
+### Current Pain Points for Local Businesses
+1. **Technology overwhelm** - Local businesses struggle with complex automation tools designed for enterprises
+2. **Cost barriers** - Enterprise automation solutions are too expensive for small businesses
+3. **Implementation complexity** - Most automation requires technical expertise local businesses don't have
+4. **Lack of trust** - Business owners can't visualize how AI automation works for their specific industry
+5. **Generic solutions** - Most automation platforms don't understand local business nuances
+
+### Target Personas
+
+**Primary Persona: Local Business Owner (Maria)**
+- Age: 35-55
+- Role: Restaurant/Retail/Service business owner
+- Pain: Drowning in repetitive tasks, losing customers to larger competitors
+- Goals: Save time, reduce costs, improve customer experience, stay competitive
+
+**Secondary Persona: Office Manager (David)**
+- Age: 28-45
+- Role: Manages operations for local professional services (dental, legal, accounting)
+- Pain: Manual scheduling, customer follow-ups, data entry consuming too much time
+- Goals: Streamline operations, reduce errors, focus on higher-value work
+
+**Tertiary Persona: Franchise Owner (Jennifer)**
+- Age: 30-50
+- Role: Owns 1-3 franchise locations
+- Pain: Juggling corporate requirements with local market needs
+- Goals: Consistent operations across locations, better local customer relationships
+
+---
+
+## Product Overview
+
+### Core Value Proposition
+"See AI automation in action before you commit. Experience exactly how we'll transform your local business through interactive demos tailored to your industry, then get personalized implementation through our white-glove service."
+
+### Key Differentiators
+1. **Industry-Specific Demos** - Real automation examples for restaurants, retail, services, etc.
+2. **Try Before You Commit** - Interactive demos let prospects experience automation firsthand
+3. **Local Business Focus** - Understanding of community-based business challenges
+4. **White-Glove Implementation** - Full-service approach from setup to training
+5. **Multi-Channel Comfort** - In-person, phone, or digital - whatever works for the client
+
+---
+
+## Functional Requirements
+
+### 1. Public Website & Lead Generation
+
+#### 1.1 Homepage & Service Overview
+**Priority:** P0 (Critical)
+
+**User Stories:**
+- As a local business owner, I want to understand how AI automation can help my specific type of business
+- As a prospect, I want to see success stories from similar businesses
+- As a visitor, I want multiple ways to engage (demo, consultation, resources)
+
+**Acceptance Criteria:**
+- ✅ Clear value proposition for local businesses
+- ✅ Industry-specific success stories and case studies
+- ✅ Multiple engagement paths (demos, consultations, resources)
+- ✅ Trust signals (testimonials, certifications, local presence)
+- ✅ Mobile-optimized for business owners on-the-go
+- ✅ Clear pricing transparency or "custom solutions" messaging
+
+#### 1.2 Industry Solutions Pages
+**Priority:** P1 (High)
+
+**User Stories:**
+- As a restaurant owner, I want to see automation specific to my industry
+- As a service provider, I want examples of appointment scheduling automation
+- As a retailer, I want to understand inventory and customer management automation
+
+**Acceptance Criteria:**
+- ✅ Dedicated pages for key industries:
+  - Restaurants & Food Service
+  - Retail & E-commerce
+  - Professional Services (Medical, Legal, Accounting)
+  - Home Services (Plumbing, HVAC, Landscaping)
+  - Beauty & Wellness
+- ✅ Industry-specific automation examples
+- ✅ ROI calculators for each industry
+- ✅ "See It In Action" buttons linking to relevant demos
+
+### 2. Interactive Demos (/demos)
+
+#### 2.1 Demo Authentication & Onboarding
+**Priority:** P0 (Critical)
+
+**User Stories:**
+- As a prospect, I want to access realistic automation demos to see how they work
+- As a business owner, I want to use my Google account to quickly access demos
+- As a new demo user, I want enough credits to explore multiple automation scenarios
+
+**Acceptance Criteria:**
+- ✅ Google OAuth authentication via Supabase
+- ✅ 200 demo credits automatically allocated to new users
+- ✅ Demo credits allow exploration of 8-10 full automation scenarios
+- ✅ Clear explanation of demo credit system and what they can explore
+- ✅ Industry selection during onboarding for personalized demo recommendations
+
+**Technical Requirements:**
+- Supabase Auth with Google OAuth
+- Automatic credit allocation trigger on user creation
+- Industry preference tracking for demo personalization
+
+#### 2.2 Industry-Specific Demo Catalog
+**Priority:** P0 (Critical)
+
+**User Stories:**
+- As a restaurant owner, I want to see customer ordering and kitchen management automation
+- As a service provider, I want to experience appointment scheduling and customer follow-up automation
+- As a retailer, I want to explore inventory alerts and customer retention automation
+
+**Demo Categories & Examples:**
+
+**Restaurant & Food Service (25-40 credits per demo)**
+- Online ordering system with kitchen integration
+- Customer reservation and waitlist management
+- Automated review requests and social media posting
+- Inventory tracking with supplier reordering
+- Staff scheduling based on demand forecasting
+
+**Professional Services (20-35 credits per demo)**
+- Appointment scheduling with automated reminders
+- Client intake form processing and CRM updates
+- Automated follow-up sequences for different service types
+- Document generation and e-signature workflows
+- Payment processing and invoice generation
+
+**Retail & E-commerce (30-45 credits per demo)**
+- Customer segmentation and personalized email campaigns
+- Inventory management with low-stock alerts
+- Abandoned cart recovery automation
+- Customer loyalty program management
+- Social media content scheduling and engagement
+
+**Home Services (25-40 credits per demo)**
+- Lead qualification and appointment booking
+- Service reminder and maintenance scheduling
+- Estimate generation and proposal automation
+- Customer communication throughout service lifecycle
+- Review and referral request automation
+
+**Acceptance Criteria:**
+- ✅ 5-8 demos per major industry category
+- ✅ Realistic data and scenarios relevant to each industry
+- ✅ Progressive complexity from basic to advanced automation
+- ✅ Clear credit cost display for each demo
+- ✅ Estimated time to complete each demo
+- ✅ Learning outcomes and business benefits clearly stated
+
+#### 2.3 Interactive Demo Experience
+**Priority:** P0 (Critical)
+
+**User Stories:**
+- As a demo user, I want to interact with realistic business scenarios
+- As a prospect, I want to see exactly how the automation would work in my business
+- As a business owner, I want to understand the setup and ongoing management requirements
+
+**Acceptance Criteria:**
+- ✅ Realistic business data and scenarios for each demo
+- ✅ Step-by-step walkthroughs with guided interactions
+- ✅ Real-time credit consumption tracking
+- ✅ Progress saving and resume capability
+- ✅ "How this helps your business" explanations throughout
+- ✅ Cost/benefit calculations shown during demos
+- ✅ Option to request consultation directly from demo interface
+
+**Technical Requirements:**
+- Interactive demo environments (likely embedded applications)
+- Credit metering system tracking user actions
+- Demo state persistence for resume functionality
+- Integration with consultation booking system
+
+### 3. Lead Qualification & Conversion
+
+#### 3.1 Demo-to-Consultation Flow
+**Priority:** P0 (Critical)
+
+**User Stories:**
+- As a demo user who's impressed, I want to easily book a consultation
+- As someone interested in implementation, I want to speak with someone who understands my industry
+- As a prospect, I want flexible consultation options (in-person, phone, video)
+
+**Acceptance Criteria:**
+- ✅ "Book Consultation" buttons prominently placed throughout demos
+- ✅ Demo completion triggers consultation offer with special incentive
+- ✅ Calendar integration for easy scheduling
+- ✅ Industry expertise matching (assign consultants based on business type)
+- ✅ Pre-consultation form capturing demo insights and specific interests
+- ✅ Multiple consultation formats (in-person, phone, video, written materials)
+
+#### 3.2 Lead Nurturing System
+**Priority:** P1 (High)
+
+**User Stories:**
+- As a demo user not ready to commit, I want helpful resources about automation
+- As a prospect, I want periodic check-ins without being overwhelmed by sales pressure
+- As someone who engaged with demos, I want relevant industry insights and tips
+
+**Acceptance Criteria:**
+- ✅ Automated email sequence based on demo completion
+- ✅ Industry-specific content delivery
+- ✅ Monthly newsletter with automation tips and local business success stories
+- ✅ Retargeting campaigns for engaged demo users
+- ✅ Credit top-up offers for users who exhaust their initial allocation
+
+### 4. Client Management & Service Delivery
+
+#### 4.1 Consultation Management
+**Priority:** P1 (High)
+
+**User Stories:**
+- As a consultant, I want to see prospect's demo activity before our meeting
+- As a prospect, I want consultation notes and follow-up action items
+- As a client, I want clear project timelines and milestones
+
+**Acceptance Criteria:**
+- ✅ Consultant dashboard showing prospect's demo engagement
+- ✅ Consultation notes and follow-up tracking
+- ✅ Automated post-consultation email with next steps
+- ✅ Project proposal generation based on consultation outcomes
+- ✅ Client onboarding workflow for accepted projects
+
+#### 4.2 Implementation Project Management
+**Priority:** P2 (Medium)
+
+**User Stories:**
+- As a client, I want visibility into my automation project progress
+- As a project manager, I want to track multiple client implementations
+- As a client, I want training and support during automation rollout
+
+**Acceptance Criteria:**
+- ⏳ Client portal showing project status and milestones
+- ⏳ Implementation timeline with key deliverables
+- ⏳ Training session scheduling and materials delivery
+- ⏳ Support ticket system for post-implementation issues
+- ⏳ Success metrics tracking and reporting
+
+### 5. Analytics & Business Intelligence
+
+#### 5.1 Demo Performance Analytics
+**Priority:** P1 (High)
+
+**User Stories:**
+- As a marketing manager, I want to see which demos drive the most consultations
+- As a sales leader, I want to understand demo engagement patterns
+- As a product manager, I want to optimize demo experiences based on user behavior
+
+**Acceptance Criteria:**
+- ✅ Demo completion rates by industry and demo type
+- ✅ Demo-to-consultation conversion tracking
+- ✅ User engagement patterns and drop-off points
+- ✅ Credit consumption analytics
+- ✅ A/B testing framework for demo experiences
+- ✅ Industry-specific performance metrics
+
+#### 5.2 Sales & Marketing Analytics
+**Priority:** P2 (Medium)
+
+**User Stories:**
+- As a business owner, I want to track lead quality from different sources
+- As a sales team, I want to see pipeline metrics and conversion rates
+- As a marketing team, I want ROI tracking for different campaigns
+
+**Acceptance Criteria:**
+- ✅ Lead source tracking and quality scoring
+- ✅ Sales pipeline visibility and conversion rates
+- ✅ Customer acquisition cost (CAC) by channel
+- ✅ Lifetime value (LTV) tracking by client industry
+- ⏳ Marketing campaign ROI analysis
+
+---
+
+## Non-Functional Requirements
+
+### Performance Requirements
+- **Demo Load Time:** Under 3 seconds for initial demo start
+- **Website Performance:** Lighthouse score >90 across all metrics
+- **Credit Updates:** Real-time balance updates within 300ms
+- **Consultation Booking:** Under 2 minutes from demo to scheduled appointment
+- **Uptime:** 99.5% availability for demo platform
+
+### Security Requirements
+- **Client Data Protection:** All business information encrypted at rest and in transit
+- **Demo Isolation:** Realistic but anonymized data in all demos
+- **Authentication:** Secure Google OAuth integration
+- **Compliance:** GDPR compliance for international visitors
+- **Business Continuity:** Regular backups and disaster recovery plan
+
+### Scalability Requirements
+- **Concurrent Demo Users:** Support 200 simultaneous demo sessions
+- **Content Management:** Easy addition of new industry demos
+- **Geographic Scaling:** Fast loading for users across North America
+- **Integration Flexibility:** Easy addition of new automation tools and platforms
+
+---
+
+## User Experience Requirements
+
+### Key User Flows
+
+#### Flow 1: Prospect Discovery to Demo Engagement
+1. **Industry Landing:** Prospect visits industry-specific page (e.g., restaurant automation)
+2. **Problem Recognition:** Sees pain points and solutions relevant to their business
+3. **Demo Interest:** Clicks "See How It Works" for specific automation
+4. **Authentication:** Google OAuth sign-up with industry selection
+5. **Credit Allocation:** Receives 200 credits and industry-specific demo recommendations
+6. **First Demo:** Engages with most relevant automation scenario
+7. **Value Recognition:** Sees potential time/cost savings for their business
+
+**Success Metric:** 60% of industry page visitors complete at least one demo
+
+#### Flow 2: Demo Completion to Consultation Booking
+1. **Demo Completion:** User finishes automation scenario demo
+2. **Impact Summary:** See personalized ROI calculation for their business size
+3. **Consultation Offer:** Prompted to discuss implementation for their specific business
+4. **Booking Interface:** Choose consultation format (in-person, phone, video)
+5. **Calendar Integration:** Select convenient time slot
+6. **Pre-Consultation:** Receive preparation materials and agenda
+7. **Consultation Completion:** Meet with industry-expert consultant
+
+**Success Metric:** 40% of demo completers book consultations within 48 hours
+
+#### Flow 3: Consultation to Client Onboarding
+1. **Needs Assessment:** Consultant reviews demo activity and business requirements
+2. **Solution Design:** Custom automation plan presented during consultation
+3. **Proposal Delivery:** Written proposal with timeline, costs, and expected outcomes
+4. **Contract Acceptance:** Client approves and signs implementation agreement
+5. **Project Kickoff:** Onboarding call with implementation team
+6. **Implementation Phases:** Iterative deployment with training and support
+7. **Success Measurement:** Track automation performance and business impact
+
+**Success Metric:** 35% of consultations result in signed implementation contracts
+
+### Design Principles
+1. **Local Business Focused** - Avoid corporate jargon, use relatable examples
+2. **Trust Through Transparency** - Show real examples, honest timelines, clear pricing
+3. **Multi-Channel Accessibility** - Support all communication preferences
+4. **Educational First** - Teach before selling, build genuine value
+5. **Community Connection** - Emphasize local business support and success
+
+---
+
+## Technical Architecture
+
+### Technology Stack
+- **Frontend:** SvelteKit 5 with TypeScript
+- **Backend:** SvelteKit server-side functions
+- **Database:** Supabase (PostgreSQL)
+- **Authentication:** Supabase Auth (Google OAuth)
+- **Demo Platform:** Interactive web applications (embedded or iframe)
+- **CRM Integration:** HubSpot or Pipedrive for lead management
+- **Calendar:** Calendly integration for consultation booking
+- **Analytics:** Google Analytics 4 + Custom dashboard
+- **Email:** ConvertKit or Mailchimp for nurturing campaigns
+- **Hosting:** Vercel with global CDN
+
+### Database Schema
+```sql
+-- User and authentication
+users (
+  id UUID PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  full_name TEXT,
+  avatar_url TEXT,
+  company_name TEXT,
+  industry TEXT,
+  business_size TEXT, -- 'solo', 'small', 'medium'
+  demo_credits INTEGER DEFAULT 200,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Demo catalog and tracking
+demos (
+  id UUID PRIMARY KEY,
+  name TEXT NOT NULL,
+  description TEXT,
+  industry TEXT, -- 'restaurant', 'retail', 'professional_services', etc.
+  difficulty_level TEXT,
+  credit_cost INTEGER,
+  estimated_duration INTEGER,
+  learning_outcomes TEXT[],
+  demo_url TEXT,
+  is_active BOOLEAN DEFAULT true
+);
+
+demo_sessions (
+  id UUID PRIMARY KEY,
+  user_id UUID REFERENCES users(id),
+  demo_id UUID REFERENCES demos(id),
+  status TEXT, -- 'started', 'completed', 'abandoned'
+  credits_used INTEGER,
+  completion_percentage INTEGER,
+  insights_gathered JSONB, -- store user choices and preferences
+  started_at TIMESTAMP DEFAULT NOW(),
+  completed_at TIMESTAMP
+);
+
+-- Lead management and consultations
+consultations (
+  id UUID PRIMARY KEY,
+  user_id UUID REFERENCES users(id),
+  consultation_type TEXT, -- 'phone', 'video', 'in_person'
+  scheduled_at TIMESTAMP,
+  consultant_id UUID,
+  status TEXT, -- 'scheduled', 'completed', 'rescheduled', 'cancelled'
+  notes TEXT,
+  follow_up_actions TEXT[],
+  proposal_sent BOOLEAN DEFAULT false,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Client projects and implementations
+projects (
+  id UUID PRIMARY KEY,
+  client_id UUID REFERENCES users(id),
+  project_name TEXT,
+  industry TEXT,
+  scope TEXT,
+  estimated_value INTEGER,
+  status TEXT, -- 'proposal', 'contracted', 'in_progress', 'completed'
+  start_date DATE,
+  target_completion DATE,
+  project_manager_id UUID,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+### Demo Architecture
+- **Industry Templates:** Reusable demo frameworks for different business types
+- **Realistic Data:** Anonymized but authentic business scenarios
+- **Credit Metering:** Track user interactions and charge credits appropriately
+- **Progress Persistence:** Save demo state for resume functionality
+- **Analytics Integration:** Track user behavior and engagement patterns
+
+---
+
+## Release Plan
+
+### Phase 1: Demo Platform Foundation (Months 1-4)
+**Goal:** Launch interactive demo platform with core industries
+
+**Features:**
+- ✅ Google OAuth authentication with credit allocation
+- ✅ 15-20 industry-specific demos across 4 major categories
+- ✅ Demo credit system with usage tracking
+- ✅ Basic consultation booking integration
+- ✅ Mobile-responsive demo experiences
+- ✅ Lead capture and basic CRM integration
+
+**Success Metrics:**
+- 500 demo sign-ups in first month
+- 60% demo completion rate
+- 25% demo-to-consultation conversion
+- 100 consultation bookings
+
+### Phase 2: Conversion Optimization (Months 5-8)
+**Goal:** Optimize demo-to-client conversion and add advanced features
+
+**Features:**
+- ✅ Advanced demo analytics and A/B testing
+- ✅ Personalized demo recommendations
+- ✅ Automated email nurturing sequences
+- ✅ Industry-specific landing pages and SEO optimization
+- ✅ Client testimonials and case study integration
+- ✅ ROI calculators and business impact demonstrations
+
+**Success Metrics:**
+- 1,200 demo users
+- 40% demo-to-consultation conversion
+- 30% consultation-to-client conversion
+- $30,000 MRR from implementation services
+
+### Phase 3: Scale & Automation (Months 9-12)
+**Goal:** Scale operations and add advanced client management
+
+**Features:**
+- ⏳ Client portal for project tracking
+- ⏳ Advanced CRM workflow automation
+- ⏳ Team expansion tools (consultant scheduling, capacity management)
+- ⏳ Custom demo creation tools for new industries
+- ⏳ Partner/referral program integration
+- ⏳ Advanced reporting and business intelligence
+
+**Success Metrics:**
+- 3,000 demo users
+- 200 active implementation projects
+- $75,000 MRR from services
+- 50+ industry-specific demos available
+
+---
+
+## Success Metrics & KPIs
+
+### Lead Generation & Conversion
+- **Demo Sign-ups:** 200 new users per month by month 6
+- **Demo Engagement:** 75% of users complete at least one full demo
+- **Demo-to-Consultation:** 40% of demo completers book consultations
+- **Consultation-to-Client:** 30% of consultations result in project contracts
+- **Average Deal Size:** $15,000 per implementation project
+
+### User Experience & Engagement
+- **Demo Completion Rate:** 65% average across all demos
+- **Credit Utilization:** 80% of allocated credits used within 30 days
+- **User Satisfaction:** 4.5/5 average demo rating
+- **Return Engagement:** 25% of users return to try additional demos
+- **Referral Rate:** 15% of clients refer other businesses
+
+### Business Performance
+- **Monthly Recurring Revenue:** $50,000 by month 12
+- **Client Retention:** 90% of implemented clients continue service after 6 months
+- **Implementation Success:** 85% of projects meet defined success criteria
+- **Market Penetration:** Recognized automation provider in 3+ local markets
+- **Team Growth:** Support 10+ consultants and implementation specialists
+
+---
+
+## Risk Assessment & Mitigation
+
+### High-Risk Items
+1. **Demo Quality & Realism**
+   - *Risk:* Poor demo experiences hurt credibility and conversion
+   - *Mitigation:* Extensive user testing, industry expert validation, continuous improvement based on feedback
+
+2. **Sales Capacity Scaling**
+   - *Risk:* High demo-to-consultation conversion overwhelming sales capacity
+   - *Mitigation:* Gradual marketing ramp-up, early consultant hiring, automated qualification
+
+3. **Implementation Delivery**
+   - *Risk:* Promising automation capabilities in demos that are difficult to deliver
+   - *Mitigation:* Conservative demo promises, proven implementation playbooks, partner network development
+
+### Medium-Risk Items
+1. **Market Education Requirements**
+   - *Risk:* Local businesses may be slow to adopt AI automation
+   - *Mitigation:* Educational content marketing, success story amplification, gradual complexity introduction
+
+2. **Technology Integration Complexity**
+   - *Risk:* Integrating with diverse local business systems
+   - *Mitigation:* Focus on common platforms, partnership with popular local business software providers
+
+### Low-Risk Items
+1. **Competition from Large Automation Platforms**
+   - *Risk:* Enterprise platforms targeting small business market
+   - *Mitigation:* Local focus differentiation, white-glove service emphasis, community relationships
+
+---
+
+## Conclusion
+
+This enhanced Ednsy.com platform combines the power of interactive demonstrations with personalized automation consultancy for local businesses. The `/demos` section serves as a powerful lead generation and qualification tool, allowing prospects to experience automation benefits firsthand before committing to implementation services.
+
+The credit-based demo system ensures serious engagement while providing substantial value (200 credits = 8-10 full demo experiences). This approach builds trust through transparency and education, differentiating Ednsy from both generic automation platforms and traditional consultancies.
+
+Success depends on creating realistic, valuable demo experiences that accurately represent the automation solutions Ednsy can deliver, supported by a smooth conversion process from demo engagement to consultation booking to successful project implementation.
+
+---
+
+**Document Status:** ✅ Ready for Development Planning  
+**Next Review:** Weekly during Phase 1 development  
+**Key Stakeholders:** Business Owner, Sales Team, Technical Lead, Marketing Manager

@@ -1,0 +1,162 @@
+# Product Requirements Document (PRD)
+## Ednsy.com - AI Automation for Home Services (n8n-Powered)
+
+### Executive Summary
+
+At Ednsy, our mission is to revolutionize local **Home Services businesses** (plumbers, HVAC, landscapers, electricians, etc.) with accessible AI automation. Ednsy.com leverages **n8n as its backend** to offer interactive, real-world demos, letting users see how AI can automate mundane tasks before committing.
+
+**Key Goals:**
+- 100 qualified leads, 75% demo engagement, 40% demo-to-consultation, 20 new clients/month, $50k MRR by month 12.
+
+---
+
+## Problem Statement
+
+**Pain Points:**
+- Scheduling chaos, lost leads, scattered info, inefficient communication, tech overwhelm.
+
+**Personas:**
+- Maria (Owner): Needs to automate daily ops, boost satisfaction, grow business.
+- David (Dispatcher): Wants to automate scheduling, consolidate info, reduce errors.
+- Jennifer (Field Tech): Wants instant job info, less paperwork, easy status updates.
+
+---
+
+## Product Overview
+
+**Core Value:** "See AI automation in action before you commit."
+**Differentiators:**
+- Practical n8n-powered demos
+- Try before you commit
+- Home Services focus
+- White-glove implementation
+- Multi-channel comfort
+
+---
+
+## Functional Requirements
+
+### 1. Demo Platform & Lead Generation
+
+#### 1.1 Home Page & Service Overview
+- Clear value for Home Services
+- Success stories
+- Multiple engagement paths (demo, consult)
+- Trust signals
+- Mobile-optimized
+
+#### 1.2 Home Services Solutions Page
+- Dedicated page for Home Services
+- Automation examples: scheduling, lead management, job tracking
+- ROI calculator
+- "See It In Action" links
+
+### 2. Interactive Demos (/demos)
+
+#### 2.1 Demo Authentication & Onboarding
+- Google OAuth (Supabase)
+- 200 demo credits for new users
+- Industry selection for personalized demos
+
+#### 2.2 Home Services Demo Catalog
+- 4 core demo types:
+  1. AI Assistant (Chat/Voice): Scheduling, Q&A
+  2. Tasks Automation: Lead-to-sale flow
+  3. Data Insights: Upload CSV, get KPIs
+  4. Business Ops via Messaging: WhatsApp integration, urgent job dispatch
+- Each demo: realistic data, credit cost, learning outcomes
+
+#### 2.3 Demo Experience
+- Step-by-step walkthroughs
+- Real-time credit tracking
+- Progress saving
+- "How this helps" explanations
+- Cost/benefit calculations
+- Consult request from demo
+
+### 3. Lead Qualification & Conversion
+
+#### 3.1 Demo-to-Consultation Flow
+- Book consult from demo
+- Calendar integration
+- Pre-consult form
+- Multiple consult formats
+
+#### 3.2 Lead Nurturing
+- Automated email sequence
+- Industry content
+- Monthly newsletter
+- Retargeting for engaged users
+- Credit top-up offers
+
+### 4. Client Management & Service Delivery
+
+#### 4.1 Consultation Management
+- Consultant dashboard (demo activity)
+- Notes, follow-up tracking
+- Automated post-consult email
+- Project proposal generation
+- Client onboarding workflow
+
+#### 4.2 Implementation Project Management
+- Client portal: project status, milestones
+- Training session scheduling
+- Support ticket system
+- Success metrics tracking
+
+### 5. Analytics & Business Intelligence
+
+#### 5.1 Demo Performance Analytics
+- Completion rates, conversion tracking, engagement patterns, credit analytics, A/B testing
+
+#### 5.2 Sales & Marketing Analytics
+- Lead source tracking, pipeline visibility, CAC/LTV, campaign ROI
+
+---
+
+## Non-Functional Requirements
+- Demo load <3s, Lighthouse >90, real-time credit updates, 99.5% uptime
+- Data encryption, GDPR, anonymized demo data, secure OAuth
+- 200 concurrent users, easy demo addition, fast NA loading, integration flexibility
+
+---
+
+## User Experience Requirements
+- Flows: Discovery→Demo, Demo→Consult, Consult→Onboarding
+- Mobile-first, transparent, educational, community-focused
+
+---
+
+## Technical Architecture
+- SvelteKit 5 + TypeScript frontend
+- SvelteKit server functions backend
+- Supabase (Postgres) DB
+- Google OAuth
+- n8n for demo logic
+- HubSpot CRM, Calendly, Vercel
+
+---
+
+## Roadmap
+- Phase 1: Launch core demos, auth, credits, consult booking
+- Phase 2: Analytics, personalization, nurturing
+- Phase 3: Client portal, advanced CRM, custom demos, reporting
+
+---
+
+## Success Metrics
+- 200 new users/mo, 75% demo completion, 40% demo→consult, 30% consult→client, $50k MRR
+
+---
+
+## Risks & Mitigation
+- Demo quality: user testing, expert validation
+- Sales scaling: gradual ramp, early hiring
+- Delivery: conservative promises, playbooks
+- Market education: content, stories
+- Tech integration: focus on common platforms
+- Competition: local focus, white-glove service
+
+---
+
+**Status:** Ready for Development 

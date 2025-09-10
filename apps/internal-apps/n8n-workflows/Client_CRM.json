@@ -1,0 +1,736 @@
+{
+  "name": "Client CRM",
+  "nodes": [
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        120,
+        -60
+      ],
+      "id": "c21f7d57-70c4-4239-afd0-3949b09af62a",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "xe52ky6hsna43t1j",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "telegram-webhook",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -760,
+        -430
+      ],
+      "id": "a9345cef-53a9-4e7f-a037-8dc6233247b9",
+      "name": "Telegram Webhook",
+      "webhookId": "20bfdf86-3248-4f49-8e37-dde6be4fc8cd"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "be04b285-dbc7-48e6-88d2-a14aad7433ee",
+              "leftValue": "={{ $item(\"0\").$node[\"Telegram Webhook\"].json[\"body\"][\"channel_post\"][\"text\"] }}",
+              "rightValue": "n8n",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "ff1a1cb0-17c3-45ae-87cd-893e673d35a6",
+              "leftValue": "={{ $item(\"0\").$node[\"Telegram Webhook\"].json[\"body\"][\"channel_post\"][\"text\"] }}",
+              "rightValue": "EdSy",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "337e0a8a-6a38-42b8-889f-8b06abe431bb",
+              "leftValue": 0,
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -320,
+        -280
+      ],
+      "id": "0f474d9b-9f69-4e5f-9225-e3ca063afe53",
+      "name": "If",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Webhook').item.json.body.channel_post.chat.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        240,
+        -60
+      ],
+      "id": "75d423af-3e8e-4147-a389-269e3ee6fff9",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $item(\"0\").$node[\"Telegram Webhook\"].json[\"body\"][\"channel_post\"][\"sender_chat\"][\"id\"] }}",
+        "text": "={{$json.output}}\n\n<i>EdSy</i>",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1160,
+        -280
+      ],
+      "id": "28f94c01-cb6f-4e3e-bd27-33f2c45fb91a",
+      "name": "Send Client Message",
+      "webhookId": "35483743-e07f-439f-813b-a99d8e6f937e",
+      "credentials": {
+        "telegramApi": {
+          "id": "8giWzlpSuSEvl2ma",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.body?.message?.text || $json.body?.channel_post?.text || '' }}",
+              "operation": "regex",
+              "value2": "^[0-9a-fA-F]{8}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{12}$"
+            }
+          ]
+        }
+      },
+      "id": "63376c65-6413-4b14-9c7d-af4fe2fac2f4",
+      "name": "Check UUID",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -540,
+        -430
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const body = $json.body || {};\nconst message = body.message || {};\nconst channelPost = body.channel_post || {};\nconst text = message.text || channelPost.text || \"\";\nconst chatId = (message.chat && message.chat.id) || (channelPost.chat && channelPost.chat.id) || \"\";\nreturn [{\n  json: {\n    pageId: text.replace(/-/g, ''),\n    chatId: chatId\n  }\n}];"
+      },
+      "id": "ee4feb5f-7fa1-48dc-be8e-897e0a8de054",
+      "name": "Extract Telegram Data",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -320,
+        -580
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "get",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $json.pageId }}",
+          "mode": "id"
+        },
+        "simple": false
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        -100,
+        -580
+      ],
+      "id": "07eb4d41-40cd-4fd8-9379-a412df17c63f",
+      "name": "Get Notion Page",
+      "alwaysOutputData": true,
+      "notesInFlow": true,
+      "credentials": {
+        "notionApi": {
+          "id": "GELmcfNYpnZtcOOu",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $node['Extract Telegram Data'].json.pageId }}",
+          "mode": "id"
+        },
+        "simple": false,
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Telegram Chat ID|number",
+              "numberValue": "={{ $node['Extract Telegram Data'].json.chatId }}"
+            },
+            {
+              "key": "Client Status|status",
+              "statusValue": "Current"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2badeaad-9554-4758-8e48-3ac261a2efe7",
+      "name": "Update Notion Page",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [
+        530,
+        -580
+      ],
+      "credentials": {
+        "notionApi": {
+          "id": "GELmcfNYpnZtcOOu",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "20f94cc9-9082-80eb-a0c4-c4fab98842ac",
+          "mode": "list",
+          "cachedResultName": "Demo Client CRM",
+          "cachedResultUrl": "https://www.notion.so/20f94cc9908280eba0c4c4fab98842ac"
+        },
+        "limit": 1,
+        "simple": false,
+        "filterType": "manual",
+        "filters": {
+          "conditions": [
+            {
+              "key": "Telegram Chat ID|number",
+              "condition": "equals",
+              "numberValue": "={{ $('Telegram Webhook').item.json[\"body\"][\"channel_post\"][\"chat\"][\"id\"] }}"
+            },
+            {
+              "key": "Telegram Chat ID|number",
+              "condition": "equals",
+              "numberValue": "={{ $('Telegram Webhook').item.json[\"body\"][\"channel_post\"][\"sender_chat\"][\"id\"] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        -100,
+        -280
+      ],
+      "id": "8608ebc2-d4c2-42e9-a8a8-356bf585a5a8",
+      "name": "Notion CRM",
+      "credentials": {
+        "notionApi": {
+          "id": "GELmcfNYpnZtcOOu",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $item(\"0\").$node[\"Telegram Webhook\"].json[\"body\"][\"channel_post\"][\"text\"] }}. \n\nThe client is {{ $item(\"0\").$node[\"Notion CRM\"].json[\"properties\"][\"Name\"][\"title\"][\"0\"][\"text\"][\"content\"] }}",
+        "options": {
+          "systemMessage": "=EdSy, your role as an indispensable AI assistant for a small business owner, is to streamline client interactions and information management. You'll act as a seamless bridge between Telegram communications and a dedicated Notion client database, ensuring that client records are never deleted.\n\nHere's how you'll operate to maximize efficiency:\n\n1. Understanding Your Environment\nYour User: The small business owner you're assisting.\nInput Source: All incoming communications will arrive via Telegram messages and direct instructions from the owner.\nOutput Destination: Your responses will always be sent directly back to the same Telegram channel or chat where the input originated, ensuring continuity.\nClient Database: You have full access to a Notion database page that serves as the central hub for all client records. This database is equipped with essential fields, including:\nClient Name\nContact Info (e.g., Phone Number, Email)\nLast Interaction Date\nClient Status\nNotes\nServices Used\nNext Follow-up Date\nTelegram Chat ID: This crucial field maps individual client chats or relevant group chats directly to their Notion record, ensuring you always send replies to the correct conversation.\n2. Your Core Responsibilities\nYour primary duties are to keep client information accurate, facilitate timely communication, and manage related tasks. Under no circumstances should you ever delete a client record.\n\nClient Information Retrieval: You'll instantly retrieve all relevant information from their Notion record using the Notion page ID from the previous node ({{ $item(\"0\").$node[\"Notion CRM\"].json[\"id\"] }}).\nClient Information Updates: Any new or updated client details (e.g., new contact info, a note about a recent interaction, a change in service needs) will be promptly logged and updated in their Notion database record.\nMeeting & Appointment Management: If a client requests to schedule an appointment or needs a reminder for an existing one, you'll help facilitate this. This includes suggesting available times, confirming details, and potentially updating the \"Next Follow-up Date\" in Notion.\nClient-Related Task Management: When the owner assigns a client-specific task via Telegram (e.g., \"Follow up with John about his proposal\"), you'll acknowledge the task and create a corresponding entry in the Notion database, or a linked task management system if one is specified.\nInteraction Summaries: After any significant exchange with a client, you should be capable of summarizing the key points and offering to log these notes directly into Notion.\nDrafting Responses: You'll assist in crafting professional, clear, and appropriate responses to client inquiries, drawing information from the Notion database and the context of the current conversation. You will convert Notion's markdown and format the message using Telegram's HTML syntax as output. Refer to https://core.telegram.org/bots/api#formatting-options if needed.\n3. How You'll Interact\nYour interactions should be seamless, helpful, and professional:\n\nClarity & Conciseness: All your Telegram responses must be clear, to-the-point, and directly address the user's request. Avoid unnecessary fluff.\nConfirmation is Key: Always confirm actions you are about to take. For example: \"I'm about to update client record with [New Information]. Is that correct?\"\nPolite & Professional Tone: Maintain a consistently helpful, polite, and professional demeanor in all communications.\nEffective Error Handling: If you cannot find the requested information or complete an action, clearly state the issue, suggest alternative approaches, or ask for further clarification.\nPrioritization: Understand that direct client queries and urgent requests from the owner take precedence.\nProactive Suggestions: When appropriate, proactively suggest actions that could benefit the owner. For instance: \"It looks like [Client Name] hasn't been contacted in 3 months. Would you like me to suggest a follow-up date?\"\nChannel Mapping: Crucially, use the \"Telegram Chat ID\" in the Notion database to ensure all your replies are routed to the correct individual client chat or associated group chat. If a client record lacks a \"Telegram Chat ID,\" you should either prompt the owner to provide it or attempt to infer it from the current conversation if possible.\n4. Essential Commands & Triggers\nTo interact with you effectively, the owner can use these example commands (you can define more as needed):\n\nFind client [client name]: Retrieve all details for a specific client.\nUpdate [field] [new value] for [client name]: Modify a particular field in a client's record.\nNote [note content] for [client name]: Add a new note to a client's record.\nSchedule [date/time/details] with [client name]: Initiate the scheduling of an appointment.\nSummarize chat with [client name]: Summarize the ongoing Telegram conversation and offer to log the summarized content it in Notion.\nRemind me to [task] for [client name] on [date]: Set a reminder for a client-related task.\nLink chat [client name]: Use this command in the current chat to associate the Telegram Chat ID with the specified client's Notion record (useful for new clients or missing IDs).\nBy adhering to these guidelines, you will become a valuable asset, significantly reducing administrative overhead and enabling the business owner to focus on their core strengths, all while ensuring the integrity and persistence of client data."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        452,
+        -280
+      ],
+      "id": "d450f2e7-3d11-4b8b-831c-1fcc318efee3",
+      "name": "EdSy AI agent",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "resource": "block",
+        "operation": "getAll",
+        "blockId": {
+          "__rl": true,
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Block', ``, 'string') }}",
+          "mode": "id"
+        },
+        "returnAll": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Return_All', ``, 'boolean') }}",
+        "fetchNestedBlocks": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Also_Fetch_Nested_Blocks', ``, 'boolean') }}",
+        "simplifyOutput": false
+      },
+      "type": "n8n-nodes-base.notionTool",
+      "typeVersion": 2.2,
+      "position": [
+        360,
+        -60
+      ],
+      "id": "bb852d05-ea4b-4d4c-9d06-defbf183a078",
+      "name": "Get Notes",
+      "alwaysOutputData": true,
+      "credentials": {
+        "notionApi": {
+          "id": "GELmcfNYpnZtcOOu",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "block",
+        "blockId": {
+          "__rl": true,
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Block', `Use the page id`, 'string') }}",
+          "mode": "id"
+        },
+        "blockUi": {
+          "blockValues": [
+            {
+              "textContent": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('blockValues0_Text', `Always use this format:\n\"Date - Time\nNote\"`, 'string') }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.notionTool",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        -60
+      ],
+      "id": "a41a1fc2-f7c0-4af3-849f-d8eb0da51ce5",
+      "name": "Add Simple Note",
+      "credentials": {
+        "notionApi": {
+          "id": "GELmcfNYpnZtcOOu",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "block",
+        "blockId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Block', ``, 'string') }}"
+        },
+        "blockUi": {
+          "blockValues": [
+            {
+              "type": "to_do",
+              "checked": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('blockValues0_Checked', ``, 'boolean') }}",
+              "richText": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('blockValues0_Rich_Text', ``, 'boolean') }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.notionTool",
+      "typeVersion": 2.2,
+      "position": [
+        600,
+        -60
+      ],
+      "id": "05b422ee-a2ff-4c26-b81d-06f5e9e22e7e",
+      "name": "Add Todo Note",
+      "credentials": {
+        "notionApi": {
+          "id": "GELmcfNYpnZtcOOu",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "block",
+        "blockId": {
+          "__rl": true,
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Block', `Use the Page Id`, 'string') }}",
+          "mode": "id"
+        },
+        "blockUi": {
+          "blockValues": [
+            {
+              "type": "image",
+              "url": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('blockValues0_Image_URL', `Use the image upload in Telegram`, 'string') }}"
+            },
+            {
+              "richText": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('blockValues1_Rich_Text', `Add a simple description below the image`, 'boolean') }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.notionTool",
+      "typeVersion": 2.2,
+      "position": [
+        720,
+        -60
+      ],
+      "id": "e8d6035c-b3fc-428a-98fe-b25c6ef6d7bc",
+      "name": "Add Image Note",
+      "credentials": {
+        "notionApi": {
+          "id": "GELmcfNYpnZtcOOu",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Database_Page', ``, 'string') }}",
+          "mode": "id"
+        },
+        "simple": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Simplify', ``, 'boolean') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notionTool",
+      "typeVersion": 2.2,
+      "position": [
+        840,
+        -60
+      ],
+      "id": "6577da81-ab99-4124-9d77-a9ee054d86aa",
+      "name": "Update Client Information",
+      "credentials": {
+        "notionApi": {
+          "id": "GELmcfNYpnZtcOOu",
+          "name": "Notion account"
+        }
+      },
+      "notes": "This node is used by the AI agent to update Client information/properties/fields in the notion database page."
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Calendar', ``, 'string') }}",
+          "mode": "id",
+          "__regex": "(^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*)"
+        },
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        960,
+        -60
+      ],
+      "id": "914c0321-c5fd-4ecc-bf27-cd973ca65696",
+      "name": "Google Calendar",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "WvHSgAXb5yadheAM",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Initialize Client\nMapping Telegram Chat ID using Page Id",
+        "height": 300,
+        "width": 1720,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -340,
+        -720
+      ],
+      "id": "4d61249f-8b4e-4e04-9e7f-175abd452e5a",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $node[\"Telegram Webhook\"].json[\"body\"][\"channel_post\"][\"chat\"][\"id\"] }}",
+        "text": "Client initialization is complete and ready. You can now update or modify the client/customer information.\nYou can treat this Channel as your assistant that updates this client's information at any time.\nYou can send a message something like:\n- Get client's information\n- Get client's latest update",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1160,
+        -580
+      ],
+      "id": "a8db9388-79b8-4660-b593-ac280839d3d6",
+      "name": "Send Client Confirmation",
+      "webhookId": "763aac8f-921b-44c8-9f1f-8eba6b0c7fab",
+      "credentials": {
+        "telegramApi": {
+          "id": "8giWzlpSuSEvl2ma",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## CRM Interaction\nUsing Telegram Chat ID and Page ID",
+        "height": 480,
+        "width": 1720,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -340,
+        -400
+      ],
+      "id": "0102452d-04ef-4016-99f4-48bd05fe7720",
+      "name": "Sticky Note1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "EdSy AI agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Webhook": {
+      "main": [
+        [
+          {
+            "node": "Check UUID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Notion CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "EdSy AI agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check UUID": {
+      "main": [
+        [
+          {
+            "node": "Extract Telegram Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Telegram Data": {
+      "main": [
+        [
+          {
+            "node": "Get Notion Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Notion Page": {
+      "main": [
+        [
+          {
+            "node": "Update Notion Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Notion Page": {
+      "main": [
+        [
+          {
+            "node": "Send Client Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notion CRM": {
+      "main": [
+        [
+          {
+            "node": "EdSy AI agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "EdSy AI agent": {
+      "main": [
+        [
+          {
+            "node": "Send Client Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Notes": {
+      "ai_tool": [
+        [
+          {
+            "node": "EdSy AI agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Simple Note": {
+      "ai_tool": [
+        [
+          {
+            "node": "EdSy AI agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Todo Note": {
+      "ai_tool": [
+        [
+          {
+            "node": "EdSy AI agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Image Note": {
+      "ai_tool": [
+        [
+          {
+            "node": "EdSy AI agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Client Information": {
+      "ai_tool": [
+        [
+          {
+            "node": "EdSy AI agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "EdSy AI agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4b343c89-d641-4543-8155-5e707fa02a75",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "24075a5e6dcbf8c5a5560134ce460ab96a6a0d1c9953a2d4c79c122e7c585e6d"
+  },
+  "id": "In0ah5NfJt5ppnRn",
+  "tags": []
+}

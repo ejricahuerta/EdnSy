@@ -1,0 +1,32 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "resource": "credential",
+        "operation": "getSchema",
+        "credentialTypeName": "googleSheetOAuth2Api",
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.n8n",
+      "typeVersion": 1,
+      "position": [
+        80,
+        -40
+      ],
+      "id": "3e0aa27b-d333-4a6b-aeec-28d69a978f79",
+      "name": "n8n",
+      "credentials": {
+        "n8nApi": {
+          "id": "UA3T9Vp3De2jmjnw",
+          "name": "n8n account"
+        }
+      }
+    }
+  ],
+  "connections": {},
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "75706df7cb74d09a8c947c32e0a82c07312c3d63cc9e39d96cd5eb09859f1dfa"
+  }
+}

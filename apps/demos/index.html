@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Premier Climate & Plumbing Demo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .whatsapp-bg {
+      background-color: #ece5dd;
+      background-image: url('data:image/svg+xml;utf8,<svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="60" fill="%23ece5dd"/><path d="M30 34c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" fill="%23d1dbcb" fill-opacity="0.3"/></svg>');
+      background-size: 60px 60px;
+    }
+    .chat-input-bar {
+      background: #f7f7f7;
+      border-radius: 2em;
+      border: 1px solid #e0e0e0;
+      padding-left: 1em;
+      padding-right: 1em;
+      display: flex;
+      align-items: center;
+    }
+    .chat-input-bar input {
+      border: none;
+      background: transparent;
+      outline: none;
+      flex: 1;
+      padding: 0.75em 0;
+      font-size: 1em;
+    }
+    .chat-input-bar button {
+      background: #25d366;
+      color: #fff;
+      border: none;
+      border-radius: 1.5em;
+      padding: 0.5em 1.2em;
+      margin-left: 0.5em;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .chat-input-bar button:hover {
+      background: #128c7e;
+    }
+    .typing-dots-row {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-end;
+      gap: 2px;
+    }
+    .typing-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      margin: 0 2px;
+      border-radius: 50%;
+      background: #bbb;
+      animation: typing-bounce 1.2s infinite;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typing-bounce {
+      0%, 80%, 100% { transform: translateY(0); opacity: 0.7; }
+      40% { transform: translateY(-8px); opacity: 1; }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 h-screen">
+  <div class="flex flex-col md:flex-row h-screen max-h-screen">
+    <!-- Chat panel (40%) -->
+    <div class="flex flex-col h-[50vh] md:h-full md:basis-2/5 md:max-w-[60vw] min-w-[0] bg-white text-gray-900 border-b md:border-b-0 md:border-r border-gray-200">
+      <!-- Header -->
+      <div class="flex items-center gap-3 px-3 md:px-5 py-2 md:py-3 rounded-t-2xl justify-between bg-white border-b border-gray-200">
+        <div class="flex items-center gap-3">
+          <span class="flex items-center justify-center w-9 h-9 md:w-10 md:h-10 rounded-full" style="background: #25d366;">
+            <!-- Lucide bot icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="2">
+              <rect width="16" height="10" x="4" y="8" rx="4" stroke="#fff" stroke-width="2"/>
+              <path d="M9 8V6a3 3 0 0 1 6 0v2" stroke="#fff" stroke-width="2"/>
+              <circle cx="8" cy="13" r="1" fill="#fff"/>
+              <circle cx="16" cy="13" r="1" fill="#fff"/>
+              <path d="M12 4v2" stroke="#fff" stroke-width="2"/>
+            </svg>
+          </span>
+          <div class="flex flex-col">
+            <span class="text-gray-900 font-bold text-base md:text-lg leading-tight">Ed & Sy AI</span>
+            <span class="text-gray-500 text-xs opacity-80">enterprise</span>
+          </div>
+        </div>
+        <button id="chatResetBtn" title="Reset chat" class="text-gray-400 hover:text-[#25d366] p-2 rounded-full focus:outline-none flex items-center justify-center">
+          <!-- Full Lucide refresh-ccw icon, subtle -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path d="M3 2v6h6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M21 12A9 9 0 1 1 6 5.3" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M21 22v-6h-6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M3 12a9 9 0 0 1 15-6.7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+      <!-- Chat area -->
+      <div id="chat" class="flex-1 overflow-y-auto px-0 py-4 md:py-8 space-y-0 bg-white min-h-0">
+        <!-- Bot message -->
+        <div class="flex justify-start">
+          <div class="text-base text-gray-900 mb-6 px-4 md:px-6 py-4">
+            <!-- Initial bot message with HTML formatting support -->
+            <span id="initialBotMsg"></span>
+          </div>
+        </div>
+      </div>
+      <!-- Input bar -->
+      <form id="chatForm" class="flex items-center gap-2 px-2 md:px-4 py-3 md:py-4 bg-white border-t border-gray-200 shadow-sm sticky bottom-0 z-10">
+        <input id="chatInput" class="flex-1 rounded-full border border-gray-300 outline-none px-3 md:px-4 py-2 text-gray-900 text-base bg-white" placeholder="Type your message about jobs, scheduling, or service..." autocomplete="off" />
+        <button type="submit" class="w-10 h-10 flex items-center justify-center rounded-full bg-[#25d366] hover:bg-[#1fa855] transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" width="22" height="22"><path fill="#fff" d="M3.4 20.3l17.4-7.5c.7-.3.7-1.3 0-1.6L3.4 3.7c-.7-.3-1.4.4-1.2 1.1l2.1 7.2c.1.3.1.7 0 1l-2.1 7.2c-.2.7.5 1.4 1.2 1.1z"/></svg>
+        </button>
+      </form>
+    </div>
+    <!-- Data/sheets section (60%) -->
+    <div class="flex-1 flex flex-col h-[50vh] md:h-full md:basis-3/5 min-w-[0]">
+      <div class="p-3 md:p-4 border-b">
+        <div class="font-semibold text-base md:text-lg">Premier Climate & Plumbing Solutions</div>
+        <div class="text-xs md:text-sm text-gray-500 mt-1">View company information, customer data, jobs, and chat with your AI assistant for instant insights.</div>
+      </div>
+      <div class="flex-1 flex flex-col min-h-0">
+        <div class="flex flex-row h-12 md:h-16 bg-gray-50 border-b overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+          <div class="flex flex-row w-max">
+            <button class="tab-btn px-3 md:px-4 flex items-center text-xs md:text-sm font-medium hover:bg-gray-100 focus:bg-white focus:outline-none whitespace-nowrap" data-idx="0">Company Information</button>
+            <button class="tab-btn px-3 md:px-4 flex items-center text-xs md:text-sm font-medium hover:bg-gray-100 focus:bg-white focus:outline-none whitespace-nowrap" data-idx="1">Customers</button>
+            <button class="tab-btn px-3 md:px-4 flex items-center text-xs md:text-sm font-medium hover:bg-gray-100 focus:bg-white focus:outline-none whitespace-nowrap" data-idx="2">Inventory</button>
+            <button class="tab-btn px-3 md:px-4 flex items-center text-xs md:text-sm font-medium hover:bg-gray-100 focus:bg-white focus:outline-none whitespace-nowrap" data-idx="3">Invoices</button>
+            <button class="tab-btn px-3 md:px-4 flex items-center text-xs md:text-sm font-medium hover:bg-gray-100 focus:bg-white focus:outline-none whitespace-nowrap" data-idx="4">Jobs / Service Appointments</button>
+            <button class="tab-btn px-3 md:px-4 flex items-center text-xs md:text-sm font-medium hover:bg-gray-100 focus:bg-white focus:outline-none whitespace-nowrap" data-idx="5">Preventative Maintenance Contracts</button>
+            <button class="tab-btn px-3 md:px-4 flex items-center text-xs md:text-sm font-medium hover:bg-gray-100 focus:bg-white focus:outline-none whitespace-nowrap" data-idx="6">Services</button>
+            <button class="tab-btn px-3 md:px-4 flex items-center text-xs md:text-sm font-medium hover:bg-gray-100 focus:bg-white focus:outline-none whitespace-nowrap" data-idx="7">Technicians</button>
+          </div>
+        </div>
+        <div class="flex-1 min-h-0">
+          <div id="iframeContainer" class="relative w-full h-full min-h-0">
+            <iframe id="dataEmbed" src="https://docs.google.com/spreadsheets/d/12XaygiHF_9QnfoMK-wn702KACKQlghx8fBcvzf3kYl4/preview" class="w-full h-full border-0 min-h-[200px]" allowfullscreen></iframe>
+            <div id="iframeLoading" class="absolute inset-0 flex items-center justify-center bg-white/80 z-10" style="display:none;">
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" class="animate-spin">
+                <circle cx="24" cy="24" r="20" stroke="#34a853" stroke-width="6" stroke-linecap="round" stroke-dasharray="31 100"/>
+                <circle cx="24" cy="24" r="20" stroke="#fbbc05" stroke-width="6" stroke-linecap="round" stroke-dasharray="31 100" transform="rotate(120 24 24)"/>
+                <circle cx="24" cy="24" r="20" stroke="#4285f4" stroke-width="6" stroke-linecap="round" stroke-dasharray="31 100" transform="rotate(240 24 24)"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const embeds = [
+      "https://docs.google.com/document/d/1cX2JiPz9gvv1cr7__q3dwR7FW0FnsN3bLvdNc7ksKZo/preview",
+      "https://docs.google.com/spreadsheets/d/12XaygiHF_9QnfoMK-wn702KACKQlghx8fBcvzf3kYl4/preview",
+      "https://docs.google.com/spreadsheets/d/15CTrGB8JrM-1Fy_MvsERLrucOBEXbdcakBlnuzl8YN8/preview",
+      "https://docs.google.com/spreadsheets/d/1_jRN5yQB8vFGiFSBmJrlz4XjJlv_dtwbPKT9ShPi4dg/preview",
+      "https://docs.google.com/spreadsheets/d/1LO8OWE_WFGA3Qo-weXCVIrkeWo3XwqqR6agBxYIK9gk/preview",
+      "https://docs.google.com/spreadsheets/d/1rhKT8Rp2_67pxJlXkbrSfkduG2IBS32iPjeLUhVC-l4/preview",
+      "https://docs.google.com/spreadsheets/d/1FAwQ6eWd3vsh8sb-JOORI6lTuU378UhCVOQc_8lqFJo/preview",
+      "https://docs.google.com/spreadsheets/d/1fhtfgfurDqxb82hfTDH6aUNgzEcqHckgYF_JbShYkoo/preview"
+    ];
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const dataEmbed = document.getElementById('dataEmbed');
+    const iframeLoading = document.getElementById('iframeLoading');
+    let activeIdx = 0;
+    function setActiveTab(idx) {
+      activeIdx = idx;
+      if (iframeLoading) iframeLoading.style.display = '';
+      dataEmbed.src = embeds[idx];
+      tabBtns.forEach((btn, i) => {
+        if (i === idx) {
+          btn.classList.add('bg-white', 'border-b-2', 'border-blue-500', 'text-blue-600');
+        } else {
+          btn.classList.remove('bg-white', 'border-b-2', 'border-blue-500', 'text-blue-600');
+        }
+      });
+    }
+    tabBtns.forEach((btn, idx) => {
+      btn.addEventListener('click', () => setActiveTab(idx));
+    });
+    setActiveTab(0);
+
+    // Hide loading when iframe finishes loading
+    dataEmbed.addEventListener('load', () => {
+      if (iframeLoading) iframeLoading.style.display = 'none';
+    });
+
+    // Chat logic
+    const chatForm = document.getElementById('chatForm');
+    const chatInput = document.getElementById('chatInput');
+    const chatArea = document.getElementById('chat');
+    const webhookUrl = "https://n8n.ednsy.com/webhook/39ba64ca-beab-4307-af08-04ad7851a5d1/chat";
+    const chatSendBtn = chatForm.querySelector('button[type="submit"]');
+
+    // Helper to parse markdown-style bold and links to HTML
+    function parseBotHtml(text) {
+      return (text || '')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+    }
+
+    // Typewriter effect for bot responses
+    async function typewriterEffect(element, text, delay = 3) {
+      element.innerHTML = '';
+      let i = 0;
+      while (i < text.length) {
+        if (text[i] === '<') {
+          // Handle HTML tags as atomic units
+          const tagEnd = text.indexOf('>', i);
+          if (tagEnd !== -1) {
+            element.innerHTML += text.slice(i, tagEnd + 1);
+            i = tagEnd + 1;
+            chatArea.scrollTop = chatArea.scrollHeight;
+            await new Promise(r => setTimeout(r, delay));
+            continue;
+          }
+        }
+        element.innerHTML += text[i];
+        element.scrollTop = element.scrollHeight;
+        chatArea.scrollTop = chatArea.scrollHeight;
+        i++;
+        await new Promise(r => setTimeout(r, delay));
+      }
+      chatArea.scrollTop = chatArea.scrollHeight;
+    }
+
+    function addMessage(text, sender, isLoading = false) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'flex ' + (sender === 'user' ? 'justify-end' : 'justify-start');
+      const bubble = document.createElement('div');
+      if (sender === 'user') {
+        bubble.className = 'bg-gray-100 text-right max-w-2xl px-6 py-4 rounded-xl shadow mb-6 mr-4 text-base text-gray-900';
+        bubble.textContent = text;
+      } else {
+        // Bot: plain text, no bubble, but with px-6 py-4 for padding
+        bubble.className = 'text-base text-gray-900 mb-6 px-6 py-4';
+        if (isLoading) {
+          bubble.setAttribute('data-loading', 'true');
+          bubble.innerHTML = `
+            <span class="typing-dots-row">
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+            </span>
+          `;
+        } else {
+          // Always use parsed HTML for bot messages
+          bubble.innerHTML = parseBotHtml(text);
+        }
+        msgDiv.appendChild(bubble);
+        chatArea.appendChild(msgDiv);
+        chatArea.scrollTop = chatArea.scrollHeight;
+        return bubble;
+      }
+      msgDiv.appendChild(bubble);
+      chatArea.appendChild(msgDiv);
+      chatArea.scrollTop = chatArea.scrollHeight;
+      return bubble;
+    }
+
+    function removeLoadingBubble() {
+      const loading = chatArea.querySelector('[data-loading="true"]');
+      if (loading && loading.parentElement) {
+        loading.parentElement.remove();
+      }
+    }
+
+    chatForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = chatInput.value.trim();
+      if (!text) return;
+      chatSendBtn.disabled = true;
+      chatSendBtn.classList.add('opacity-50', 'cursor-not-allowed');
+      addMessage(text, 'user');
+      chatInput.value = '';
+      const loadingBubble = addMessage('...', 'bot', true);
+      try {
+        const res = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text })
+        });
+        const reply = await res.text();
+        removeLoadingBubble();
+        const bubble = addMessage('', 'bot');
+        let parsed = (reply || 'No response.')
+          .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+        let html = (() => {
+          return parsed
+            .split('\n')
+            .map(line => {
+              if (line.startsWith('### ')) {
+                return `<div class="font-bold text-base mt-2 mb-1">${line.slice(4)}</div>`;
+              }
+              return line;
+            })
+            .join('<br>');
+        })();
+        await typewriterEffect(bubble, html, 3);
+        chatSendBtn.disabled = false;
+        chatSendBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      } catch (err) {
+        removeLoadingBubble();
+        const bubble = addMessage('', 'bot');
+        await typewriterEffect(bubble, 'Sorry, there was an error. Please try again.', 9);
+        chatSendBtn.disabled = false;
+        chatSendBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      }
+    });
+
+    // Chat reset logic
+    const chatResetBtn = document.getElementById('chatResetBtn');
+    async function resetChat() {
+      chatArea.innerHTML = '';
+      // Only show the bot's concise response, not the user message
+      const loadingBubble = addMessage('', 'bot', true);
+      chatSendBtn.disabled = true;
+      chatSendBtn.classList.add('opacity-50', 'cursor-not-allowed');
+      try {
+        const res = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: 'what can you do? reply in 1-2 short sentences' })
+        });
+        const reply = await res.text();
+        removeLoadingBubble();
+        const bubble = addMessage('', 'bot');
+        let parsed = (reply || 'No response.')
+          .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+        let html = (() => {
+          return parsed
+            .split('\n')
+            .map(line => {
+              if (line.startsWith('### ')) {
+                return `<div class="font-bold text-base mt-2 mb-1">${line.slice(4)}</div>`;
+              }
+              return line;
+            })
+            .join('<br>');
+        })();
+        await typewriterEffect(bubble, html, 3);
+        chatSendBtn.disabled = false;
+        chatSendBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      } catch (err) {
+        removeLoadingBubble();
+        const bubble = addMessage('', 'bot');
+        await typewriterEffect(bubble, 'Sorry, there was an error. Please try again.', 9);
+        chatSendBtn.disabled = false;
+        chatSendBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      }
+    }
+    chatResetBtn.addEventListener('click', resetChat);
+    // Call resetChat() on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      const initialBotMsg = document.getElementById('initialBotMsg');
+      if (initialBotMsg) {
+        initialBotMsg.innerHTML = parseBotHtml('Hi! I can help with your Plumbing/HVAC service business. Ask about jobs, scheduling, or customer questions.');
+      }
+      resetChat();
+    });
+
+    // Typing indicator animation
+    const style = document.createElement('style');
+    style.innerHTML = `
+      .typing-dots-row {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-end;
+        gap: 2px;
+      }
+      .typing-dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        margin: 0 2px;
+        border-radius: 50%;
+        background: #bbb;
+        animation: typing-bounce 1.2s infinite;
+      }
+      .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+      .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+      @keyframes typing-bounce {
+        0%, 80%, 100% { transform: translateY(0); opacity: 0.7; }
+        40% { transform: translateY(-8px); opacity: 1; }
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+</body>
+</html>

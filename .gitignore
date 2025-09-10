@@ -18,8 +18,7 @@ Thumbs.db
 # Environment files
 .env
 .env.*
-!.env.example
-!.env.test
+
 
 # Vite cache
 .vite/
@@ -42,7 +41,7 @@ Thumbs.db
 
 # Scripts and keys
 scripts/prd.txt
-#keys
+# keys
 .keys/
 .keys/*
 .keys
@@ -60,6 +59,13 @@ coverage/
 *.session-journal
 __pycache__/
 
-internal-apps/*
+
 landing/.svelte-kit/generated/client/app.js
-landing/.svelte-kit/generated/client/app.js
+landing/.svelte-kit/*
+landing/node_modules/
+
+.keys.json
+
+
+
+
