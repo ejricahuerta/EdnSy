@@ -31,10 +31,20 @@
     height: 100%;
     background-color: rgb(15, 23, 42);
     background-image: 
-      linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
-    background-size: 50px 50px;
-    background-position: 0 0, 0 0;
+      linear-gradient(rgba(59, 130, 246, 0.4) 2px, transparent 2px),
+      linear-gradient(90deg, rgba(59, 130, 246, 0.4) 2px, transparent 2px),
+      linear-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.15) 1px, transparent 1px),
+      linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px);
+    background-size: 80px 80px, 80px 80px, 20px 20px, 20px 20px, 10px 10px, 10px 10px;
+    background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
+    animation: gridMove 25s linear infinite;
+  }
+
+  @keyframes gridMove {
+    0% { background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
+    100% { background-position: 80px 80px, 80px 80px, 20px 20px, 20px 20px, 10px 10px, 10px 10px; }
   }
 
   .hero-container::before {
@@ -42,13 +52,26 @@
     position: absolute;
     inset: 0;
     z-index: 1;
+    background: radial-gradient(
+      ellipse at center,
+      rgba(59, 130, 246, 0.1) 0%,
+      rgba(15, 23, 42, 0.8) 40%,
+      rgba(15, 23, 42, 1) 70%
+    );
+    pointer-events: none;
+  }
+
+  .hero-container::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
     background: linear-gradient(
-      90deg,
-      rgba(15, 23, 42, 0.8) 0%,
-      rgba(15, 23, 42, 1) 20%,
-      rgba(15, 23, 42, 1) 50%,
-      rgba(15, 23, 42, 1) 80%,
-      rgba(15, 23, 42, 0.8) 100%
+      135deg,
+      rgba(15, 23, 42, 0.9) 0%,
+      rgba(15, 23, 42, 0.7) 30%,
+      rgba(15, 23, 42, 0.8) 70%,
+      rgba(15, 23, 42, 0.9) 100%
     );
     pointer-events: none;
   }
@@ -121,7 +144,7 @@
   <!-- Animated blob background -->
   <div class="hero-container absolute inset-0"></div>
   
-  <div class="relative max-w-7xl mx-auto px-6 lg:px-8 w-full z-10">
+  <div class="relative max-w-7xl mx-auto px-6 lg:px-8 w-full z-20">
     <!-- Badge -->
     <div class="text-center lg:text-left mb-8">
       <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium">
@@ -141,14 +164,14 @@
         
         <!-- Subheadline -->
         <p class="text-xl md:text-2xl  text-slate-300 mb-10 leading-relaxed">
-          Stop working nights <span class="text-blue-600">&</span> weekends. We help business owners save 15-20 hours weekly through AI automation that actually works.
+          Stop working nights <span class="text-blue-600">&</span> weekends. We help Toronto business owners reclaim their time through proven automation, Voice AI, <span class="text-blue-600">&</span> high-converting websites.
         </p>
         
         <!-- CTA Button -->
         <div class="flex justify-center lg:justify-start">
                               <Button
             size="lg"
-            class="bg-white text-slate-900 hover:bg-white/90 px-8 py-4 text-lg rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+            class="bg-gradient-to-r from-white to-slate-100 text-slate-900 hover:from-slate-100 hover:to-slate-200 px-8 py-4 text-lg rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer border border-white/20 hover:border-white/40"
             data-cal-link="edmel-ednsy/enable-ai"
             data-cal-namespace="enable-ai"
             data-cal-config={JSON.stringify({layout: "month_view"})}
@@ -161,16 +184,16 @@
       <!-- Right side - KPIs -->
       <div class="space-y-8">
         <div class="text-center">
+          <div class="text-4xl md:text-5xl font-bold text-white mb-2">95%</div>
+          <div class="text-sm text-slate-400">Calls Answered</div>
+        </div>
+        <div class="text-center">
           <div class="text-4xl md:text-5xl font-bold text-white mb-2">15-20</div>
           <div class="text-sm text-slate-400">Hours Saved Weekly</div>
         </div>
         <div class="text-center">
-          <div class="text-4xl md:text-5xl font-bold text-white mb-2">95%</div>
-          <div class="text-sm text-slate-400">Client Satisfaction</div>
-        </div>
-        <div class="text-center">
-          <div class="text-4xl md:text-5xl font-bold text-white mb-2">24/7</div>
-          <div class="text-sm text-slate-400">System Monitoring</div>
+          <div class="text-4xl md:text-5xl font-bold text-white mb-2">3x</div>
+          <div class="text-sm text-slate-400">More Leads</div>
         </div>
       </div>
     </div>
@@ -206,7 +229,7 @@
         Don't settle for working nights <span class="text-blue-600">&</span> weekends when your business could run itself – systems so good your competitors wonder how you do it.
       </p>
       
-      <Button class="mt-8 bg-slate-900 text-white hover:bg-slate-800 px-8 py-3 rounded-xl">
+      <Button class="mt-8 bg-gradient-to-r from-slate-900 to-slate-800 text-white hover:from-slate-800 hover:to-slate-700 px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
         Learn more
       </Button>
                   </div>
@@ -265,23 +288,28 @@
   <div class="max-w-7xl mx-auto px-6 lg:px-8">
     <div class="text-center mb-16">
       <h2 class="text-4xl lg:text-5xl font-bold text-slate-900 mb-6 leading-tight">
-        Top solutions to spark your<br/>
-        business transformation
+        Three proven ways to<br/>
+        reclaim your time
       </h2>
       
       <p class="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
-        Experience the winning difference of work-life balance combined with sustainable 
-        growth. Our solutions are designed for busy entrepreneurs ready to take their business to new heights.
+        Voice AI that never misses a call, workflow automation that runs your business, 
+        and high-converting websites that work while you sleep. The three solutions Toronto entrepreneurs trust.
       </p>
     </div>
     
     <!-- Solutions Grid -->
     <div class="grid md:grid-cols-3 gap-8 mb-16">
       <!-- Solution 1 -->
-      <div class="group cursor-pointer bg-white rounded-2xl p-6 border border-slate-200 hover:border-blue-300 hover:shadow-lg transition-all duration-300">
-        <div class="relative mb-6 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl p-8 border border-blue-200/50">
-          <div class="flex items-center justify-center h-32">
-            <Headphones class="w-16 h-16 text-blue-600" />
+      <div 
+        class="group cursor-pointer bg-white rounded-2xl p-6 border border-slate-200 hover:border-blue-300 hover:shadow-lg transition-all duration-300"
+        data-cal-link="edmel-ednsy/enable-ai"
+        data-cal-namespace="enable-ai"
+        data-cal-config={JSON.stringify({layout: "month_view"})}
+      >
+        <div class="relative mb-6">
+          <div class="flex items-center justify-center h-20 w-20 mx-auto bg-slate-100 rounded-2xl">
+            <Headphones class="w-10 h-10 text-slate-700" />
           </div>
         </div>
         <h3 class="text-xl font-bold text-slate-900 mb-3">Voice AI Business Growth</h3>
@@ -292,7 +320,7 @@
         <div class="flex justify-end">
           <Button 
             size="sm" 
-            class="bg-slate-900 text-white hover:bg-slate-800 rounded-lg px-4 py-2"
+            class="bg-gradient-to-r from-slate-900 to-slate-800 text-white hover:from-slate-800 hover:to-slate-700 rounded-lg px-4 py-2 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer border border-slate-700/50 hover:border-slate-600/70"
             data-cal-link="edmel-ednsy/enable-ai"
             data-cal-namespace="enable-ai"
             data-cal-config={JSON.stringify({layout: "month_view"})}
@@ -303,10 +331,15 @@
       </div>
       
       <!-- Solution 2 -->
-      <div class="group cursor-pointer bg-white rounded-2xl p-6 border border-slate-200 hover:border-green-300 hover:shadow-lg transition-all duration-300">
-        <div class="relative mb-6 bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl p-8 border border-green-200/50">
-          <div class="flex items-center justify-center h-32">
-            <Workflow class="w-16 h-16 text-green-600" />
+      <div 
+        class="group cursor-pointer bg-white rounded-2xl p-6 border border-slate-200 hover:border-green-300 hover:shadow-lg transition-all duration-300"
+        data-cal-link="edmel-ednsy/enable-ai"
+        data-cal-namespace="enable-ai"
+        data-cal-config={JSON.stringify({layout: "month_view"})}
+      >
+        <div class="relative mb-6">
+          <div class="flex items-center justify-center h-20 w-20 mx-auto bg-slate-100 rounded-2xl">
+            <Workflow class="w-10 h-10 text-slate-700" />
           </div>
         </div>
         <h3 class="text-xl font-bold text-slate-900 mb-3">Workflow Freedom Package</h3>
@@ -317,7 +350,7 @@
         <div class="flex justify-end">
           <Button 
             size="sm" 
-            class="bg-slate-900 text-white hover:bg-slate-800 rounded-lg px-4 py-2"
+            class="bg-gradient-to-r from-slate-900 to-slate-800 text-white hover:from-slate-800 hover:to-slate-700 rounded-lg px-4 py-2 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer border border-slate-700/50 hover:border-slate-600/70"
             data-cal-link="edmel-ednsy/enable-ai"
             data-cal-namespace="enable-ai"
             data-cal-config={JSON.stringify({layout: "month_view"})}
@@ -328,10 +361,15 @@
       </div>
       
       <!-- Solution 3 -->
-      <div class="group cursor-pointer bg-white rounded-2xl p-6 border border-slate-200 hover:border-purple-300 hover:shadow-lg transition-all duration-300">
-        <div class="relative mb-6 bg-gradient-to-br from-purple-50 to-violet-100 rounded-xl p-8 border border-purple-200/50">
-          <div class="flex items-center justify-center h-32">
-            <Smartphone class="w-16 h-16 text-purple-600" />
+      <div 
+        class="group cursor-pointer bg-white rounded-2xl p-6 border border-slate-200 hover:border-purple-300 hover:shadow-lg transition-all duration-300"
+        data-cal-link="edmel-ednsy/enable-ai"
+        data-cal-namespace="enable-ai"
+        data-cal-config={JSON.stringify({layout: "month_view"})}
+      >
+        <div class="relative mb-6">
+          <div class="flex items-center justify-center h-20 w-20 mx-auto bg-slate-100 rounded-2xl">
+            <Smartphone class="w-10 h-10 text-slate-700" />
           </div>
         </div>
         <h3 class="text-xl font-bold text-slate-900 mb-3">High-Converting Websites</h3>
@@ -342,7 +380,7 @@
         <div class="flex justify-end">
           <Button 
             size="sm" 
-            class="bg-slate-900 text-white hover:bg-slate-800 rounded-lg px-4 py-2"
+            class="bg-gradient-to-r from-slate-900 to-slate-800 text-white hover:from-slate-800 hover:to-slate-700 rounded-lg px-4 py-2 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer border border-slate-700/50 hover:border-slate-600/70"
             data-cal-link="edmel-ednsy/enable-ai"
             data-cal-namespace="enable-ai"
             data-cal-config={JSON.stringify({layout: "month_view"})}
@@ -374,7 +412,7 @@
     
     <Button 
       size="lg" 
-      class="bg-white text-slate-900 hover:bg-white/90 px-8 py-4 text-lg rounded-xl font-semibold mt-8"
+      class="bg-gradient-to-r from-white to-slate-100 text-slate-900 hover:from-slate-100 hover:to-slate-200 px-8 py-4 text-lg rounded-xl font-semibold mt-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer border border-white/20 hover:border-white/40"
       data-cal-link="edmel-ednsy/enable-ai"
       data-cal-namespace="enable-ai"
       data-cal-config={JSON.stringify({layout: "month_view"})}

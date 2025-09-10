@@ -240,7 +240,7 @@
                      }}
                      class="text-white/70 hover:text-white transition-colors cursor-pointer"
                    >
-                     Business Automation
+                     Voice AI Business Growth
                    </button>
                  </li>
                  <li>
@@ -254,7 +254,7 @@
                      }}
                      class="text-white/70 hover:text-white transition-colors cursor-pointer"
                    >
-                     AI Voice & Chat
+                     Workflow Freedom Package
                    </button>
                  </li>
                  <li>
@@ -268,21 +268,7 @@
                      }}
                      class="text-white/70 hover:text-white transition-colors cursor-pointer"
                    >
-                     Data Insights
-                   </button>
-                 </li>
-                 <li>
-                   <button
-                     onclick={() => {
-                       if (user) {
-                         goto('/demos');
-                       } else {
-                         goto('/login');
-                       }
-                     }}
-                     class="text-white/70 hover:text-white transition-colors cursor-pointer"
-                   >
-                     Custom AI
+                     High-Converting Websites
                    </button>
                  </li>
                </ul>
