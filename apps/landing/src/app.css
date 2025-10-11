@@ -1,9 +1,9 @@
+/* Import modern fonts first */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
 @import "tailwindcss";
 
 @import "tw-animate-css";
-
-/* Import modern fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 @custom-variant dark (&:is(.dark *));
 
@@ -48,6 +48,8 @@
   font-weight: 800;
   letter-spacing: -0.025em;
 }
+
+
 
 .dark {
   --background: oklch(0.141 0.005 285.823);
