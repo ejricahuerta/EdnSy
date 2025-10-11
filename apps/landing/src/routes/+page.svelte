@@ -156,8 +156,62 @@
 </style>
 
 <svelte:head>
-  <title>Ed & Sy Digital Agency - Time-Saving Solutions for Toronto Businesses</title>
-  <meta name="description" content="Toronto digital agency helping business owners reclaim 15-20 hours weekly through AI automation, Voice AI, <span class='text-blue-600'>&</span> conversion-focused websites." />
+  <title>Ed & Sy - AI Automation for Toronto Businesses | Voice AI & Workflow Solutions</title>
+  <meta name="description" content="Stop working nights & weekends. Ed & Sy help Toronto business owners reclaim 15-20 hours weekly through Voice AI, workflow automation, and high-converting websites. Trusted across Canada." />
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://ednsy.com/" />
+  <meta property="og:title" content="Ed & Sy - AI Automation for Toronto Businesses" />
+  <meta property="og:description" content="Stop working nights & weekends. Reclaim 15-20 hours weekly through Voice AI, workflow automation, and high-converting websites." />
+  <meta property="og:image" content="https://ednsy.com/logo.png" />
+  
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:url" content="https://ednsy.com/" />
+  <meta property="twitter:title" content="Ed & Sy - AI Automation for Toronto Businesses" />
+  <meta property="twitter:description" content="Stop working nights & weekends. Reclaim 15-20 hours weekly through Voice AI, workflow automation, and high-converting websites." />
+  <meta property="twitter:image" content="https://ednsy.com/logo.png" />
+  
+  <!-- Additional SEO -->
+  <meta name="keywords" content="Toronto digital agency, AI automation, Voice AI, workflow automation, business automation, Toronto business solutions, AI assistant, lead generation, high-converting websites, business time management" />
+  <meta name="author" content="Ed & Sy Digital Agency" />
+  <meta name="robots" content="index, follow" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Ed & Sy",
+    "url": "https://ednsy.com",
+    "logo": "https://ednsy.com/logo.png",
+    "description": "Toronto digital agency helping business owners reclaim time through AI automation, Voice AI, and high-converting websites.",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Toronto",
+      "addressCountry": "CA"
+    },
+    "serviceArea": {
+      "@type": "Country",
+      "name": "Canada"
+    },
+    "services": [
+      "Voice AI Business Growth",
+      "Workflow Freedom Package", 
+      "High-Converting Websites"
+    ],
+    "industries": [
+      "Healthcare",
+      "Professional Services", 
+      "Retail & E-commerce",
+      "Real Estate",
+      "Manufacturing",
+      "Food & Hospitality"
+    ]
+  }
+  </script>
 </svelte:head>
 
 <!-- Hero Section -->
