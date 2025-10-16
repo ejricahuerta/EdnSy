@@ -164,14 +164,14 @@
   <meta property="og:url" content="https://ednsy.com/" />
   <meta property="og:title" content="Ed & Sy - AI Automation for Toronto Businesses" />
   <meta property="og:description" content="Stop working nights & weekends. Reclaim 15-20 hours weekly through Voice AI, workflow automation, and high-converting websites." />
-  <meta property="og:image" content="https://ednsy.com/logo.png" />
+  <meta property="og:image" content="https://ednsy.com/logo/white transparent.png" />
   
   <!-- Twitter -->
   <meta property="twitter:card" content="summary_large_image" />
   <meta property="twitter:url" content="https://ednsy.com/" />
   <meta property="twitter:title" content="Ed & Sy - AI Automation for Toronto Businesses" />
   <meta property="twitter:description" content="Stop working nights & weekends. Reclaim 15-20 hours weekly through Voice AI, workflow automation, and high-converting websites." />
-  <meta property="twitter:image" content="https://ednsy.com/logo.png" />
+  <meta property="twitter:image" content="https://ednsy.com/logo/white transparent.png" />
   
   <!-- Additional SEO -->
   <meta name="keywords" content="Toronto digital agency, AI automation, Voice AI, workflow automation, business automation, Toronto business solutions, AI assistant, lead generation, high-converting websites, business time management" />
@@ -186,7 +186,7 @@
     "@type": "Organization",
     "name": "Ed & Sy",
     "url": "https://ednsy.com",
-    "logo": "https://ednsy.com/logo.png",
+    "logo": "https://ednsy.com/logo/white transparent.png",
     "description": "Toronto digital agency helping business owners reclaim time through AI automation, Voice AI, and high-converting websites.",
     "address": {
       "@type": "PostalAddress",
@@ -834,7 +834,7 @@
 </section>
 
 <!-- Final CTA Section -->
-<section class="py-24 bg-slate-900 text-white section-grid section-grid-dark">
+<section id="contact" class="py-24 bg-slate-900 text-white section-grid section-grid-dark">
   <div class="max-w-4xl mx-auto px-6 lg:px-8 text-center">
     <h2 class="text-4xl lg:text-5xl font-bold mb-6 leading-tight">
       Reclaim your time, your<br/>
