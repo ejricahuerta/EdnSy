@@ -156,66 +156,207 @@
 </style>
 
 <svelte:head>
-  <title>Ed & Sy - AI Automation for Toronto Businesses | Voice AI & Workflow Solutions</title>
-  <meta name="description" content="Stop working nights & weekends. Ed & Sy help Toronto business owners reclaim 15-20 hours weekly through Voice AI, workflow automation, and high-converting websites. Trusted across Canada." />
+  <!-- Primary Meta Tags -->
+  <title>AI Automation for Toronto Businesses | Voice AI & Workflow Solutions | Ed & Sy</title>
+  <meta name="description" content="Stop working nights & weekends! Toronto's leading AI automation agency helps business owners reclaim 15-20 hours weekly. Voice AI, workflow automation & high-converting websites. Free consultation." />
+  <meta name="keywords" content="Toronto AI automation, Voice AI business, workflow automation Toronto, business automation Canada, AI phone assistant, automated business processes, Toronto digital agency, small business automation, AI chatbot Toronto, business time management, automated lead generation, Toronto business solutions, AI assistant for business, workflow optimization, business process automation, Toronto tech consulting, AI implementation, business efficiency Toronto, automated customer service, Toronto AI consulting" />
+  <meta name="author" content="Ed & Sy Digital Agency" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="language" content="en-CA" />
+  <meta name="geo.region" content="CA-ON" />
+  <meta name="geo.placename" content="Toronto" />
+  <meta name="geo.position" content="43.6532;-79.3832" />
+  <meta name="ICBM" content="43.6532, -79.3832" />
+  
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://ednsy.com/" />
   
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://ednsy.com/" />
-  <meta property="og:title" content="Ed & Sy - AI Automation for Toronto Businesses" />
-  <meta property="og:description" content="Stop working nights & weekends. Reclaim 15-20 hours weekly through Voice AI, workflow automation, and high-converting websites." />
+  <meta property="og:title" content="AI Automation for Toronto Businesses | Voice AI & Workflow Solutions" />
+  <meta property="og:description" content="Stop working nights & weekends! Toronto's leading AI automation agency helps business owners reclaim 15-20 hours weekly. Voice AI, workflow automation & high-converting websites." />
   <meta property="og:image" content="https://ednsy.com/logo/white transparent.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Ed & Sy - AI Automation for Toronto Businesses" />
+  <meta property="og:site_name" content="Ed & Sy Digital Agency" />
+  <meta property="og:locale" content="en_CA" />
   
   <!-- Twitter -->
-  <meta property="twitter:card" content="summary_large_image" />
-  <meta property="twitter:url" content="https://ednsy.com/" />
-  <meta property="twitter:title" content="Ed & Sy - AI Automation for Toronto Businesses" />
-  <meta property="twitter:description" content="Stop working nights & weekends. Reclaim 15-20 hours weekly through Voice AI, workflow automation, and high-converting websites." />
-  <meta property="twitter:image" content="https://ednsy.com/logo/white transparent.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://ednsy.com/" />
+  <meta name="twitter:title" content="AI Automation for Toronto Businesses | Voice AI & Workflow Solutions" />
+  <meta name="twitter:description" content="Stop working nights & weekends! Toronto's leading AI automation agency helps business owners reclaim 15-20 hours weekly. Voice AI, workflow automation & high-converting websites." />
+  <meta name="twitter:image" content="https://ednsy.com/logo/white transparent.png" />
+  <meta name="twitter:image:alt" content="Ed & Sy - AI Automation for Toronto Businesses" />
   
-  <!-- Additional SEO -->
-  <meta name="keywords" content="Toronto digital agency, AI automation, Voice AI, workflow automation, business automation, Toronto business solutions, AI assistant, lead generation, high-converting websites, business time management" />
-  <meta name="author" content="Ed & Sy Digital Agency" />
-  <meta name="robots" content="index, follow" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Additional SEO Meta Tags -->
+  <meta name="theme-color" content="#3b82f6" />
+  <meta name="msapplication-TileColor" content="#3b82f6" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Ed & Sy" />
   
-  <!-- Structured Data -->
+  <!-- Preconnect to external domains -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+  <link rel="dns-prefetch" href="//fonts.gstatic.com" />
+  
+  <!-- Structured Data - Organization -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "Ed & Sy",
+    "@type": "LocalBusiness",
+    "name": "Ed & Sy Digital Agency",
+    "alternateName": "Ed & Sy",
     "url": "https://ednsy.com",
     "logo": "https://ednsy.com/logo/white transparent.png",
-    "description": "Toronto digital agency helping business owners reclaim time through AI automation, Voice AI, and high-converting websites.",
+    "image": "https://ednsy.com/logo/white transparent.png",
+    "description": "Toronto's leading AI automation agency helping business owners reclaim 15-20 hours weekly through Voice AI, workflow automation, and high-converting websites.",
+    "foundingDate": "2024",
     "address": {
       "@type": "PostalAddress",
       "addressLocality": "Toronto",
+      "addressRegion": "ON",
       "addressCountry": "CA"
     },
+    "areaServed": [
+      {
+        "@type": "Country",
+        "name": "Canada"
+      },
+      {
+        "@type": "State",
+        "name": "Ontario"
+      },
+      {
+        "@type": "City",
+        "name": "Toronto"
+      }
+    ],
+    "contactPoint": [
+      {
+        "@type": "ContactPoint",
+        "telephone": "+1-416-XXX-XXXX",
+        "contactType": "customer service",
+        "areaServed": "CA",
+        "availableLanguage": "English"
+      }
+    ],
+    "sameAs": [
+      "https://www.instagram.com/ed.n.sy",
+      "https://www.linkedin.com/in/syronsuerte/",
+      "https://www.youtube.com/@ed.n.sy",
+      "https://www.tiktok.com/@ed.n.sy"
+    ],
     "serviceArea": {
+      "@type": "GeoCircle",
+      "geoMidpoint": {
+        "@type": "GeoCoordinates",
+        "latitude": 43.6532,
+        "longitude": -79.3832
+      },
+      "geoRadius": "50000"
+    },
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "AI Automation Services",
+      "itemListElement": [
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Voice AI Business Growth",
+            "description": "24/7 AI phone assistant for lead capture and customer service"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Workflow Freedom Package",
+            "description": "Complete business automation for repetitive tasks"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "High-Converting Websites",
+            "description": "SEO-optimized websites that turn visitors into customers"
+          }
+        }
+      ]
+    }
+  }
+  </script>
+  
+  <!-- Structured Data - Service -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "AI Business Automation Services",
+    "description": "Comprehensive AI automation solutions for Toronto businesses including Voice AI, workflow automation, and high-converting websites.",
+    "provider": {
+      "@type": "LocalBusiness",
+      "name": "Ed & Sy Digital Agency",
+      "url": "https://ednsy.com"
+    },
+    "areaServed": {
       "@type": "Country",
       "name": "Canada"
     },
-    "services": [
-      "Voice AI Business Growth",
-      "Workflow Freedom Package", 
-      "High-Converting Websites"
-    ],
-    "industries": [
-      "Healthcare",
-      "Professional Services", 
-      "Retail & E-commerce",
-      "Real Estate",
-      "Manufacturing",
-      "Food & Hospitality"
+    "serviceType": "Business Automation",
+    "category": "Digital Marketing Services",
+    "offers": {
+      "@type": "Offer",
+      "description": "AI automation solutions starting from custom pricing",
+      "priceCurrency": "CAD"
+    }
+  }
+  </script>
+  
+  <!-- Structured Data - FAQ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How long does it take to see results from automation?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Most clients see immediate improvements within the first week, with full system optimization typically achieved within 30-60 days. We provide ongoing support to ensure your automation continues to deliver value."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do I need technical knowledge to use your solutions?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Not at all! Our solutions are designed to be user-friendly and intuitive. We handle all the technical setup and provide training to ensure you and your team can easily manage and monitor your automation systems."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What's included in the free consultation?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Our free 30-minute consultation includes a thorough analysis of your current processes, identification of automation opportunities, and a customized roadmap showing exactly how we can help you save time and improve efficiency."
+        }
+      }
     ]
   }
   </script>
 </svelte:head>
 
 <!-- Hero Section -->
-<section class="relative min-h-screen bg-slate-900 overflow-hidden flex items-center justify-center pt-20 md:pt-0 pb-16 md:pb-0">
+<main class="relative min-h-screen bg-slate-900 overflow-hidden flex items-center justify-center pt-20 md:pt-0 pb-16 md:pb-0">
   <!-- Animated blob background -->
   <div class="hero-container absolute inset-0"></div>
   
@@ -224,85 +365,85 @@
     <div class="text-center lg:text-left mb-6 md:mb-8">
       <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium">
         <span class="w-2 h-2 bg-blue-400 rounded-full"></span>
-        Business Solutions
+        Toronto AI Automation Solutions
       </div>
     </div>
                   
     <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
       <!-- Left side - Hero text -->
-      <div class="text-center lg:text-left">
+      <header class="text-center lg:text-left">
         <!-- Main headline -->
         <h1 class="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight mb-4 md:mb-6">
-          We give you<br/>
-          time
+          AI Automation for<br/>
+          <span class="text-blue-400">Toronto Businesses</span>
         </h1>
         
         <!-- Subheadline -->
         <p class="text-lg md:text-xl lg:text-2xl text-slate-300 mb-4 md:mb-6 leading-relaxed">
-          Stop working nights <span class="text-blue-600">&</span> weekends. We help Toronto business owners reclaim their time through automation, Voice AI, <span class="text-blue-600">&</span> high-converting websites.
+          Stop working nights <span class="text-blue-600">&</span> weekends. Toronto's leading <strong>AI automation agency</strong> helps business owners reclaim 15-20 hours weekly through <strong>Voice AI</strong>, <strong>workflow automation</strong>, <span class="text-blue-600">&</span> <strong>high-converting websites</strong>.
         </p>
         
         <!-- Trust indicator -->
         <p class="text-base md:text-lg text-slate-400 mb-6 md:mb-8 leading-relaxed">
-          Trusted by businesses across Canada.
+          Trusted by <strong>Toronto businesses</strong> across healthcare, retail, professional services, and more.
         </p>
         
         <!-- CTA Button -->
         <div class="flex justify-center lg:justify-start">
-                 <Button
-                   size="lg"
-                   class="bg-gradient-to-r from-white to-slate-100 text-slate-900 hover:from-slate-100 hover:to-slate-200 px-6 md:px-8 py-3 md:py-4 text-sm md:text-lg rounded-lg md:rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer border border-white/20 hover:border-white/40"
-                   data-cal-link="edmel-ednsy/enable-ai"
-                   data-cal-namespace="enable-ai"
-                   data-cal-config={JSON.stringify({layout: "month_view"})}
-                 >
-                   Reclaim Your Time
-                 </Button>
+          <Button
+            size="lg"
+            class="bg-gradient-to-r from-white to-slate-100 text-slate-900 hover:from-slate-100 hover:to-slate-200 px-6 md:px-8 py-3 md:py-4 text-sm md:text-lg rounded-lg md:rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer border border-white/20 hover:border-white/40"
+            data-cal-link="edmel-ednsy/enable-ai"
+            data-cal-namespace="enable-ai"
+            data-cal-config={JSON.stringify({layout: "month_view"})}
+          >
+            Get Free AI Automation Consultation
+          </Button>
         </div>
-      </div>
+      </header>
 
       <!-- Right side - KPIs -->
-            <div class="space-y-6 md:space-y-8 mt-8 lg:mt-0">
-              <div class="text-center">
-                <div class="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-2">24/7</div>
-                <div class="text-sm md:text-base text-slate-400">AI Assistant</div>
-              </div>
+      <aside class="space-y-6 md:space-y-8 mt-8 lg:mt-0" aria-label="Business automation results">
+        <div class="text-center">
+          <div class="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-2">24/7</div>
+          <div class="text-sm md:text-base text-slate-400">AI Phone Assistant</div>
+        </div>
         <div class="text-center">
           <div class="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-2">15-20</div>
           <div class="text-sm md:text-base text-slate-400">Hours Saved Weekly</div>
         </div>
         <div class="text-center">
           <div class="text-4xl md:text-5xl font-bold text-white mb-2">3x</div>
-          <div class="text-sm text-slate-400">More Leads</div>
+          <div class="text-sm text-slate-400">More Qualified Leads</div>
         </div>
-      </div>
+      </aside>
     </div>
 
     <!-- Trust indicators -->
     <div class="mt-12 text-center lg:text-left">
       <div class="flex flex-wrap items-center gap-6 text-sm text-slate-400">
-        <span>Free Consultation</span>
+        <span>Free 30-Minute Consultation</span>
         <span class="hidden sm:inline">•</span>
-        <span>Local Team</span>
+        <span>Toronto-Based Team</span>
         <span class="hidden sm:inline">•</span>
-        <span>Proven Results</span>
+        <span>Proven AI Automation Results</span>
       </div>
     </div>
-                        </div>
-</section>
+  </div>
+</main>
 
 <!-- Industries Section -->
-<section class="py-24 bg-white">
+<section class="py-24 bg-white" aria-labelledby="industries-heading">
   <div class="max-w-7xl mx-auto px-6 lg:px-8">
-    <div class="text-center mb-16">
-      <h2 class="text-4xl lg:text-5xl font-bold text-slate-900 mb-6 leading-tight">
-        Industries We Serve
+    <header class="text-center mb-16">
+      <h2 id="industries-heading" class="text-4xl lg:text-5xl font-bold text-slate-900 mb-6 leading-tight">
+        Toronto Industries We Serve
       </h2>
       
       <p class="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
-        From healthcare to retail, we help businesses across Canada automate their operations and connect better with their customers.
+        From <strong>healthcare practices</strong> to <strong>retail stores</strong>, we help <strong>Toronto businesses</strong> across all industries automate their operations and connect better with their customers through <strong>AI automation</strong>.
       </p>
-    </div>
+    </header>
     
     <!-- Industries Grid -->
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -668,6 +809,372 @@
       </p>
     </div>
 
+  </div>
+</section>
+
+<!-- Social Proof Section -->
+<section class="py-24 bg-slate-50 section-grid section-grid-slate" aria-labelledby="trust-heading">
+  <div class="max-w-7xl mx-auto px-6 lg:px-8">
+    <header class="text-center mb-16">
+      <h2 id="trust-heading" class="text-4xl lg:text-5xl font-bold text-slate-900 mb-6 leading-tight">
+        Why Toronto Businesses<br/>
+        Trust Our AI Automation
+      </h2>
+      
+      <p class="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
+        We understand the unique challenges of running a <strong>business in Toronto</strong>. Here's why local entrepreneurs choose us for their <strong>AI automation</strong> and <strong>workflow optimization</strong> needs.
+      </p>
+    </header>
+    
+    <!-- Trust Indicators Grid -->
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+      <!-- Local Expertise -->
+      <div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 text-center">
+        <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <Building2 class="w-8 h-8 text-blue-600" />
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 mb-3">Toronto Born & Raised</h3>
+        <p class="text-slate-600 text-sm leading-relaxed">
+          We understand local business culture, regulations, and the unique challenges of operating in the GTA.
+        </p>
+      </div>
+
+      <!-- Proven Results -->
+      <div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 text-center">
+        <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <BarChart3 class="w-8 h-8 text-blue-600" />
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 mb-3">Proven Results</h3>
+        <p class="text-slate-600 text-sm leading-relaxed">
+          Our automation solutions consistently deliver 15-20 hours of time savings and 3x more qualified leads.
+        </p>
+      </div>
+
+      <!-- White-Glove Service -->
+      <div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 text-center">
+        <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <Shield class="w-8 h-8 text-blue-600" />
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 mb-3">White-Glove Service</h3>
+        <p class="text-slate-600 text-sm leading-relaxed">
+          We handle everything from setup to training. You focus on your business while we handle the tech.
+        </p>
+      </div>
+
+      <!-- Industry Expertise -->
+      <div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 text-center">
+        <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <Target class="w-8 h-8 text-blue-600" />
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 mb-3">SMB Specialists</h3>
+        <p class="text-slate-600 text-sm leading-relaxed">
+          We specialize in small to medium businesses across healthcare, retail, professional services, and more.
+        </p>
+      </div>
+    </div>
+
+    <!-- Results Preview -->
+    <div class="bg-white rounded-3xl p-8 md:p-12 border border-slate-200 shadow-sm">
+      <div class="text-center mb-8">
+        <h3 class="text-2xl font-bold text-slate-900 mb-4">What you can expect</h3>
+        <p class="text-slate-600 max-w-2xl mx-auto">
+          Based on our experience with similar businesses, here's what our clients typically achieve:
+        </p>
+      </div>
+      
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="text-center">
+          <div class="text-4xl font-bold text-blue-600 mb-2">15-20</div>
+          <div class="text-lg font-semibold text-slate-900 mb-2">Hours Saved Weekly</div>
+          <div class="text-slate-600 text-sm">Time reclaimed for family, growth, and strategic work</div>
+        </div>
+        <div class="text-center">
+          <div class="text-4xl font-bold text-blue-600 mb-2">3x</div>
+          <div class="text-lg font-semibold text-slate-900 mb-2">More Qualified Leads</div>
+          <div class="text-slate-600 text-sm">Better lead capture and nurturing through automation</div>
+        </div>
+        <div class="text-center">
+          <div class="text-4xl font-bold text-blue-600 mb-2">24/7</div>
+          <div class="text-lg font-semibold text-slate-900 mb-2">Customer Service</div>
+          <div class="text-slate-600 text-sm">Never miss a call or inquiry with AI-powered assistance</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Call to Action -->
+    <div class="text-center mt-12">
+      <p class="text-slate-600 text-lg mb-6">
+        Ready to see these results for your business?
+      </p>
+      <Button 
+        size="lg" 
+        class="bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 rounded-xl px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
+        data-cal-link="edmel-ednsy/enable-ai"
+        data-cal-namespace="enable-ai"
+        data-cal-config={JSON.stringify({layout: "month_view"})}
+      >
+        Book Your Free Consultation
+      </Button>
+    </div>
+  </div>
+</section>
+
+<!-- About Us Section -->
+<section class="py-24 bg-white">
+  <div class="max-w-7xl mx-auto px-6 lg:px-8">
+    <div class="text-center mb-16">
+      <h2 class="text-4xl lg:text-5xl font-bold text-slate-900 mb-6 leading-tight">
+        Meet the team behind<br/>
+        your time freedom
+      </h2>
+      
+      <p class="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
+        We're Toronto entrepreneurs who understand the struggle of growing a business while maintaining work-life balance.
+      </p>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-16 items-center mb-16">
+      <!-- Team Photos -->
+      <div class="flex justify-center lg:justify-start">
+        <div class="relative">
+          <div class="w-80 h-80 bg-gradient-to-br from-blue-50 to-blue-100 rounded-3xl flex items-center justify-center">
+            <div class="text-center">
+              <div class="w-24 h-24 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users class="w-12 h-12 text-white" />
+              </div>
+              <p class="text-blue-800 font-semibold text-lg">Ed & Sy</p>
+              <p class="text-blue-600 text-sm">Toronto Digital Agency</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Our Story -->
+      <div class="space-y-6">
+        <div>
+          <h3 class="text-2xl font-bold text-slate-900 mb-4">Our Story</h3>
+          <p class="text-slate-600 leading-relaxed mb-4">
+            We started Ed & Sy because we've been there - working 70+ hour weeks, missing family dinners, 
+            and feeling like our businesses were running us instead of the other way around.
+          </p>
+          <p class="text-slate-600 leading-relaxed">
+            After years of building and scaling businesses in Toronto, we discovered the power of AI automation. 
+            Now we help other entrepreneurs reclaim their time and build the life they actually want.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-6">
+          <div class="text-center p-4 bg-slate-50 rounded-xl">
+            <div class="text-3xl font-bold text-blue-600 mb-2">5+</div>
+            <div class="text-sm text-slate-600">Years Experience</div>
+          </div>
+          <div class="text-center p-4 bg-slate-50 rounded-xl">
+            <div class="text-3xl font-bold text-blue-600 mb-2">100%</div>
+            <div class="text-sm text-slate-600">Toronto Based</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Why We're Different -->
+    <div class="bg-slate-50 rounded-3xl p-8 md:p-12">
+      <h3 class="text-2xl font-bold text-slate-900 mb-6 text-center">Why We're Different</h3>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="text-center">
+          <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Target class="w-8 h-8 text-blue-600" />
+          </div>
+          <h4 class="font-semibold text-slate-900 mb-2">SMB Focused</h4>
+          <p class="text-slate-600 text-sm">We understand small business challenges because we've lived them.</p>
+        </div>
+        <div class="text-center">
+          <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Shield class="w-8 h-8 text-blue-600" />
+          </div>
+          <h4 class="font-semibold text-slate-900 mb-2">White-Glove Service</h4>
+          <p class="text-slate-600 text-sm">We handle everything from setup to training. You just focus on your business.</p>
+        </div>
+        <div class="text-center">
+          <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Sparkles class="w-8 h-8 text-blue-600" />
+          </div>
+          <h4 class="font-semibold text-slate-900 mb-2">Proven Results</h4>
+          <p class="text-slate-600 text-sm">Our clients consistently save 15-20 hours weekly and see 3x more leads.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Pricing Section -->
+<section class="py-24 bg-slate-50 section-grid section-grid-slate">
+  <div class="max-w-7xl mx-auto px-6 lg:px-8">
+    <div class="text-center mb-16">
+      <h2 class="text-4xl lg:text-5xl font-bold text-slate-900 mb-6 leading-tight">
+        Simple, transparent pricing
+      </h2>
+      
+      <p class="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
+        Choose the solution that fits your business needs. All packages include setup, training, and ongoing support.
+      </p>
+    </div>
+    
+    <!-- Pricing Cards -->
+    <div class="grid md:grid-cols-3 gap-8 mb-12">
+      <!-- Voice AI Package -->
+      <div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300">
+        <div class="text-center mb-8">
+          <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Headphones class="w-8 h-8 text-blue-600" />
+          </div>
+          <h3 class="text-2xl font-bold text-slate-900 mb-2">Voice AI Business Growth</h3>
+          <p class="text-slate-600">24/7 AI phone assistant</p>
+        </div>
+        
+        <div class="text-center mb-8">
+          <div class="text-4xl font-bold text-slate-900 mb-2">Custom Pricing</div>
+          <p class="text-slate-600">Based on call volume & features</p>
+        </div>
+        
+        <ul class="space-y-3 mb-8">
+          <li class="flex items-center gap-3">
+            <CheckCircle class="w-5 h-5 text-blue-500 flex-shrink-0" />
+            <span class="text-slate-600">24/7 call handling</span>
+          </li>
+          <li class="flex items-center gap-3">
+            <CheckCircle class="w-5 h-5 text-blue-500 flex-shrink-0" />
+            <span class="text-slate-600">Lead qualification</span>
+          </li>
+          <li class="flex items-center gap-3">
+            <CheckCircle class="w-5 h-5 text-blue-500 flex-shrink-0" />
+            <span class="text-slate-600">Appointment booking</span>
+          </li>
+          <li class="flex items-center gap-3">
+            <CheckCircle class="w-5 h-5 text-blue-500 flex-shrink-0" />
+            <span class="text-slate-600">CRM integration</span>
+          </li>
+        </ul>
+        
+        <Button 
+          class="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-3 font-semibold transition-all duration-300"
+          data-cal-link="edmel-ednsy/enable-ai"
+          data-cal-namespace="enable-ai"
+          data-cal-config={JSON.stringify({layout: "month_view"})}
+        >
+          Get Quote
+        </Button>
+      </div>
+
+      <!-- Workflow Automation Package -->
+      <div class="bg-white rounded-2xl p-8 border-2 border-blue-300 shadow-lg hover:shadow-xl transition-all duration-300 relative">
+        <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
+          <span class="bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-semibold">Most Popular</span>
+        </div>
+        
+        <div class="text-center mb-8">
+          <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Workflow class="w-8 h-8 text-blue-600" />
+          </div>
+          <h3 class="text-2xl font-bold text-slate-900 mb-2">Workflow Freedom Package</h3>
+          <p class="text-slate-600">Complete business automation</p>
+        </div>
+        
+        <div class="text-center mb-8">
+          <div class="text-4xl font-bold text-slate-900 mb-2">$2,500</div>
+          <p class="text-slate-600">One-time setup + $500/month</p>
+        </div>
+        
+        <ul class="space-y-3 mb-8">
+          <li class="flex items-center gap-3">
+            <CheckCircle class="w-5 h-5 text-blue-500 flex-shrink-0" />
+            <span class="text-slate-600">Invoice processing</span>
+          </li>
+          <li class="flex items-center gap-3">
+            <CheckCircle class="w-5 h-5 text-blue-500 flex-shrink-0" />
+            <span class="text-slate-600">Customer follow-ups</span>
+          </li>
+          <li class="flex items-center gap-3">
+            <CheckCircle class="w-5 h-5 text-blue-500 flex-shrink-0" />
+            <span class="text-slate-600">Email marketing</span>
+          </li>
+          <li class="flex items-center gap-3">
+            <CheckCircle class="w-5 h-5 text-blue-500 flex-shrink-0" />
+            <span class="text-slate-600">Data entry automation</span>
+          </li>
+        </ul>
+        
+        <Button 
+          class="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-3 font-semibold transition-all duration-300"
+          data-cal-link="edmel-ednsy/enable-ai"
+          data-cal-namespace="enable-ai"
+          data-cal-config={JSON.stringify({layout: "month_view"})}
+        >
+          Get Started
+        </Button>
+      </div>
+
+      <!-- Website Package -->
+      <div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300">
+        <div class="text-center mb-8">
+          <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Smartphone class="w-8 h-8 text-blue-600" />
+          </div>
+          <h3 class="text-2xl font-bold text-slate-900 mb-2">High-Converting Website</h3>
+          <p class="text-slate-600">SEO-optimized business website</p>
+        </div>
+        
+        <div class="text-center mb-8">
+          <div class="text-4xl font-bold text-slate-900 mb-2">$3,500</div>
+          <p class="text-slate-600">One-time development</p>
+        </div>
+        
+        <ul class="space-y-3 mb-8">
+          <li class="flex items-center gap-3">
+            <CheckCircle class="w-5 h-5 text-blue-500 flex-shrink-0" />
+            <span class="text-slate-600">Mobile-responsive design</span>
+          </li>
+          <li class="flex items-center gap-3">
+            <CheckCircle class="w-5 h-5 text-blue-500 flex-shrink-0" />
+            <span class="text-slate-600">SEO optimization</span>
+          </li>
+          <li class="flex items-center gap-3">
+            <CheckCircle class="w-5 h-5 text-blue-500 flex-shrink-0" />
+            <span class="text-slate-600">Contact forms</span>
+          </li>
+          <li class="flex items-center gap-3">
+            <CheckCircle class="w-5 h-5 text-blue-500 flex-shrink-0" />
+            <span class="text-slate-600">Fast loading speeds</span>
+          </li>
+        </ul>
+        
+        <Button 
+          class="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-3 font-semibold transition-all duration-300"
+          data-cal-link="edmel-ednsy/enable-ai"
+          data-cal-namespace="enable-ai"
+          data-cal-config={JSON.stringify({layout: "month_view"})}
+        >
+          Get Quote
+        </Button>
+      </div>
+    </div>
+
+    <!-- Custom Packages Notice -->
+    <div class="text-center bg-white rounded-2xl p-8 border border-slate-200">
+      <h3 class="text-xl font-bold text-slate-900 mb-4">Need a Custom Solution?</h3>
+      <p class="text-slate-600 mb-6 max-w-2xl mx-auto">
+        Every business is unique. We create custom packages that combine multiple solutions 
+        to perfectly fit your needs and budget.
+      </p>
+      <Button 
+        size="lg" 
+        class="bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 rounded-xl px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
+        data-cal-link="edmel-ednsy/enable-ai"
+        data-cal-namespace="enable-ai"
+        data-cal-config={JSON.stringify({layout: "month_view"})}
+      >
+        Discuss Custom Package
+      </Button>
+    </div>
   </div>
 </section>
 
