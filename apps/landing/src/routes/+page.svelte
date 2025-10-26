@@ -356,7 +356,7 @@
 </svelte:head>
 
 <!-- Hero Section -->
-<main class="relative min-h-screen bg-slate-900 overflow-hidden flex items-center justify-center pt-20 md:pt-0 pb-16 md:pb-0">
+<section class="relative min-h-screen bg-slate-900 overflow-hidden flex items-center justify-center pt-20 md:pt-0 pb-16 md:pb-0">
   <!-- Animated blob background -->
   <div class="hero-container absolute inset-0"></div>
   
@@ -365,72 +365,72 @@
     <div class="text-center lg:text-left mb-6 md:mb-8">
       <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium">
         <span class="w-2 h-2 bg-blue-400 rounded-full"></span>
-        Toronto AI Automation Solutions
+        Business Solutions
       </div>
     </div>
                   
     <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
       <!-- Left side - Hero text -->
-      <header class="text-center lg:text-left">
+      <div class="text-center lg:text-left">
         <!-- Main headline -->
         <h1 class="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight mb-4 md:mb-6">
-          AI Automation for<br/>
-          <span class="text-blue-400">Toronto Businesses</span>
+          We give you<br/>
+          time
         </h1>
         
         <!-- Subheadline -->
         <p class="text-lg md:text-xl lg:text-2xl text-slate-300 mb-4 md:mb-6 leading-relaxed">
-          Stop working nights <span class="text-blue-600">&</span> weekends. Toronto's leading <strong>AI automation agency</strong> helps business owners reclaim 15-20 hours weekly through <strong>Voice AI</strong>, <strong>workflow automation</strong>, <span class="text-blue-600">&</span> <strong>high-converting websites</strong>.
+          Stop working nights <span class="text-blue-600">&</span> weekends. We help Toronto business owners reclaim their time through automation, Voice AI, <span class="text-blue-600">&</span> high-converting websites.
         </p>
         
         <!-- Trust indicator -->
         <p class="text-base md:text-lg text-slate-400 mb-6 md:mb-8 leading-relaxed">
-          Trusted by <strong>Toronto businesses</strong> across healthcare, retail, professional services, and more.
+          Trusted by businesses across Canada.
         </p>
         
         <!-- CTA Button -->
         <div class="flex justify-center lg:justify-start">
-          <Button
-            size="lg"
-            class="bg-gradient-to-r from-white to-slate-100 text-slate-900 hover:from-slate-100 hover:to-slate-200 px-6 md:px-8 py-3 md:py-4 text-sm md:text-lg rounded-lg md:rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer border border-white/20 hover:border-white/40"
-            data-cal-link="edmel-ednsy/enable-ai"
-            data-cal-namespace="enable-ai"
-            data-cal-config={JSON.stringify({layout: "month_view"})}
-          >
-            Get Free AI Automation Consultation
-          </Button>
+                 <Button
+                   size="lg"
+                   class="bg-gradient-to-r from-white to-slate-100 text-slate-900 hover:from-slate-100 hover:to-slate-200 px-6 md:px-8 py-3 md:py-4 text-sm md:text-lg rounded-lg md:rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer border border-white/20 hover:border-white/40"
+                   data-cal-link="edmel-ednsy/enable-ai"
+                   data-cal-namespace="enable-ai"
+                   data-cal-config={JSON.stringify({layout: "month_view"})}
+                 >
+                   Reclaim Your Time
+                 </Button>
         </div>
-      </header>
+      </div>
 
       <!-- Right side - KPIs -->
-      <aside class="space-y-6 md:space-y-8 mt-8 lg:mt-0" aria-label="Business automation results">
-        <div class="text-center">
-          <div class="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-2">24/7</div>
-          <div class="text-sm md:text-base text-slate-400">AI Phone Assistant</div>
-        </div>
+            <div class="space-y-6 md:space-y-8 mt-8 lg:mt-0">
+              <div class="text-center">
+                <div class="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-2">24/7</div>
+                <div class="text-sm md:text-base text-slate-400">AI Assistant</div>
+              </div>
         <div class="text-center">
           <div class="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-2">15-20</div>
           <div class="text-sm md:text-base text-slate-400">Hours Saved Weekly</div>
         </div>
         <div class="text-center">
           <div class="text-4xl md:text-5xl font-bold text-white mb-2">3x</div>
-          <div class="text-sm text-slate-400">More Qualified Leads</div>
+          <div class="text-sm text-slate-400">More Leads</div>
         </div>
-      </aside>
+      </div>
     </div>
 
     <!-- Trust indicators -->
     <div class="mt-12 text-center lg:text-left">
       <div class="flex flex-wrap items-center gap-6 text-sm text-slate-400">
-        <span>Free 30-Minute Consultation</span>
+        <span>Free Consultation</span>
         <span class="hidden sm:inline">•</span>
-        <span>Toronto-Based Team</span>
+        <span>Local Team</span>
         <span class="hidden sm:inline">•</span>
-        <span>Proven AI Automation Results</span>
+        <span>Proven Results</span>
       </div>
     </div>
-  </div>
-</main>
+                        </div>
+</section>
 
 <!-- Industries Section -->
 <section class="py-24 bg-white" aria-labelledby="industries-heading">
