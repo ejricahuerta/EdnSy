@@ -1006,165 +1006,87 @@
   </div>
 </section>
 
-<!-- Pricing Section -->
+<!-- Process Section -->
 <section class="py-24 bg-slate-50 section-grid section-grid-slate">
   <div class="max-w-7xl mx-auto px-6 lg:px-8">
     <div class="text-center mb-16">
       <h2 class="text-4xl lg:text-5xl font-bold text-slate-900 mb-6 leading-tight">
-        Simple, transparent pricing
+        How we work with you
       </h2>
       
       <p class="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
-        Choose the solution that fits your business needs. All packages include setup, training, and ongoing support.
+        Our proven process ensures your automation solution is perfectly tailored to your business needs and delivers real results.
       </p>
     </div>
     
-    <!-- Pricing Cards -->
-    <div class="grid md:grid-cols-3 gap-8 mb-12">
-      <!-- Voice AI Package -->
-      <div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300">
-        <div class="text-center mb-8">
-          <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Headphones class="w-8 h-8 text-blue-600" />
-          </div>
-          <h3 class="text-2xl font-bold text-slate-900 mb-2">Voice AI Business Growth</h3>
-          <p class="text-slate-600">24/7 AI phone assistant</p>
+    <!-- Process Steps -->
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+      <!-- Step 1 -->
+      <div class="text-center">
+        <div class="w-16 h-16 bg-blue-600 text-white rounded-2xl flex items-center justify-center mx-auto mb-6 text-2xl font-bold">
+          1
         </div>
-        
-        <div class="text-center mb-8">
-          <div class="text-4xl font-bold text-slate-900 mb-2">Custom Pricing</div>
-          <p class="text-slate-600">Based on call volume & features</p>
-        </div>
-        
-        <ul class="space-y-3 mb-8">
-          <li class="flex items-center gap-3">
-            <CheckCircle class="w-5 h-5 text-blue-500 flex-shrink-0" />
-            <span class="text-slate-600">24/7 call handling</span>
-          </li>
-          <li class="flex items-center gap-3">
-            <CheckCircle class="w-5 h-5 text-blue-500 flex-shrink-0" />
-            <span class="text-slate-600">Lead qualification</span>
-          </li>
-          <li class="flex items-center gap-3">
-            <CheckCircle class="w-5 h-5 text-blue-500 flex-shrink-0" />
-            <span class="text-slate-600">Appointment booking</span>
-          </li>
-          <li class="flex items-center gap-3">
-            <CheckCircle class="w-5 h-5 text-blue-500 flex-shrink-0" />
-            <span class="text-slate-600">CRM integration</span>
-          </li>
-        </ul>
-        
-        <Button 
-          class="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-3 font-semibold transition-all duration-300"
-          data-cal-link="edmel-ednsy/enable-ai"
-          data-cal-namespace="enable-ai"
-          data-cal-config={JSON.stringify({layout: "month_view"})}
-        >
-          Get Quote
-        </Button>
+        <h3 class="text-xl font-bold text-slate-900 mb-4">Free Consultation</h3>
+        <p class="text-slate-600 leading-relaxed">
+          We analyze your current processes and identify automation opportunities that will save you the most time.
+        </p>
       </div>
 
-      <!-- Workflow Automation Package -->
-      <div class="bg-white rounded-2xl p-8 border-2 border-blue-300 shadow-lg hover:shadow-xl transition-all duration-300 relative">
-        <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
-          <span class="bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-semibold">Most Popular</span>
+      <!-- Step 2 -->
+      <div class="text-center">
+        <div class="w-16 h-16 bg-blue-600 text-white rounded-2xl flex items-center justify-center mx-auto mb-6 text-2xl font-bold">
+          2
         </div>
-        
-        <div class="text-center mb-8">
-          <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Workflow class="w-8 h-8 text-blue-600" />
-          </div>
-          <h3 class="text-2xl font-bold text-slate-900 mb-2">Workflow Freedom Package</h3>
-          <p class="text-slate-600">Complete business automation</p>
-        </div>
-        
-        <div class="text-center mb-8">
-          <div class="text-4xl font-bold text-slate-900 mb-2">$2,500</div>
-          <p class="text-slate-600">One-time setup + $500/month</p>
-        </div>
-        
-        <ul class="space-y-3 mb-8">
-          <li class="flex items-center gap-3">
-            <CheckCircle class="w-5 h-5 text-blue-500 flex-shrink-0" />
-            <span class="text-slate-600">Invoice processing</span>
-          </li>
-          <li class="flex items-center gap-3">
-            <CheckCircle class="w-5 h-5 text-blue-500 flex-shrink-0" />
-            <span class="text-slate-600">Customer follow-ups</span>
-          </li>
-          <li class="flex items-center gap-3">
-            <CheckCircle class="w-5 h-5 text-blue-500 flex-shrink-0" />
-            <span class="text-slate-600">Email marketing</span>
-          </li>
-          <li class="flex items-center gap-3">
-            <CheckCircle class="w-5 h-5 text-blue-500 flex-shrink-0" />
-            <span class="text-slate-600">Data entry automation</span>
-          </li>
-        </ul>
-        
-        <Button 
-          class="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-3 font-semibold transition-all duration-300"
-          data-cal-link="edmel-ednsy/enable-ai"
-          data-cal-namespace="enable-ai"
-          data-cal-config={JSON.stringify({layout: "month_view"})}
-        >
-          Get Started
-        </Button>
+        <h3 class="text-xl font-bold text-slate-900 mb-4">Custom Solution</h3>
+        <p class="text-slate-600 leading-relaxed">
+          We design a tailored automation strategy that fits your specific business needs and budget.
+        </p>
       </div>
 
-      <!-- Website Package -->
-      <div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300">
-        <div class="text-center mb-8">
-          <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Smartphone class="w-8 h-8 text-blue-600" />
-          </div>
-          <h3 class="text-2xl font-bold text-slate-900 mb-2">High-Converting Website</h3>
-          <p class="text-slate-600">SEO-optimized business website</p>
+      <!-- Step 3 -->
+      <div class="text-center">
+        <div class="w-16 h-16 bg-blue-600 text-white rounded-2xl flex items-center justify-center mx-auto mb-6 text-2xl font-bold">
+          3
         </div>
-        
-        <div class="text-center mb-8">
-          <div class="text-4xl font-bold text-slate-900 mb-2">$3,500</div>
-          <p class="text-slate-600">One-time development</p>
+        <h3 class="text-xl font-bold text-slate-900 mb-4">Implementation</h3>
+        <p class="text-slate-600 leading-relaxed">
+          We handle all the technical setup and integration, so you can focus on running your business.
+        </p>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="text-center">
+        <div class="w-16 h-16 bg-blue-600 text-white rounded-2xl flex items-center justify-center mx-auto mb-6 text-2xl font-bold">
+          4
         </div>
-        
-        <ul class="space-y-3 mb-8">
-          <li class="flex items-center gap-3">
-            <CheckCircle class="w-5 h-5 text-blue-500 flex-shrink-0" />
-            <span class="text-slate-600">Mobile-responsive design</span>
-          </li>
-          <li class="flex items-center gap-3">
-            <CheckCircle class="w-5 h-5 text-blue-500 flex-shrink-0" />
-            <span class="text-slate-600">SEO optimization</span>
-          </li>
-          <li class="flex items-center gap-3">
-            <CheckCircle class="w-5 h-5 text-blue-500 flex-shrink-0" />
-            <span class="text-slate-600">Contact forms</span>
-          </li>
-          <li class="flex items-center gap-3">
-            <CheckCircle class="w-5 h-5 text-blue-500 flex-shrink-0" />
-            <span class="text-slate-600">Fast loading speeds</span>
-          </li>
-        </ul>
-        
-        <Button 
-          class="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-3 font-semibold transition-all duration-300"
-          data-cal-link="edmel-ednsy/enable-ai"
-          data-cal-namespace="enable-ai"
-          data-cal-config={JSON.stringify({layout: "month_view"})}
-        >
-          Get Quote
-        </Button>
+        <h3 class="text-xl font-bold text-slate-900 mb-4">Ongoing Support</h3>
+        <p class="text-slate-600 leading-relaxed">
+          We provide training and ongoing support to ensure your automation continues delivering value.
+        </p>
       </div>
     </div>
 
-    <!-- Custom Packages Notice -->
-    <div class="text-center bg-white rounded-2xl p-8 border border-slate-200">
-      <h3 class="text-xl font-bold text-slate-900 mb-4">Need a Custom Solution?</h3>
-      <p class="text-slate-600 mb-6 max-w-2xl mx-auto">
-        Every business is unique. We create custom packages that combine multiple solutions 
-        to perfectly fit your needs and budget.
+    <!-- Investment Notice -->
+    <div class="text-center bg-white rounded-2xl p-8 md:p-12 border border-slate-200 shadow-sm">
+      <h3 class="text-2xl font-bold text-slate-900 mb-4">Investment That Pays for Itself</h3>
+      <p class="text-slate-600 mb-6 max-w-3xl mx-auto text-lg leading-relaxed">
+        Our solutions are designed to save you 15-20 hours weekly. Most clients see a return on investment within the first month. 
+        Pricing varies based on your specific needs and the complexity of your automation requirements.
       </p>
+      <div class="grid md:grid-cols-3 gap-6 mb-8">
+        <div class="text-center p-4 bg-slate-50 rounded-xl">
+          <div class="text-2xl font-bold text-blue-600 mb-2">Free</div>
+          <div class="text-sm text-slate-600">Initial Consultation</div>
+        </div>
+        <div class="text-center p-4 bg-slate-50 rounded-xl">
+          <div class="text-2xl font-bold text-blue-600 mb-2">Custom</div>
+          <div class="text-sm text-slate-600">Pricing Based on Needs</div>
+        </div>
+        <div class="text-center p-4 bg-slate-50 rounded-xl">
+          <div class="text-2xl font-bold text-blue-600 mb-2">ROI</div>
+          <div class="text-sm text-slate-600">Within First Month</div>
+        </div>
+      </div>
       <Button 
         size="lg" 
         class="bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 rounded-xl px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
@@ -1172,7 +1094,7 @@
         data-cal-namespace="enable-ai"
         data-cal-config={JSON.stringify({layout: "month_view"})}
       >
-        Discuss Custom Package
+        Get Your Free Consultation
       </Button>
     </div>
   </div>
