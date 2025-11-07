@@ -1,6 +1,7 @@
 <script>
   import { goto } from "$app/navigation";
   import { Button } from "$lib/components/ui/button";
+  import { scrollAnimation } from "$lib/utils/scrollAnimation";
   import {
     ArrowRight,
     Calendar,
@@ -202,8 +203,7 @@
   <!-- Preconnect to external domains -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="dns-prefetch" href="//fonts.googleapis.com" />
-  <link rel="dns-prefetch" href="//fonts.gstatic.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Marck+Script&display=swap" rel="stylesheet" />
   
   <!-- Structured Data - Organization -->
   <script type="application/ld+json">
@@ -392,7 +392,7 @@
         <div class="flex justify-center lg:justify-start">
                  <Button
                    size="lg"
-                   class="bg-gradient-to-r from-white to-slate-100 text-slate-900 hover:from-slate-100 hover:to-slate-200 px-6 md:px-8 py-3 md:py-4 text-sm md:text-lg rounded-lg md:rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer border border-white/20 hover:border-white/40"
+                   class="bg-gradient-to-r from-white to-slate-100 text-slate-800 hover:from-slate-100 hover:to-slate-200 px-6 md:px-8 py-3 md:py-4 text-sm md:text-lg rounded-lg md:rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer border border-white/20 hover:border-white/40"
                    data-cal-link="edmel-ednsy/enable-ai"
                    data-cal-namespace="enable-ai"
                    data-cal-config={JSON.stringify({layout: "month_view"})}
@@ -436,11 +436,11 @@
 <section class="py-24 bg-white" aria-labelledby="industries-heading">
   <div class="max-w-7xl mx-auto px-6 lg:px-8">
     <header class="text-center mb-16">
-      <h2 id="industries-heading" class="text-4xl lg:text-5xl font-bold text-slate-900 mb-6 leading-tight">
-        Toronto Industries We Serve
+      <h2 id="industries-heading" class="fade-in text-4xl lg:text-5xl font-bold font-heading text-slate-800 mb-6 leading-tight" use:scrollAnimation>
+        Industries We Serve
       </h2>
       
-      <p class="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
+      <p class="fade-in text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed" use:scrollAnimation={{ delay: 100 }}>
         From <strong>healthcare practices</strong> to <strong>retail stores</strong>, we help <strong>Toronto businesses</strong> across all industries automate their operations and connect better with their customers through <strong>AI automation</strong>.
       </p>
     </header>
@@ -448,7 +448,7 @@
     <!-- Industries Grid -->
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
       <!-- Healthcare -->
-      <div class="group bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:border-slate-300 hover:shadow-lg transition-all duration-300">
+      <div class="fade-in group bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:border-slate-300 hover:shadow-lg transition-all duration-300" use:scrollAnimation={{ delay: 0 }}>
         <div class="flex items-center gap-4 mb-4">
           <div class="hidden md:flex w-12 h-12 bg-slate-100 rounded-xl items-center justify-center">
             <Heart class="w-6 h-6 text-slate-600" />
@@ -456,7 +456,7 @@
           <div class="flex md:hidden">
             <Heart class="w-6 h-6 text-slate-600" />
           </div>
-          <h3 class="text-xl font-bold text-slate-900">Healthcare</h3>
+          <h3 class="text-base font-bold uppercase text-slate-800">Healthcare</h3>
         </div>
         <p class="text-slate-600 leading-relaxed">
           Patient scheduling, appointment reminders, and automated follow-ups that improve patient care while reducing administrative burden.
@@ -464,7 +464,7 @@
       </div>
 
       <!-- Professional Services -->
-      <div class="group bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:border-slate-300 hover:shadow-lg transition-all duration-300">
+      <div class="fade-in group bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:border-slate-300 hover:shadow-lg transition-all duration-300" use:scrollAnimation={{ delay: 100 }}>
         <div class="flex items-center gap-4 mb-4">
           <div class="hidden md:flex w-12 h-12 bg-slate-100 rounded-xl items-center justify-center">
             <Briefcase class="w-6 h-6 text-slate-600" />
@@ -472,7 +472,7 @@
           <div class="flex md:hidden">
             <Briefcase class="w-6 h-6 text-slate-600" />
           </div>
-          <h3 class="text-xl font-bold text-slate-900">Professional Services</h3>
+          <h3 class="text-base font-bold uppercase text-slate-800">Professional Services</h3>
         </div>
         <p class="text-slate-600 leading-relaxed">
           Law firms, accounting practices, and consulting agencies benefit from automated client intake and case management systems.
@@ -480,7 +480,7 @@
       </div>
 
       <!-- Retail & E-commerce -->
-      <div class="group bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:border-slate-300 hover:shadow-lg transition-all duration-300">
+      <div class="fade-in group bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:border-slate-300 hover:shadow-lg transition-all duration-300" use:scrollAnimation={{ delay: 200 }}>
         <div class="flex items-center gap-4 mb-4">
           <div class="hidden md:flex w-12 h-12 bg-slate-100 rounded-xl items-center justify-center">
             <ShoppingCart class="w-6 h-6 text-slate-600" />
@@ -488,7 +488,7 @@
           <div class="flex md:hidden">
             <ShoppingCart class="w-6 h-6 text-slate-600" />
           </div>
-          <h3 class="text-xl font-bold text-slate-900">Retail & E-commerce</h3>
+          <h3 class="text-base font-bold uppercase text-slate-800">Retail & E-commerce</h3>
         </div>
         <p class="text-slate-600 leading-relaxed">
           Customer service automation, inventory management, and order processing that scales with your business growth.
@@ -496,7 +496,7 @@
       </div>
 
       <!-- Real Estate -->
-      <div class="group bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:border-slate-300 hover:shadow-lg transition-all duration-300">
+      <div class="fade-in group bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:border-slate-300 hover:shadow-lg transition-all duration-300" use:scrollAnimation={{ delay: 300 }}>
         <div class="flex items-center gap-4 mb-4">
           <div class="hidden md:flex w-12 h-12 bg-slate-100 rounded-xl items-center justify-center">
             <Home class="w-6 h-6 text-slate-600" />
@@ -504,7 +504,7 @@
           <div class="flex md:hidden">
             <Home class="w-6 h-6 text-slate-600" />
           </div>
-          <h3 class="text-xl font-bold text-slate-900">Real Estate</h3>
+          <h3 class="text-base font-bold uppercase text-slate-800">Real Estate</h3>
         </div>
         <p class="text-slate-600 leading-relaxed">
           Lead qualification, property inquiries, and client communication automation that helps agents focus on closing deals.
@@ -512,7 +512,7 @@
       </div>
 
       <!-- Manufacturing -->
-      <div class="group bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:border-slate-300 hover:shadow-lg transition-all duration-300">
+      <div class="fade-in group bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:border-slate-300 hover:shadow-lg transition-all duration-300" use:scrollAnimation={{ delay: 400 }}>
         <div class="flex items-center gap-4 mb-4">
           <div class="hidden md:flex w-12 h-12 bg-slate-100 rounded-xl items-center justify-center">
             <Factory class="w-6 h-6 text-slate-600" />
@@ -520,7 +520,7 @@
           <div class="flex md:hidden">
             <Factory class="w-6 h-6 text-slate-600" />
           </div>
-          <h3 class="text-xl font-bold text-slate-900">Manufacturing</h3>
+          <h3 class="text-base font-bold uppercase text-slate-800">Manufacturing</h3>
         </div>
         <p class="text-slate-600 leading-relaxed">
           Supply chain automation, quality control processes, and customer support systems that improve operational efficiency.
@@ -528,7 +528,7 @@
       </div>
 
       <!-- Food & Hospitality -->
-      <div class="group bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:border-slate-300 hover:shadow-lg transition-all duration-300">
+      <div class="fade-in group bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:border-slate-300 hover:shadow-lg transition-all duration-300" use:scrollAnimation={{ delay: 500 }}>
         <div class="flex items-center gap-4 mb-4">
           <div class="hidden md:flex w-12 h-12 bg-slate-100 rounded-xl items-center justify-center">
             <Utensils class="w-6 h-6 text-slate-600" />
@@ -536,7 +536,7 @@
           <div class="flex md:hidden">
             <Utensils class="w-6 h-6 text-slate-600" />
           </div>
-          <h3 class="text-xl font-bold text-slate-900">Food & Hospitality</h3>
+          <h3 class="text-base font-bold uppercase text-slate-800">Food & Hospitality</h3>
         </div>
         <p class="text-slate-600 leading-relaxed">
           Reservation management, customer feedback collection, and order processing automation that enhances guest experience.
@@ -550,12 +550,12 @@
 <section class="py-24 bg-slate-50 section-grid section-grid-slate">
   <div class="max-w-7xl mx-auto px-6 lg:px-8">
     <div class="text-center mb-16">
-      <h2 class="text-4xl lg:text-5xl font-bold text-slate-900 mb-6 leading-tight">
+      <h2 class="fade-in text-4xl lg:text-5xl font-bold font-heading text-slate-800 mb-6 leading-tight" use:scrollAnimation>
         Three proven ways to<br/>
         reclaim your time
       </h2>
       
-      <p class="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
+      <p class="fade-in text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed" use:scrollAnimation={{ delay: 100 }}>
         Voice AI that never misses a call, workflow automation that runs your business, 
         and high-converting websites that work while you sleep. The three solutions Toronto entrepreneurs trust.
       </p>
@@ -565,10 +565,11 @@
     <div class="space-y-8 md:space-y-16 mb-16">
       <!-- Solution 1: Voice AI -->
       <div 
-        class="group cursor-pointer bg-white rounded-2xl md:rounded-3xl p-6 md:p-12 border border-slate-200 hover:border-slate-300 hover:shadow-xl md:hover:shadow-2xl transition-all duration-300"
+        class="fade-in group cursor-pointer bg-white rounded-2xl md:rounded-3xl p-6 md:p-12 border border-slate-200 hover:border-slate-300 hover:shadow-xl md:hover:shadow-2xl transition-all duration-300"
         data-cal-link="edmel-ednsy/enable-ai"
         data-cal-namespace="enable-ai"
         data-cal-config={JSON.stringify({layout: "month_view"})}
+        use:scrollAnimation={{ delay: 0 }}
       >
         <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           <!-- Content -->
@@ -577,7 +578,7 @@
               <div class="flex items-center justify-center h-12 w-12 md:h-16 md:w-16 bg-slate-50 rounded-xl md:rounded-2xl">
                 <Headphones class="w-6 h-6 md:w-8 md:h-8 text-slate-600" />
               </div>
-              <h3 class="text-2xl md:text-3xl font-bold text-slate-900">Voice AI Business Growth</h3>
+              <h3 class="text-lg md:text-xl font-bold uppercase text-slate-800">Voice AI Business Growth</h3>
             </div>
             
             <p class="text-base md:text-lg text-slate-600 mb-6 md:mb-8 leading-relaxed">
@@ -587,7 +588,7 @@
 
             <!-- Features List -->
             <div class="mb-6 md:mb-8">
-              <h4 class="text-base md:text-lg font-semibold text-slate-900 mb-3 md:mb-4">Key Features:</h4>
+              <h4 class="text-base md:text-lg font-semibold text-slate-800 mb-3 md:mb-4">Key Features:</h4>
               <ul class="space-y-2 md:space-y-3 text-sm md:text-base text-slate-600">
                 <li class="flex items-start gap-2 md:gap-3">
                   <CheckCircle class="w-4 h-4 md:w-5 md:h-5 text-slate-500 mt-0.5 flex-shrink-0" />
@@ -612,7 +613,7 @@
           <!-- Benefits -->
           <div class="space-y-6">
             <div class="p-4 md:p-6 bg-slate-50 rounded-xl md:rounded-2xl">
-              <h4 class="text-base md:text-lg font-semibold text-slate-900 mb-2 md:mb-3">Results You'll See:</h4>
+              <h4 class="text-base md:text-lg font-semibold text-slate-800 mb-2 md:mb-3">Results You'll See:</h4>
               <p class="text-sm md:text-base text-slate-700">
                 Never miss another lead. Our Voice AI captures 100% of calls, books appointments automatically, and provides 24/7 customer support.
               </p>
@@ -633,10 +634,11 @@
       
       <!-- Solution 2: Workflow Automation -->
       <div 
-        class="group cursor-pointer bg-white rounded-2xl md:rounded-3xl p-6 md:p-12 border border-slate-200 hover:border-slate-300 hover:shadow-xl md:hover:shadow-2xl transition-all duration-300"
+        class="fade-in group cursor-pointer bg-white rounded-2xl md:rounded-3xl p-6 md:p-12 border border-slate-200 hover:border-slate-300 hover:shadow-xl md:hover:shadow-2xl transition-all duration-300"
         data-cal-link="edmel-ednsy/enable-ai"
         data-cal-namespace="enable-ai"
         data-cal-config={JSON.stringify({layout: "month_view"})}
+        use:scrollAnimation={{ delay: 200 }}
       >
         <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           <!-- Content -->
@@ -645,7 +647,7 @@
               <div class="flex items-center justify-center h-12 w-12 md:h-16 md:w-16 bg-slate-50 rounded-xl md:rounded-2xl">
                 <Workflow class="w-6 h-6 md:w-8 md:h-8 text-slate-600" />
               </div>
-              <h3 class="text-2xl md:text-3xl font-bold text-slate-900">Workflow Freedom Package</h3>
+              <h3 class="text-lg md:text-xl font-bold uppercase text-slate-800">Workflow Freedom Package</h3>
             </div>
             
             <p class="text-base md:text-lg text-slate-600 mb-6 md:mb-8 leading-relaxed">
@@ -655,7 +657,7 @@
 
             <!-- Features List -->
             <div class="mb-6 md:mb-8">
-              <h4 class="text-base md:text-lg font-semibold text-slate-900 mb-3 md:mb-4">What We Automate:</h4>
+              <h4 class="text-base md:text-lg font-semibold text-slate-800 mb-3 md:mb-4">What We Automate:</h4>
               <ul class="space-y-2 md:space-y-3 text-sm md:text-base text-slate-600">
                 <li class="flex items-start gap-2 md:gap-3">
                   <CheckCircle class="w-4 h-4 md:w-5 md:h-5 text-slate-500 mt-0.5 flex-shrink-0" />
@@ -680,7 +682,7 @@
           <!-- Benefits -->
           <div class="space-y-6">
             <div class="p-4 md:p-6 bg-slate-50 rounded-xl md:rounded-2xl">
-              <h4 class="text-base md:text-lg font-semibold text-slate-900 mb-2 md:mb-3">Time Savings:</h4>
+              <h4 class="text-base md:text-lg font-semibold text-slate-800 mb-2 md:mb-3">Time Savings:</h4>
               <p class="text-sm md:text-base text-slate-700">
                 Reclaim 15-20 hours per week by automating repetitive tasks. Focus on growing your business instead of managing it.
               </p>
@@ -701,10 +703,11 @@
       
       <!-- Solution 3: High-Converting Websites -->
       <div 
-        class="group cursor-pointer bg-white rounded-2xl md:rounded-3xl p-6 md:p-12 border border-slate-200 hover:border-slate-300 hover:shadow-xl md:hover:shadow-2xl transition-all duration-300"
+        class="fade-in group cursor-pointer bg-white rounded-2xl md:rounded-3xl p-6 md:p-12 border border-slate-200 hover:border-slate-300 hover:shadow-xl md:hover:shadow-2xl transition-all duration-300"
         data-cal-link="edmel-ednsy/enable-ai"
         data-cal-namespace="enable-ai"
         data-cal-config={JSON.stringify({layout: "month_view"})}
+        use:scrollAnimation={{ delay: 400 }}
       >
         <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           <!-- Content -->
@@ -713,7 +716,7 @@
               <div class="flex items-center justify-center h-12 w-12 md:h-16 md:w-16 bg-slate-50 rounded-xl md:rounded-2xl">
                 <Smartphone class="w-6 h-6 md:w-8 md:h-8 text-slate-600" />
               </div>
-              <h3 class="text-2xl md:text-3xl font-bold text-slate-900">High-Converting Websites</h3>
+              <h3 class="text-lg md:text-xl font-bold uppercase text-slate-800">High-Converting Websites</h3>
             </div>
             
             <p class="text-base md:text-lg text-slate-600 mb-6 md:mb-8 leading-relaxed">
@@ -723,7 +726,7 @@
 
             <!-- Features List -->
             <div class="mb-6 md:mb-8">
-              <h4 class="text-base md:text-lg font-semibold text-slate-900 mb-3 md:mb-4">Website Features:</h4>
+              <h4 class="text-base md:text-lg font-semibold text-slate-800 mb-3 md:mb-4">Website Features:</h4>
               <ul class="space-y-2 md:space-y-3 text-sm md:text-base text-slate-600">
                 <li class="flex items-start gap-2 md:gap-3">
                   <CheckCircle class="w-4 h-4 md:w-5 md:h-5 text-slate-500 mt-0.5 flex-shrink-0" />
@@ -748,7 +751,7 @@
           <!-- Benefits -->
           <div class="space-y-6">
             <div class="p-4 md:p-6 bg-slate-50 rounded-xl md:rounded-2xl">
-              <h4 class="text-base md:text-lg font-semibold text-slate-900 mb-2 md:mb-3">Conversion Focus:</h4>
+              <h4 class="text-base md:text-lg font-semibold text-slate-800 mb-2 md:mb-3">Conversion Focus:</h4>
               <p class="text-sm md:text-base text-slate-700">
                 Every element is designed to convert visitors into customers. From compelling copy to strategic placement of contact forms.
               </p>
@@ -771,7 +774,7 @@
     <!-- Package Together Notice -->
     <div class="text-center mt-12">
       <p class="text-slate-600 text-lg leading-relaxed max-w-2xl mx-auto">
-        <span class="font-semibold text-slate-900">Custom packages available:</span> 
+        <span class="font-semibold text-slate-800">Custom packages available:</span> 
         Mix and match any of these solutions to create a comprehensive automation package tailored to your business needs.
       </p>
     </div>
@@ -783,8 +786,8 @@
 <section class="py-24 bg-slate-50 section-grid section-grid-slate" aria-labelledby="trust-heading">
   <div class="max-w-7xl mx-auto px-6 lg:px-8">
     <header class="text-center mb-16">
-      <h2 id="trust-heading" class="text-4xl lg:text-5xl font-bold text-slate-900 mb-6 leading-tight">
-        Why Toronto Businesses<br/>
+      <h2 id="trust-heading" class="text-4xl lg:text-5xl font-bold font-heading text-slate-800 mb-6 leading-tight">
+        Why Businesses<br/>
         Trust Our AI Automation
       </h2>
       
@@ -800,7 +803,7 @@
         <div class="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
           <Building2 class="w-8 h-8 text-slate-600" />
         </div>
-        <h3 class="text-xl font-bold text-slate-900 mb-3">Toronto Born & Raised</h3>
+        <h3 class="text-base font-bold uppercase text-slate-800 mb-3">Born & Raised</h3>
         <p class="text-slate-600 text-sm leading-relaxed">
           We understand local business culture, regulations, and the unique challenges of operating in the GTA.
         </p>
@@ -811,7 +814,7 @@
         <div class="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
           <BarChart3 class="w-8 h-8 text-slate-600" />
         </div>
-        <h3 class="text-xl font-bold text-slate-900 mb-3">Proven Results</h3>
+        <h3 class="text-base font-bold uppercase text-slate-800 mb-3">Proven Results</h3>
         <p class="text-slate-600 text-sm leading-relaxed">
           Our automation solutions consistently deliver 15-20 hours of time savings and 3x more qualified leads.
         </p>
@@ -822,7 +825,7 @@
         <div class="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
           <Shield class="w-8 h-8 text-slate-600" />
         </div>
-        <h3 class="text-xl font-bold text-slate-900 mb-3">White-Glove Service</h3>
+        <h3 class="text-base font-bold uppercase text-slate-800 mb-3">White-Glove Service</h3>
         <p class="text-slate-600 text-sm leading-relaxed">
           We handle everything from setup to training. You focus on your business while we handle the tech.
         </p>
@@ -833,7 +836,7 @@
         <div class="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
           <Target class="w-8 h-8 text-slate-600" />
         </div>
-        <h3 class="text-xl font-bold text-slate-900 mb-3">SMB Specialists</h3>
+        <h3 class="text-base font-bold uppercase text-slate-800 mb-3">SMB Specialists</h3>
         <p class="text-slate-600 text-sm leading-relaxed">
           We specialize in small to medium businesses across healthcare, retail, professional services, and more.
         </p>
@@ -843,7 +846,7 @@
     <!-- Results Preview -->
     <div class="bg-white rounded-3xl p-8 md:p-12 border border-slate-200 shadow-sm">
       <div class="text-center mb-8">
-        <h3 class="text-2xl font-bold text-slate-900 mb-4">What you can expect</h3>
+        <h3 class="text-2xl font-bold text-slate-800 mb-4">What you can expect</h3>
         <p class="text-slate-600 max-w-2xl mx-auto">
           Based on our experience with similar businesses, here's what our clients typically achieve:
         </p>
@@ -851,18 +854,18 @@
       
       <div class="grid md:grid-cols-3 gap-8">
         <div class="text-center">
-          <div class="text-4xl font-bold text-slate-900 mb-2">15-20</div>
-          <div class="text-lg font-semibold text-slate-900 mb-2">Hours Saved Weekly</div>
+          <div class="text-4xl font-bold text-slate-800 mb-2">15-20</div>
+          <div class="text-lg font-semibold text-slate-800 mb-2">Hours Saved Weekly</div>
           <div class="text-slate-600 text-sm">Time reclaimed for family, growth, and strategic work</div>
         </div>
         <div class="text-center">
-          <div class="text-4xl font-bold text-slate-900 mb-2">3x</div>
-          <div class="text-lg font-semibold text-slate-900 mb-2">More Qualified Leads</div>
+          <div class="text-4xl font-bold text-slate-800 mb-2">3x</div>
+          <div class="text-lg font-semibold text-slate-800 mb-2">More Qualified Leads</div>
           <div class="text-slate-600 text-sm">Better lead capture and nurturing through automation</div>
         </div>
         <div class="text-center">
-          <div class="text-4xl font-bold text-slate-900 mb-2">24/7</div>
-          <div class="text-lg font-semibold text-slate-900 mb-2">Customer Service</div>
+          <div class="text-4xl font-bold text-slate-800 mb-2">24/7</div>
+          <div class="text-lg font-semibold text-slate-800 mb-2">Customer Service</div>
           <div class="text-slate-600 text-sm">Never miss a call or inquiry with AI-powered assistance</div>
         </div>
       </div>
@@ -890,21 +893,21 @@
 <section class="py-24 bg-white">
   <div class="max-w-7xl mx-auto px-6 lg:px-8">
     <div class="text-center mb-16">
-      <h2 class="text-4xl lg:text-5xl font-bold text-slate-900 mb-6 leading-tight">
+      <h2 class="fade-in text-4xl lg:text-5xl font-bold font-heading text-slate-800 mb-6 leading-tight" use:scrollAnimation>
         Meet the team behind<br/>
         your time freedom
       </h2>
       
-      <p class="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
+      <p class="fade-in text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed" use:scrollAnimation={{ delay: 100 }}>
         We're Toronto entrepreneurs who understand the struggle of growing a business while maintaining work-life balance.
       </p>
     </div>
 
     <div class="grid lg:grid-cols-2 gap-16 items-center mb-16">
       <!-- Our Story -->
-      <div class="space-y-6">
+      <div class="fade-in space-y-6" use:scrollAnimation={{ delay: 200 }}>
         <div>
-          <h3 class="text-2xl font-bold text-slate-900 mb-4">Our Story</h3>
+          <h3 class="text-2xl font-bold text-slate-800 mb-4">Our Story</h3>
           <p class="text-slate-600 leading-relaxed mb-4">
             We started Ed & Sy because we've been there - working 70+ hour weeks, missing family dinners, 
             and feeling like our businesses were running us instead of the other way around.
@@ -917,41 +920,41 @@
       </div>
       
       <!-- Stats -->
-      <div class="grid grid-cols-2 gap-6">
+      <div class="fade-in grid grid-cols-2 gap-6" use:scrollAnimation={{ delay: 300 }}>
         <div class="text-center p-4 bg-slate-50 rounded-xl">
-          <div class="text-3xl font-bold text-slate-900 mb-2">5+</div>
+          <div class="text-3xl font-bold text-slate-800 mb-2">5+</div>
           <div class="text-sm text-slate-600">Years Experience</div>
         </div>
         <div class="text-center p-4 bg-slate-50 rounded-xl">
-          <div class="text-3xl font-bold text-slate-900 mb-2">100%</div>
+          <div class="text-3xl font-bold text-slate-800 mb-2">100%</div>
           <div class="text-sm text-slate-600">Toronto Based</div>
         </div>
       </div>
     </div>
 
     <!-- Why We're Different -->
-    <div class="bg-slate-50 rounded-3xl p-8 md:p-12">
-      <h3 class="text-2xl font-bold text-slate-900 mb-6 text-center">Why We're Different</h3>
+    <div class="fade-in bg-slate-50 rounded-3xl p-8 md:p-12" use:scrollAnimation={{ delay: 400 }}>
+      <h3 class="text-2xl font-bold font-heading text-slate-800 mb-6 text-center">Why We're Different</h3>
       <div class="grid md:grid-cols-3 gap-8">
         <div class="text-center">
           <div class="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Target class="w-8 h-8 text-slate-600" />
           </div>
-          <h4 class="font-semibold text-slate-900 mb-2">SMB Focused</h4>
+          <h4 class="font-semibold text-slate-800 mb-2">SMB Focused</h4>
           <p class="text-slate-600 text-sm">We understand small business challenges because we've lived them.</p>
         </div>
         <div class="text-center">
           <div class="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Shield class="w-8 h-8 text-slate-600" />
           </div>
-          <h4 class="font-semibold text-slate-900 mb-2">White-Glove Service</h4>
+          <h4 class="font-semibold text-slate-800 mb-2">White-Glove Service</h4>
           <p class="text-slate-600 text-sm">We handle everything from setup to training. You just focus on your business.</p>
         </div>
         <div class="text-center">
           <div class="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Sparkles class="w-8 h-8 text-slate-600" />
           </div>
-          <h4 class="font-semibold text-slate-900 mb-2">Proven Results</h4>
+          <h4 class="font-semibold text-slate-800 mb-2">Proven Results</h4>
           <p class="text-slate-600 text-sm">Our clients consistently save 15-20 hours weekly and see 3x more leads.</p>
         </div>
       </div>
@@ -963,11 +966,11 @@
 <section class="py-24 bg-slate-50 section-grid section-grid-slate">
   <div class="max-w-7xl mx-auto px-6 lg:px-8">
     <div class="text-center mb-16">
-      <h2 class="text-4xl lg:text-5xl font-bold text-slate-900 mb-6 leading-tight">
+      <h2 class="fade-in text-4xl lg:text-5xl font-bold font-heading text-slate-800 mb-6 leading-tight" use:scrollAnimation>
         How we work with you
       </h2>
       
-      <p class="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
+      <p class="fade-in text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed" use:scrollAnimation={{ delay: 100 }}>
         Our proven process ensures your automation solution is perfectly tailored to your business needs and delivers real results.
       </p>
     </div>
@@ -975,44 +978,44 @@
     <!-- Process Steps -->
     <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
       <!-- Step 1 -->
-      <div class="text-center">
+      <div class="fade-in text-center" use:scrollAnimation={{ delay: 0 }}>
         <div class="w-16 h-16 bg-blue-600 text-white rounded-2xl flex items-center justify-center mx-auto mb-6 text-2xl font-bold">
           1
         </div>
-        <h3 class="text-xl font-bold text-slate-900 mb-4">Free Consultation</h3>
+        <h3 class="text-base font-bold uppercase text-slate-800 mb-4">Free Consultation</h3>
         <p class="text-slate-600 leading-relaxed">
           We analyze your current processes and identify automation opportunities that will save you the most time.
         </p>
       </div>
 
       <!-- Step 2 -->
-      <div class="text-center">
+      <div class="fade-in text-center" use:scrollAnimation={{ delay: 100 }}>
         <div class="w-16 h-16 bg-blue-600 text-white rounded-2xl flex items-center justify-center mx-auto mb-6 text-2xl font-bold">
           2
         </div>
-        <h3 class="text-xl font-bold text-slate-900 mb-4">Custom Solution</h3>
+        <h3 class="text-base font-bold uppercase text-slate-800 mb-4">Custom Solution</h3>
         <p class="text-slate-600 leading-relaxed">
           We design a tailored automation strategy that fits your specific business needs and budget.
         </p>
       </div>
 
       <!-- Step 3 -->
-      <div class="text-center">
+      <div class="fade-in text-center" use:scrollAnimation={{ delay: 200 }}>
         <div class="w-16 h-16 bg-blue-600 text-white rounded-2xl flex items-center justify-center mx-auto mb-6 text-2xl font-bold">
           3
         </div>
-        <h3 class="text-xl font-bold text-slate-900 mb-4">Implementation</h3>
+        <h3 class="text-base font-bold uppercase text-slate-800 mb-4">Implementation</h3>
         <p class="text-slate-600 leading-relaxed">
           We handle all the technical setup and integration, so you can focus on running your business.
         </p>
       </div>
 
       <!-- Step 4 -->
-      <div class="text-center">
+      <div class="fade-in text-center" use:scrollAnimation={{ delay: 300 }}>
         <div class="w-16 h-16 bg-blue-600 text-white rounded-2xl flex items-center justify-center mx-auto mb-6 text-2xl font-bold">
           4
         </div>
-        <h3 class="text-xl font-bold text-slate-900 mb-4">Ongoing Support</h3>
+        <h3 class="text-base font-bold uppercase text-slate-800 mb-4">Ongoing Support</h3>
         <p class="text-slate-600 leading-relaxed">
           We provide training and ongoing support to ensure your automation continues delivering value.
         </p>
@@ -1020,23 +1023,23 @@
     </div>
 
     <!-- Investment Notice -->
-    <div class="text-center bg-white rounded-2xl p-8 md:p-12 border border-slate-200 shadow-sm">
-      <h3 class="text-2xl font-bold text-slate-900 mb-4">Investment That Pays for Itself</h3>
+    <div class="fade-in text-center bg-white rounded-2xl p-8 md:p-12 border border-slate-200 shadow-sm" use:scrollAnimation={{ delay: 400 }}>
+      <h3 class="text-2xl font-bold font-heading text-slate-800 mb-4">Investment That Pays for Itself</h3>
       <p class="text-slate-600 mb-6 max-w-3xl mx-auto text-lg leading-relaxed">
         Our solutions are designed to save you 15-20 hours weekly. Most clients see a return on investment within the first month. 
         Pricing varies based on your specific needs and the complexity of your automation requirements.
       </p>
       <div class="grid md:grid-cols-3 gap-6 mb-8">
         <div class="text-center p-4 bg-slate-50 rounded-xl">
-          <div class="text-2xl font-bold text-slate-900 mb-2">Free</div>
+          <div class="text-2xl font-bold text-slate-800 mb-2">Free</div>
           <div class="text-sm text-slate-600">Initial Consultation</div>
         </div>
         <div class="text-center p-4 bg-slate-50 rounded-xl">
-          <div class="text-2xl font-bold text-slate-900 mb-2">Custom</div>
+          <div class="text-2xl font-bold text-slate-800 mb-2">Custom</div>
           <div class="text-sm text-slate-600">Pricing Based on Needs</div>
         </div>
         <div class="text-center p-4 bg-slate-50 rounded-xl">
-          <div class="text-2xl font-bold text-slate-900 mb-2">ROI</div>
+          <div class="text-2xl font-bold text-slate-800 mb-2">ROI</div>
           <div class="text-sm text-slate-600">Within First Month</div>
         </div>
       </div>
@@ -1057,11 +1060,11 @@
 <section class="py-24 bg-white">
   <div class="max-w-4xl mx-auto px-6 lg:px-8">
     <div class="text-center mb-16">
-      <h2 class="text-4xl lg:text-5xl font-bold text-slate-900 mb-6 leading-tight">
+      <h2 class="fade-in text-4xl lg:text-5xl font-bold font-heading text-slate-800 mb-6 leading-tight" use:scrollAnimation>
         Frequently Asked Questions
       </h2>
       
-      <p class="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
+      <p class="fade-in text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed" use:scrollAnimation={{ delay: 100 }}>
         Get answers to common questions about our automation solutions and how we can help your business.
       </p>
     </div>
@@ -1069,12 +1072,12 @@
     <!-- FAQ Items -->
     <div class="space-y-6">
       <!-- FAQ 1 -->
-      <div class="bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden">
+      <div class="fade-in bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden" use:scrollAnimation={{ delay: 0 }}>
         <button 
           class="w-full p-8 text-left flex items-center justify-between hover:bg-slate-100 transition-colors duration-200"
           onclick={() => toggleFAQ(1)}
         >
-          <h3 class="text-xl font-bold text-slate-900">
+          <h3 class="text-base font-bold uppercase text-slate-800">
             How long does it take to see results from automation?
           </h3>
           {#if openFAQs[1]}
@@ -1093,12 +1096,12 @@
       </div>
 
       <!-- FAQ 2 -->
-      <div class="bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden">
+      <div class="fade-in bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden" use:scrollAnimation={{ delay: 100 }}>
         <button 
           class="w-full p-8 text-left flex items-center justify-between hover:bg-slate-100 transition-colors duration-200"
           onclick={() => toggleFAQ(2)}
         >
-          <h3 class="text-xl font-bold text-slate-900">
+          <h3 class="text-base font-bold uppercase text-slate-800">
             Do I need technical knowledge to use your solutions?
           </h3>
           {#if openFAQs[2]}
@@ -1117,12 +1120,12 @@
       </div>
 
       <!-- FAQ 3 -->
-      <div class="bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden">
+      <div class="fade-in bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden" use:scrollAnimation={{ delay: 200 }}>
         <button 
           class="w-full p-8 text-left flex items-center justify-between hover:bg-slate-100 transition-colors duration-200"
           onclick={() => toggleFAQ(3)}
         >
-          <h3 class="text-xl font-bold text-slate-900">
+          <h3 class="text-base font-bold uppercase text-slate-800">
             What's included in the free consultation?
           </h3>
           {#if openFAQs[3]}
@@ -1141,12 +1144,12 @@
       </div>
 
       <!-- FAQ 4 -->
-      <div class="bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden">
+      <div class="fade-in bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden" use:scrollAnimation={{ delay: 300 }}>
         <button 
           class="w-full p-8 text-left flex items-center justify-between hover:bg-slate-100 transition-colors duration-200"
           onclick={() => toggleFAQ(4)}
         >
-          <h3 class="text-xl font-bold text-slate-900">
+          <h3 class="text-base font-bold uppercase text-slate-800">
             Can automation work for small businesses?
           </h3>
           {#if openFAQs[4]}
@@ -1165,12 +1168,12 @@
       </div>
 
       <!-- FAQ 5 -->
-      <div class="bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden">
+      <div class="fade-in bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden" use:scrollAnimation={{ delay: 400 }}>
         <button 
           class="w-full p-8 text-left flex items-center justify-between hover:bg-slate-100 transition-colors duration-200"
           onclick={() => toggleFAQ(5)}
         >
-          <h3 class="text-xl font-bold text-slate-900">
+          <h3 class="text-base font-bold uppercase text-slate-800">
             What kind of support do you provide after implementation?
           </h3>
           {#if openFAQs[5]}
@@ -1189,12 +1192,12 @@
       </div>
 
       <!-- FAQ 6 -->
-      <div class="bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden">
+      <div class="fade-in bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden" use:scrollAnimation={{ delay: 500 }}>
         <button 
           class="w-full p-8 text-left flex items-center justify-between hover:bg-slate-100 transition-colors duration-200"
           onclick={() => toggleFAQ(6)}
         >
-          <h3 class="text-xl font-bold text-slate-900">
+          <h3 class="text-base font-bold uppercase text-slate-800">
             How do you ensure data security and privacy?
           </h3>
           {#if openFAQs[6]}
@@ -1218,14 +1221,14 @@
 <!-- Final CTA Section -->
 <section id="contact" class="py-24 bg-slate-900 text-white section-grid section-grid-dark">
   <div class="max-w-4xl mx-auto px-6 lg:px-8 text-center">
-    <h2 class="text-4xl lg:text-5xl font-bold mb-6 leading-tight">
+    <h2 class="text-4xl lg:text-5xl font-bold font-heading mb-6 leading-tight">
       Reclaim your time, your<br/>
       business transformation awaits!
     </h2>
     
     <Button 
       size="lg" 
-      class="bg-gradient-to-r from-white to-slate-100 text-slate-900 hover:from-slate-100 hover:to-slate-200 px-8 py-4 text-lg rounded-xl font-semibold mt-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer border border-white/20 hover:border-white/40"
+      class="bg-gradient-to-r from-white to-slate-100 text-slate-800 hover:from-slate-100 hover:to-slate-200 px-8 py-4 text-lg rounded-xl font-semibold mt-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer border border-white/20 hover:border-white/40"
       data-cal-link="edmel-ednsy/enable-ai"
       data-cal-namespace="enable-ai"
       data-cal-config={JSON.stringify({layout: "month_view"})}

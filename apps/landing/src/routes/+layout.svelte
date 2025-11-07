@@ -92,6 +92,10 @@
   <link rel="canonical" href="https://ednsy.com" />
   <link rel="icon" href="/logo/logo icon.png" />
   <link rel="apple-touch-icon" href="/logo/logo icon.png" />
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Marck+Script&display=swap" rel="stylesheet" />
   <!-- Social profile links for SEO -->
   <link rel="me" href="https://www.instagram.com/dev.exd/" />
   <link rel="me" href="https://www.linkedin.com/in/syronsuerte/" />
@@ -142,7 +146,7 @@
           <img 
             src="/logo/logo.png" 
             alt="Ed & Sy" 
-            class="h-16 md:h-16 w-auto"
+            class="h-16 md:h-16 w-auto transition-all duration-300 {scrolled ? '' : 'brightness-0 invert'}"
           />
         </a>
              <div class="flex items-center gap-2 md:gap-4">
@@ -185,11 +189,13 @@
             <!-- Company Info -->
             <div class="space-y-4">
                <div class="flex items-center gap-3">
-                 <div class="text-xl font-bold">
-                   <span class="text-white">Ed</span>
-                   <span class="text-blue-600">&</span>
-                   <span class="text-white">Sy</span>
-                 </div>
+                 <a href="/" class="flex items-center">
+                   <img 
+                     src="/logo/logo.png" 
+                     alt="Ed & Sy" 
+                     class="h-12 md:h-16 w-auto brightness-0 invert"
+                   />
+                 </a>
                </div>
               <p class="text-white/70 text-sm leading-relaxed">
                 Toronto digital agency helping business owners reclaim 15-20 hours weekly through AI-powered solutions.
