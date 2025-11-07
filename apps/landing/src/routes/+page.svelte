@@ -177,7 +177,7 @@
   <meta property="og:url" content="https://ednsy.com/" />
   <meta property="og:title" content="AI Automation for Toronto Businesses | Voice AI & Workflow Solutions" />
   <meta property="og:description" content="Stop working nights & weekends! Toronto's leading AI automation agency helps business owners reclaim 15-20 hours weekly. Voice AI, workflow automation & high-converting websites." />
-  <meta property="og:image" content="https://ednsy.com/logo/white transparent.png" />
+  <meta property="og:image" content="https://ednsy.com/logo/logo with bg.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:image:alt" content="Ed & Sy - AI Automation for Toronto Businesses" />
@@ -189,7 +189,7 @@
   <meta name="twitter:url" content="https://ednsy.com/" />
   <meta name="twitter:title" content="AI Automation for Toronto Businesses | Voice AI & Workflow Solutions" />
   <meta name="twitter:description" content="Stop working nights & weekends! Toronto's leading AI automation agency helps business owners reclaim 15-20 hours weekly. Voice AI, workflow automation & high-converting websites." />
-  <meta name="twitter:image" content="https://ednsy.com/logo/white transparent.png" />
+  <meta name="twitter:image" content="https://ednsy.com/logo/logo with bg.png" />
   <meta name="twitter:image:alt" content="Ed & Sy - AI Automation for Toronto Businesses" />
   
   <!-- Additional SEO Meta Tags -->
@@ -213,8 +213,8 @@
     "name": "Ed & Sy Digital Agency",
     "alternateName": "Ed & Sy",
     "url": "https://ednsy.com",
-    "logo": "https://ednsy.com/logo/white transparent.png",
-    "image": "https://ednsy.com/logo/white transparent.png",
+    "logo": "https://ednsy.com/logo/logo with bg.png",
+    "image": "https://ednsy.com/logo/logo with bg.png",
     "description": "Toronto's leading AI automation agency helping business owners reclaim 15-20 hours weekly through Voice AI, workflow automation, and high-converting websites.",
     "foundingDate": "2024",
     "address": {
@@ -364,7 +364,7 @@
     <!-- Badge -->
     <div class="text-center lg:text-left mb-6 md:mb-8">
       <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium">
-        <span class="w-2 h-2 bg-blue-400 rounded-full"></span>
+        <span class="w-2 h-2 bg-slate-400 rounded-full"></span>
         Business Solutions
       </div>
     </div>
@@ -380,7 +380,7 @@
         
         <!-- Subheadline -->
         <p class="text-lg md:text-xl lg:text-2xl text-slate-300 mb-4 md:mb-6 leading-relaxed">
-          Stop working nights <span class="text-blue-600">&</span> weekends. We help Toronto business owners reclaim their time through automation, Voice AI, <span class="text-blue-600">&</span> high-converting websites.
+          Stop working nights <span class="text-slate-600">&</span> weekends. We help Toronto business owners reclaim their time through automation, Voice AI, <span class="text-slate-600">&</span> high-converting websites.
         </p>
         
         <!-- Trust indicator -->
@@ -448,13 +448,13 @@
     <!-- Industries Grid -->
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
       <!-- Healthcare -->
-      <div class="group bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:border-blue-300 hover:shadow-lg transition-all duration-300">
+      <div class="group bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:border-slate-300 hover:shadow-lg transition-all duration-300">
         <div class="flex items-center gap-4 mb-4">
-          <div class="hidden md:flex w-12 h-12 bg-blue-100 rounded-xl items-center justify-center">
-            <Heart class="w-6 h-6 text-blue-600" />
+          <div class="hidden md:flex w-12 h-12 bg-slate-100 rounded-xl items-center justify-center">
+            <Heart class="w-6 h-6 text-slate-600" />
           </div>
           <div class="flex md:hidden">
-            <Heart class="w-6 h-6 text-blue-600" />
+            <Heart class="w-6 h-6 text-slate-600" />
           </div>
           <h3 class="text-xl font-bold text-slate-900">Healthcare</h3>
         </div>
@@ -464,13 +464,13 @@
       </div>
 
       <!-- Professional Services -->
-      <div class="group bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:border-blue-300 hover:shadow-lg transition-all duration-300">
+      <div class="group bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:border-slate-300 hover:shadow-lg transition-all duration-300">
         <div class="flex items-center gap-4 mb-4">
-          <div class="hidden md:flex w-12 h-12 bg-blue-100 rounded-xl items-center justify-center">
-            <Briefcase class="w-6 h-6 text-blue-600" />
+          <div class="hidden md:flex w-12 h-12 bg-slate-100 rounded-xl items-center justify-center">
+            <Briefcase class="w-6 h-6 text-slate-600" />
           </div>
           <div class="flex md:hidden">
-            <Briefcase class="w-6 h-6 text-blue-600" />
+            <Briefcase class="w-6 h-6 text-slate-600" />
           </div>
           <h3 class="text-xl font-bold text-slate-900">Professional Services</h3>
         </div>
@@ -480,13 +480,13 @@
       </div>
 
       <!-- Retail & E-commerce -->
-      <div class="group bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:border-blue-300 hover:shadow-lg transition-all duration-300">
+      <div class="group bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:border-slate-300 hover:shadow-lg transition-all duration-300">
         <div class="flex items-center gap-4 mb-4">
-          <div class="hidden md:flex w-12 h-12 bg-blue-100 rounded-xl items-center justify-center">
-            <ShoppingCart class="w-6 h-6 text-blue-600" />
+          <div class="hidden md:flex w-12 h-12 bg-slate-100 rounded-xl items-center justify-center">
+            <ShoppingCart class="w-6 h-6 text-slate-600" />
           </div>
           <div class="flex md:hidden">
-            <ShoppingCart class="w-6 h-6 text-blue-600" />
+            <ShoppingCart class="w-6 h-6 text-slate-600" />
           </div>
           <h3 class="text-xl font-bold text-slate-900">Retail & E-commerce</h3>
         </div>
@@ -496,13 +496,13 @@
       </div>
 
       <!-- Real Estate -->
-      <div class="group bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:border-blue-300 hover:shadow-lg transition-all duration-300">
+      <div class="group bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:border-slate-300 hover:shadow-lg transition-all duration-300">
         <div class="flex items-center gap-4 mb-4">
-          <div class="hidden md:flex w-12 h-12 bg-blue-100 rounded-xl items-center justify-center">
-            <Home class="w-6 h-6 text-blue-600" />
+          <div class="hidden md:flex w-12 h-12 bg-slate-100 rounded-xl items-center justify-center">
+            <Home class="w-6 h-6 text-slate-600" />
           </div>
           <div class="flex md:hidden">
-            <Home class="w-6 h-6 text-blue-600" />
+            <Home class="w-6 h-6 text-slate-600" />
           </div>
           <h3 class="text-xl font-bold text-slate-900">Real Estate</h3>
         </div>
@@ -512,13 +512,13 @@
       </div>
 
       <!-- Manufacturing -->
-      <div class="group bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:border-blue-300 hover:shadow-lg transition-all duration-300">
+      <div class="group bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:border-slate-300 hover:shadow-lg transition-all duration-300">
         <div class="flex items-center gap-4 mb-4">
-          <div class="hidden md:flex w-12 h-12 bg-blue-100 rounded-xl items-center justify-center">
-            <Factory class="w-6 h-6 text-blue-600" />
+          <div class="hidden md:flex w-12 h-12 bg-slate-100 rounded-xl items-center justify-center">
+            <Factory class="w-6 h-6 text-slate-600" />
           </div>
           <div class="flex md:hidden">
-            <Factory class="w-6 h-6 text-blue-600" />
+            <Factory class="w-6 h-6 text-slate-600" />
           </div>
           <h3 class="text-xl font-bold text-slate-900">Manufacturing</h3>
         </div>
@@ -528,13 +528,13 @@
       </div>
 
       <!-- Food & Hospitality -->
-      <div class="group bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:border-blue-300 hover:shadow-lg transition-all duration-300">
+      <div class="group bg-slate-50 rounded-2xl p-8 border border-slate-200 hover:border-slate-300 hover:shadow-lg transition-all duration-300">
         <div class="flex items-center gap-4 mb-4">
-          <div class="hidden md:flex w-12 h-12 bg-blue-100 rounded-xl items-center justify-center">
-            <Utensils class="w-6 h-6 text-blue-600" />
+          <div class="hidden md:flex w-12 h-12 bg-slate-100 rounded-xl items-center justify-center">
+            <Utensils class="w-6 h-6 text-slate-600" />
           </div>
           <div class="flex md:hidden">
-            <Utensils class="w-6 h-6 text-blue-600" />
+            <Utensils class="w-6 h-6 text-slate-600" />
           </div>
           <h3 class="text-xl font-bold text-slate-900">Food & Hospitality</h3>
         </div>
@@ -565,24 +565,24 @@
     <div class="space-y-8 md:space-y-16 mb-16">
       <!-- Solution 1: Voice AI -->
       <div 
-        class="group cursor-pointer bg-white rounded-2xl md:rounded-3xl p-6 md:p-12 border border-slate-200 hover:border-blue-300 hover:shadow-xl md:hover:shadow-2xl transition-all duration-300"
+        class="group cursor-pointer bg-white rounded-2xl md:rounded-3xl p-6 md:p-12 border border-slate-200 hover:border-slate-300 hover:shadow-xl md:hover:shadow-2xl transition-all duration-300"
         data-cal-link="edmel-ednsy/enable-ai"
         data-cal-namespace="enable-ai"
         data-cal-config={JSON.stringify({layout: "month_view"})}
       >
         <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           <!-- Content -->
-          <div class="order-2 lg:order-1">
+          <div class="text-left">
             <div class="flex items-center gap-3 md:gap-4 mb-4 md:mb-6">
-              <div class="flex items-center justify-center h-12 w-12 md:h-16 md:w-16 bg-blue-50 rounded-xl md:rounded-2xl">
-                <Headphones class="w-6 h-6 md:w-8 md:h-8 text-blue-600" />
+              <div class="flex items-center justify-center h-12 w-12 md:h-16 md:w-16 bg-slate-50 rounded-xl md:rounded-2xl">
+                <Headphones class="w-6 h-6 md:w-8 md:h-8 text-slate-600" />
               </div>
               <h3 class="text-2xl md:text-3xl font-bold text-slate-900">Voice AI Business Growth</h3>
             </div>
             
             <p class="text-base md:text-lg text-slate-600 mb-6 md:mb-8 leading-relaxed">
               Revolutionary phone systems that handle customer calls with trained AI, 
-              ensuring every lead is captured <span class="text-blue-600">&</span> nurtured professionally.
+              ensuring every lead is captured <span class="text-slate-600">&</span> nurtured professionally.
             </p>
 
             <!-- Features List -->
@@ -590,35 +590,37 @@
               <h4 class="text-base md:text-lg font-semibold text-slate-900 mb-3 md:mb-4">Key Features:</h4>
               <ul class="space-y-2 md:space-y-3 text-sm md:text-base text-slate-600">
                 <li class="flex items-start gap-2 md:gap-3">
-                  <CheckCircle class="w-4 h-4 md:w-5 md:h-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                  <CheckCircle class="w-4 h-4 md:w-5 md:h-5 text-slate-500 mt-0.5 flex-shrink-0" />
                   <span>24/7 call handling with natural conversation</span>
                 </li>
                 <li class="flex items-start gap-2 md:gap-3">
-                  <CheckCircle class="w-4 h-4 md:w-5 md:h-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                  <CheckCircle class="w-4 h-4 md:w-5 md:h-5 text-slate-500 mt-0.5 flex-shrink-0" />
                   <span>Lead qualification and appointment booking</span>
                 </li>
                 <li class="flex items-start gap-2 md:gap-3">
-                  <CheckCircle class="w-4 h-4 md:w-5 md:h-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                  <CheckCircle class="w-4 h-4 md:w-5 md:h-5 text-slate-500 mt-0.5 flex-shrink-0" />
                   <span>Customer support and FAQ handling</span>
                 </li>
                 <li class="flex items-start gap-2 md:gap-3">
-                  <CheckCircle class="w-4 h-4 md:w-5 md:h-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                  <CheckCircle class="w-4 h-4 md:w-5 md:h-5 text-slate-500 mt-0.5 flex-shrink-0" />
                   <span>Integration with your CRM and calendar</span>
                 </li>
               </ul>
             </div>
-
-            <!-- Benefits -->
-            <div class="mb-6 md:mb-8 p-4 md:p-6 bg-blue-50 rounded-xl md:rounded-2xl">
-              <h4 class="text-base md:text-lg font-semibold text-blue-900 mb-2 md:mb-3">Results You'll See:</h4>
-              <p class="text-sm md:text-base text-blue-800">
+          </div>
+          
+          <!-- Benefits -->
+          <div class="space-y-6">
+            <div class="p-4 md:p-6 bg-slate-50 rounded-xl md:rounded-2xl">
+              <h4 class="text-base md:text-lg font-semibold text-slate-900 mb-2 md:mb-3">Results You'll See:</h4>
+              <p class="text-sm md:text-base text-slate-700">
                 Never miss another lead. Our Voice AI captures 100% of calls, books appointments automatically, and provides 24/7 customer support.
               </p>
             </div>
             
             <Button 
               size="lg" 
-              class="w-full md:w-auto bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 rounded-lg md:rounded-xl px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer border border-blue-500/50 hover:border-blue-400/70"
+              class="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 rounded-lg md:rounded-xl px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer border border-blue-500/50 hover:border-blue-400/70"
               data-cal-link="edmel-ednsy/enable-ai"
               data-cal-namespace="enable-ai"
               data-cal-config={JSON.stringify({layout: "month_view"})}
@@ -626,48 +628,22 @@
               Get Voice AI
             </Button>
           </div>
-
-          <!-- Visual Element -->
-          <div class="order-1 lg:order-2 flex justify-center lg:justify-end">
-            <div class="w-64 h-64 md:w-80 md:h-80 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl md:rounded-3xl flex items-center justify-center">
-              <div class="text-center">
-                <div class="w-16 h-16 md:w-24 md:h-24 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
-                  <Headphones class="w-8 h-8 md:w-12 md:h-12 text-white" />
-                </div>
-                <p class="text-blue-800 font-semibold text-sm md:text-base">24/7 AI Assistant</p>
-                <p class="text-blue-600 text-xs md:text-sm">Never miss a call</p>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
       
       <!-- Solution 2: Workflow Automation -->
       <div 
-        class="group cursor-pointer bg-white rounded-2xl md:rounded-3xl p-6 md:p-12 border border-slate-200 hover:border-blue-300 hover:shadow-xl md:hover:shadow-2xl transition-all duration-300"
+        class="group cursor-pointer bg-white rounded-2xl md:rounded-3xl p-6 md:p-12 border border-slate-200 hover:border-slate-300 hover:shadow-xl md:hover:shadow-2xl transition-all duration-300"
         data-cal-link="edmel-ednsy/enable-ai"
         data-cal-namespace="enable-ai"
         data-cal-config={JSON.stringify({layout: "month_view"})}
       >
         <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-          <!-- Visual Element -->
-          <div class="order-1 lg:order-1 flex justify-center lg:justify-start">
-            <div class="w-64 h-64 md:w-80 md:h-80 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl md:rounded-3xl flex items-center justify-center">
-              <div class="text-center">
-                <div class="w-16 h-16 md:w-24 md:h-24 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
-                  <Workflow class="w-8 h-8 md:w-12 md:h-12 text-white" />
-                </div>
-                <p class="text-blue-800 font-semibold text-sm md:text-base">Automated Workflows</p>
-                <p class="text-blue-600 text-xs md:text-sm">Save 15-20 hours/week</p>
-              </div>
-            </div>
-          </div>
-
           <!-- Content -->
-          <div class="order-2 lg:order-2">
+          <div class="text-left">
             <div class="flex items-center gap-3 md:gap-4 mb-4 md:mb-6">
-              <div class="flex items-center justify-center h-12 w-12 md:h-16 md:w-16 bg-blue-50 rounded-xl md:rounded-2xl">
-                <Workflow class="w-6 h-6 md:w-8 md:h-8 text-blue-600" />
+              <div class="flex items-center justify-center h-12 w-12 md:h-16 md:w-16 bg-slate-50 rounded-xl md:rounded-2xl">
+                <Workflow class="w-6 h-6 md:w-8 md:h-8 text-slate-600" />
               </div>
               <h3 class="text-2xl md:text-3xl font-bold text-slate-900">Workflow Freedom Package</h3>
             </div>
@@ -682,35 +658,37 @@
               <h4 class="text-base md:text-lg font-semibold text-slate-900 mb-3 md:mb-4">What We Automate:</h4>
               <ul class="space-y-2 md:space-y-3 text-sm md:text-base text-slate-600">
                 <li class="flex items-start gap-2 md:gap-3">
-                  <CheckCircle class="w-4 h-4 md:w-5 md:h-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                  <CheckCircle class="w-4 h-4 md:w-5 md:h-5 text-slate-500 mt-0.5 flex-shrink-0" />
                   <span>Invoice processing and payment reminders</span>
                 </li>
                 <li class="flex items-start gap-2 md:gap-3">
-                  <CheckCircle class="w-4 h-4 md:w-5 md:h-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                  <CheckCircle class="w-4 h-4 md:w-5 md:h-5 text-slate-500 mt-0.5 flex-shrink-0" />
                   <span>Customer onboarding and follow-ups</span>
                 </li>
                 <li class="flex items-start gap-2 md:gap-3">
-                  <CheckCircle class="w-4 h-4 md:w-5 md:h-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                  <CheckCircle class="w-4 h-4 md:w-5 md:h-5 text-slate-500 mt-0.5 flex-shrink-0" />
                   <span>Email marketing and lead nurturing</span>
                 </li>
                 <li class="flex items-start gap-2 md:gap-3">
-                  <CheckCircle class="w-4 h-4 md:w-5 md:h-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                  <CheckCircle class="w-4 h-4 md:w-5 md:h-5 text-slate-500 mt-0.5 flex-shrink-0" />
                   <span>Data entry and report generation</span>
                 </li>
               </ul>
             </div>
-
-            <!-- Benefits -->
-            <div class="mb-6 md:mb-8 p-4 md:p-6 bg-blue-50 rounded-xl md:rounded-2xl">
-              <h4 class="text-base md:text-lg font-semibold text-blue-900 mb-2 md:mb-3">Time Savings:</h4>
-              <p class="text-sm md:text-base text-blue-800">
+          </div>
+          
+          <!-- Benefits -->
+          <div class="space-y-6">
+            <div class="p-4 md:p-6 bg-slate-50 rounded-xl md:rounded-2xl">
+              <h4 class="text-base md:text-lg font-semibold text-slate-900 mb-2 md:mb-3">Time Savings:</h4>
+              <p class="text-sm md:text-base text-slate-700">
                 Reclaim 15-20 hours per week by automating repetitive tasks. Focus on growing your business instead of managing it.
               </p>
             </div>
             
             <Button 
               size="lg" 
-              class="w-full md:w-auto bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 rounded-lg md:rounded-xl px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer border border-blue-500/50 hover:border-blue-400/70"
+              class="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 rounded-lg md:rounded-xl px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer border border-blue-500/50 hover:border-blue-400/70"
               data-cal-link="edmel-ednsy/enable-ai"
               data-cal-namespace="enable-ai"
               data-cal-config={JSON.stringify({layout: "month_view"})}
@@ -723,24 +701,24 @@
       
       <!-- Solution 3: High-Converting Websites -->
       <div 
-        class="group cursor-pointer bg-white rounded-2xl md:rounded-3xl p-6 md:p-12 border border-slate-200 hover:border-blue-300 hover:shadow-xl md:hover:shadow-2xl transition-all duration-300"
+        class="group cursor-pointer bg-white rounded-2xl md:rounded-3xl p-6 md:p-12 border border-slate-200 hover:border-slate-300 hover:shadow-xl md:hover:shadow-2xl transition-all duration-300"
         data-cal-link="edmel-ednsy/enable-ai"
         data-cal-namespace="enable-ai"
         data-cal-config={JSON.stringify({layout: "month_view"})}
       >
         <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           <!-- Content -->
-          <div class="order-2 lg:order-1">
+          <div class="text-left">
             <div class="flex items-center gap-3 md:gap-4 mb-4 md:mb-6">
-              <div class="flex items-center justify-center h-12 w-12 md:h-16 md:w-16 bg-blue-50 rounded-xl md:rounded-2xl">
-                <Smartphone class="w-6 h-6 md:w-8 md:h-8 text-blue-600" />
+              <div class="flex items-center justify-center h-12 w-12 md:h-16 md:w-16 bg-slate-50 rounded-xl md:rounded-2xl">
+                <Smartphone class="w-6 h-6 md:w-8 md:h-8 text-slate-600" />
               </div>
               <h3 class="text-2xl md:text-3xl font-bold text-slate-900">High-Converting Websites</h3>
             </div>
             
             <p class="text-base md:text-lg text-slate-600 mb-6 md:mb-8 leading-relaxed">
               Conversion-focused websites that turn visitors into customers while you sleep, 
-              with built-in SEO <span class="text-blue-600">&</span> mobile optimization for Toronto businesses.
+              with built-in SEO <span class="text-slate-600">&</span> mobile optimization for Toronto businesses.
             </p>
 
             <!-- Features List -->
@@ -748,54 +726,43 @@
               <h4 class="text-base md:text-lg font-semibold text-slate-900 mb-3 md:mb-4">Website Features:</h4>
               <ul class="space-y-2 md:space-y-3 text-sm md:text-base text-slate-600">
                 <li class="flex items-start gap-2 md:gap-3">
-                  <CheckCircle class="w-4 h-4 md:w-5 md:h-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                  <CheckCircle class="w-4 h-4 md:w-5 md:h-5 text-slate-500 mt-0.5 flex-shrink-0" />
                   <span>Mobile-first responsive design</span>
                 </li>
                 <li class="flex items-start gap-2 md:gap-3">
-                  <CheckCircle class="w-4 h-4 md:w-5 md:h-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                  <CheckCircle class="w-4 h-4 md:w-5 md:h-5 text-slate-500 mt-0.5 flex-shrink-0" />
                   <span>SEO optimized for local Toronto searches</span>
                 </li>
                 <li class="flex items-start gap-2 md:gap-3">
-                  <CheckCircle class="w-4 h-4 md:w-5 md:h-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                  <CheckCircle class="w-4 h-4 md:w-5 md:h-5 text-slate-500 mt-0.5 flex-shrink-0" />
                   <span>Fast loading speeds and performance</span>
                 </li>
                 <li class="flex items-start gap-2 md:gap-3">
-                  <CheckCircle class="w-4 h-4 md:w-5 md:h-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                  <CheckCircle class="w-4 h-4 md:w-5 md:h-5 text-slate-500 mt-0.5 flex-shrink-0" />
                   <span>Contact forms and lead capture systems</span>
                 </li>
               </ul>
             </div>
-
-            <!-- Benefits -->
-            <div class="mb-6 md:mb-8 p-4 md:p-6 bg-blue-50 rounded-xl md:rounded-2xl">
-              <h4 class="text-base md:text-lg font-semibold text-blue-900 mb-2 md:mb-3">Conversion Focus:</h4>
-              <p class="text-sm md:text-base text-blue-800">
+          </div>
+          
+          <!-- Benefits -->
+          <div class="space-y-6">
+            <div class="p-4 md:p-6 bg-slate-50 rounded-xl md:rounded-2xl">
+              <h4 class="text-base md:text-lg font-semibold text-slate-900 mb-2 md:mb-3">Conversion Focus:</h4>
+              <p class="text-sm md:text-base text-slate-700">
                 Every element is designed to convert visitors into customers. From compelling copy to strategic placement of contact forms.
               </p>
             </div>
             
             <Button 
               size="lg" 
-              class="w-full md:w-auto bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 rounded-lg md:rounded-xl px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer border border-blue-500/50 hover:border-blue-400/70"
+              class="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 rounded-lg md:rounded-xl px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer border border-blue-500/50 hover:border-blue-400/70"
               data-cal-link="edmel-ednsy/enable-ai"
               data-cal-namespace="enable-ai"
               data-cal-config={JSON.stringify({layout: "month_view"})}
             >
               Build Website
             </Button>
-          </div>
-
-          <!-- Visual Element -->
-          <div class="order-1 lg:order-2 flex justify-center lg:justify-end">
-            <div class="w-64 h-64 md:w-80 md:h-80 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl md:rounded-3xl flex items-center justify-center">
-              <div class="text-center">
-                <div class="w-16 h-16 md:w-24 md:h-24 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
-                  <Smartphone class="w-8 h-8 md:w-12 md:h-12 text-white" />
-                </div>
-                <p class="text-blue-800 font-semibold text-sm md:text-base">High-Converting Design</p>
-                <p class="text-blue-600 text-xs md:text-sm">Turn visitors into customers</p>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -830,8 +797,8 @@
     <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
       <!-- Local Expertise -->
       <div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 text-center">
-        <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <Building2 class="w-8 h-8 text-blue-600" />
+        <div class="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <Building2 class="w-8 h-8 text-slate-600" />
         </div>
         <h3 class="text-xl font-bold text-slate-900 mb-3">Toronto Born & Raised</h3>
         <p class="text-slate-600 text-sm leading-relaxed">
@@ -841,8 +808,8 @@
 
       <!-- Proven Results -->
       <div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 text-center">
-        <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <BarChart3 class="w-8 h-8 text-blue-600" />
+        <div class="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <BarChart3 class="w-8 h-8 text-slate-600" />
         </div>
         <h3 class="text-xl font-bold text-slate-900 mb-3">Proven Results</h3>
         <p class="text-slate-600 text-sm leading-relaxed">
@@ -852,8 +819,8 @@
 
       <!-- White-Glove Service -->
       <div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 text-center">
-        <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <Shield class="w-8 h-8 text-blue-600" />
+        <div class="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <Shield class="w-8 h-8 text-slate-600" />
         </div>
         <h3 class="text-xl font-bold text-slate-900 mb-3">White-Glove Service</h3>
         <p class="text-slate-600 text-sm leading-relaxed">
@@ -863,8 +830,8 @@
 
       <!-- Industry Expertise -->
       <div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 text-center">
-        <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <Target class="w-8 h-8 text-blue-600" />
+        <div class="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <Target class="w-8 h-8 text-slate-600" />
         </div>
         <h3 class="text-xl font-bold text-slate-900 mb-3">SMB Specialists</h3>
         <p class="text-slate-600 text-sm leading-relaxed">
@@ -884,17 +851,17 @@
       
       <div class="grid md:grid-cols-3 gap-8">
         <div class="text-center">
-          <div class="text-4xl font-bold text-blue-600 mb-2">15-20</div>
+          <div class="text-4xl font-bold text-slate-900 mb-2">15-20</div>
           <div class="text-lg font-semibold text-slate-900 mb-2">Hours Saved Weekly</div>
           <div class="text-slate-600 text-sm">Time reclaimed for family, growth, and strategic work</div>
         </div>
         <div class="text-center">
-          <div class="text-4xl font-bold text-blue-600 mb-2">3x</div>
+          <div class="text-4xl font-bold text-slate-900 mb-2">3x</div>
           <div class="text-lg font-semibold text-slate-900 mb-2">More Qualified Leads</div>
           <div class="text-slate-600 text-sm">Better lead capture and nurturing through automation</div>
         </div>
         <div class="text-center">
-          <div class="text-4xl font-bold text-blue-600 mb-2">24/7</div>
+          <div class="text-4xl font-bold text-slate-900 mb-2">24/7</div>
           <div class="text-lg font-semibold text-slate-900 mb-2">Customer Service</div>
           <div class="text-slate-600 text-sm">Never miss a call or inquiry with AI-powered assistance</div>
         </div>
@@ -934,21 +901,6 @@
     </div>
 
     <div class="grid lg:grid-cols-2 gap-16 items-center mb-16">
-      <!-- Team Photos -->
-      <div class="flex justify-center lg:justify-start">
-        <div class="relative">
-          <div class="w-80 h-80 bg-gradient-to-br from-blue-50 to-blue-100 rounded-3xl flex items-center justify-center">
-            <div class="text-center">
-              <div class="w-24 h-24 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users class="w-12 h-12 text-white" />
-              </div>
-              <p class="text-blue-800 font-semibold text-lg">Ed & Sy</p>
-              <p class="text-blue-600 text-sm">Toronto Digital Agency</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- Our Story -->
       <div class="space-y-6">
         <div>
@@ -962,16 +914,17 @@
             Now we help other entrepreneurs reclaim their time and build the life they actually want.
           </p>
         </div>
-
-        <div class="grid grid-cols-2 gap-6">
-          <div class="text-center p-4 bg-slate-50 rounded-xl">
-            <div class="text-3xl font-bold text-blue-600 mb-2">5+</div>
-            <div class="text-sm text-slate-600">Years Experience</div>
-          </div>
-          <div class="text-center p-4 bg-slate-50 rounded-xl">
-            <div class="text-3xl font-bold text-blue-600 mb-2">100%</div>
-            <div class="text-sm text-slate-600">Toronto Based</div>
-          </div>
+      </div>
+      
+      <!-- Stats -->
+      <div class="grid grid-cols-2 gap-6">
+        <div class="text-center p-4 bg-slate-50 rounded-xl">
+          <div class="text-3xl font-bold text-slate-900 mb-2">5+</div>
+          <div class="text-sm text-slate-600">Years Experience</div>
+        </div>
+        <div class="text-center p-4 bg-slate-50 rounded-xl">
+          <div class="text-3xl font-bold text-slate-900 mb-2">100%</div>
+          <div class="text-sm text-slate-600">Toronto Based</div>
         </div>
       </div>
     </div>
@@ -981,22 +934,22 @@
       <h3 class="text-2xl font-bold text-slate-900 mb-6 text-center">Why We're Different</h3>
       <div class="grid md:grid-cols-3 gap-8">
         <div class="text-center">
-          <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Target class="w-8 h-8 text-blue-600" />
+          <div class="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Target class="w-8 h-8 text-slate-600" />
           </div>
           <h4 class="font-semibold text-slate-900 mb-2">SMB Focused</h4>
           <p class="text-slate-600 text-sm">We understand small business challenges because we've lived them.</p>
         </div>
         <div class="text-center">
-          <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Shield class="w-8 h-8 text-blue-600" />
+          <div class="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Shield class="w-8 h-8 text-slate-600" />
           </div>
           <h4 class="font-semibold text-slate-900 mb-2">White-Glove Service</h4>
           <p class="text-slate-600 text-sm">We handle everything from setup to training. You just focus on your business.</p>
         </div>
         <div class="text-center">
-          <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Sparkles class="w-8 h-8 text-blue-600" />
+          <div class="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Sparkles class="w-8 h-8 text-slate-600" />
           </div>
           <h4 class="font-semibold text-slate-900 mb-2">Proven Results</h4>
           <p class="text-slate-600 text-sm">Our clients consistently save 15-20 hours weekly and see 3x more leads.</p>
@@ -1075,15 +1028,15 @@
       </p>
       <div class="grid md:grid-cols-3 gap-6 mb-8">
         <div class="text-center p-4 bg-slate-50 rounded-xl">
-          <div class="text-2xl font-bold text-blue-600 mb-2">Free</div>
+          <div class="text-2xl font-bold text-slate-900 mb-2">Free</div>
           <div class="text-sm text-slate-600">Initial Consultation</div>
         </div>
         <div class="text-center p-4 bg-slate-50 rounded-xl">
-          <div class="text-2xl font-bold text-blue-600 mb-2">Custom</div>
+          <div class="text-2xl font-bold text-slate-900 mb-2">Custom</div>
           <div class="text-sm text-slate-600">Pricing Based on Needs</div>
         </div>
         <div class="text-center p-4 bg-slate-50 rounded-xl">
-          <div class="text-2xl font-bold text-blue-600 mb-2">ROI</div>
+          <div class="text-2xl font-bold text-slate-900 mb-2">ROI</div>
           <div class="text-sm text-slate-600">Within First Month</div>
         </div>
       </div>

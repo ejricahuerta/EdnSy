@@ -46,7 +46,7 @@
 							<div
 								class="bg-sidebar-secondary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg"
 							>
-                            <img src="/logo/white transparent.png" alt="Ed & Sy" class="size-6" />
+                            <img src="/logo/logo.png" alt="Ed & Sy" class="size-6" />
 							</div>
 							<div class="grid flex-1 text-left text-sm leading-tight">
 								<span class="truncate font-medium">Ed & Sy</span>

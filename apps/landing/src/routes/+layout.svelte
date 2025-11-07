@@ -78,7 +78,7 @@
   />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://ednsy.com" />
-  <meta property="og:image" content="/logo/white transparent.png" />
+  <meta property="og:image" content="/logo/logo with bg.png" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta
     name="twitter:title"
@@ -88,10 +88,10 @@
     name="twitter:description"
     content="Toronto digital agency helping business owners reclaim 15-20 hours weekly. Voice AI Assistants, Workflow Automation & more. Free consultation."
   />
-  <meta name="twitter:image" content="/logo/white transparent.png" />
+  <meta name="twitter:image" content="/logo/logo with bg.png" />
   <link rel="canonical" href="https://ednsy.com" />
-  <link rel="icon" href="/logo/white transparent.png" />
-  <link rel="apple-touch-icon" href="/logo/white transparent.png" />
+  <link rel="icon" href="/logo/logo icon.png" />
+  <link rel="apple-touch-icon" href="/logo/logo icon.png" />
   <!-- Social profile links for SEO -->
   <link rel="me" href="https://www.instagram.com/dev.exd/" />
   <link rel="me" href="https://www.linkedin.com/in/syronsuerte/" />
@@ -105,8 +105,8 @@
       "@type": "LocalBusiness",
       "name": "Ed & Sy Digital Agency",
       "url": "https://ednsy.com",
-      "logo": "https://ednsy.com/logo/white transparent.png",
-      "image": "https://ednsy.com/logo/white transparent.png",
+      "logo": "https://ednsy.com/logo/logo with bg.png",
+      "image": "https://ednsy.com/logo/logo with bg.png",
       "description": "Ed & Sy is a Toronto digital agency helping business owners reclaim 15-20 hours weekly through AI-powered solutions. We specialize in Voice AI Assistants, Workflow Automation, Website Development, SEO Services, and Chatbots for growing businesses.",
       "address": {
         "@type": "PostalAddress",
@@ -139,11 +139,11 @@
   >
          <div class="mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-16 py-3 md:py-4 min-h-[60px] md:min-h-[70px]">
         <a href="/" class="flex items-center font-heading sm:justify-start justify-center flex-1">
-          <div class="text-xl md:text-2xl font-bold">
-            <span class="{$page.url.pathname === '/' ? (scrolled ? 'text-blue-600' : 'text-white') : 'text-blue-600'}">Ed</span>
-            <span class="text-blue-600">&</span>
-            <span class="{$page.url.pathname === '/' ? (scrolled ? 'text-blue-600' : 'text-white') : 'text-blue-600'}">Sy</span>
-          </div>
+          <img 
+            src="/logo/logo.png" 
+            alt="Ed & Sy" 
+            class="h-14 md:h-16 w-auto"
+          />
         </a>
              <div class="flex items-center gap-2 md:gap-4">
             <button
