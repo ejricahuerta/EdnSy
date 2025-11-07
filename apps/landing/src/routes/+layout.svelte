@@ -138,11 +138,11 @@
       : 'bg-transparent border-transparent'}"
   >
          <div class="mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-16 py-3 md:py-4 min-h-[60px] md:min-h-[70px]">
-        <a href="/" class="flex items-center font-heading sm:justify-start justify-center flex-1">
+        <a href="/" class="flex items-center font-heading justify-start flex-1">
           <img 
             src="/logo/logo.png" 
             alt="Ed & Sy" 
-            class="h-14 md:h-16 w-auto"
+            class="h-16 md:h-16 w-auto"
           />
         </a>
              <div class="flex items-center gap-2 md:gap-4">
