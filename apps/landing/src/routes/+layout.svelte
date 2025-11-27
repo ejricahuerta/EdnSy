@@ -1,22 +1,21 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import "../app.css";
-  import { LogOut, LayoutPanelLeft, Calendar } from "@lucide/svelte";
+  import { Calendar, Heart, Briefcase, ShoppingCart, Home, Factory, Utensils, Headphones, Workflow, Smartphone, MessageCircle, Youtube, Instagram, Linkedin } from "@lucide/svelte";
 
   import posthog from "posthog-js";
   import { browser } from "$app/environment";
   import { beforeNavigate, afterNavigate } from "$app/navigation";
   import { page } from "$app/stores";
-  import { supabase } from "$lib/supabase";
   import * as Sidebar from "$lib/components/ui/sidebar/index.js";
   import ContentHeader from "$lib/components/app/content/header.svelte";
   import SidebarLayout from "$lib/components/app/sidebar/layout.svelte";
   import type { LayoutData } from "./$types";
 
-  let { children, data } = $props<{ data: LayoutData }>();
-  let user = $state<any>(data.user);
+  let { children } = $props<{ data: LayoutData }>();
   let scrolled = $state(false);
   let isAnimating = $state(false);
+
 
   // Animate wave emoji every 5 seconds
   if (browser) {
@@ -43,19 +42,6 @@
     // Cleanup will be handled by the browser when the page unloads
   }
 
-  async function handleLogout() {
-    const { error } = await supabase.auth.signOut();
-    if (!error) {
-      goto("/login");
-    }
-  }
-
-  // Update user state when auth state changes (only on client)
-  if (browser) {
-    supabase.auth.onAuthStateChange((event, session) => {
-      user = session?.user || null;
-    });
-  }
 
   const posthogApiKey = import.meta.env.VITE_POSTHOG_API_KEY;
 
@@ -69,6 +55,7 @@
     afterNavigate(() => posthog.capture("$pageview"));
   }
 </script>
+
 
 <svelte:head>
   <title>Get Your Time Back with AI-Powered Digital Solutions | Ed & Sy Digital Agency</title>
@@ -91,7 +78,7 @@
   />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://ednsy.com" />
-  <meta property="og:image" content="/logo.png" />
+  <meta property="og:image" content="/logo/logo with bg.png" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta
     name="twitter:title"
@@ -101,9 +88,14 @@
     name="twitter:description"
     content="Toronto digital agency helping business owners reclaim 15-20 hours weekly. Voice AI Assistants, Workflow Automation & more. Free consultation."
   />
-  <meta name="twitter:image" content="/logo.png" />
+  <meta name="twitter:image" content="/logo/logo with bg.png" />
   <link rel="canonical" href="https://ednsy.com" />
-  <link rel="icon" href="/favicon.ico" />
+  <link rel="icon" href="/logo/logo icon.png" />
+  <link rel="apple-touch-icon" href="/logo/logo icon.png" />
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Marck+Script&display=swap" rel="stylesheet" />
   <!-- Social profile links for SEO -->
   <link rel="me" href="https://www.instagram.com/dev.exd/" />
   <link rel="me" href="https://www.linkedin.com/in/syronsuerte/" />
@@ -117,8 +109,8 @@
       "@type": "LocalBusiness",
       "name": "Ed & Sy Digital Agency",
       "url": "https://ednsy.com",
-      "logo": "https://ednsy.com/logo.png",
-      "image": "https://ednsy.com/logo.png",
+      "logo": "https://ednsy.com/logo/logo with bg.png",
+      "image": "https://ednsy.com/logo/logo with bg.png",
       "description": "Ed & Sy is a Toronto digital agency helping business owners reclaim 15-20 hours weekly through AI-powered solutions. We specialize in Voice AI Assistants, Workflow Automation, Website Development, SEO Services, and Chatbots for growing businesses.",
       "address": {
         "@type": "PostalAddress",
@@ -143,53 +135,37 @@
 </svelte:head>
 
 <!-- NAVIGATION BAR - Only show on landing page and non-demo pages -->
-{#if $page.url.pathname === "/" || ($page.url.pathname !== "/login" && !$page.url.pathname.startsWith("/demos") && $page.url.pathname !== "/logout")}
+{#if $page.url.pathname === "/" || (!$page.url.pathname.startsWith("/demos"))}
   <nav
     class="fixed top-0 z-50 w-full mx-auto transition-all duration-300 {scrolled
       ? 'bg-white/50 backdrop-blur-md border-b border-white/10 shadow-sm'
       : 'bg-transparent border-transparent'}"
   >
-         <div class=" mx-auto flex items-center justify-between px-6 sm:px-16 py-4">
-       <a href="/" class="flex items-center gap-3 font-heading sm:justify-start justify-center flex-1">
-         <div
-           class="font-heading text-2xl font-bold tracking-tight drop-shadow-lg"
-         >
-           <span class="{scrolled ? 'text-blue-700' : 'text-white'}">Ed</span>
-           <span class="{scrolled ? 'text-blue-700' : 'text-primary'}">&</span>
-           <span class="{scrolled ? 'text-blue-700' : 'text-white'}">Sy</span>
-         </div>
-       </a>
-             <div class="flex items-center gap-4">
-         {#if user}
-                      <a
-              href="/demos"
-              class="flex items-center gap-2 {scrolled ? 'text-slate-700 hover:text-primary border-slate-200 hover:border-primary/30' : 'text-white/80 hover:text-white border-white/20 hover:border-white/40'} px-4 py-2 rounded-lg font-medium transition-all duration-200 border backdrop-blur-sm"
-            >
-              <LayoutPanelLeft class="w-4 h-4" />
-              <span class="hidden sm:inline">Demos</span>
-            </a>
-            <a
-              href="/consultation"
-              class="flex items-center gap-2 {scrolled ? 'bg-orange-600 hover:bg-orange-700 text-white border-orange-600' : 'bg-orange-600/90 backdrop-blur-sm hover:bg-orange-700 text-white border-orange-600/90'} px-4 py-2 rounded-lg font-medium transition-all duration-200 border"
+         <div class="mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-16 py-3 md:py-4 min-h-[60px] md:min-h-[70px]">
+        <a href="/" class="flex items-center font-heading justify-start flex-1">
+          <img 
+            src="/logo/logo.png" 
+            alt="Ed & Sy" 
+            class="h-16 md:h-16 w-auto transition-all duration-300 {scrolled ? '' : 'brightness-0 invert'}"
+          />
+        </a>
+             <div class="flex items-center gap-2 md:gap-4">
+            <button
+              data-cal-link="edmel-ednsy/enable-ai"
+              data-cal-namespace="enable-ai"
+              data-cal-config={JSON.stringify({layout: "month_view"})}
+              class="flex items-center gap-1 md:gap-2 {scrolled ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600' : 'bg-blue-600/90 backdrop-blur-sm hover:bg-blue-700 text-white border-blue-600/90'} px-2 md:px-4 py-2 rounded-lg font-medium transition-all duration-200 border"
             >
               <Calendar class="w-4 h-4" />
-              <span class="hidden sm:inline">Free Consultation</span>
-            </a>
-            <button
-              onclick={handleLogout}
-              class="flex items-center gap-2 {scrolled ? 'text-neutral-700 hover:text-red-600' : 'text-white/80 hover:text-red-300'} px-3 py-2 rounded-lg font-medium transition-all duration-200 cursor-pointer {scrolled ? 'hover:bg-gray-100' : 'hover:bg-white/10'}"
-            >
-              <LogOut class="w-4 h-4" />
-              <span class="hidden sm:inline">Logout</span>
+              <span class="hidden sm:inline">Contact Us</span>
             </button>
-         {/if}
        </div>
     </div>
   </nav>
 {/if}
 
-{#if user && $page.url.pathname.startsWith("/demos") && $page.url.pathname !== "/logout"}
-  <!-- Authenticated Layout with Sidebar - Only for Demos -->
+{#if $page.url.pathname.startsWith("/demos")}
+  <!-- Demo Layout with Sidebar -->
   <div class="[--header-height:calc(--spacing(14))]">
     <Sidebar.Provider class="flex flex-col">
       <ContentHeader />
@@ -201,96 +177,98 @@
       </div>
     </Sidebar.Provider>
   </div>
-{:else if user && $page.url.pathname !== "/login"}
-  <!-- Authenticated user on non-demo pages - Clean layout -->
-  {@render children()}
 {:else}
   <!-- Public Layout without Sidebar -->
   {@render children()}
 
-  {#if $page.url.pathname !== "/login" && $page.url.pathname !== "/logout"}
+  {#if $page.url.pathname !== "/demos"}
          <!-- FOOTER -->
      <footer class="bg-slate-900 text-white">
        <div class="max-w-6xl mx-auto px-6 sm:px-16 py-16">
                    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
             <!-- Company Info -->
             <div class="space-y-4">
-              <div class="font-display text-2xl font-bold">
-                <span class="text-white">Ed</span>
-                <span class="text-primary">&</span>
-                <span class="text-white">Sy</span>
-              </div>
+               <div class="flex items-center gap-3">
+                 <a href="/" class="flex items-center">
+                   <img 
+                     src="/logo/logo.png" 
+                     alt="Ed & Sy" 
+                     class="h-12 md:h-16 w-auto brightness-0 invert"
+                   />
+                 </a>
+               </div>
               <p class="text-white/70 text-sm leading-relaxed">
                 Toronto digital agency helping business owners reclaim 15-20 hours weekly through AI-powered solutions.
               </p>
             </div>
 
-                         <!-- Solutions -->
-             <div class="space-y-4">
-               <h3 class="font-semibold text-white">Solutions</h3>
-               <ul class="space-y-2 text-sm">
-                 <li>
-                   <button
-                     onclick={() => {
-                       if (user) {
-                         goto('/demos');
-                       } else {
-                         goto('/login');
-                       }
-                     }}
-                     class="text-white/70 hover:text-white transition-colors cursor-pointer"
-                   >
-                     Voice AI Business Growth
-                   </button>
-                 </li>
-                 <li>
-                   <button
-                     onclick={() => {
-                       if (user) {
-                         goto('/demos');
-                       } else {
-                         goto('/login');
-                       }
-                     }}
-                     class="text-white/70 hover:text-white transition-colors cursor-pointer"
-                   >
-                     Workflow Freedom Package
-                   </button>
-                 </li>
-                 <li>
-                   <button
-                     onclick={() => {
-                       if (user) {
-                         goto('/demos');
-                       } else {
-                         goto('/login');
-                       }
-                     }}
-                     class="text-white/70 hover:text-white transition-colors cursor-pointer"
-                   >
-                     High-Converting Websites
-                   </button>
-                 </li>
-               </ul>
-             </div>
+                          <!-- Solutions -->
+              <div class="space-y-4">
+                <h3 class="font-semibold text-white">Solutions</h3>
+                <ul class="space-y-2 text-sm">
+                  <li class="flex items-center gap-2">
+                    <Headphones class="w-4 h-4 text-blue-400" />
+                    <button
+                      data-cal-link="edmel-ednsy/enable-ai"
+                      data-cal-namespace="enable-ai"
+                      data-cal-config={JSON.stringify({layout: "month_view"})}
+                      class="text-white/70 hover:text-white transition-colors cursor-pointer"
+                    >
+                      Voice AI Business Growth
+                    </button>
+                  </li>
+                  <li class="flex items-center gap-2">
+                    <Workflow class="w-4 h-4 text-blue-400" />
+                    <button
+                      data-cal-link="edmel-ednsy/enable-ai"
+                      data-cal-namespace="enable-ai"
+                      data-cal-config={JSON.stringify({layout: "month_view"})}
+                      class="text-white/70 hover:text-white transition-colors cursor-pointer"
+                    >
+                      Workflow Freedom Package
+                    </button>
+                  </li>
+                  <li class="flex items-center gap-2">
+                    <Smartphone class="w-4 h-4 text-blue-400" />
+                    <button
+                      data-cal-link="edmel-ednsy/enable-ai"
+                      data-cal-namespace="enable-ai"
+                      data-cal-config={JSON.stringify({layout: "month_view"})}
+                      class="text-white/70 hover:text-white transition-colors cursor-pointer"
+                    >
+                      High-Converting Websites
+                    </button>
+                  </li>
+                </ul>
+              </div>
 
-            <!-- Quick Links -->
+            <!-- Industries -->
             <div class="space-y-4">
-              <h3 class="font-semibold text-white">Quick Links</h3>
+              <h3 class="font-semibold text-white">Industries</h3>
               <ul class="space-y-2 text-sm">
-                <li>
-                  <a href="/#team" class="text-white/70 hover:text-white transition-colors">
-                    Our Story
-                  </a>
+                <li class="flex items-center gap-2">
+                  <Heart class="w-4 h-4 text-blue-400" />
+                  <span class="text-white/70">Healthcare</span>
                 </li>
-                <li>
-                  <button
-                    data-tally-open="3NQ6pB"
-                    data-tally-overlay="1"
-                    class="text-white/70 hover:text-white transition-colors cursor-pointer"
-                  >
-                    Contact Us
-                  </button>
+                <li class="flex items-center gap-2">
+                  <Briefcase class="w-4 h-4 text-blue-400" />
+                  <span class="text-white/70">Professional Services</span>
+                </li>
+                <li class="flex items-center gap-2">
+                  <ShoppingCart class="w-4 h-4 text-blue-400" />
+                  <span class="text-white/70">Retail & E-commerce</span>
+                </li>
+                <li class="flex items-center gap-2">
+                  <Home class="w-4 h-4 text-blue-400" />
+                  <span class="text-white/70">Real Estate</span>
+                </li>
+                <li class="flex items-center gap-2">
+                  <Factory class="w-4 h-4 text-blue-400" />
+                  <span class="text-white/70">Manufacturing</span>
+                </li>
+                <li class="flex items-center gap-2">
+                  <Utensils class="w-4 h-4 text-blue-400" />
+                  <span class="text-white/70">Food & Hospitality</span>
                 </li>
               </ul>
             </div>
@@ -313,28 +291,48 @@
             </div>
           </div>
 
-         <!-- Bottom Bar -->
-         <div class="border-t border-white/10 mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center">
-           <p class="text-white/60 text-sm">© 2025 Ed & Sy. All rights reserved.</p>
-           <div class="flex items-center gap-4 mt-4 sm:mt-0">
-             <a
-               href="https://www.instagram.com/dev.exd/"
-               class="text-white/60 hover:text-white transition-colors text-sm"
-               target="_blank"
-               rel="noopener"
-             >
-               Ed's Instagram
-             </a>
-             <a
-               href="https://www.linkedin.com/in/syronsuerte/"
-               class="text-white/60 hover:text-white transition-colors text-sm"
-               target="_blank"
-               rel="noopener"
-             >
-               Sy's LinkedIn
-             </a>
-           </div>
-         </div>
+          <!-- Bottom Bar -->
+          <div class="border-t border-white/10 mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center">
+            <p class="text-white/60 text-sm">© 2025 Ed & Sy. All rights reserved.</p>
+            <div class="flex items-center gap-4 mt-4 sm:mt-0">
+              <a
+                href="https://www.tiktok.com/@ed.n.sy"
+                class="flex items-center gap-2 text-white/60 hover:text-white transition-colors text-sm"
+                target="_blank"
+                rel="noopener"
+              >
+                <MessageCircle class="w-4 h-4" />
+                TikTok
+              </a>
+              <a
+                href="https://www.instagram.com/ed.n.sy"
+                class="flex items-center gap-2 text-white/60 hover:text-white transition-colors text-sm"
+                target="_blank"
+                rel="noopener"
+              >
+                <Instagram class="w-4 h-4" />
+                Instagram
+              </a>
+              <a
+                href="https://www.youtube.com/@ed.n.sy"
+                class="flex items-center gap-2 text-white/60 hover:text-white transition-colors text-sm"
+                target="_blank"
+                rel="noopener"
+              >
+                <Youtube class="w-4 h-4" />
+                YouTube
+              </a>
+              <a
+                href="https://www.linkedin.com/in/syronsuerte/"
+                class="flex items-center gap-2 text-white/60 hover:text-white transition-colors text-sm"
+                target="_blank"
+                rel="noopener"
+              >
+                <Linkedin class="w-4 h-4" />
+                LinkedIn
+              </a>
+            </div>
+          </div>
        </div>
      </footer>
     <button

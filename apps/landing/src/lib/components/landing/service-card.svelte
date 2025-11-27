@@ -44,13 +44,7 @@
     <!-- CTA buttons -->
     <div class="flex flex-col sm:flex-row gap-3">
       <Button
-        onclick={() => {
-          if ($page.data.user) {
-            goto("/demos");
-          } else {
-            goto("/login");
-          }
-        }}
+        onclick={() => goto("/demos")}
         size="sm"
         class="flex-1"
       >
@@ -58,13 +52,7 @@
       </Button>
       
       <Button
-        onclick={() => {
-          if ($page.data.user) {
-            goto("/demos");
-          } else {
-            goto("/login");
-          }
-        }}
+        onclick={() => goto("/demos")}
         variant="outline"
         size="sm"
         class="flex-1"
