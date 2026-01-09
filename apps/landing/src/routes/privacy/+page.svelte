@@ -136,7 +136,7 @@
       <section class="mb-8">
         <h2 class="text-2xl font-semibold text-gray-900 mb-4">Cookies and Analytics</h2>
         <p class="text-gray-700 leading-relaxed mb-4">
-          We use cookies and similar tracking technologies to enhance your experience on our website. We also use analytics services like PostHog and Vercel Analytics to understand how visitors interact with our site.
+          We use cookies and similar tracking technologies to enhance your experience on our website. We also use analytics services like PostHog to understand how visitors interact with our site.
         </p>
         <p class="text-gray-700 leading-relaxed">
           For more information about our use of cookies, please see our <a href="/cookies" class="text-blue-600 hover:text-blue-700">Cookie Policy</a>.

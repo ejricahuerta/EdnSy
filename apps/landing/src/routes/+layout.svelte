@@ -10,7 +10,6 @@
   import * as Sidebar from "$lib/components/ui/sidebar/index.js";
   import ContentHeader from "$lib/components/app/content/header.svelte";
   import SidebarLayout from "$lib/components/app/sidebar/layout.svelte";
-  import { Analytics } from "@vercel/analytics/sveltekit";
   import type { LayoutData } from "./$types";
 
   let { children } = $props<{ data: LayoutData }>();
@@ -348,5 +347,3 @@
   {/if}
 {/if}
 
-<!-- Vercel Analytics - Always rendered for all routes -->
-<Analytics />

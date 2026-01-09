@@ -166,13 +166,6 @@ GOOGLE_CLOUD_PRIVATE_KEY=your_service_account_key
 
 ## Monitoring and Analytics
 
-### Vercel Analytics
-
-- **Performance Monitoring**: Built-in analytics dashboard
-- **Error Tracking**: Automatic error reporting
-- **Function Logs**: Serverless function monitoring
-- **Edge Network**: Global performance metrics
-
 ### Custom Analytics
 
 The dashboard includes PostHog analytics:
@@ -302,7 +295,7 @@ For deployment issues:
 After successful deployment:
 
 1. **Test Authentication**: Verify Google OAuth flow works
-2. **Monitor Performance**: Check Vercel analytics
+2. **Monitor Performance**: Check PostHog analytics
 3. **Set Up Monitoring**: Configure error tracking
 4. **Add Integrations**: Connect additional services
 5. **Customize Domain**: Add your custom domain 
