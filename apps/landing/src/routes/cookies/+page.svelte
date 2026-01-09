@@ -56,7 +56,6 @@
         </p>
         <ul class="list-disc pl-6 mb-6 text-gray-700">
           <li><strong>PostHog:</strong> User behavior analytics and feature usage tracking</li>
-          <li><strong>Vercel Analytics:</strong> Website performance and visitor analytics</li>
         </ul>
         <h3 class="text-xl font-semibold text-gray-800 mb-3">Functional Cookies</h3>
         <p class="text-gray-700 leading-relaxed mb-4">
@@ -92,18 +91,6 @@
           </p>
           <p class="text-gray-700 text-sm">
             <strong>Privacy Policy:</strong> <a href="https://posthog.com/privacy" target="_blank" rel="noopener" class="text-blue-600 hover:text-blue-700">PostHog Privacy Policy</a>
-          </p>
-        </div>
-        <div class="bg-gray-50 p-6 rounded-lg mb-4">
-          <h4 class="font-semibold text-gray-800 mb-2">Vercel Analytics</h4>
-          <p class="text-gray-700 text-sm mb-2">
-            <strong>Purpose:</strong> Website performance monitoring and visitor analytics
-          </p>
-          <p class="text-gray-700 text-sm mb-2">
-            <strong>Data collected:</strong> Page load times, visitor counts, geographic data
-          </p>
-          <p class="text-gray-700 text-sm">
-            <strong>Privacy Policy:</strong> <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener" class="text-blue-600 hover:text-blue-700">Vercel Privacy Policy</a>
           </p>
         </div>
         <div class="bg-gray-50 p-6 rounded-lg mb-4">
