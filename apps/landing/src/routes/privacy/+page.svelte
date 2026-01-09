@@ -6,7 +6,7 @@
   <title>Privacy Policy | Ed & Sy</title>
   <meta
     name="description"
-    content="Privacy Policy for Ed & Sy - AI automation services for small and medium businesses in Toronto and the GTA."
+    content="Privacy Policy for Ed & Sy - tech implementation partner services for small and medium businesses in Toronto and the GTA."
   />
 </svelte:head>
 

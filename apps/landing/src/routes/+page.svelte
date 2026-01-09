@@ -158,9 +158,9 @@
 
 <svelte:head>
   <!-- Primary Meta Tags -->
-  <title>AI Automation for Toronto Businesses | Voice AI & Workflow Solutions | Ed & Sy</title>
-  <meta name="description" content="Stop working nights & weekends! Toronto's leading AI automation agency helps business owners reclaim 15-20 hours weekly. Voice AI, workflow automation & high-converting websites. Free consultation." />
-  <meta name="keywords" content="Toronto AI automation, Voice AI business, workflow automation Toronto, business automation Canada, AI phone assistant, automated business processes, Toronto digital agency, small business automation, AI chatbot Toronto, business time management, automated lead generation, Toronto business solutions, AI assistant for business, workflow optimization, business process automation, Toronto tech consulting, AI implementation, business efficiency Toronto, automated customer service, Toronto AI consulting" />
+  <title>Tech Implementation Partner for Toronto Businesses | Voice AI & Workflow Solutions | Ed & Sy</title>
+  <meta name="description" content="Stop working nights & weekends! Toronto's leading tech implementation partner helps business owners reclaim 15-20 hours weekly. Voice AI, workflow automation & high-converting websites. Free consultation." />
+  <meta name="keywords" content="Toronto tech implementation partner, Voice AI business, workflow automation Toronto, business automation Canada, AI phone assistant, automated business processes, Toronto digital agency, small business automation, AI chatbot Toronto, business time management, automated lead generation, Toronto business solutions, AI assistant for business, workflow optimization, business process automation, Toronto tech consulting, AI implementation, business efficiency Toronto, automated customer service, Toronto tech consulting" />
   <meta name="author" content="Ed & Sy Digital Agency" />
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -176,22 +176,22 @@
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://ednsy.com/" />
-  <meta property="og:title" content="AI Automation for Toronto Businesses | Voice AI & Workflow Solutions" />
-  <meta property="og:description" content="Stop working nights & weekends! Toronto's leading AI automation agency helps business owners reclaim 15-20 hours weekly. Voice AI, workflow automation & high-converting websites." />
+  <meta property="og:title" content="Tech Implementation Partner for Toronto Businesses | Voice AI & Workflow Solutions" />
+  <meta property="og:description" content="Stop working nights & weekends! Toronto's leading tech implementation partner helps business owners reclaim 15-20 hours weekly. Voice AI, workflow automation & high-converting websites." />
   <meta property="og:image" content="https://ednsy.com/logo/logo with bg.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content="Ed & Sy - AI Automation for Toronto Businesses" />
+  <meta property="og:image:alt" content="Ed & Sy - Tech Implementation Partner for Toronto Businesses" />
   <meta property="og:site_name" content="Ed & Sy Digital Agency" />
   <meta property="og:locale" content="en_CA" />
   
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:url" content="https://ednsy.com/" />
-  <meta name="twitter:title" content="AI Automation for Toronto Businesses | Voice AI & Workflow Solutions" />
-  <meta name="twitter:description" content="Stop working nights & weekends! Toronto's leading AI automation agency helps business owners reclaim 15-20 hours weekly. Voice AI, workflow automation & high-converting websites." />
+  <meta name="twitter:title" content="Tech Implementation Partner for Toronto Businesses | Voice AI & Workflow Solutions" />
+  <meta name="twitter:description" content="Stop working nights & weekends! Toronto's leading tech implementation partner helps business owners reclaim 15-20 hours weekly. Voice AI, workflow automation & high-converting websites." />
   <meta name="twitter:image" content="https://ednsy.com/logo/logo with bg.png" />
-  <meta name="twitter:image:alt" content="Ed & Sy - AI Automation for Toronto Businesses" />
+  <meta name="twitter:image:alt" content="Ed & Sy - Tech Implementation Partner for Toronto Businesses" />
   
   <!-- Additional SEO Meta Tags -->
   <meta name="theme-color" content="#3b82f6" />
@@ -215,7 +215,7 @@
     "url": "https://ednsy.com",
     "logo": "https://ednsy.com/logo/logo with bg.png",
     "image": "https://ednsy.com/logo/logo with bg.png",
-    "description": "Toronto's leading AI automation agency helping business owners reclaim 15-20 hours weekly through Voice AI, workflow automation, and high-converting websites.",
+    "description": "Toronto's leading tech implementation partner helping business owners reclaim 15-20 hours weekly through Voice AI, workflow automation, and high-converting websites.",
     "foundingDate": "2024",
     "address": {
       "@type": "PostalAddress",
@@ -263,7 +263,7 @@
     },
     "hasOfferCatalog": {
       "@type": "OfferCatalog",
-      "name": "AI Automation Services",
+      "name": "Tech Implementation Services",
       "itemListElement": [
         {
           "@type": "Offer",
@@ -299,8 +299,8 @@
   {
     "@context": "https://schema.org",
     "@type": "Service",
-    "name": "AI Business Automation Services",
-    "description": "Comprehensive AI automation solutions for Toronto businesses including Voice AI, workflow automation, and high-converting websites.",
+    "name": "Tech Implementation Services",
+    "description": "Comprehensive tech implementation solutions for Toronto businesses including Voice AI, workflow automation, and high-converting websites.",
     "provider": {
       "@type": "LocalBusiness",
       "name": "Ed & Sy Digital Agency",
@@ -314,7 +314,7 @@
     "category": "Digital Marketing Services",
     "offers": {
       "@type": "Offer",
-      "description": "AI automation solutions starting from custom pricing",
+      "description": "Tech implementation solutions starting from custom pricing",
       "priceCurrency": "CAD"
     }
   }

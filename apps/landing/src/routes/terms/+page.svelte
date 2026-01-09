@@ -6,7 +6,7 @@
   <title>Terms of Service | Ed & Sy</title>
   <meta
     name="description"
-    content="Terms of Service for Ed & Sy - AI automation services for small and medium businesses in Toronto and the GTA."
+    content="Terms of Service for Ed & Sy - tech implementation partner services for small and medium businesses in Toronto and the GTA."
   />
 </svelte:head>
 

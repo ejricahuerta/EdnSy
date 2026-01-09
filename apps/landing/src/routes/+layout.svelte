@@ -66,7 +66,7 @@
   />
   <meta
     name="keywords"
-    content="digital agency Toronto, AI automation, voice AI assistants, workflow automation, website development, time saving solutions, business automation, chatbots, SEO services, Toronto business automation"
+    content="digital agency Toronto, tech implementation partner, voice AI assistants, workflow automation, website development, time saving solutions, business automation, chatbots, SEO services, Toronto business automation"
   />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta
