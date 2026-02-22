@@ -4,6 +4,7 @@
   import * as Accordion from "$lib/components/ui/accordion";
   import { Phone, PhoneOff, Settings, Building2, TrendingUp, HelpCircle } from "lucide-svelte";
   import { voiceAiPage } from "$lib/content/service-pages";
+  import { featuredVoiceAiIndustryPages } from "$lib/content/voice-ai-industry-pages";
   import { buildServiceSchema, buildFAQSchema } from "$lib/content/seo";
 
   const sectionIcons = [Phone, PhoneOff, Settings, Building2, TrendingUp];
@@ -57,6 +58,30 @@
           <Card.Content class="flex-1">
             <p class="text-muted-foreground leading-7">{section.body}</p>
           </Card.Content>
+        </Card.Root>
+      {/each}
+    </div>
+  </div>
+</section>
+
+<section class="py-16 md:py-24 bg-background">
+  <div class="max-w-6xl mx-auto px-6 lg:px-8">
+    <h2 class="typography-h2 mb-3">Voice AI by industry</h2>
+    <p class="text-muted-foreground text-base mb-8 max-w-2xl leading-7">
+      Looking for a use case tailored to your market? Start with one of these industry pages.
+    </p>
+    <div class="grid md:grid-cols-3 gap-6">
+      {#each featuredVoiceAiIndustryPages as industryPage}
+        <Card.Root class="border-border bg-card h-full flex flex-col">
+          <Card.Header>
+            <Card.Title class="text-xl">{industryPage.industryName}</Card.Title>
+            <Card.Description class="leading-relaxed">{industryPage.description}</Card.Description>
+          </Card.Header>
+          <Card.Footer>
+            <Button href={`/voice-ai-for/${industryPage.slug}`} variant="outline">
+              View {industryPage.industryName} page
+            </Button>
+          </Card.Footer>
         </Card.Root>
       {/each}
     </div>

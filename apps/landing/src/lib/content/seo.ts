@@ -1,3 +1,7 @@
+import { getBlogPostBySlug } from "./blog-posts";
+import { getIndustryBySlug } from "./industries";
+import { getVoiceAiIndustryPageBySlug } from "./voice-ai-industry-pages";
+
 /**
  * SEO config and schema for Ed & Sy: AI Automation Agency in Toronto
  * Title format: Primary Keyword | Ed & Sy Toronto
@@ -143,7 +147,50 @@ export const seoPages: Record<string, PageSeo> = {
 /** Get SEO for a path (e.g. from $page.url.pathname). Falls back to homepage. */
 export function getSeoForPath(pathname: string): PageSeo {
   const normalized = pathname.replace(/\/$/, "") || "/";
-  return seoPages[normalized] ?? seoPages["/"];
+  const staticPageSeo = seoPages[normalized];
+  if (staticPageSeo) {
+    return staticPageSeo;
+  }
+
+  const industryMatch = normalized.match(/^\/industries\/([^/]+)$/);
+  if (industryMatch) {
+    const industry = getIndustryBySlug(industryMatch[1]);
+    if (industry) {
+      return {
+        title: `${industry.name} AI Automation Solutions Toronto | Ed & Sy Toronto`,
+        description: `${industry.subhead} Voice AI, automation, and website & SEO built for Toronto and GTA businesses.`,
+        canonicalPath: normalized,
+      };
+    }
+  }
+
+  const voiceAiIndustryMatch = normalized.match(/^\/voice-ai-for\/([^/]+)$/);
+  if (voiceAiIndustryMatch) {
+    const voiceAiIndustryPage = getVoiceAiIndustryPageBySlug(
+      voiceAiIndustryMatch[1]
+    );
+    if (voiceAiIndustryPage) {
+      return {
+        title: voiceAiIndustryPage.title,
+        description: voiceAiIndustryPage.description,
+        canonicalPath: normalized,
+      };
+    }
+  }
+
+  const blogPostMatch = normalized.match(/^\/blog\/([^/]+)$/);
+  if (blogPostMatch) {
+    const post = getBlogPostBySlug(blogPostMatch[1]);
+    if (post) {
+      return {
+        title: `${post.title} | Ed & Sy Blog`,
+        description: post.description,
+        canonicalPath: normalized,
+      };
+    }
+  }
+
+  return seoPages["/"];
 }
 
 export function buildCanonical(path: string): string {
@@ -250,6 +297,78 @@ export function buildServiceSchema(
       url: SITE_URL,
     },
     areaServed: { "@type": "City", name: "Toronto" },
+  };
+}
+
+export function buildBlogCollectionSchema(
+  posts: ReadonlyArray<{
+    title: string;
+    slug: string;
+    description: string;
+    publishedAt: string;
+  }>
+) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    name: "Ed & Sy Blog",
+    description:
+      "Insights on Voice AI, business automation, and SEO-focused websites for Toronto and Ontario businesses.",
+    url: `${SITE_URL}/blog`,
+    blogPost: posts.map((post) => ({
+      "@type": "BlogPosting",
+      headline: post.title,
+      description: post.description,
+      url: `${SITE_URL}/blog/${post.slug}`,
+      datePublished: post.publishedAt,
+      publisher: {
+        "@type": "Organization",
+        name: "Ed & Sy Inc.",
+        url: SITE_URL,
+      },
+    })),
+  };
+}
+
+export function buildBlogPostingSchema(input: {
+  title: string;
+  description: string;
+  path: string;
+  publishedAt: string;
+  modifiedAt?: string;
+  keywords?: ReadonlyArray<string>;
+  imagePath?: string;
+}) {
+  const imagePath = input.imagePath ?? "/logo/logo%20with%20bg.png";
+  const articleUrl = input.path.startsWith("http")
+    ? input.path
+    : `${SITE_URL}${input.path}`;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: input.title,
+    description: input.description,
+    datePublished: input.publishedAt,
+    dateModified: input.modifiedAt ?? input.publishedAt,
+    mainEntityOfPage: articleUrl,
+    url: articleUrl,
+    image: `${SITE_URL}${imagePath}`,
+    keywords: input.keywords?.join(", "),
+    author: {
+      "@type": "Organization",
+      name: "Ed & Sy Inc.",
+      url: SITE_URL,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Ed & Sy Inc.",
+      url: SITE_URL,
+      logo: {
+        "@type": "ImageObject",
+        url: `${SITE_URL}/logo/logo%20with%20bg.png`,
+      },
+    },
   };
 }
 

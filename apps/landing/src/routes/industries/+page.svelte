@@ -6,14 +6,6 @@
   import { industryIcons, industryFallbackIcon } from "$lib/content/industry-icons";
 </script>
 
-<svelte:head>
-  <title>Industries We Serve | Ed & Sy | Tech Implementation & AI for Toronto Businesses</title>
-  <meta
-    name="description"
-    content="Voice AI, workflow automation & website & SEO for your industry. Healthcare, dental, construction, salons, real estate, legal, fitness and more. Toronto."
-  />
-</svelte:head>
-
 <!-- Hero - 50vh -->
 <section class="min-h-[50vh] bg-background pt-24 md:pt-28 pb-12 md:pb-16 flex flex-col">
   <div class="max-w-6xl mx-auto px-6 lg:px-8 flex-1 flex flex-col justify-center w-full">
