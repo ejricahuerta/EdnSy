@@ -75,7 +75,7 @@
       </div>
       <div class="flex items-center gap-2">
         <div class="w-2 h-2 bg-white/50 rounded-full"></div>
-        <span>Proven Results</span>
+        <span>Results-Focused</span>
       </div>
     </div>
   </div>

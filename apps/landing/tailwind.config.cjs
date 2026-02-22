@@ -17,7 +17,9 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: ["Inter", ...fontFamily.sans],
-        heading: ["Marck Script", "cursive"],
+        serif: ["Playfair Display", ...fontFamily.serif],
+        heading: ["Inter", ...fontFamily.sans], // Links use Inter for readability
+        display: ["Marck Script", "cursive"], // Using logo font for display
       },
       colors: {
         border: "hsl(var(--border))",

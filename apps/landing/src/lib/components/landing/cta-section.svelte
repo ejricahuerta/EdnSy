@@ -20,8 +20,7 @@
     </h2>
     
     <p class="text-xl sm:text-2xl text-white/80 mb-12 max-w-3xl mx-auto leading-relaxed">
-      Join home services businesses who've already automated their operations, eliminated scheduling chaos, and 
-      gained back 15+ hours per week with our n8n-powered AI solutions.
+      We help home services businesses automate operations, eliminate scheduling chaos, and reclaim 15+ hours per week with n8n-powered AI solutions. Book a free consultation to see how we can help you.
     </p>
     
     <div class="flex flex-col sm:flex-row gap-6 justify-center items-center mb-12">

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300" fill="none">
+  <!-- Replace with SVG from https://undraw.co/illustration/phone-call_ov3z (Phone Call) -->
+  <rect width="400" height="300" fill="#f8fafc" rx="8"/>
+  <g transform="translate(200 130)" fill="none" stroke="#3b82f6" stroke-width="3" stroke-linecap="round">
+    <path d="M22 16v5a4 4 0 01-4 4h-4a4 4 0 01-4-4v-5" opacity="0.6"/>
+    <rect x="-14" y="-24" width="28" height="44" rx="4" fill="#dbeafe" stroke="#3b82f6"/>
+    <circle cx="0" cy="8" r="2" fill="#3b82f6"/>
+  </g>
+  <text x="200" y="230" text-anchor="middle" fill="#94a3b8" font-family="system-ui,sans-serif" font-size="12">unDraw: Phone Call</text>
+</svg>

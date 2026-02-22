@@ -1,25 +1,11 @@
 User-agent: *
 Allow: /
 
-# Sitemap
 Sitemap: https://ednsy.com/sitemap.xml
 
-# Disallow admin and private areas
 Disallow: /admin/
 Disallow: /api/
 Disallow: /auth/
 Disallow: /logout
 Disallow: /dashboard/
 Disallow: /test-user/
-
-# Allow important pages
-Allow: /
-Allow: /login
-Allow: /demos/
-Allow: /consultation
-Allow: /privacy
-Allow: /terms
-Allow: /cookies
-
-# Crawl-delay for respectful crawling
-Crawl-delay: 1 

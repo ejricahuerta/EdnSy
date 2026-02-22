@@ -1,0 +1,111 @@
+<script lang="ts">
+  import { Button } from "$lib/components/ui/button";
+  import * as Card from "$lib/components/ui/card";
+  import * as Accordion from "$lib/components/ui/accordion";
+  import { Zap, Clock, GitBranch, Link2, Building2, HelpCircle } from "lucide-svelte";
+  import { automationPage } from "$lib/content/service-pages";
+  import { buildServiceSchema, buildFAQSchema } from "$lib/content/seo";
+
+  const sectionIcons = [Zap, Clock, GitBranch, Link2, Building2];
+
+  const serviceSchema = buildServiceSchema(
+    "Business Automation Services",
+    "Workflow and process automation for Toronto businesses, with AI when it helps. Eliminate manual admin and follow up at scale.",
+    "/business-automation-services"
+  );
+  const faqSchema = buildFAQSchema(automationPage.faq);
+</script>
+
+<svelte:head>
+  {@html `<script type="application/ld+json">${JSON.stringify(serviceSchema)}</script>`}
+  {@html `<script type="application/ld+json">${JSON.stringify(faqSchema)}</script>`}
+</svelte:head>
+
+<section class="bg-background pt-32 md:pt-36 pb-12 md:pb-16">
+  <div class="max-w-6xl mx-auto px-6 lg:px-8">
+    <h1 class="typography-h1 mb-5 text-balance">
+      Business Automation Services Toronto
+    </h1>
+    <p class="typography-lead mb-6 max-w-2xl">
+      Stop wasting hours on manual tasks. We help Toronto businesses automate workflows (invoicing, follow-ups, CRM updates, and appointment reminders), and we add AI when it helps. Reclaim 15–20+ hours per week and never drop a lead.
+    </p>
+    <Button
+      href="/contact"
+      size="lg"
+      class="bg-primary hover:bg-primary/90"
+      data-cal-link="edmel-ednsy/enable-ai"
+      data-cal-namespace="enable-ai"
+    >
+      Book a Free Strategy Call
+    </Button>
+  </div>
+</section>
+
+<section class="py-12 md:py-16 bg-muted/30">
+  <div class="max-w-6xl mx-auto px-6 lg:px-8">
+    <div class="grid grid-cols-1 gap-6 md:gap-8">
+      {#each automationPage.sections as section, i}
+        <Card.Root class="border-border bg-card h-full flex flex-col">
+          <Card.Header class="space-y-1.5">
+            <div class="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <svelte:component this={sectionIcons[i]} class="h-5 w-5" />
+            </div>
+            <Card.Title class="typography-h2">{section.heading}</Card.Title>
+          </Card.Header>
+          <Card.Content class="flex-1">
+            <p class="text-muted-foreground leading-7">{section.body}</p>
+          </Card.Content>
+        </Card.Root>
+      {/each}
+    </div>
+  </div>
+</section>
+
+<section class="py-16 md:py-24 bg-background">
+  <div class="max-w-6xl mx-auto px-6 lg:px-8">
+    <Card.Root class="border-border bg-card">
+      <Card.Header class="space-y-1.5">
+        <div class="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <HelpCircle class="h-5 w-5" />
+        </div>
+        <Card.Title class="typography-h2">Frequently Asked Questions</Card.Title>
+      </Card.Header>
+      <Card.Content>
+        <Accordion.Root type="single" class="w-full">
+          {#each automationPage.faq as item}
+            <Accordion.Item value={item.question}>
+              <Accordion.Trigger>{item.question}</Accordion.Trigger>
+              <Accordion.Content>{item.answer}</Accordion.Content>
+            </Accordion.Item>
+          {/each}
+        </Accordion.Root>
+      </Card.Content>
+    </Card.Root>
+  </div>
+</section>
+
+<section class="py-16 md:py-24 bg-muted/30">
+  <div class="max-w-6xl mx-auto px-6 lg:px-8">
+    <p class="text-muted-foreground mb-6">
+      Explore our other services: {#each automationPage.internalLinks as link}
+        <a href={link.href} class="text-primary underline">{link.label}</a>{link.href !== "/contact" ? ", " : ""}
+      {/each}
+    </p>
+    <Card.Root class="border-border bg-card max-w-2xl">
+      <Card.Header>
+        <Card.Title>Ready to automate?</Card.Title>
+        <Card.Description>Book a free strategy call. We'll map your workflows and outline a custom automation plan for your Toronto business.</Card.Description>
+      </Card.Header>
+      <Card.Footer>
+        <Button
+          href="/contact"
+          class="bg-primary hover:bg-primary/90"
+          data-cal-link="edmel-ednsy/enable-ai"
+          data-cal-namespace="enable-ai"
+        >
+          Book a Free Strategy Call
+        </Button>
+      </Card.Footer>
+    </Card.Root>
+  </div>
+</section>
