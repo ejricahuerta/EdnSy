@@ -1,5 +1,7 @@
 <script lang="ts">
   import { Shield, ArrowLeft } from "@lucide/svelte";
+  import { Button } from "$lib/components/ui/button";
+  import * as Card from "$lib/components/ui/card";
 </script>
 
 <svelte:head>
@@ -10,59 +12,55 @@
   />
 </svelte:head>
 
-<main class="min-h-screen bg-white pt-24 pb-16">
+<main class="min-h-screen bg-background pt-24 pb-16">
   <div class="container mx-auto px-4 max-w-4xl">
-    <!-- Header -->
     <div class="mb-8">
-      <a
-        href="/"
-        class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors mb-6"
-      >
+      <Button href="/" variant="link" class="text-primary gap-2 pl-0 mb-6">
         <ArrowLeft class="w-4 h-4" />
         Back to Home
-      </a>
+      </Button>
       <div class="flex items-center gap-3 mb-4">
-        <Shield class="w-8 h-8 text-blue-600" />
-        <h1 class="text-4xl font-bold text-gray-900">Privacy Policy</h1>
+        <Shield class="w-8 h-8 text-primary" />
+        <h1 class="typography-h1">Privacy Policy</h1>
       </div>
-      <p class="text-gray-600 text-lg">
+      <p class="text-muted-foreground text-lg">
         Last updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
       </p>
     </div>
-    <div class="prose prose-lg max-w-none">
+    <div class="prose prose-lg max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-li:text-muted-foreground prose-a:text-primary">
       <section class="mb-8">
-        <h2 class="text-2xl font-semibold text-gray-900 mb-4">Introduction</h2>
-        <p class="text-gray-700 leading-relaxed mb-4">
+        <h2 class="typography-h2 mb-4">Introduction</h2>
+        <p class="text-muted-foreground leading-relaxed mb-4">
           At Ed & Sy ("we," "our," or "us"), we are committed to protecting your privacy and personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website at ednsy.com or use our AI automation services for small and medium businesses.
         </p>
-        <p class="text-gray-700 leading-relaxed">
+        <p class="text-muted-foreground leading-relaxed">
           By using our services, you consent to the data practices described in this policy.
         </p>
       </section>
       <section class="mb-8">
-        <h2 class="text-2xl font-semibold text-gray-900 mb-4">Information We Collect</h2>
-        <h3 class="text-xl font-semibold text-gray-800 mb-3">Personal Information</h3>
-        <p class="text-gray-700 leading-relaxed mb-4">
+        <h2 class="typography-h2 mb-4">Information We Collect</h2>
+        <h3 class="typography-h4 mb-3">Personal Information</h3>
+        <p class="text-muted-foreground leading-relaxed mb-4">
           We may collect personally identifiable information that you voluntarily provide to us when you:
         </p>
-        <ul class="list-disc pl-6 mb-4 text-gray-700">
+        <ul class="list-disc pl-6 mb-4 text-muted-foreground">
           <li>Fill out contact forms or consultation requests</li>
           <li>Subscribe to our newsletter or updates</li>
           <li>Engage with our automation services</li>
           <li>Contact us via email, phone, or other communication methods</li>
         </ul>
-        <p class="text-gray-700 leading-relaxed mb-4">This information may include:</p>
-        <ul class="list-disc pl-6 mb-6 text-gray-700">
+        <p class="text-muted-foreground leading-relaxed mb-4">This information may include:</p>
+        <ul class="list-disc pl-6 mb-6 text-muted-foreground">
           <li>Name and contact information (email, phone number)</li>
           <li>Business information (company name, industry, size)</li>
           <li>Communication preferences</li>
           <li>Any other information you choose to provide</li>
         </ul>
-        <h3 class="text-xl font-semibold text-gray-800 mb-3">Automatically Collected Information</h3>
-        <p class="text-gray-700 leading-relaxed mb-4">
+        <h3 class="typography-h4 mb-3">Automatically Collected Information</h3>
+        <p class="text-muted-foreground leading-relaxed mb-4">
           When you visit our website, we may automatically collect certain information about your device and usage:
         </p>
-        <ul class="list-disc pl-6 mb-4 text-gray-700">
+        <ul class="list-disc pl-6 mb-4 text-muted-foreground">
           <li>IP address and browser information</li>
           <li>Pages visited and time spent on our site</li>
           <li>Referring website or source</li>
@@ -70,11 +68,11 @@
         </ul>
       </section>
       <section class="mb-8">
-        <h2 class="text-2xl font-semibold text-gray-900 mb-4">How We Use Your Information</h2>
-        <p class="text-gray-700 leading-relaxed mb-4">
+        <h2 class="typography-h2 mb-4">How We Use Your Information</h2>
+        <p class="text-muted-foreground leading-relaxed mb-4">
           We use the information we collect for the following purposes:
         </p>
-        <ul class="list-disc pl-6 mb-4 text-gray-700">
+        <ul class="list-disc pl-6 mb-4 text-muted-foreground">
           <li>To provide, operate, and maintain our automation services</li>
           <li>To respond to your inquiries and provide customer support</li>
           <li>To schedule consultations and service appointments</li>
@@ -84,11 +82,11 @@
         </ul>
       </section>
       <section class="mb-8">
-        <h2 class="text-2xl font-semibold text-gray-900 mb-4">Information Sharing and Disclosure</h2>
-        <p class="text-gray-700 leading-relaxed mb-4">
+        <h2 class="typography-h2 mb-4">Information Sharing and Disclosure</h2>
+        <p class="text-muted-foreground leading-relaxed mb-4">
           We do not sell, trade, or rent your personal information to third parties. We may share your information in the following limited circumstances:
         </p>
-        <ul class="list-disc pl-6 mb-4 text-gray-700">
+        <ul class="list-disc pl-6 mb-4 text-muted-foreground">
           <li><strong>Service Providers:</strong> With trusted third-party services that help us operate our business (e.g., email services, analytics, payment processing)</li>
           <li><strong>Legal Requirements:</strong> When required by law or to protect our rights and safety</li>
           <li><strong>Business Transfers:</strong> In connection with a merger, acquisition, or asset sale</li>
@@ -96,69 +94,72 @@
         </ul>
       </section>
       <section class="mb-8">
-        <h2 class="text-2xl font-semibold text-gray-900 mb-4">Third-Party Services</h2>
-        <p class="text-gray-700 leading-relaxed mb-4">
+        <h2 class="typography-h2 mb-4">Third-Party Services</h2>
+        <p class="text-muted-foreground leading-relaxed mb-4">
           Our automation services integrate with various third-party platforms to provide you with seamless automation. These may include:
         </p>
-        <ul class="list-disc pl-6 mb-4 text-gray-700">
+        <ul class="list-disc pl-6 mb-4 text-muted-foreground">
           <li>Google Services (Calendar, Gmail, Sheets)</li>
+          <li>Notion</li>
+          <li>Cal.com</li>
           <li>WhatsApp Business</li>
           <li>Telegram</li>
-          <li>Notion</li>
           <li>N8N workflow automation</li>
-          <li>Other business tools as requested by clients</li>
+          <li>Other apps that provide APIs, as requested by clients</li>
         </ul>
-        <p class="text-gray-700 leading-relaxed">
+        <p class="text-muted-foreground leading-relaxed">
           When you choose to integrate these services, you are subject to their respective privacy policies and terms of service.
         </p>
       </section>
       <section class="mb-8">
-        <h2 class="text-2xl font-semibold text-gray-900 mb-4">Data Security</h2>
-        <p class="text-gray-700 leading-relaxed mb-4">
+        <h2 class="typography-h2 mb-4">Data Security</h2>
+        <p class="text-muted-foreground leading-relaxed mb-4">
           We implement appropriate technical and organizational security measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction. However, no internet transmission or electronic storage is 100% secure.
         </p>
       </section>
       <section class="mb-8">
-        <h2 class="text-2xl font-semibold text-gray-900 mb-4">Your Rights and Choices</h2>
-        <p class="text-gray-700 leading-relaxed mb-4">
+        <h2 class="typography-h2 mb-4">Your Rights and Choices</h2>
+        <p class="text-muted-foreground leading-relaxed mb-4">
           You have the following rights regarding your personal information:
         </p>
-        <ul class="list-disc pl-6 mb-4 text-gray-700">
+        <ul class="list-disc pl-6 mb-4 text-muted-foreground">
           <li><strong>Access:</strong> Request a copy of the personal information we have about you</li>
           <li><strong>Correction:</strong> Request that we correct or update inaccurate information</li>
           <li><strong>Deletion:</strong> Request that we delete your personal information</li>
           <li><strong>Opt-out:</strong> Unsubscribe from marketing communications at any time</li>
         </ul>
-        <p class="text-gray-700 leading-relaxed">
-          To exercise these rights, please contact us at <a href="mailto:hello@ednsy.com" class="text-blue-600 hover:text-blue-700">hello@ednsy.com</a>.
+        <p class="text-muted-foreground leading-relaxed">
+          To exercise these rights, please contact us at <a href="mailto:hello@ednsy.com" class="text-primary hover:underline">hello@ednsy.com</a>.
         </p>
       </section>
       <section class="mb-8">
-        <h2 class="text-2xl font-semibold text-gray-900 mb-4">Cookies and Analytics</h2>
-        <p class="text-gray-700 leading-relaxed mb-4">
+        <h2 class="typography-h2 mb-4">Cookies and Analytics</h2>
+        <p class="text-muted-foreground leading-relaxed mb-4">
           We use cookies and similar tracking technologies to enhance your experience on our website. We also use analytics services like PostHog to understand how visitors interact with our site.
         </p>
-        <p class="text-gray-700 leading-relaxed">
-          For more information about our use of cookies, please see our <a href="/cookies" class="text-blue-600 hover:text-blue-700">Cookie Policy</a>.
+        <p class="text-muted-foreground leading-relaxed">
+          For more information about our use of cookies, please see our <a href="/cookies" class="text-primary hover:underline">Cookie Policy</a>.
         </p>
       </section>
       <section class="mb-8">
-        <h2 class="text-2xl font-semibold text-gray-900 mb-4">Changes to This Privacy Policy</h2>
-        <p class="text-gray-700 leading-relaxed">
+        <h2 class="typography-h2 mb-4">Changes to This Privacy Policy</h2>
+        <p class="text-muted-foreground leading-relaxed">
           We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last updated" date. We encourage you to review this Privacy Policy periodically for any changes.
         </p>
       </section>
       <section class="mb-8">
-        <h2 class="text-2xl font-semibent text-gray-900 mb-4">Contact Us</h2>
-        <p class="text-gray-700 leading-relaxed mb-4">
+        <h2 class="typography-h2 mb-4">Contact Us</h2>
+        <p class="text-muted-foreground leading-relaxed mb-4">
           If you have any questions about this Privacy Policy or our privacy practices, please contact us:
         </p>
-        <div class="bg-gray-50 p-6 rounded-lg">
-          <p class="text-gray-700 mb-2"><strong>Ed & Sy</strong></p>
-          <p class="text-gray-700 mb-2">Email: <a href="mailto:hello@ednsy.com" class="text-blue-600 hover:text-blue-700">hello@ednsy.com</a></p>
-          <p class="text-gray-700 mb-2">Website: <a href="https://ednsy.com" class="text-blue-600 hover:text-blue-700">ednsy.com</a></p>
-          <p class="text-gray-700">Location: Toronto, Ontario, Canada</p>
-        </div>
+        <Card.Root class="bg-muted/50">
+          <Card.Content class="pt-6">
+            <p class="text-muted-foreground mb-2"><strong class="text-foreground">Ed & Sy</strong></p>
+            <p class="text-muted-foreground mb-2">Email: <a href="mailto:hello@ednsy.com" class="text-primary hover:underline">hello@ednsy.com</a></p>
+            <p class="text-muted-foreground mb-2">Website: <a href="https://ednsy.com" class="text-primary hover:underline">ednsy.com</a></p>
+            <p class="text-muted-foreground">Location: Toronto, Ontario, Canada</p>
+          </Card.Content>
+        </Card.Root>
       </section>
     </div>
   </div>

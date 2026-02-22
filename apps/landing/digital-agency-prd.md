@@ -5,6 +5,7 @@
 **Project**: Website overhaul and pivot to full-service digital agency
 **Timeline**: 4-6 weeks development
 **Primary Goal**: Position Ed & Sy as a premium digital agency specializing in time-saving solutions
+**Current State**: Early-stage agency with **1 client** to date. Content and social proof should reflect this honestly while positioning for growth.
 
 ## 1. Business Objectives
 
@@ -120,9 +121,9 @@ Home
    - Voice AI Assistants prominently featured
 
 3. **Social Proof**
-   - "Join 150+ business owners who got their evenings back"
-   - Time-savings testimonials
-   - Before/after metrics
+   - Lead with the one strong client story (problem → solution → time saved)
+   - Single testimonial/quote; avoid inflated numbers (e.g. no "150+ business owners")
+   - Optional: "Helping Toronto business owners get their time back" (honest, no fake scale)
 
 4. **The Ed & Sy Difference**
    - "Two Toronto locals who understand the hustle"
@@ -146,10 +147,10 @@ Home
 
 #### Case Studies Page
 **Format:** Problem → Solution → Time Saved → Results
-- Minimum 3 detailed case studies
-- Focus on hours saved and business impact
-- Include client testimonials
-- Industry diversity (service, retail, professional)
+- **Launch**: 1 detailed case study (current client). Structure the page so adding more later is easy.
+- Focus on hours saved and business impact for that project
+- Single client testimonial; expand as new clients complete projects
+- Plan for industry diversity (service, retail, professional) as the client list grows
 
 #### About Page
 **Content:**
@@ -184,8 +185,8 @@ Home
 - Animated time-saving counters
 - Progress bars showing automation levels
 - Interactive service comparison tools
-- Video testimonials (30-60 seconds)
-- Screenshots of AI tools in action
+- One strong testimonial (quote or short video if client agrees)
+- Screenshots of AI tools in action (from current project where appropriate)
 
 ## 7. Technical Requirements
 
@@ -265,7 +266,7 @@ Home
 - Initial content creation
 
 ### Phase 2: Content & Optimization (Weeks 5-8)
-- Case study creation
+- Single case study from current client; document process for adding more
 - Blog content development
 - Advanced SEO implementation
 - Performance optimization
@@ -278,8 +279,10 @@ Home
 
 ## 11. Success Metrics & KPIs
 
+*Metrics below are growth targets. With 1 client today, prioritize building the pipeline and improving conversion over hitting these numbers in month one.*
+
 ### Primary Metrics
-- **Consultation Bookings**: Target 20-30/month
+- **Consultation Bookings**: Target 20-30/month (ramp up from current baseline)
 - **Conversion Rate**: 15% visitor-to-consultation
 - **Average Project Value**: Increase by 25%
 - **Time on Site**: >2 minutes average

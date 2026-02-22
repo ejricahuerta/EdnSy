@@ -1,11 +1,11 @@
 <script>
   import { Button } from "$lib/components/ui/button";
-  import { ChevronLeft, ChevronRight, Star, Wrench, Calendar, MessageSquare } from "lucide-svelte";
+  import { Star, Wrench, Calendar, MessageSquare } from "lucide-svelte";
   import * as Avatar from "$lib/components/ui/avatar";
   import { AvatarImage, AvatarFallback } from "$lib/components/ui/avatar";
 
-  export let title = "See AI Automation Transform Home Services";
-  export let subtitle = "Real Results from Real Home Services Businesses";
+  export let title = "What Our Client Says";
+  export let subtitle = "Real results from a Toronto business we've helped.";
   export let testimonial = {
     name: "Maria Rodriguez",
     role: "Owner & Operator",
@@ -51,15 +51,6 @@
         {subtitle}
       </p>
       
-      <!-- Navigation arrows -->
-      <div class="flex justify-center gap-4">
-        <button class="w-14 h-14 bg-slate-800/50 hover:bg-slate-700/50 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 border border-slate-700/50 hover:border-slate-600/50">
-          <ChevronLeft class="w-7 h-7 text-white" />
-        </button>
-        <button class="w-14 h-14 bg-slate-800/50 hover:bg-slate-700/50 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 border border-slate-700/50 hover:border-slate-600/50">
-          <ChevronRight class="w-7 h-7 text-white" />
-        </button>
-      </div>
     </div>
     
     <!-- Testimonial Card -->
@@ -116,7 +107,7 @@
     <!-- n8n Workflow Preview -->
     <div class="text-center">
       <h3 class="font-display text-3xl font-bold text-white mb-8">
-        See the n8n Workflow Behind Maria's Success
+        See the n8n Workflow Behind This Success
       </h3>
       
       <div class="max-w-4xl mx-auto">

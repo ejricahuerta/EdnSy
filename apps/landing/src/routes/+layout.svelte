@@ -7,14 +7,23 @@
   import { browser } from "$app/environment";
   import { beforeNavigate, afterNavigate } from "$app/navigation";
   import { page } from "$app/stores";
+  import { Button } from "$lib/components/ui/button";
   import * as Sidebar from "$lib/components/ui/sidebar/index.js";
+  import * as Sheet from "$lib/components/ui/sheet/index.js";
   import ContentHeader from "$lib/components/app/content/header.svelte";
   import SidebarLayout from "$lib/components/app/sidebar/layout.svelte";
   import type { LayoutData } from "./$types";
+  import { getSeoForPath, buildCanonical, buildOrganizationSchema, buildLocalBusinessSchema } from "$lib/content/seo";
+  import { Menu } from "lucide-svelte";
 
   let { children } = $props<{ data: LayoutData }>();
   let scrolled = $state(false);
   let isAnimating = $state(false);
+  let mobileNavOpen = $state(false);
+
+  const seo = $derived(getSeoForPath($page.url.pathname));
+  const organizationSchema = buildOrganizationSchema();
+  const localBusinessSchema = buildLocalBusinessSchema();
 
 
   // Animate wave emoji every 5 seconds
@@ -52,116 +61,125 @@
 
   if (browser && posthogApiKey) {
     beforeNavigate(() => posthog.capture("$pageleave"));
-    afterNavigate(() => posthog.capture("$pageview"));
+    afterNavigate(() => {
+      posthog.capture("$pageview");
+      mobileNavOpen = false;
+    });
   }
+
+  // Close mobile nav when route changes after clicking a link in the sheet
+  let prevPathname = $state("");
+  $effect(() => {
+    const pathname = $page.url.pathname;
+    if (browser && prevPathname && prevPathname !== pathname) {
+      mobileNavOpen = false;
+    }
+    prevPathname = pathname;
+  });
 </script>
 
 
 <svelte:head>
-  <title>Get Your Time Back with AI-Powered Digital Solutions | Ed & Sy Digital Agency</title>
-  <meta
-    name="description"
-    content="Toronto digital agency helping business owners reclaim 15-20 hours weekly. Voice AI Assistants, Workflow Automation, Website Development & more. Free 30-minute consultation available."
-  />
-  <meta
-    name="keywords"
-    content="digital agency Toronto, tech implementation partner, voice AI assistants, workflow automation, website development, time saving solutions, business automation, chatbots, SEO services, Toronto business automation"
-  />
+  <title>{seo.title}</title>
+  <meta name="description" content={seo.description} />
+  <meta name="keywords" content="Voice AI Toronto, business automation Toronto, website design Toronto, SEO Toronto, website and SEO, AI automation Toronto, Ed & Sy" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta
-    property="og:title"
-    content="Get Your Time Back with AI-Powered Digital Solutions | Ed & Sy"
-  />
-  <meta
-    property="og:description"
-    content="Toronto digital agency helping business owners reclaim 15-20 hours weekly. Voice AI Assistants, Workflow Automation & more. Free consultation."
-  />
+  <meta property="og:title" content={seo.title} />
+  <meta property="og:description" content={seo.description} />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://ednsy.com" />
-  <meta property="og:image" content="/logo/logo with bg.png" />
+  <meta property="og:url" content={buildCanonical(seo.canonicalPath)} />
+  <meta property="og:image" content="https://ednsy.com/logo/logo%20with%20bg.png" />
+  <meta property="og:site_name" content="Ed & Sy" />
+  <meta property="og:locale" content="en_CA" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta
-    name="twitter:title"
-    content="Get Your Time Back with AI-Powered Digital Solutions | Ed & Sy"
-  />
-  <meta
-    name="twitter:description"
-    content="Toronto digital agency helping business owners reclaim 15-20 hours weekly. Voice AI Assistants, Workflow Automation & more. Free consultation."
-  />
-  <meta name="twitter:image" content="/logo/logo with bg.png" />
-  <link rel="canonical" href="https://ednsy.com" />
+  <meta name="twitter:title" content={seo.title} />
+  <meta name="twitter:description" content={seo.description} />
+  <meta name="twitter:image" content="https://ednsy.com/logo/logo%20with%20bg.png" />
+  <link rel="canonical" href={buildCanonical(seo.canonicalPath)} />
   <link rel="icon" href="/logo/logo icon.png" />
   <link rel="apple-touch-icon" href="/logo/logo icon.png" />
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Marck+Script&display=swap" rel="stylesheet" />
-  <!-- Social profile links for SEO -->
   <link rel="me" href="https://www.instagram.com/dev.exd/" />
   <link rel="me" href="https://www.linkedin.com/in/syronsuerte/" />
-  
-  <!-- Cal.com element-click embed script -->
   <script src="/lib/cal-embed.js"></script>
-  <!-- JSON-LD Structured Data for LocalBusiness/Organization -->
-  <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "LocalBusiness",
-      "name": "Ed & Sy Digital Agency",
-      "url": "https://ednsy.com",
-      "logo": "https://ednsy.com/logo/logo with bg.png",
-      "image": "https://ednsy.com/logo/logo with bg.png",
-      "description": "Ed & Sy is a Toronto digital agency helping business owners reclaim 15-20 hours weekly through AI-powered solutions. We specialize in Voice AI Assistants, Workflow Automation, Website Development, SEO Services, and Chatbots for growing businesses.",
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": "Toronto",
-        "addressRegion": "ON",
-        "addressCountry": "CA"
-      },
-      "contactPoint": [
-        {
-          "@type": "ContactPoint",
-          "email": "hello@ednsy.com",
-          "contactType": "customer support",
-          "areaServed": "CA"
-        }
-      ],
-      "sameAs": [
-        "https://www.instagram.com/dev.exd/",
-        "https://www.linkedin.com/in/syronsuerte/"
-      ]
-    }
-  </script>
+  {@html `<script type="application/ld+json">${JSON.stringify(organizationSchema)}</script>`}
+  {@html `<script type="application/ld+json">${JSON.stringify(localBusinessSchema)}</script>`}
 </svelte:head>
 
-<!-- NAVIGATION BAR - Only show on landing page and non-demo pages -->
+<!-- NAVIGATION BAR - Collapses to hamburger menu on mobile -->
 {#if $page.url.pathname === "/" || (!$page.url.pathname.startsWith("/demos"))}
-  <nav
-    class="fixed top-0 z-50 w-full mx-auto transition-all duration-300 {scrolled
-      ? 'bg-white/50 backdrop-blur-md border-b border-white/10 shadow-sm'
-      : 'bg-transparent border-transparent'}"
-  >
-         <div class="mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-16 py-3 md:py-4 min-h-[60px] md:min-h-[70px]">
-        <a href="/" class="flex items-center font-heading justify-start flex-1">
-          <img 
-            src="/logo/logo.png" 
-            alt="Ed & Sy" 
-            class="h-16 md:h-16 w-auto transition-all duration-300 {scrolled ? '' : 'brightness-0 invert'}"
-          />
-        </a>
-             <div class="flex items-center gap-2 md:gap-4">
-            <button
-              data-cal-link="edmel-ednsy/enable-ai"
-              data-cal-namespace="enable-ai"
-              data-cal-config={JSON.stringify({layout: "month_view"})}
-              class="flex items-center gap-1 md:gap-2 {scrolled ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600' : 'bg-blue-600/90 backdrop-blur-sm hover:bg-blue-700 text-white border-blue-600/90'} px-2 md:px-4 py-2 rounded-lg font-medium transition-all duration-200 border"
-            >
-              <Calendar class="w-4 h-4" />
-              <span class="hidden sm:inline">Contact Us</span>
-            </button>
-       </div>
+  <header class="fixed top-0 z-50 w-full bg-background border-b border-border transition-all duration-300" role="banner">
+    <div class="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 sm:py-4 min-h-[56px] sm:min-h-[60px]">
+      <a href="/" class="flex items-center shrink-0" aria-label="Ed & Sy home">
+        <img src="/logo/logo.png" alt="Ed & Sy" class="h-10 w-auto sm:h-12" width="120" height="40" />
+      </a>
+
+      <!-- Desktop nav: visible from lg up -->
+      <nav class="hidden lg:flex items-center gap-6 xl:gap-8" aria-label="Main navigation">
+        <Button href="/voice-ai-for-business" variant="link" class="text-primary font-heading p-0 h-auto text-sm xl:text-base">Voice AI</Button>
+        <Button href="/business-automation-services" variant="link" class="text-primary font-heading p-0 h-auto text-sm xl:text-base">Automation</Button>
+        <Button href="/website-design-toronto" variant="link" class="text-primary font-heading p-0 h-auto text-sm xl:text-base">Website & SEO</Button>
+        <Button href="/industries" variant="link" class="text-primary font-heading p-0 h-auto text-sm xl:text-base">Industries</Button>
+        <Button href="/process" variant="link" class="text-primary font-heading p-0 h-auto text-sm xl:text-base">Process</Button>
+        <Button href="/about" variant="link" class="text-primary font-heading p-0 h-auto text-sm xl:text-base">About</Button>
+        <Button href="/contact" variant="link" class="text-primary font-heading p-0 h-auto text-sm xl:text-base">Contact</Button>
+        <Button
+          href="/contact"
+          class="text-sm xl:text-base"
+          data-cal-link="edmel-ednsy/enable-ai"
+          data-cal-namespace="enable-ai"
+          data-cal-config={JSON.stringify({ layout: "month_view" })}
+        >
+          Book a Call
+        </Button>
+      </nav>
+
+      <!-- Mobile: hamburger button -->
+      <div class="flex lg:hidden items-center">
+        <button
+          type="button"
+          class="inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-md text-foreground hover:bg-muted active:bg-muted/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          aria-label="Open menu"
+          aria-expanded={mobileNavOpen}
+          aria-controls="mobile-nav-sheet"
+          onclick={() => (mobileNavOpen = true)}
+        >
+          <Menu class="size-6" aria-hidden="true" />
+        </button>
+      </div>
     </div>
-  </nav>
+  </header>
+
+  <!-- Mobile nav sheet -->
+  <Sheet.Root bind:open={mobileNavOpen}>
+    <Sheet.Content side="right" id="mobile-nav-sheet" class="w-[min(100vw-2rem,320px)] sm:max-w-sm flex flex-col pt-14 pb-6 px-4">
+      <Sheet.Header class="sr-only">
+        <Sheet.Title>Menu</Sheet.Title>
+      </Sheet.Header>
+      <nav class="flex flex-col gap-1" aria-label="Mobile navigation">
+        <Button href="/voice-ai-for-business" variant="ghost" class="justify-start h-11 text-base font-heading">Voice AI</Button>
+        <Button href="/business-automation-services" variant="ghost" class="justify-start h-11 text-base font-heading">Automation</Button>
+        <Button href="/website-design-toronto" variant="ghost" class="justify-start h-11 text-base font-heading">Website & SEO</Button>
+        <Button href="/industries" variant="ghost" class="justify-start h-11 text-base font-heading">Industries</Button>
+        <Button href="/process" variant="ghost" class="justify-start h-11 text-base font-heading">Process</Button>
+        <Button href="/about" variant="ghost" class="justify-start h-11 text-base font-heading">About</Button>
+        <Button href="/contact" variant="ghost" class="justify-start h-11 text-base font-heading">Contact</Button>
+      </nav>
+      <div class="mt-4 pt-4 border-t border-border">
+        <Button
+          href="/contact"
+          class="w-full"
+          data-cal-link="edmel-ednsy/enable-ai"
+          data-cal-namespace="enable-ai"
+          data-cal-config={JSON.stringify({ layout: "month_view" })}
+        >
+          Book a Call
+        </Button>
+      </div>
+    </Sheet.Content>
+  </Sheet.Root>
 {/if}
 
 {#if $page.url.pathname.startsWith("/demos")}
@@ -182,168 +200,61 @@
   {@render children()}
 
   {#if $page.url.pathname !== "/demos"}
-         <!-- FOOTER -->
-     <footer class="bg-slate-900 text-white">
-       <div class="max-w-6xl mx-auto px-6 sm:px-16 py-16">
-                   <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <!-- Company Info -->
-            <div class="space-y-4">
-               <div class="flex items-center gap-3">
-                 <a href="/" class="flex items-center">
-                   <img 
-                     src="/logo/logo.png" 
-                     alt="Ed & Sy" 
-                     class="h-12 md:h-16 w-auto brightness-0 invert"
-                   />
-                 </a>
-               </div>
-              <p class="text-white/70 text-sm leading-relaxed">
-                Toronto digital agency helping business owners reclaim 15-20 hours weekly through AI-powered solutions.
-              </p>
-            </div>
-
-                          <!-- Solutions -->
-              <div class="space-y-4">
-                <h3 class="font-semibold text-white">Solutions</h3>
-                <ul class="space-y-2 text-sm">
-                  <li class="flex items-center gap-2">
-                    <Headphones class="w-4 h-4 text-blue-400" />
-                    <button
-                      data-cal-link="edmel-ednsy/enable-ai"
-                      data-cal-namespace="enable-ai"
-                      data-cal-config={JSON.stringify({layout: "month_view"})}
-                      class="text-white/70 hover:text-white transition-colors cursor-pointer"
-                    >
-                      Voice AI Business Growth
-                    </button>
-                  </li>
-                  <li class="flex items-center gap-2">
-                    <Workflow class="w-4 h-4 text-blue-400" />
-                    <button
-                      data-cal-link="edmel-ednsy/enable-ai"
-                      data-cal-namespace="enable-ai"
-                      data-cal-config={JSON.stringify({layout: "month_view"})}
-                      class="text-white/70 hover:text-white transition-colors cursor-pointer"
-                    >
-                      Workflow Freedom Package
-                    </button>
-                  </li>
-                  <li class="flex items-center gap-2">
-                    <Smartphone class="w-4 h-4 text-blue-400" />
-                    <button
-                      data-cal-link="edmel-ednsy/enable-ai"
-                      data-cal-namespace="enable-ai"
-                      data-cal-config={JSON.stringify({layout: "month_view"})}
-                      class="text-white/70 hover:text-white transition-colors cursor-pointer"
-                    >
-                      High-Converting Websites
-                    </button>
-                  </li>
-                </ul>
-              </div>
-
-            <!-- Industries -->
-            <div class="space-y-4">
-              <h3 class="font-semibold text-white">Industries</h3>
-              <ul class="space-y-2 text-sm">
-                <li class="flex items-center gap-2">
-                  <Heart class="w-4 h-4 text-blue-400" />
-                  <span class="text-white/70">Healthcare</span>
-                </li>
-                <li class="flex items-center gap-2">
-                  <Briefcase class="w-4 h-4 text-blue-400" />
-                  <span class="text-white/70">Professional Services</span>
-                </li>
-                <li class="flex items-center gap-2">
-                  <ShoppingCart class="w-4 h-4 text-blue-400" />
-                  <span class="text-white/70">Retail & E-commerce</span>
-                </li>
-                <li class="flex items-center gap-2">
-                  <Home class="w-4 h-4 text-blue-400" />
-                  <span class="text-white/70">Real Estate</span>
-                </li>
-                <li class="flex items-center gap-2">
-                  <Factory class="w-4 h-4 text-blue-400" />
-                  <span class="text-white/70">Manufacturing</span>
-                </li>
-                <li class="flex items-center gap-2">
-                  <Utensils class="w-4 h-4 text-blue-400" />
-                  <span class="text-white/70">Food & Hospitality</span>
-                </li>
-              </ul>
-            </div>
-
-            <!-- Legal -->
-            <div class="space-y-4">
-              <h3 class="font-semibold text-white">Legal</h3>
-              <ul class="space-y-2 text-sm">
-                <li>
-                  <a href="/privacy" class="text-white/70 hover:text-white transition-colors">
-                    Privacy Policy
-                  </a>
-                </li>
-                <li>
-                  <a href="/terms" class="text-white/70 hover:text-white transition-colors">
-                    Terms of Service
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <!-- Bottom Bar -->
-          <div class="border-t border-white/10 mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center">
-            <p class="text-white/60 text-sm">© 2025 Ed & Sy. All rights reserved.</p>
-            <div class="flex items-center gap-4 mt-4 sm:mt-0">
-              <a
-                href="https://www.tiktok.com/@ed.n.sy"
-                class="flex items-center gap-2 text-white/60 hover:text-white transition-colors text-sm"
-                target="_blank"
-                rel="noopener"
-              >
-                <MessageCircle class="w-4 h-4" />
-                TikTok
-              </a>
-              <a
-                href="https://www.instagram.com/ed.n.sy"
-                class="flex items-center gap-2 text-white/60 hover:text-white transition-colors text-sm"
-                target="_blank"
-                rel="noopener"
-              >
-                <Instagram class="w-4 h-4" />
-                Instagram
-              </a>
-              <a
-                href="https://www.youtube.com/@ed.n.sy"
-                class="flex items-center gap-2 text-white/60 hover:text-white transition-colors text-sm"
-                target="_blank"
-                rel="noopener"
-              >
-                <Youtube class="w-4 h-4" />
-                YouTube
-              </a>
-              <a
-                href="https://www.linkedin.com/in/syronsuerte/"
-                class="flex items-center gap-2 text-white/60 hover:text-white transition-colors text-sm"
-                target="_blank"
-                rel="noopener"
-              >
-                <Linkedin class="w-4 h-4" />
-                LinkedIn
-              </a>
-            </div>
-          </div>
-       </div>
-     </footer>
+  <!-- FOOTER - Local SEO: Ed & Sy, Toronto Ontario, contact -->
+  <footer class="bg-background border-t border-border py-12 md:py-16">
+    <div class="max-w-6xl mx-auto px-6 lg:px-8">
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12">
+        <div class="lg:col-span-1">
+          <p class="typography-h3 mb-2">Ed & Sy</p>
+          <p class="text-sm text-muted-foreground">Toronto, Ontario</p>
+          <a href="mailto:hello@ednsy.com" class="text-sm text-primary underline mt-1 block">hello@ednsy.com</a>
+          <p class="text-sm text-muted-foreground mt-2">Ed & Sy Inc. — Toronto AI Automation Agency. Voice AI & Automation Experts in Ontario.</p>
+        </div>
+        <div>
+          <p class="text-sm font-semibold mb-3 text-foreground">Company</p>
+          <ul class="space-y-2">
+            <li><Button href="/about" variant="link" class="text-primary p-0 h-auto font-heading">About</Button></li>
+            <li><Button href="/industries" variant="link" class="text-primary p-0 h-auto font-heading">Industries</Button></li>
+            <li><Button href="/process" variant="link" class="text-primary p-0 h-auto font-heading">Process</Button></li>
+            <li><Button href="/case-studies" variant="link" class="text-primary p-0 h-auto font-heading">Case Studies</Button></li>
+            <li><Button href="/blog" variant="link" class="text-primary p-0 h-auto font-heading">Blog</Button></li>
+            <li><Button href="/contact" variant="link" class="text-primary p-0 h-auto font-heading">Contact</Button></li>
+          </ul>
+        </div>
+        <div>
+          <p class="text-sm font-semibold mb-3 text-foreground">Services</p>
+          <ul class="space-y-2">
+            <li><Button href="/voice-ai-for-business" variant="link" class="text-primary p-0 h-auto font-heading">Voice AI</Button></li>
+            <li><Button href="/business-automation-services" variant="link" class="text-primary p-0 h-auto font-heading">Business Automation</Button></li>
+            <li><Button href="/website-design-toronto" variant="link" class="text-primary p-0 h-auto font-heading">Website & SEO</Button></li>
+            <li><Button href="/toronto-voice-ai" variant="link" class="text-primary p-0 h-auto font-heading">Toronto Voice AI</Button></li>
+            <li><Button href="/toronto-automation-agency" variant="link" class="text-primary p-0 h-auto font-heading">Toronto Automation</Button></li>
+            <li><Button href="/ontario-ai-automation" variant="link" class="text-primary p-0 h-auto font-heading">Ontario AI Automation</Button></li>
+          </ul>
+        </div>
+        <div>
+          <p class="text-sm font-semibold mb-3 text-foreground">Legal</p>
+          <ul class="space-y-2">
+            <li><Button href="/privacy" variant="link" class="text-primary p-0 h-auto font-heading">Privacy</Button></li>
+            <li><Button href="/terms" variant="link" class="text-primary p-0 h-auto font-heading">Terms</Button></li>
+            <li><Button href="/cookies" variant="link" class="text-primary p-0 h-auto font-heading">Cookies</Button></li>
+          </ul>
+        </div>
+      </div>
+      <p class="text-sm text-muted-foreground mt-12">© 2026 Ed & Sy. All rights reserved.</p>
+    </div>
+  </footer>
     <button
+      type="button"
       data-tally-open="3NQ6pB"
       data-tally-overlay="1"
       data-tally-emoji-text="👋"
       data-tally-emoji-animation="wave"
       data-tally-auto-close="3000"
-      class="fixed bottom-6 right-6 z-50 bg-white text-blue-700  border-1 border-white/10 text-lg font-bold px-6 py-4 rounded-full shadow-xl hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-300 cursor-pointer"
-      >Hi!<span class={isAnimating ? 'animate-bounce' : ''}>👋</span></button
+      class="fixed bottom-6 right-6 z-50 bg-background text-primary border border-border text-lg font-bold px-6 py-4 rounded-full shadow-xl hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-300 cursor-pointer"
     >
+      Hi!<span class={isAnimating ? 'animate-bounce' : ''}>👋</span>
+    </button>
   {/if}
 {/if}
 

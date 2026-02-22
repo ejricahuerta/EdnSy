@@ -1,35 +1,20 @@
 <script>
   import { Button } from "$lib/components/ui/button";
-  import { Paperclip, MessageCircle, ArrowRight, Wrench, Calendar, Users, Zap } from "lucide-svelte";
+  import { MessageCircle, ArrowRight, Wrench, Calendar, Users } from "lucide-svelte";
 
-  export let title = "Real Business Owners, Real Results";
-  export let subtitle = "See How We Help Different Businesses";
-  export let description = "Meet some of the business owners we've helped get their time back. Different industries, same problem: too much manual work, not enough hours in the day.";
+  export let title = "How We Help Business Owners Get Their Time Back";
+  export let subtitle = "One Client, Real Results";
+  export let description = "See how we helped a Toronto business reclaim their time. Same problem many face: too much manual work, not enough hours in the day.";
   
+  // Single client story: replace with your real client details when ready
   const heroStories = [
     {
-      name: "Sarah",
-      role: "Restaurant Owner",
-      problem: "Spent 15 hours/week on reservations and customer calls",
-      solution: "Voice AI now handles bookings and questions 24/7",
-      icon: Calendar,
+      name: "Our client",
+      role: "Home services",
+      problem: "Spent hours each week on scheduling, follow-ups, and customer calls.",
+      solution: "AI-powered workflows now handle scheduling and customer follow-ups so they can focus on running the business.",
+      icon: Wrench,
       color: "blue"
-    },
-    {
-      name: "Marcus", 
-      role: "E-commerce Store Owner",
-      problem: "Drowning in order updates and customer support",
-      solution: "Automated workflows handle 80% of routine tasks",
-      icon: Zap,
-      color: "emerald"
-    },
-    {
-      name: "Dr. Lisa",
-      role: "Dental Practice Owner",
-      problem: "Lost appointments due to manual scheduling chaos",
-      solution: "AI handles appointment booking and patient reminders",
-      icon: Users,
-      color: "purple"
     }
   ];
 </script>
@@ -40,7 +25,7 @@
     <div class="text-center mb-20">
       <div class="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm font-semibold mb-6">
         <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
-        Success Stories
+        Client Story
       </div>
       
       <h2 class="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 leading-tight mb-6">
@@ -58,7 +43,7 @@
         <div class="group">
           <div class="bg-white rounded-3xl p-8 border border-slate-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
             <!-- Icon -->
-            <div class="w-16 h-16 bg-gradient-to-br from-{story.color}-500 to-{story.color === 'blue' ? 'emerald' : story.color === 'emerald' ? 'blue' : 'emerald'}-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+            <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-emerald-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
               <svelte:component this={story.icon} class="w-8 h-8 text-white" />
             </div>
             
@@ -90,9 +75,9 @@
             <Button 
               variant="outline" 
               size="sm" 
-              class="w-full border-slate-200 text-slate-700 hover:bg-slate-50 group-hover:border-{story.color}-300 group-hover:text-{story.color}-700 transition-all duration-300"
+              class="w-full border-slate-200 text-slate-700 hover:bg-slate-50 group-hover:border-blue-300 group-hover:text-blue-700 transition-all duration-300"
             >
-              See {story.name}'s Demo
+              See how it works
               <ArrowRight class="w-4 h-4 ml-2" />
             </Button>
           </div>
