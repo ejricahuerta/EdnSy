@@ -3,17 +3,14 @@
   import * as Card from "$lib/components/ui/card";
   import { Check } from "lucide-svelte";
   import { getIndustryIcon } from "$lib/content/industry-icons";
+  import { getVoiceAiIndustryPageBySlug } from "$lib/content/voice-ai-industry-pages";
   import type { PageData } from "./$types";
 
   let { data }: { data: PageData } = $props();
   const industry = data.industry;
   const IndustryIcon = getIndustryIcon(industry.slug);
+  const voiceAiIndustryPage = getVoiceAiIndustryPageBySlug(industry.slug);
 </script>
-
-<svelte:head>
-  <title>{industry.name} | Ed & Sy | Tech Implementation & AI for Toronto Businesses</title>
-  <meta name="description" content={industry.subhead} />
-</svelte:head>
 
 <!-- Hero - same 100vh pattern as main landing -->
 <section class="min-h-[75vh] bg-background pt-24 md:pt-28 pb-20 md:pb-28 flex flex-col">
@@ -140,15 +137,22 @@
         </Card.Description>
       </Card.Header>
       <Card.Footer class="flex justify-center pt-6 pb-6">
-        <Button
-          href="/#contact"
-          size="lg"
-          class="bg-primary hover:bg-primary/90"
-          data-cal-link="edmel-ednsy/enable-ai"
-          data-cal-namespace="enable-ai"
-        >
-          Book Your Free Consultation
-        </Button>
+        <div class="flex flex-wrap justify-center gap-3">
+          <Button
+            href="/#contact"
+            size="lg"
+            class="bg-primary hover:bg-primary/90"
+            data-cal-link="edmel-ednsy/enable-ai"
+            data-cal-namespace="enable-ai"
+          >
+            Book Your Free Consultation
+          </Button>
+          {#if voiceAiIndustryPage}
+            <Button href={`/voice-ai-for/${voiceAiIndustryPage.slug}`} size="lg" variant="outline">
+              View Voice AI page
+            </Button>
+          {/if}
+        </div>
       </Card.Footer>
     </Card.Root>
     <p class="text-sm text-muted-foreground mt-4">No commitment required • 30-minute call • Custom roadmap included</p>
