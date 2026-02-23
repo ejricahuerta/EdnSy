@@ -6,7 +6,7 @@
 
   const localSchema = buildLocalBusinessSchema();
 
-  const serviceAreas = ["Toronto", "Greater Toronto Area (GTA)", "Mississauga", "Brampton", "Vaughan", "Markham", "Ontario"];
+  const serviceAreas = ["Toronto", "Greater Toronto Area (GTA)", "Mississauga", "Newmarket", "Scarborough", "Vaughan", "Markham", "Ontario"];
 </script>
 
 <svelte:head>

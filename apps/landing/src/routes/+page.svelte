@@ -18,10 +18,11 @@
     whoWeWorkWith,
     caseStudies,
     aiSummary,
+    voiceAiPhoneNumber,
   } from "$lib/content/site";
   import { industryIcons } from "$lib/content/industry-icons";
   import { buildFAQSchema } from "$lib/content/seo";
-  import { Phone, Workflow, Globe } from "lucide-svelte";
+  import { Phone, Workflow, Globe, Sparkles } from "lucide-svelte";
 
   const faqSchema = buildFAQSchema(faqItems);
   const serviceIcons: Record<string, typeof Phone> = {
@@ -38,34 +39,46 @@
 <!-- Hero: H1 benefit-led; value prop has SEO H2 -->
 <section class="min-h-screen bg-background pt-24 md:pt-28 pb-20 md:pb-28 flex flex-col">
   <div class="max-w-6xl mx-auto px-6 lg:px-8 flex-1 flex flex-col justify-center w-full">
-    <div class="max-w-3xl">
-      <h1 class="typography-h1 mb-5 text-balance">
-        {hero.headline}
-      </h1>
-      <p class="typography-lead mb-6">
-        {hero.subhead}
-      </p>
-      <div class="flex flex-wrap gap-3 mb-5">
-        <Button
-          href="#contact"
-          size="lg"
-          class="bg-primary hover:bg-primary/90"
-          data-cal-link="edmel-ednsy/enable-ai"
-          data-cal-namespace="enable-ai"
-          data-cal-config={JSON.stringify({ layout: "month_view" })}
-        >
-          {hero.ctaPrimary}
-        </Button>
-        <Button
-          href="#services"
-          variant="outline"
-          size="lg"
-          class="border-primary text-primary hover:bg-primary/10"
-        >
-          {hero.ctaSecondary}
-        </Button>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 items-center">
+      <div class="max-w-3xl">
+        <h1 class="typography-h1 mb-5 text-balance">
+          {hero.headline}
+        </h1>
+        <p class="typography-lead mb-6">
+          {hero.subhead}
+        </p>
+        <div class="flex flex-wrap gap-3 mb-5">
+          <Button
+            href="#contact"
+            size="lg"
+            class="bg-primary hover:bg-primary/90"
+            data-cal-link="edmel-ednsy/enable-ai"
+            data-cal-namespace="enable-ai"
+            data-cal-config={JSON.stringify({ layout: "month_view" })}
+          >
+            {hero.ctaPrimary}
+          </Button>
+          <Button
+            href="#services"
+            variant="outline"
+            size="lg"
+            class="border-primary text-primary hover:bg-primary/10"
+          >
+            {hero.ctaSecondary}
+          </Button>
+        </div>
+        <p class="typography-muted">{hero.tagline}</p>
       </div>
-      <p class="typography-muted">{hero.tagline}</p>
+      <div class="hidden lg:flex justify-center lg:justify-end">
+        <img
+          src="/images/hero.svg"
+          alt=""
+          class="w-full max-w-md lg:max-w-none h-auto object-contain"
+          width="741"
+          height="608"
+          fetchpriority="high"
+        />
+      </div>
     </div>
 
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10 mt-14 md:mt-20">
@@ -133,17 +146,19 @@
           id={service.slug}
           class="scroll-mt-24 grid md:grid-cols-2 gap-0 border-border bg-card overflow-hidden"
         >
-          <Card.Content class="flex flex-col justify-center p-8 md:p-10 space-y-4">
-            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-              <svelte:component this={serviceIcons[service.slug]} class="h-5 w-5" />
-            </div>
+          <Card.Content class="order-2 md:order-1 flex flex-col justify-center p-8 md:p-10 space-y-4">
             {#if service.popular}
               <Badge variant="secondary" class="w-fit bg-primary/10 text-primary border-0">
                 Most Popular
               </Badge>
             {/if}
+            <div class="flex items-center gap-3">
+              <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <svelte:component this={serviceIcons[service.slug]} class="h-5 w-5" />
+              </div>
+              <Card.Title class="typography-h3">{service.title}</Card.Title>
+            </div>
             <p class="text-sm font-medium text-primary">{service.tagline}</p>
-            <Card.Title class="typography-h3">{service.title}</Card.Title>
             <Card.Description class="text-base leading-relaxed">{service.description}</Card.Description>
             <ul class="space-y-2 text-foreground">
               {#each service.bullets as bullet}
@@ -153,16 +168,26 @@
                 </li>
               {/each}
             </ul>
-            <div class="pt-4">
+            <div class="pt-4 flex flex-wrap gap-3">
               <Button
                 href={service.href}
                 class="w-fit bg-primary hover:bg-primary/90"
               >
                 {service.cta}
               </Button>
+              {#if service.slug === "voice-ai"}
+                <Button
+                  href="tel:{voiceAiPhoneNumber.replace(/\s/g, '')}"
+                  variant="outline"
+                  class="w-fit border-primary text-primary hover:bg-primary/10"
+                >
+                  <Sparkles class="mr-2 h-4 w-4" />
+                  Call
+                </Button>
+              {/if}
             </div>
           </Card.Content>
-          <div class="aspect-video md:aspect-auto md:min-h-[260px] bg-muted flex items-center justify-center p-6 overflow-hidden">
+          <div class="order-1 md:order-2 aspect-video md:aspect-auto md:min-h-[260px] bg-muted flex items-center justify-center p-4 md:p-6 md:pr-8 overflow-hidden">
             {#if service.slug === "voice-ai"}
               <img
                 src="/images/voice.svg"

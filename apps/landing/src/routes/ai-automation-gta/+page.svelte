@@ -17,7 +17,7 @@
       AI Automation GTA
     </h1>
     <p class="typography-lead mb-6 max-w-2xl">
-      We help service businesses across the Greater Toronto Area (Mississauga, Brampton, Vaughan, Markham, and beyond) automate operations and capture more leads with Voice AI, workflow automation, and website & SEO.
+      We help service businesses across the Greater Toronto Area (Mississauga, Newmarket, Scarborough, Vaughan, Markham, and beyond) automate operations and capture more leads with Voice AI, workflow automation, and website & SEO.
     </p>
     <Button
       href="/contact"
@@ -35,7 +35,7 @@
   <div class="max-w-6xl mx-auto px-6 lg:px-8">
     <h2 class="typography-h2 mb-6">AI automation across the GTA</h2>
     <p class="text-muted-foreground mb-10 max-w-2xl leading-7">
-      We're based in Toronto and serve the full Greater Toronto Area. Whether you're in Mississauga, Brampton, Vaughan, Markham, Oakville, or elsewhere in the GTA, we deliver the same Voice AI, business automation, and website & SEO services, remotely or in person as needed.
+      We're based in Toronto and serve the full Greater Toronto Area. Whether you're in Mississauga, Newmarket, Scarborough, Vaughan, Markham, Oakville, or elsewhere in the GTA, we deliver the same Voice AI, business automation, and website & SEO services, remotely or in person as needed.
     </p>
     <div class="grid md:grid-cols-3 gap-6">
       {#each services as service}

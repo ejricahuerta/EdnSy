@@ -87,6 +87,9 @@ export const integrationsList = [
 export const integrationsCopy =
   "Google Calendar, Google Sheets, Notion, Cal.com, and other apps that provide APIs.";
 
+/** Voice AI call number (shown in Voice AI service card on homepage) */
+export const voiceAiPhoneNumber = "+12895135055";
+
 /** Core service pages (money pages): hrefs match SEO doc URLs */
 export const services = [
   {
@@ -260,7 +263,7 @@ export const caseStudies = [
   },
   {
     title: "Website & SEO for a Toronto salon",
-    outcome: "3x more leads; bookings while they sleep.",
+    outcome: "Improved local rankings and organic traffic; more leads and after-hours bookings.",
     cta: "Read more",
   },
 ] as const;

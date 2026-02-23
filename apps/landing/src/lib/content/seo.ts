@@ -179,8 +179,8 @@ export function buildOrganizationSchema() {
       "AI Website Development",
     ],
     sameAs: [
-      "https://www.instagram.com/dev.exd/",
-      "https://www.linkedin.com/in/syronsuerte/",
+      "https://www.instagram.com/ed.n.sy/",
+      "https://www.linkedin.com/company/ednsy/",
     ],
   };
 }
@@ -206,6 +206,8 @@ export function buildLocalBusinessSchema() {
       { "@type": "City", name: "Toronto" },
       { "@type": "City", name: "Markham" },
       { "@type": "City", name: "Mississauga" },
+      { "@type": "City", name: "Newmarket" },
+      { "@type": "City", name: "Scarborough" },
       { "@type": "City", name: "Vaughan" },
       { "@type": "City", name: "North York" },
       { "@type": "Place", name: "Greater Toronto Area (GTA)" },
@@ -226,8 +228,8 @@ export function buildLocalBusinessSchema() {
       url: `${SITE_URL}/contact`,
     },
     sameAs: [
-      "https://www.instagram.com/dev.exd/",
-      "https://www.linkedin.com/in/syronsuerte/",
+      "https://www.instagram.com/ed.n.sy/",
+      "https://www.linkedin.com/company/ednsy/",
     ],
   };
 }
