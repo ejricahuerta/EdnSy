@@ -13,8 +13,12 @@
     HelpCircle,
   } from "lucide-svelte";
   import { websitePage } from "$lib/content/service-pages";
-  import { buildServiceSchema, buildFAQSchema } from "$lib/content/seo";
+  import { buildServiceSchema, buildFAQSchema, buildBreadcrumbSchema } from "$lib/content/seo";
 
+  const breadcrumbSchema = buildBreadcrumbSchema([
+    { name: "Home", url: "/" },
+    { name: "Website & SEO Toronto", url: "/website-design-toronto" },
+  ]);
   const sectionIcons = [
     AlertCircle,
     Sparkles,
@@ -34,6 +38,7 @@
 </script>
 
 <svelte:head>
+  {@html `<script type="application/ld+json">${JSON.stringify(breadcrumbSchema)}</script>`}
   {@html `<script type="application/ld+json">${JSON.stringify(serviceSchema)}</script>`}
   {@html `<script type="application/ld+json">${JSON.stringify(faqSchema)}</script>`}
 </svelte:head>
@@ -67,7 +72,7 @@
             <div class="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
               <svelte:component this={sectionIcons[i]} class="h-5 w-5" />
             </div>
-            <Card.Title class="typography-h2">{section.heading}</Card.Title>
+            <h2 class="typography-h2 font-semibold leading-none">{section.heading}</h2>
           </Card.Header>
           <Card.Content class="flex-1">
             <p class="text-muted-foreground leading-7">{section.body}</p>
@@ -85,7 +90,7 @@
         <div class="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
           <HelpCircle class="h-5 w-5" />
         </div>
-        <Card.Title class="typography-h2">Frequently Asked Questions</Card.Title>
+        <h2 class="typography-h2 font-semibold leading-none">Frequently Asked Questions</h2>
       </Card.Header>
       <Card.Content>
         <Accordion.Root type="single" class="w-full">

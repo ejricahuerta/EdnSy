@@ -4,7 +4,16 @@
  * Meta description: Pain point + benefit + CTA (under 155 chars)
  */
 
+import { industryDetails } from "$lib/content/industries";
+
 export const SITE_URL = "https://ednsy.com";
+
+const META_DESC_MAX_LEN = 155;
+
+function truncateForMeta(text: string, max = META_DESC_MAX_LEN): string {
+  if (text.length <= max) return text;
+  return text.slice(0, max - 3).trim() + "...";
+}
 
 export type PageSeo = {
   title: string;
@@ -127,9 +136,9 @@ export const seoPages: Record<string, PageSeo> = {
     canonicalPath: "/ontario-ai-automation",
   },
   "/case-studies": {
-    title: "Case Studies | Voice AI & Automation Results | Ed & Sy Toronto",
+    title: "Case Studies | Voice AI, Automation & Website Results | Ed & Sy Toronto",
     description:
-      "See how Toronto and Ontario businesses use our Voice AI, automation, and website solutions. Real results and client outcomes.",
+      "Toronto case studies: Voice AI for healthcare, automation for contractors, website & SEO for window glass repair. Real outcomes.",
     canonicalPath: "/case-studies",
   },
   "/blog": {
@@ -140,10 +149,22 @@ export const seoPages: Record<string, PageSeo> = {
   },
 };
 
+/** Industry pages SEO: built from industryDetails so /industries/:slug has correct canonical and meta. */
+const industrySeoPages: Record<string, PageSeo> = {};
+for (const slug of Object.keys(industryDetails)) {
+  const industry = industryDetails[slug as keyof typeof industryDetails];
+  const path = `/industries/${slug}`;
+  industrySeoPages[path] = {
+    title: `${industry.name} Toronto | Ed & Sy`,
+    description: truncateForMeta(industry.subhead),
+    canonicalPath: path,
+  };
+}
+
 /** Get SEO for a path (e.g. from $page.url.pathname). Falls back to homepage. */
 export function getSeoForPath(pathname: string): PageSeo {
   const normalized = pathname.replace(/\/$/, "") || "/";
-  return seoPages[normalized] ?? seoPages["/"];
+  return seoPages[normalized] ?? industrySeoPages[normalized] ?? seoPages["/"];
 }
 
 export function buildCanonical(path: string): string {
@@ -179,8 +200,8 @@ export function buildOrganizationSchema() {
       "AI Website Development",
     ],
     sameAs: [
-      "https://www.instagram.com/dev.exd/",
-      "https://www.linkedin.com/in/syronsuerte/",
+      "https://www.instagram.com/ed.n.sy/",
+      "https://www.linkedin.com/company/ednsy/",
     ],
   };
 }
@@ -206,6 +227,8 @@ export function buildLocalBusinessSchema() {
       { "@type": "City", name: "Toronto" },
       { "@type": "City", name: "Markham" },
       { "@type": "City", name: "Mississauga" },
+      { "@type": "City", name: "Newmarket" },
+      { "@type": "City", name: "Scarborough" },
       { "@type": "City", name: "Vaughan" },
       { "@type": "City", name: "North York" },
       { "@type": "Place", name: "Greater Toronto Area (GTA)" },
@@ -226,8 +249,8 @@ export function buildLocalBusinessSchema() {
       url: `${SITE_URL}/contact`,
     },
     sameAs: [
-      "https://www.instagram.com/dev.exd/",
-      "https://www.linkedin.com/in/syronsuerte/",
+      "https://www.instagram.com/ed.n.sy/",
+      "https://www.linkedin.com/company/ednsy/",
     ],
   };
 }
@@ -284,5 +307,24 @@ export function buildBreadcrumbSchema(
       name: item.name,
       item: item.url.startsWith("http") ? item.url : `${SITE_URL}${item.url}`,
     })),
+  };
+}
+
+/** WebSite schema for AI and search engines – site as entity with publisher */
+export function buildWebSiteSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Ed & Sy",
+    url: SITE_URL,
+    description:
+      "Ed & Sy is a Toronto-based AI automation agency. Voice AI, business automation, and website & SEO for Toronto and Ontario businesses.",
+    inLanguage: "en-CA",
+    publisher: {
+      "@type": "Organization",
+      name: "Ed & Sy Inc.",
+      url: SITE_URL,
+      logo: `${SITE_URL}/logo/logo%20with%20bg.png`,
+    },
   };
 }

@@ -10,12 +10,7 @@
   const IndustryIcon = getIndustryIcon(industry.slug);
 </script>
 
-<svelte:head>
-  <title>{industry.name} | Ed & Sy | Tech Implementation & AI for Toronto Businesses</title>
-  <meta name="description" content={industry.subhead} />
-</svelte:head>
-
-<!-- Hero - same 100vh pattern as main landing -->
+<!-- Hero - same 100vh pattern as main landing. Title/description/canonical from layout via getSeoForPath(/industries/:slug). -->
 <section class="min-h-[75vh] bg-background pt-24 md:pt-28 pb-20 md:pb-28 flex flex-col">
   <div class="max-w-6xl mx-auto px-6 lg:px-8 flex-1 flex flex-col justify-center w-full">
     <Button href="/industries" variant="link" class="text-primary font-heading mb-6 p-0 h-auto w-fit">

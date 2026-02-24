@@ -40,18 +40,20 @@ export const caseStudyList = [
     href: "/contact",
   },
   {
-    slug: "website-seo-toronto-salon",
-    title: "Website & SEO for a Toronto Salon",
-    industry: "Salons & Spas",
+    slug: "website-seo-toronto-window-glass-repair",
+    title: "Website & SEO for a Toronto Window Glass Repair Business",
+    industry: "Window & Glass Repair",
     location: "Toronto",
-    outcome: "3x more leads; bookings while they sleep.",
+    outcome: "Stronger local rankings, more organic traffic, and more leads from search.",
     problem:
-      "The existing site was slow, didn't rank for local search, and didn't convert visitors into bookings.",
+      "The existing site was slow, barely showed up for local searches, and didn't turn visitors into leads. They were losing jobs to competitors who ranked higher for Toronto window repair and glass repair queries.",
     solution:
-      "We built a fast, SEO-ready website with local Toronto keywords and integrated booking so visitors could book 24/7.",
-    tools: ["AI-assisted build", "Local SEO", "Booking integration"],
-    beforeAfter: "Before: Low traffic and few form submissions. After: 3x more leads; bookings captured after hours.",
-    results: "3x increase in leads; higher local search visibility in Toronto.",
+      "We rebuilt the site for speed and search: on-page SEO, local Toronto and neighbourhood keywords, technical fixes, and clear service pages. We made it easy for visitors to request quotes and call for emergency glass repair.",
+    tools: ["AI-assisted build", "Local SEO", "On-page & technical SEO", "Contact forms"],
+    beforeAfter:
+      "Before: Poor rankings, low traffic, few inquiries. After: Improved positions for key local terms; more organic traffic and leads; inquiries captured after hours.",
+    results:
+      "Measurable improvement in local search visibility and organic traffic; more leads and quote requests from search.",
     testimonial: null,
     cta: "Read more",
     href: "/contact",

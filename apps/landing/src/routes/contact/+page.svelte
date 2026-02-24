@@ -2,15 +2,18 @@
   import { Button } from "$lib/components/ui/button";
   import * as Card from "$lib/components/ui/card";
   import { site } from "$lib/content/site";
-  import { buildLocalBusinessSchema } from "$lib/content/seo";
+  import { buildBreadcrumbSchema } from "$lib/content/seo";
 
-  const localSchema = buildLocalBusinessSchema();
+  const breadcrumbSchema = buildBreadcrumbSchema([
+    { name: "Home", url: "/" },
+    { name: "Contact", url: "/contact" },
+  ]);
 
-  const serviceAreas = ["Toronto", "Greater Toronto Area (GTA)", "Mississauga", "Brampton", "Vaughan", "Markham", "Ontario"];
+  const serviceAreas = ["Toronto", "Greater Toronto Area (GTA)", "Mississauga", "Newmarket", "Scarborough", "Vaughan", "Markham", "Ontario"];
 </script>
 
 <svelte:head>
-  {@html `<script type="application/ld+json">${JSON.stringify(localSchema)}</script>`}
+  {@html `<script type="application/ld+json">${JSON.stringify(breadcrumbSchema)}</script>`}
 </svelte:head>
 
 <section class="bg-background pt-32 md:pt-36 pb-12 md:pb-16">

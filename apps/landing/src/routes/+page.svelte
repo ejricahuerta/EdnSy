@@ -15,19 +15,23 @@
     servicesIntro,
     valueProposition,
     problemsWeSolve,
-    whoWeWorkWith,
     caseStudies,
-    aiSummary,
+    voiceAiPhoneNumber,
   } from "$lib/content/site";
   import { industryIcons } from "$lib/content/industry-icons";
   import { buildFAQSchema } from "$lib/content/seo";
-  import { Phone, Workflow, Globe } from "lucide-svelte";
+  import { Phone, Workflow, Globe, Sparkles, PhoneOff, ClipboardList, MessageSquarePlus, X, Check } from "lucide-svelte";
 
   const faqSchema = buildFAQSchema(faqItems);
   const serviceIcons: Record<string, typeof Phone> = {
     "voice-ai": Phone,
     "workflow-automation": Workflow,
     "website-seo": Globe,
+  };
+  const problemIcons: Record<string, typeof PhoneOff> = {
+    "missed-calls": PhoneOff,
+    "manual-admin": ClipboardList,
+    "inefficient-follow-ups": MessageSquarePlus,
   };
 </script>
 
@@ -38,34 +42,46 @@
 <!-- Hero: H1 benefit-led; value prop has SEO H2 -->
 <section class="min-h-screen bg-background pt-24 md:pt-28 pb-20 md:pb-28 flex flex-col">
   <div class="max-w-6xl mx-auto px-6 lg:px-8 flex-1 flex flex-col justify-center w-full">
-    <div class="max-w-3xl">
-      <h1 class="typography-h1 mb-5 text-balance">
-        {hero.headline}
-      </h1>
-      <p class="typography-lead mb-6">
-        {hero.subhead}
-      </p>
-      <div class="flex flex-wrap gap-3 mb-5">
-        <Button
-          href="#contact"
-          size="lg"
-          class="bg-primary hover:bg-primary/90"
-          data-cal-link="edmel-ednsy/enable-ai"
-          data-cal-namespace="enable-ai"
-          data-cal-config={JSON.stringify({ layout: "month_view" })}
-        >
-          {hero.ctaPrimary}
-        </Button>
-        <Button
-          href="#services"
-          variant="outline"
-          size="lg"
-          class="border-primary text-primary hover:bg-primary/10"
-        >
-          {hero.ctaSecondary}
-        </Button>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 items-center">
+      <div class="max-w-3xl">
+        <h1 class="typography-h1 mb-5 text-balance">
+          {hero.headline}
+        </h1>
+        <p class="typography-lead mb-6">
+          {hero.subhead}
+        </p>
+        <div class="flex flex-wrap gap-3 mb-5">
+          <Button
+            href="#contact"
+            size="lg"
+            class="bg-primary hover:bg-primary/90"
+            data-cal-link="edmel-ednsy/enable-ai"
+            data-cal-namespace="enable-ai"
+            data-cal-config={JSON.stringify({ layout: "month_view" })}
+          >
+            {hero.ctaPrimary}
+          </Button>
+          <Button
+            href="#services"
+            variant="outline"
+            size="lg"
+            class="border-primary text-primary hover:bg-primary/10"
+          >
+            {hero.ctaSecondary}
+          </Button>
+        </div>
+        <p class="typography-muted">{hero.tagline}</p>
       </div>
-      <p class="typography-muted">{hero.tagline}</p>
+      <div class="hidden lg:flex justify-center lg:justify-end">
+        <img
+          src="/images/hero.svg"
+          alt=""
+          class="w-full max-w-sm lg:max-w-md h-auto object-contain"
+          width="741"
+          height="608"
+          fetchpriority="high"
+        />
+      </div>
     </div>
 
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10 mt-14 md:mt-20">
@@ -80,24 +96,13 @@
   </div>
 </section>
 
-<!-- Value proposition -->
-<section class="py-12 md:py-16 bg-muted/30">
-  <div class="max-w-6xl mx-auto px-6 lg:px-8 text-center">
-    <h2 class="typography-h2 mb-3">{valueProposition.headline}</h2>
-    <p class="text-muted-foreground text-base max-w-2xl mx-auto leading-7">{valueProposition.body}</p>
-  </div>
-</section>
-
-<!-- Who we are: clear definition for visitors and AI search engines -->
-<section class="py-10 md:py-12 bg-background" aria-labelledby="ai-summary-heading">
+<!-- About Ed & Sy -->
+<section class="py-12 md:py-16 bg-muted/30" aria-labelledby="about-heading">
   <div class="max-w-6xl mx-auto px-6 lg:px-8">
-    <h2 id="ai-summary-heading" class="typography-h2 mb-4">{aiSummary.heading}</h2>
-    <p class="text-foreground text-base md:text-lg leading-7 max-w-3xl">
-      {aiSummary.definition}
-    </p>
-    <p class="text-muted-foreground text-sm mt-4 max-w-2xl">
-      We serve Toronto, the GTA (including Markham, Mississauga, Vaughan, North York), Ontario, and Canada.
-    </p>
+    <div class="max-w-2xl">
+      <h2 id="about-heading" class="typography-h2 mb-3">{valueProposition.headline}</h2>
+      <p class="text-muted-foreground text-base leading-relaxed">{valueProposition.body}</p>
+    </div>
   </div>
 </section>
 
@@ -108,12 +113,24 @@
     <p class="text-muted-foreground text-base mb-12 max-w-2xl leading-7">
       Toronto service businesses lose leads and time to these common issues. We fix them with AI and automation.
     </p>
-    <div class="grid md:grid-cols-3 gap-8">
+    <div class="grid md:grid-cols-3 gap-5 md:gap-6">
       {#each problemsWeSolve as problem}
-        <Card.Root class="border-border bg-card">
-          <Card.Header>
-            <Card.Title class="text-xl">{problem.title}</Card.Title>
-            <Card.Description class="leading-relaxed">{problem.description}</Card.Description>
+        <Card.Root class="border-border bg-card hover:border-primary/40 hover:bg-muted/30 transition-colors h-full flex flex-col">
+          <Card.Header class="space-y-3 flex-1 pb-2">
+            {#if problemIcons[problem.slug]}
+              <div class="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary shrink-0">
+                <svelte:component this={problemIcons[problem.slug]} class="h-5 w-5" />
+              </div>
+            {/if}
+            <Card.Title class="text-xl font-semibold tracking-tight">{problem.title}</Card.Title>
+            <div class="flex items-start gap-2 text-muted-foreground text-sm leading-relaxed">
+              <X class="h-4 w-4 shrink-0 mt-0.5 text-destructive/80" aria-hidden="true" />
+              <span>{problem.description}</span>
+            </div>
+            <div class="flex items-start gap-2 text-sm font-medium text-primary pt-1">
+              <Check class="h-4 w-4 shrink-0 mt-0.5" aria-hidden="true" />
+              <span>{problem.solution}</span>
+            </div>
           </Card.Header>
         </Card.Root>
       {/each}
@@ -133,17 +150,19 @@
           id={service.slug}
           class="scroll-mt-24 grid md:grid-cols-2 gap-0 border-border bg-card overflow-hidden"
         >
-          <Card.Content class="flex flex-col justify-center p-8 md:p-10 space-y-4">
-            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-              <svelte:component this={serviceIcons[service.slug]} class="h-5 w-5" />
-            </div>
+          <Card.Content class="order-2 md:order-1 flex flex-col justify-center p-8 md:p-10 space-y-4">
             {#if service.popular}
               <Badge variant="secondary" class="w-fit bg-primary/10 text-primary border-0">
                 Most Popular
               </Badge>
             {/if}
+            <div class="flex items-center gap-3">
+              <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <svelte:component this={serviceIcons[service.slug]} class="h-5 w-5" />
+              </div>
+              <Card.Title class="typography-h3">{service.title}</Card.Title>
+            </div>
             <p class="text-sm font-medium text-primary">{service.tagline}</p>
-            <Card.Title class="typography-h3">{service.title}</Card.Title>
             <Card.Description class="text-base leading-relaxed">{service.description}</Card.Description>
             <ul class="space-y-2 text-foreground">
               {#each service.bullets as bullet}
@@ -153,16 +172,26 @@
                 </li>
               {/each}
             </ul>
-            <div class="pt-4">
+            <div class="pt-4 flex flex-wrap gap-3">
               <Button
                 href={service.href}
                 class="w-fit bg-primary hover:bg-primary/90"
               >
                 {service.cta}
               </Button>
+              {#if service.slug === "voice-ai"}
+                <Button
+                  href="tel:{voiceAiPhoneNumber.replace(/\s/g, '')}"
+                  variant="outline"
+                  class="w-fit border-primary text-primary hover:bg-primary/10"
+                >
+                  <Sparkles class="mr-2 h-4 w-4" />
+                  Call
+                </Button>
+              {/if}
             </div>
           </Card.Content>
-          <div class="aspect-video md:aspect-auto md:min-h-[260px] bg-muted flex items-center justify-center p-6 overflow-hidden">
+          <div class="order-1 md:order-2 aspect-video md:aspect-auto md:min-h-[260px] bg-muted flex items-center justify-center p-4 md:p-6 md:pr-8 overflow-hidden">
             {#if service.slug === "voice-ai"}
               <img
                 src="/images/voice.svg"
@@ -201,60 +230,8 @@
   </div>
 </section>
 
-<!-- Who We Work With -->
-<section class="py-16 md:py-24 bg-background">
-  <div class="max-w-6xl mx-auto px-6 lg:px-8 text-center">
-    <h2 class="typography-h2 mb-3">{whoWeWorkWith.headline}</h2>
-    <p class="text-muted-foreground text-base mb-10 max-w-2xl mx-auto leading-7">{whoWeWorkWith.body}</p>
-  </div>
-</section>
-
-<!-- How It Works (teaser; full detail on /process) -->
-<section class="py-12 md:py-16 bg-muted/30">
-  <div class="max-w-6xl mx-auto px-6 lg:px-8 text-center">
-    <h2 class="typography-h2 mb-3">How It Works</h2>
-    <p class="text-muted-foreground text-base mb-6 max-w-xl mx-auto leading-7">
-      Free strategy call, custom solution, implementation, then ongoing support. Toronto-based, no surprises.
-    </p>
-    <Button href="/process" variant="outline" class="border-primary text-primary">
-      See our process
-    </Button>
-  </div>
-</section>
-
-<!-- Example outcomes (not full case studies; one CTA to contact) -->
-<section class="py-16 md:py-24 bg-background">
-  <div class="max-w-6xl mx-auto px-6 lg:px-8">
-    <h2 class="typography-h2 mb-3">Results we help businesses achieve</h2>
-    <p class="text-muted-foreground text-base mb-12 max-w-2xl leading-7">
-      Toronto and GTA businesses use our Voice AI, automation, and website & SEO to get outcomes like these.
-    </p>
-    <div class="grid md:grid-cols-3 gap-8">
-      {#each caseStudies as study}
-        <Card.Root class="border-border bg-card">
-          <Card.Header>
-            <Card.Title class="text-lg">{study.title}</Card.Title>
-            <Card.Description class="leading-relaxed">{study.outcome}</Card.Description>
-          </Card.Header>
-        </Card.Root>
-      {/each}
-    </div>
-    <p class="text-center mt-10">
-      <Button href="/case-studies" variant="outline" class="mr-3">View case studies</Button>
-      <Button
-        href="/contact"
-        class="bg-primary hover:bg-primary/90"
-        data-cal-link="edmel-ednsy/enable-ai"
-        data-cal-namespace="enable-ai"
-      >
-        Book a call to get results like these
-      </Button>
-    </p>
-  </div>
-</section>
-
 <!-- Industries we serve -->
-<section id="industries" class="py-16 md:py-24 bg-muted/30">
+<section id="industries" class="py-16 md:py-24 bg-background">
   <div class="max-w-6xl mx-auto px-6 lg:px-8">
     <h2 class="typography-h2 mb-3">
       Built for businesses like yours
@@ -290,6 +267,44 @@
     <p class="mt-6 text-sm text-muted-foreground">
       Also see our umbrella page: <a href="/ai-automation-toronto" class="text-primary underline">AI Automation Toronto</a> and <a href="/ai-automation-gta" class="text-primary underline">AI Automation GTA</a>.
     </p>
+  </div>
+</section>
+
+<!-- Example outcomes (not full case studies; one CTA to contact) -->
+<section class="py-16 md:py-24 bg-background">
+  <div class="max-w-6xl mx-auto px-6 lg:px-8">
+    <h2 class="typography-h2 mb-3">Results we help businesses achieve</h2>
+    <p class="text-muted-foreground text-base mb-12 max-w-2xl leading-7">
+      Toronto and GTA businesses use our Voice AI, automation, and website & SEO to get outcomes like these.
+    </p>
+    <div class="grid md:grid-cols-3 gap-5 md:gap-6">
+      {#each caseStudies as study}
+        <Card.Root class="border-border bg-card hover:border-primary/40 hover:bg-muted/30 transition-colors h-full flex flex-col">
+          <a href="/case-studies" class="block contents flex flex-col flex-1 min-h-0">
+            <Card.Header class="space-y-1.5 pb-2 flex-1">
+              <Card.Title class="text-xl font-semibold tracking-tight">{study.title}</Card.Title>
+              <Card.Description class="text-muted-foreground leading-relaxed text-sm">{study.outcome}</Card.Description>
+            </Card.Header>
+            <Card.Content class="pt-4 pb-6">
+              <span class="text-sm font-medium text-primary hover:underline">{study.cta} →</span>
+            </Card.Content>
+          </a>
+        </Card.Root>
+      {/each}
+      <Card.Root class="border-border bg-card hover:border-primary/40 hover:bg-muted/30 transition-colors h-full flex flex-col md:col-span-3">
+        <a href="/process" class="block contents flex flex-col flex-1 min-h-0">
+          <Card.Header class="space-y-1.5 pb-2 flex-1">
+            <Card.Title class="text-xl font-semibold tracking-tight">How It Works</Card.Title>
+            <Card.Description class="text-muted-foreground leading-relaxed text-sm">
+              Free strategy call, custom solution, implementation, then ongoing support. Toronto-based, no surprises.
+            </Card.Description>
+          </Card.Header>
+          <Card.Content class="pt-4 pb-6">
+            <span class="text-sm font-medium text-primary hover:underline">See our process →</span>
+          </Card.Content>
+        </a>
+      </Card.Root>
+    </div>
   </div>
 </section>
 
