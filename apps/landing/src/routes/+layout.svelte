@@ -13,7 +13,7 @@
   import ContentHeader from "$lib/components/app/content/header.svelte";
   import SidebarLayout from "$lib/components/app/sidebar/layout.svelte";
   import type { LayoutData } from "./$types";
-  import { getSeoForPath, buildCanonical, buildOrganizationSchema, buildLocalBusinessSchema } from "$lib/content/seo";
+  import { getSeoForPath, buildCanonical, buildOrganizationSchema, buildLocalBusinessSchema, buildWebSiteSchema } from "$lib/content/seo";
   import { Menu } from "lucide-svelte";
 
   let { children } = $props<{ data: LayoutData }>();
@@ -24,6 +24,7 @@
   const seo = $derived(getSeoForPath($page.url.pathname));
   const organizationSchema = buildOrganizationSchema();
   const localBusinessSchema = buildLocalBusinessSchema();
+  const websiteSchema = buildWebSiteSchema();
 
 
   // Animate wave emoji every 5 seconds
@@ -89,12 +90,15 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content={buildCanonical(seo.canonicalPath)} />
   <meta property="og:image" content="https://ednsy.com/logo/logo%20with%20bg.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
   <meta property="og:site_name" content="Ed & Sy" />
   <meta property="og:locale" content="en_CA" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={seo.title} />
   <meta name="twitter:description" content={seo.description} />
   <meta name="twitter:image" content="https://ednsy.com/logo/logo%20with%20bg.png" />
+  <meta name="twitter:image:alt" content="Ed & Sy logo" />
   <link rel="canonical" href={buildCanonical(seo.canonicalPath)} />
   <link rel="icon" href="/logo/logo icon.png" />
   <link rel="apple-touch-icon" href="/logo/logo icon.png" />
@@ -106,6 +110,7 @@
   <script src="/lib/cal-embed.js"></script>
   {@html `<script type="application/ld+json">${JSON.stringify(organizationSchema)}</script>`}
   {@html `<script type="application/ld+json">${JSON.stringify(localBusinessSchema)}</script>`}
+  {@html `<script type="application/ld+json">${JSON.stringify(websiteSchema)}</script>`}
 </svelte:head>
 
 <!-- NAVIGATION BAR - Collapses to hamburger menu on mobile -->

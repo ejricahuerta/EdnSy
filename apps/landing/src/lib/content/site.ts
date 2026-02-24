@@ -11,13 +11,6 @@ export const site = {
   location: "Toronto, Ontario",
 } as const;
 
-/** AI-readable definition for search engines and AI overviews (e.g. Google AI, Perplexity, ChatGPT) */
-export const aiSummary = {
-  heading: "Who we are",
-  definition:
-    "Ed & Sy Inc. is a Toronto-based AI agency specializing in Voice AI systems, business automation workflows, and AI-powered website development for small and mid-sized businesses in Ontario and across Canada.",
-} as const;
-
 /** Definition blocks for AI citation and clear entity signals */
 export const definitionBlocks = {
   voiceAi:
@@ -38,33 +31,33 @@ export const hero = {
   tagline: "Free Strategy Call • Toronto-Based • Results-Focused",
 } as const;
 
-/** Clear value proposition (homepage section) */
+/** About Ed & Sy (single short block) */
 export const valueProposition = {
-  headline: "AI-Powered Growth Systems for Toronto Service Businesses",
-  body: "Ed & Sy helps service-based businesses in Toronto automate operations, capture more leads, and scale using Voice AI, business automation, and website & SEO. We're your local AI automation partner.",
+  headline: "About Ed & Sy",
+  body: "We're a Toronto-based AI agency. We help service businesses in the GTA and across Ontario automate operations, capture more leads, and scale with Voice AI, business automation, and website & SEO.",
 } as const;
 
-/** The problems we solve (homepage) */
+/** The problems we solve (homepage); icon = lucide-svelte name for +page.svelte */
 export const problemsWeSolve = [
   {
+    slug: "missed-calls",
     title: "Missed calls",
-    description: "Every unanswered call is a lost lead. We fix that with 24/7 AI phone answering.",
+    description: "Every unanswered call is a lost lead.",
+    solution: "24/7 AI phone answering",
   },
   {
+    slug: "manual-admin",
     title: "Manual admin",
-    description: "Repetitive tasks eat your time. We automate workflows so you focus on clients.",
+    description: "Repetitive tasks eat your time.",
+    solution: "Workflow automation so you focus on clients",
   },
   {
+    slug: "inefficient-follow-ups",
     title: "Inefficient follow-ups",
-    description: "Leads go cold without fast follow-up. We automate nurturing and booking.",
+    description: "Leads go cold without fast follow-up.",
+    solution: "Automated nurturing and booking",
   },
 ] as const;
-
-/** Who we work with (homepage) */
-export const whoWeWorkWith = {
-  headline: "Who We Work With",
-  body: "We work with service-based businesses across Toronto and the GTA: healthcare, dental, construction, salons, real estate, legal, fitness, and solo professionals. If you run on appointments and client follow-up, we can help.",
-} as const;
 
 export const stats = [
   { value: "24/7", label: "AI Assistant", sublabel: "Always available" },
@@ -144,7 +137,7 @@ export const services = [
 ] as const;
 
 export const industriesIntro =
-  "We specialize in tech implementation and AI for Toronto entrepreneurs across these industries.";
+  "We work with service-based businesses across Toronto and the GTA: healthcare, dental, construction, salons, real estate, legal, fitness, and solo professionals. If you run on appointments and client follow-up, we can help.";
 
 /** Industries index page hero (reflects all 3 services: Voice AI, Business Automation, Website & SEO). */
 export const industriesPageHero = {
@@ -262,8 +255,8 @@ export const caseStudies = [
     cta: "See results",
   },
   {
-    title: "Website & SEO for a Toronto salon",
-    outcome: "Improved local rankings and organic traffic; more leads and after-hours bookings.",
+    title: "Website & SEO for a Toronto window glass repair business",
+    outcome: "Stronger local rankings, more organic traffic, and more leads from search.",
     cta: "Read more",
   },
 ] as const;

@@ -40,18 +40,20 @@ export const caseStudyList = [
     href: "/contact",
   },
   {
-    slug: "website-seo-toronto-salon",
-    title: "Website & SEO for a Toronto Salon",
-    industry: "Salons & Spas",
+    slug: "website-seo-toronto-window-glass-repair",
+    title: "Website & SEO for a Toronto Window Glass Repair Business",
+    industry: "Window & Glass Repair",
     location: "Toronto",
-    outcome: "Improved local rankings and organic traffic; more leads and after-hours bookings.",
+    outcome: "Stronger local rankings, more organic traffic, and more leads from search.",
     problem:
-      "The salon’s site wasn’t built for search: weak local SEO, slow load times, and little visibility for Toronto and neighbourhood searches.",
+      "The existing site was slow, barely showed up for local searches, and didn't turn visitors into leads. They were losing jobs to competitors who ranked higher for Toronto window repair and glass repair queries.",
     solution:
-      "We delivered a fast, SEO-focused site with local keywords, clear service pages, and structured data, plus integrated booking so visitors could book 24/7.",
-    tools: ["AI-assisted build", "Local SEO", "Structured data", "Booking integration"],
-    beforeAfter: "Before: Low rankings and little organic traffic. After: Better visibility for local searches; more form submissions and bookings, including after hours.",
-    results: "Improved local search rankings and organic traffic; more qualified leads and bookings from organic search.",
+      "We rebuilt the site for speed and search: on-page SEO, local Toronto and neighbourhood keywords, technical fixes, and clear service pages. We made it easy for visitors to request quotes and call for emergency glass repair.",
+    tools: ["AI-assisted build", "Local SEO", "On-page & technical SEO", "Contact forms"],
+    beforeAfter:
+      "Before: Poor rankings, low traffic, few inquiries. After: Improved positions for key local terms; more organic traffic and leads; inquiries captured after hours.",
+    results:
+      "Measurable improvement in local search visibility and organic traffic; more leads and quote requests from search.",
     testimonial: null,
     cta: "Read more",
     href: "/contact",
