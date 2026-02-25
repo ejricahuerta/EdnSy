@@ -40,7 +40,11 @@ function toGeminiContents(messages: { role: string; content: string }[]): { role
 
 export const POST: RequestHandler = async ({ request, cookies }) => {
 	if (!GEMINI_API_KEY) {
-		return json({ error: 'Chat is not configured' }, { status: 503 });
+		// On Vercel: set GEMINI_API_KEY in Project → Settings → Environment Variables
+		return json(
+			{ error: 'Chat is not configured', code: 'MISSING_API_KEY' },
+			{ status: 503 }
+		);
 	}
 
 	const { count, date } = getCountAndDate(cookies);

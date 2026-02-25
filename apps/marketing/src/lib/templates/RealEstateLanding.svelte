@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { CAL_COM_LINK, DEMO_PHONE, YONGE_FINCH_MAP_EMBED_URL } from '$lib/constants';
+	import ChatWidget from '$lib/components/ChatWidget.svelte';
 	import { realEstateDemoContent } from '$lib/content/realEstate';
 	import {
 		Home,
