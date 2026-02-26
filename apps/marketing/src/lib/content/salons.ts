@@ -1,6 +1,5 @@
 /**
- * Salons demo industry: full landing content for a hair salon / beauty salon.
- * Same content shape as healthcare/dental/construction for template reuse.
+ * Salons demo: Canadian-focused (Ontario, local communities). Hair salon / beauty salon.
  */
 export const salonsDemoContent = {
 	header: {
@@ -12,7 +11,7 @@ export const salonsDemoContent = {
 		tagline: 'Your neighbourhood salon',
 		taglineWithCity: 'Your go-to salon in {city}',
 		subtext:
-			'Hair, nails, and skincare in a relaxed, friendly space. We use quality products and take the time to get it right.',
+			'Hair, nails, and skincare in a relaxed, friendly space. Proudly serving Ontario communities: we use quality products and take the time to get it right.',
 		subheadline: 'Hair • Nails • Skin. Walk-ins welcome when we have availability.',
 		trustBadges: [] as string[],
 		urgencyText: '',
@@ -69,7 +68,7 @@ export const salonsDemoContent = {
 	about: {
 		heading: 'About us',
 		subtext:
-			'We\'re a local salon that\'s been part of the community for years. Our goal is simple: send every client out the door feeling great.',
+			'We\'re a local Ontario salon that\'s been part of the community for years. Our goal is simple: send every client out the door feeling great.',
 		subtext2:
 			'We offer a full range of hair, nail, and skin services under one roof. Book one service or make a day of it.',
 		bullets: [
@@ -166,7 +165,7 @@ export const salonsDemoContent = {
 	faq: {
 		heading: 'Frequently asked questions',
 		items: [
-			{ q: 'Do I need to book in advance?', a: 'We recommend booking so we can reserve time for you. We do take walk-ins when we have availability—call or pop in to check.' },
+			{ q: 'Do I need to book in advance?', a: 'We recommend booking so we can reserve time for you. We do take walk-ins when we have availability; call or pop in to check.' },
 			{ q: 'What payment methods do you accept?', a: 'We accept card, cash, and most digital payment apps. Payment is due at the end of your service.' },
 			{ q: 'How do I book an appointment?', a: 'Use the "Book an appointment" button on this page or call us during salon hours. We\'ll confirm your appointment and send a reminder.' },
 			{ q: 'Do you do kids\' hair?', a: 'Yes. We welcome clients of all ages. Let us know when you book if you\'re bringing a child so we can allow the right amount of time.' },

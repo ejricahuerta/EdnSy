@@ -148,8 +148,44 @@
   --noise: 0;
 }
 
+/* Legal – navy header/footer, light beige content, golden-orange accent */
+@plugin "daisyui/theme" {
+  name: "legal";
+  default: false;
+  prefersdark: false;
+  color-scheme: "light";
+  --color-base-100: oklch(96% 0.01 85);
+  --color-base-200: oklch(94% 0.015 85);
+  --color-base-300: oklch(88% 0.02 85);
+  --color-base-content: oklch(22% 0.03 260);
+  --color-primary: oklch(72% 0.16 55);
+  --color-primary-content: oklch(20% 0.04 55);
+  --color-secondary: oklch(28% 0.04 260);
+  --color-secondary-content: oklch(94% 0.02 260);
+  --color-accent: oklch(72% 0.16 55);
+  --color-accent-content: oklch(20% 0.04 55);
+  --color-neutral: oklch(22% 0.04 260);
+  --color-neutral-content: oklch(92% 0.02 260);
+  --color-info: oklch(65% 0.15 232);
+  --color-info-content: oklch(98% 0.01 232);
+  --color-success: oklch(64% 0.14 155);
+  --color-success-content: oklch(98% 0.01 155);
+  --color-warning: oklch(78% 0.16 75);
+  --color-warning-content: oklch(22% 0.04 75);
+  --color-error: oklch(62% 0.2 25);
+  --color-error-content: oklch(98% 0.01 25);
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.75rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
 @plugin "daisyui" {
-  themes: dark --default, healthcare, aqua, construction, salons, forest, luxury, business, sunset;
+  themes: dark --default, healthcare, aqua, construction, salons, forest, luxury, business, sunset, legal;
 }
 
 /* Smooth theme switch when navigating between industry demos */

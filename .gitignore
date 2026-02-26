@@ -46,6 +46,9 @@ scripts/prd.txt
 .keys/*
 .keys
 
+# Demo scraped/generated JSON (Business Data + Website Data)
+apps/marketing/data/
+
 # Miscellaneous
 package-lock.json
 

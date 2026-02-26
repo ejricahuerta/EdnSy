@@ -1,547 +1,249 @@
 <script lang="ts">
-	import { CAL_COM_LINK, DEMO_PHONE, YONGE_FINCH_MAP_EMBED_URL } from '$lib/constants';
+	import { CAL_COM_LINK, DEMO_PHONE } from '$lib/constants';
 	import ChatWidget from '$lib/components/ChatWidget.svelte';
 	import { healthcareDemoContent } from '$lib/content/healthcare';
+	import type { DemoProspect } from '$lib/types/demo';
 	import {
-		Stethoscope,
-		HeartPulse,
-		CalendarCheck,
-		ShieldCheck,
-		Building2,
-		Clock,
-		Users,
-		ArrowRight,
-		MapPin,
-		Phone,
-		Mail,
-		ChevronDown,
-		Quote,
-		Calendar,
+		Video,
+		Heart,
+		Brain,
+		Activity,
 		FileCheck,
-		ClipboardList,
+		Calendar,
+		Leaf,
+		Check,
+		ArrowRight,
 		Star,
-		CreditCard
+		Menu,
+		X
 	} from 'lucide-svelte';
 
-	let {
-		companyName = '',
-		website = '',
-		address = '',
-		city = '',
-		industrySlug = 'healthcare'
-	}: {
-		companyName?: string;
-		website?: string;
-		address?: string;
-		city?: string;
-		industrySlug?: string;
-	} = $props();
+	let { prospect, content = healthcareDemoContent }: { prospect: DemoProspect; content?: typeof healthcareDemoContent } = $props();
+	const displayName = $derived(prospect.companyName || 'Riverside Medical');
+	const companyName = $derived(prospect.companyName);
+	const website = $derived(prospect.website);
+	const address = $derived(prospect.address);
+	const city = $derived(prospect.city);
+	const industrySlug = 'healthcare';
 
-	const content = healthcareDemoContent;
-	const displayAddress = address || content.contact.address;
-	const displayName = companyName || 'Your clinic';
-	const heroHeadline = city
-		? content.hero.taglineWithCity.replace('{city}', city)
-		: displayName;
-	const heroSubline = city ? displayName : content.hero.tagline;
-	const urgencyText = content.hero.urgencyText ?? '';
+	const serviceIcons = [Video, Heart, Brain, Activity, FileCheck, Calendar] as const;
 
-	const serviceIcons = { Stethoscope, HeartPulse, CalendarCheck } as const;
-	const whyIcons = [ShieldCheck, Building2, Clock] as const;
+	let navOpen = $state(false);
 </script>
 
-<div class="healthcare-landing flex flex-col min-h-screen">
-	<!-- Header -->
-	<header class="sticky top-0 z-50 bg-base-100/95 backdrop-blur-md border-b border-base-300/80 shadow-sm">
-		<nav class="navbar min-h-16 lg:min-h-[4.25rem] w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 gap-2">
-			<div class="navbar-start flex-1 min-w-0">
-				<a href="#" class="text-lg sm:text-xl font-bold text-base-content truncate tracking-tight hover:text-primary transition-colors">{displayName}</a>
+<div class="healthcare-landing flex flex-col min-h-screen bg-white">
+	<!-- 1. Header: logo (leaf) + name left, nav right, Get Started -->
+	<header class="sticky top-0 z-50 bg-white border-b border-stone-200 shadow-sm">
+		<nav class="navbar min-h-16 lg:min-h-[4.25rem] w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 gap-4">
+			<div class="navbar-start">
+				<a href="#" class="flex items-center gap-2">
+					<Leaf class="w-8 h-8 text-emerald-600" aria-hidden="true" />
+					<span class="text-xl font-bold text-stone-800">{displayName}</span>
+				</a>
 			</div>
-			<div class="navbar-end flex-none">
+			<div class="navbar-end hidden lg:flex items-center gap-8">
+				{#each content.header.navLinks as link}
+					<a href={link.href} class="text-stone-600 hover:text-stone-900 text-sm font-medium transition-colors">{link.label}</a>
+				{/each}
 				<a
 					href={CAL_COM_LINK}
 					target="_blank"
 					rel="noopener noreferrer"
-					class="btn btn-primary btn-sm sm:btn-md shadow-sm hover:shadow transition-shadow"
+					class="btn btn-sm bg-emerald-600 hover:bg-emerald-700 text-white border-0 rounded-full"
 				>
 					{content.header.ctaLabel}
 				</a>
 			</div>
+			<button type="button" class="btn btn-ghost btn-square lg:hidden text-stone-700" aria-label="Toggle menu" onclick={() => (navOpen = !navOpen)}>
+				{#if navOpen}<X class="w-6 h-6" />{:else}<Menu class="w-6 h-6" />{/if}
+			</button>
 		</nav>
+		{#if navOpen}
+			<div class="lg:hidden border-t border-stone-200 px-4 py-4 flex flex-col gap-2 bg-white">
+				{#each content.header.navLinks as link}
+					<a href={link.href} class="text-stone-600 hover:text-stone-900 py-2" onclick={() => (navOpen = false)}>{link.label}</a>
+				{/each}
+				<a href={CAL_COM_LINK} target="_blank" rel="noopener noreferrer" class="btn btn-sm bg-emerald-600 text-white mt-2">{content.header.ctaLabel}</a>
+			</div>
+		{/if}
 	</header>
 
 	<main class="flex-1">
-		<!-- Hero -->
-		<section
-			class="relative min-h-[80vh] flex flex-col justify-end pb-16 md:pb-24 pt-24 md:pt-32"
-			aria-labelledby="hero-heading"
-		>
-			<div
-				class="absolute inset-0 bg-cover bg-center bg-no-repeat"
-				style="background-image: url('{content.hero.image}');"
-				role="img"
-				aria-label={content.hero.imageAlt}
-			></div>
-			<div class="absolute inset-0 bg-gradient-to-t from-base-content/80 via-base-content/50 to-base-content/40"></div>
-			<div class="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-base-100">
-				{#if content.hero.badge && !city}
-					<span class="badge badge-primary badge-lg mb-5 shadow-lg border-0">{content.hero.badge}</span>
-				{/if}
-				<h1 id="hero-heading" class="text-4xl md:text-6xl lg:text-7xl font-bold mb-4 drop-shadow-lg tracking-tight leading-tight">
-					{heroHeadline}
-				</h1>
-				<p class="text-xl md:text-2xl font-semibold mb-6 drop-shadow text-base-100/95 max-w-2xl mx-auto">
-					{city ? content.hero.subheadline : (content.hero.subheadline || heroSubline)}
-				</p>
-				{#if urgencyText}
-					<p class="text-sm text-base-100/90 mb-6 drop-shadow font-medium">{urgencyText}</p>
-				{/if}
-				<div class="flex flex-wrap justify-center gap-4">
-					<a
-						href={CAL_COM_LINK}
-						target="_blank"
-						rel="noopener noreferrer"
-						class="btn btn-primary btn-lg text-primary-content gap-2 shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5"
-					>
-						{content.hero.ctaPrimary}
-						<ArrowRight class="w-5 h-5" />
-					</a>
-					{#if content.hero.ctaSecondary}
-						<a
-							href={CAL_COM_LINK}
-							target="_blank"
-							rel="noopener noreferrer"
-							class="btn btn-outline btn-lg border-2 border-base-100 text-base-100 hover:bg-base-100 hover:text-base-content gap-2 transition-all hover:-translate-y-0.5"
-						>
-							{content.hero.ctaSecondary}
-							<ArrowRight class="w-5 h-5" />
-						</a>
-					{/if}
-				</div>
-				<div class="mt-12 pt-8 border-t border-base-100/30 grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 text-center max-w-3xl mx-auto">
-					{#each content.stats as stat}
-						<div>
-							<p class="text-4xl md:text-5xl font-bold drop-shadow tracking-tight">{stat.value}</p>
-							<p class="text-base-100/90 font-medium mt-1 text-sm drop-shadow">{stat.label}</p>
-						</div>
-					{/each}
-				</div>
-			</div>
-		</section>
-
-		<!-- Why choose us (optional strip) -->
-		<section class="py-16 md:py-24 bg-base-100" aria-labelledby="why-heading">
+		<!-- 2. Hero: split – left (badge, headline, text, CTAs, stats); right (image, HIPAA badge) -->
+		<section class="py-16 md:py-24 bg-white" aria-labelledby="hero-heading">
 			<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-				<header class="text-center mb-14">
-					<h2 id="why-heading" class="section-heading mx-auto mb-4">
-						{content.whyUs.heading}
-					</h2>
-					<p class="section-lead mx-auto text-center">{content.whyUs.subtext}</p>
-				</header>
-				<div class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-12 md:gap-y-14">
-					{#each content.whyUs.items as item, i}
-						{@const Icon = whyIcons[i]}
-						<div class="flex flex-col items-center text-center group">
-							<div class="rounded-2xl bg-primary/10 p-5 text-primary mb-6 transition-colors group-hover:bg-primary/20" aria-hidden="true">
-								<Icon class="w-9 h-9" />
-							</div>
-							<h3 class="font-semibold text-lg text-base-content mb-3">{item.title}</h3>
-							<p class="text-base-content/80 text-[15px] leading-relaxed max-w-xs">{item.description}</p>
+				<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+					<div>
+						<div class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-100 text-emerald-800 text-sm font-medium mb-6">
+							<Leaf class="w-4 h-4" />
+							{content.hero.badge}
 						</div>
-					{/each}
-				</div>
-			</div>
-		</section>
-
-		<!-- Services -->
-		<section id="services" class="py-20 md:py-28 bg-base-200/50" aria-labelledby="services-heading">
-			<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-				<header class="text-center mb-14">
-					<h2 id="services-heading" class="section-heading mx-auto mb-4">
-						{content.services.heading}
-					</h2>
-					<p class="section-lead mx-auto">
-						{content.services.subtext}
-					</p>
-				</header>
-				<div class="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10">
-					{#each content.services.items as service}
-						{@const Icon = serviceIcons[service.icon as keyof typeof serviceIcons] ?? HeartPulse}
-						<div class="card bg-base-100 shadow-md border border-base-300/80 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-primary/30 flex flex-col">
-							<div class="card-body p-6 md:p-8 flex flex-col flex-1">
-								<div class="rounded-xl bg-primary/10 w-fit p-3.5 text-primary mb-5" aria-hidden="true">
-									<Icon class="w-8 h-8" />
+						<h1 id="hero-heading" class="text-4xl md:text-5xl font-bold text-stone-900 mb-4 leading-tight">
+							Healthcare <span class="text-emerald-600">{content.hero.headlineHighlight}</span>
+						</h1>
+						<p class="text-stone-600 text-lg leading-relaxed mb-8">{content.hero.subtext}</p>
+						<div class="flex flex-wrap items-center gap-4 mb-10">
+							<a href={CAL_COM_LINK} target="_blank" rel="noopener noreferrer" class="btn bg-emerald-600 hover:bg-emerald-700 text-white border-0 rounded-full gap-2">
+								{content.hero.ctaPrimary}
+								<ArrowRight class="w-4 h-4" />
+							</a>
+							<a href="#services" class="inline-flex items-center gap-2 text-emerald-600 font-medium hover:underline">
+								<ArrowRight class="w-4 h-4" />
+								{content.hero.ctaSecondary}
+							</a>
+						</div>
+						<div class="flex flex-wrap gap-8">
+							{#each content.hero.stats as stat}
+								<div>
+									<p class="text-2xl font-bold text-stone-900">{stat.value}</p>
+									<p class="text-stone-500 text-sm">{stat.label}</p>
 								</div>
-								<h3 class="card-title text-lg md:text-xl text-base-content mb-3">{service.title}</h3>
-								<p class="text-base-content/80 text-[15px] leading-relaxed flex-1">{service.description}</p>
-								<a
-									href={CAL_COM_LINK}
-									target="_blank"
-									rel="noopener noreferrer"
-									class="btn btn-primary btn-sm mt-6 gap-2 w-fit transition-all hover:gap-3"
-								>
-									Book now
-									<ArrowRight class="w-4 h-4" />
-								</a>
-							</div>
+							{/each}
+						</div>
+					</div>
+					<div class="relative">
+						<div class="rounded-2xl overflow-hidden shadow-xl">
+							<img src={content.hero.image} alt={content.hero.imageAlt} class="object-cover w-full h-full" width="600" height="500" />
+						</div>
+						<div class="absolute bottom-4 left-4 flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-100 text-emerald-800 text-sm shadow">
+							<Check class="w-4 h-4" />
+							<span class="font-medium">{content.hero.hipaaBadge}</span>
+							<span class="text-emerald-700/80">{content.hero.hipaaSubtext}</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- 3. Trusted By -->
+		<section class="py-12 bg-stone-50" aria-label="Trusted by">
+			<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+				<p class="text-stone-500 text-sm mb-8">{content.trustedBy.heading}</p>
+				<div class="flex flex-wrap justify-center gap-8 md:gap-12">
+					{#each content.trustedBy.brands as brand}
+						<span class="text-stone-600 font-medium">{brand}</span>
+					{/each}
+				</div>
+			</div>
+		</section>
+
+		<!-- 4. Services: OUR SERVICES, 6 cards 2x3 -->
+		<section id="services" class="py-20 md:py-28 bg-white" aria-labelledby="services-heading">
+			<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+				<p class="text-emerald-600 font-semibold text-sm uppercase tracking-wider text-center mb-2">{content.services.subtitle}</p>
+				<h2 id="services-heading" class="text-3xl md:text-4xl font-bold text-stone-900 text-center mb-4">{content.services.heading}</h2>
+				<p class="text-stone-600 text-center max-w-2xl mx-auto mb-14">{content.services.subtext}</p>
+				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+					{#each content.services.items as service, i}
+						{@const Icon = serviceIcons[i] ?? Heart}
+						<div class="p-6 rounded-xl bg-stone-50 border border-stone-200">
+							<div class="text-emerald-600 mb-4"><Icon class="w-8 h-8" /></div>
+							<h3 class="font-semibold text-stone-900 text-lg mb-2">{service.title}</h3>
+							<p class="text-stone-600 text-sm leading-relaxed">{service.description}</p>
 						</div>
 					{/each}
 				</div>
 			</div>
 		</section>
 
-		<!-- About -->
-		<section id="about" class="py-20 md:py-28 bg-base-100" aria-labelledby="about-heading">
+		<!-- 5. Innovation: left image + badge, right heading + bullets -->
+		<section id="about" class="py-20 md:py-28 bg-stone-50" aria-labelledby="innovation-heading">
 			<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div class="grid grid-cols-1 lg:grid-cols-2 gap-14 lg:gap-20 items-center">
-					<div class="lg:pr-4">
-						<h2 id="about-heading" class="section-heading mb-6">
-							{content.about.heading}
-						</h2>
-						<div class="prose-block space-y-5 text-base-content/80">
-							<p>{content.about.subtext}</p>
-							<p>{content.about.subtext2}</p>
+				<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+					<div class="relative">
+						<div class="rounded-2xl overflow-hidden shadow-lg">
+							<img src={content.innovation.image} alt={content.innovation.imageAlt} class="object-cover w-full h-full" width="600" height="400" />
 						</div>
-						<ul class="space-y-4 mt-8" role="list">
-							{#each content.about.bullets as bullet}
-								<li class="flex items-start gap-3 text-base-content/80 text-[15px] leading-relaxed">
-									<Users class="w-5 h-5 text-primary shrink-0 mt-0.5" aria-hidden="true" />
-									<span>{bullet}</span>
+						<div class="absolute top-4 right-4 px-4 py-2 rounded-full bg-emerald-100 text-emerald-800 text-sm font-medium shadow">
+							{content.innovation.statBadge} {content.innovation.statLabel}
+						</div>
+					</div>
+					<div>
+						<h2 id="innovation-heading" class="text-3xl md:text-4xl font-bold text-stone-900 mb-4">{content.innovation.heading}</h2>
+						<p class="text-stone-600 leading-relaxed mb-8">{content.innovation.body}</p>
+						<ul class="space-y-4" role="list">
+							{#each content.innovation.bullets as bullet}
+								<li class="flex items-start gap-3">
+									<Check class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" aria-hidden="true" />
+									<span class="text-stone-600">{bullet}</span>
 								</li>
 							{/each}
 						</ul>
 					</div>
-					<div class="relative rounded-2xl overflow-hidden shadow-xl ring-1 ring-base-300/50 aspect-[4/3] lg:min-h-[320px]">
-						<img
-							src={content.about.image}
-							alt={content.about.imageAlt}
-							class="object-cover w-full h-full"
-							loading="lazy"
-							width="800"
-							height="600"
-						/>
-					</div>
 				</div>
 			</div>
 		</section>
 
-		<!-- New patients -->
-		<section id="new-patients" class="py-20 md:py-28 bg-base-200/50" aria-labelledby="new-patients-heading">
+		<!-- 6. Stats bar: dark teal -->
+		<section class="py-16 md:py-20 bg-teal-900 text-white" aria-label="Statistics">
 			<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-				<header class="text-center mb-12">
-					<h2 id="new-patients-heading" class="section-heading mx-auto mb-4">
-						{content.newPatients.heading}
-					</h2>
-					<p class="section-lead mx-auto mb-2">
-						{content.newPatients.subtext}
-					</p>
-					{#if content.newPatients.switchingEasy}
-						<p class="font-semibold text-primary mt-4">{content.newPatients.switchingEasy}</p>
-					{/if}
-				</header>
+				<div class="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12 text-center">
+					{#each content.statsBar as stat}
+						<div>
+							<p class="text-4xl md:text-5xl font-bold tracking-tight">{stat.value}</p>
+							<p class="text-teal-100/90 text-sm mt-2">{stat.label}</p>
+						</div>
+					{/each}
+				</div>
+			</div>
+		</section>
 
-				<div class="grid grid-cols-1 {content.newPatients.whatToBring?.length ? 'lg:grid-cols-2' : 'max-w-2xl mx-auto'} gap-10 lg:gap-14 items-start">
-					<!-- Col 1: What to bring + CTA -->
-					{#if content.newPatients.whatToBring && content.newPatients.whatToBring.length > 0}
-						<div class="lg:sticky lg:top-24 space-y-6">
-							<div class="p-6 md:p-8 rounded-2xl bg-base-100 border border-base-300/80 shadow-sm">
-								<h3 class="font-semibold text-base-content mb-5">What to bring</h3>
-								<ul class="space-y-3" role="list">
-									{#each content.newPatients.whatToBring as item}
-										<li class="flex items-center gap-3 text-base-content/80 text-[15px] leading-relaxed">
-											<span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary text-xs font-semibold" aria-hidden="true">✓</span>
-											<span>{item}</span>
-										</li>
-									{/each}
-								</ul>
+		<!-- 7. Testimonials -->
+		<section id="testimonials" class="py-20 md:py-28 bg-white" aria-labelledby="testimonials-heading">
+			<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+				<p class="text-emerald-600 font-semibold text-sm uppercase tracking-wider text-center mb-2">{content.testimonials.subtitle}</p>
+				<h2 id="testimonials-heading" class="text-3xl md:text-4xl font-bold text-stone-900 text-center mb-4">{content.testimonials.heading}</h2>
+				<p class="text-stone-600 text-center max-w-2xl mx-auto mb-14">{content.testimonials.subtext}</p>
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+					{#each content.testimonials.items as t}
+						<div class="p-6 md:p-8 rounded-xl bg-stone-50 border border-stone-200">
+							<div class="flex gap-1 mb-4">
+								{#each Array.from({ length: t.rating ?? 5 }) as _}
+									<Star class="w-4 h-4 fill-emerald-500 text-emerald-500" aria-hidden="true" />
+								{/each}
 							</div>
-							<a
-								href={CAL_COM_LINK}
-								target="_blank"
-								rel="noopener noreferrer"
-								class="btn btn-primary btn-lg gap-2 shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 w-full"
-							>
-								{content.newPatients.ctaLabel}
-								<ArrowRight class="w-5 h-5" />
+							<blockquote class="text-stone-700 italic mb-6">&ldquo;{t.quote}&rdquo;</blockquote>
+							<p class="font-semibold text-stone-900">{t.author}</p>
+							<p class="text-stone-500 text-sm">{t.role}</p>
+						</div>
+					{/each}
+				</div>
+			</div>
+		</section>
+
+		<!-- 8. Final CTA: left dark, right image -->
+		<section id="contact" class="py-20 md:py-28 bg-teal-900 text-white" aria-labelledby="cta-heading">
+			<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+				<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+					<div>
+						<h2 id="cta-heading" class="text-3xl md:text-4xl font-bold mb-4">{content.cta.heading}</h2>
+						<p class="text-teal-100/90 text-lg leading-relaxed mb-8">{content.cta.subtext}</p>
+						<div class="flex flex-wrap gap-4">
+							<a href={CAL_COM_LINK} target="_blank" rel="noopener noreferrer" class="btn bg-emerald-500 hover:bg-emerald-400 text-white border-0 gap-2">
+								{content.cta.buttonPrimary}
+								<ArrowRight class="w-4 h-4" />
+							</a>
+							<a href={CAL_COM_LINK} target="_blank" rel="noopener noreferrer" class="btn btn-outline border-2 border-white text-white hover:bg-white hover:text-teal-900">
+								{content.cta.buttonSecondary}
 							</a>
 						</div>
-					{/if}
-
-					<!-- Col 2: Steps -->
-					<div class="space-y-6">
-						<div class="grid grid-cols-1 gap-6">
-							{#each content.newPatients.steps as step, i}
-								{@const StepIcon = [Calendar, FileCheck, ClipboardList][i] ?? ClipboardList}
-								<div class="card bg-base-100 shadow-md border border-base-300/80 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-									<div class="card-body p-6 md:p-6 flex flex-row gap-4">
-										<div class="rounded-xl bg-primary/10 w-fit h-fit p-3 text-primary shrink-0" aria-hidden="true">
-											<StepIcon class="w-7 h-7" />
-										</div>
-										<div class="min-w-0">
-											<h3 class="card-title text-lg mb-2">{step.title}</h3>
-											<p class="text-base-content/80 text-[15px] leading-relaxed">{step.description}</p>
-										</div>
-									</div>
-								</div>
-							{/each}
-						</div>
+					</div>
+					<div class="rounded-2xl overflow-hidden shadow-2xl">
+						<img src={content.cta.image} alt={content.cta.imageAlt} class="object-cover w-full h-full" width="600" height="400" />
 					</div>
 				</div>
-
-				{#if !content.newPatients.whatToBring?.length}
-					<div class="max-w-2xl mx-auto mt-10 text-center">
-						<a
-							href={CAL_COM_LINK}
-							target="_blank"
-							rel="noopener noreferrer"
-							class="btn btn-primary btn-lg gap-2 shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5"
-						>
-							{content.newPatients.ctaLabel}
-							<ArrowRight class="w-5 h-5" />
-						</a>
-					</div>
-				{/if}
-			</div>
-		</section>
-
-		<!-- What to expect -->
-		<section class="py-20 md:py-28 bg-base-100" aria-labelledby="expect-heading">
-			<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-				<header class="text-center mb-12">
-					<h2 id="expect-heading" class="section-heading mx-auto mb-4">
-						{content.whatToExpect.heading}
-					</h2>
-					<p class="section-lead mx-auto">{content.whatToExpect.subtext}</p>
-				</header>
-				<ul class="space-y-4" role="list">
-					{#each content.whatToExpect.items as item, i}
-						<li class="flex items-start gap-5 p-5 md:p-6 rounded-xl bg-base-200/60 border border-base-300/50 transition-colors hover:bg-base-200/80">
-							<span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-content font-semibold text-sm" aria-hidden="true">{i + 1}</span>
-							<span class="text-base-content/90 pt-1.5 text-[15px] leading-relaxed">{item}</span>
-						</li>
-					{/each}
-				</ul>
-			</div>
-		</section>
-
-		<!-- Testimonials -->
-		<section class="py-20 md:py-28 bg-base-200/50" aria-labelledby="testimonials-heading">
-			<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-				<header class="text-center mb-12">
-					<h2 id="testimonials-heading" class="section-heading mx-auto mb-4">
-						{content.testimonials.heading}
-					</h2>
-					<p class="section-lead mx-auto mb-2">{content.testimonials.subtext}</p>
-					{#if content.testimonials.ratingDisplay || content.testimonials.reviewCount}
-						<p class="mt-6 flex flex-wrap items-center justify-center gap-2">
-							{#if content.testimonials.ratingDisplay}
-								<span class="inline-flex items-center gap-1.5 font-semibold text-base-content">
-									<Star class="w-5 h-5 fill-primary text-primary" aria-hidden="true" />
-									{content.testimonials.ratingDisplay}
-								</span>
-							{/if}
-							{#if content.testimonials.reviewCount}
-								<span class="text-base-content/70 text-sm">({content.testimonials.reviewCount})</span>
-							{/if}
-						</p>
-					{/if}
-				</header>
-				<div class="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10">
-					{#each content.testimonials.items as t}
-						<div class="card bg-base-100 shadow-md border border-base-300/80 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col">
-							<div class="card-body p-6 md:p-8 flex flex-col flex-1">
-								<div class="flex gap-1 mb-3" aria-hidden="true">
-									{#each Array.from({ length: t.rating ?? 5 }) as _}
-										<Star class="w-4 h-4 fill-primary text-primary shrink-0" />
-									{/each}
-								</div>
-								<Quote class="w-10 h-10 text-primary/40 mb-3 flex-shrink-0" aria-hidden="true" />
-								<blockquote class="text-base-content/90 italic text-[15px] leading-relaxed flex-1">&ldquo;{t.quote}&rdquo;</blockquote>
-								<footer class="mt-5 pt-4 border-t border-base-300/50">
-									<p class="font-semibold text-base-content">{t.author}</p>
-									<p class="text-sm text-base-content/70">{t.role}</p>
-								</footer>
-							</div>
-						</div>
-					{/each}
-				</div>
-			</div>
-		</section>
-
-		<!-- FAQ -->
-		<section id="faq" class="py-20 md:py-28 bg-base-100" aria-labelledby="faq-heading">
-			<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-				<header class="text-center mb-12">
-					<h2 id="faq-heading" class="section-heading mx-auto">
-						{content.faq.heading}
-					</h2>
-				</header>
-				<div class="join join-vertical w-full gap-0 rounded-2xl overflow-hidden border border-base-300/80 shadow-sm">
-					{#each content.faq.items as item}
-						<details class="join-item group border-0 border-b border-base-300/60 last:border-b-0 bg-base-100">
-							<summary class="flex cursor-pointer items-start justify-between gap-4 px-6 py-5 font-medium text-base-content hover:bg-base-200/50 transition-colors list-none [&::-webkit-details-marker]:hidden">
-								<span class="pr-4 text-left">{item.q}</span>
-								<ChevronDown class="w-5 h-5 shrink-0 mt-0.5 transition-transform duration-200 group-open:rotate-180 text-base-content/60" />
-							</summary>
-							<div class="px-6 pb-6 pt-0 text-base-content/80 border-t border-base-300/40 bg-base-100">
-								<p class="pt-3 text-[15px] leading-relaxed" style="line-height: 1.75;">{item.a}</p>
-							</div>
-						</details>
-					{/each}
-				</div>
-			</div>
-		</section>
-
-		<!-- Contact us & location -->
-		<section id="contact" class="py-20 md:py-28 bg-base-200/50" aria-labelledby="contact-heading">
-			<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-				<header class="text-center mb-14">
-					<h2 id="contact-heading" class="section-heading mx-auto mb-4">
-						{content.contact.heading}
-					</h2>
-					<p class="section-lead mx-auto">
-						{content.contact.subtext}
-					</p>
-				</header>
-				<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
-					<div class="space-y-5">
-						<div class="p-6 rounded-xl bg-base-100 border border-base-300/80 shadow-sm">
-							<h3 class="font-semibold text-base-content mb-2 flex items-center gap-2">
-								<MapPin class="w-5 h-5 text-primary shrink-0" aria-hidden="true" />
-								Location
-							</h3>
-							<p class="text-base-content/80 text-[15px] leading-relaxed pl-7">{displayAddress}</p>
-						</div>
-						<div id="hours" class="p-6 rounded-xl bg-base-100 border border-base-300/80 shadow-sm">
-							<h3 class="font-semibold text-base-content mb-2 flex items-center gap-2">
-								<Clock class="w-5 h-5 text-primary shrink-0" aria-hidden="true" />
-								{content.hours.heading}
-							</h3>
-							<ul class="space-y-1.5 text-base-content/80 text-[15px] leading-relaxed pl-7" role="list">
-								{#each content.hours.lines as line}
-									<li>{line}</li>
-								{/each}
-							</ul>
-						</div>
-						<div id="insurance" class="p-6 rounded-xl bg-base-100 border border-base-300/80 shadow-sm" aria-labelledby="insurance-heading">
-							<h3 id="insurance-heading" class="font-semibold text-base-content mb-2 flex items-center gap-2">
-								<CreditCard class="w-5 h-5 text-primary shrink-0" aria-hidden="true" />
-								{content.insurance.heading}
-							</h3>
-							<p class="text-base-content/80 text-[15px] leading-relaxed pl-7" style="line-height: 1.75;">{content.insurance.body}</p>
-						</div>
-						<div class="p-6 rounded-xl bg-base-100 border border-base-300/80 shadow-sm">
-							<h3 class="font-semibold text-base-content mb-2 flex items-center gap-2">
-								<Phone class="w-5 h-5 text-primary shrink-0" aria-hidden="true" />
-								Phone
-							</h3>
-							<a href={`tel:${DEMO_PHONE}`} class="link link-hover text-base-content/80 hover:text-primary pl-7 block text-[15px]">{content.contact.phone}</a>
-						</div>
-						<div class="p-6 rounded-xl bg-base-100 border border-base-300/80 shadow-sm">
-							<h3 class="font-semibold text-base-content mb-2 flex items-center gap-2">
-								<Mail class="w-5 h-5 text-primary shrink-0" aria-hidden="true" />
-								Email
-							</h3>
-							<a href={"mailto:" + content.contact.email} class="link link-hover text-base-content/80 hover:text-primary break-all pl-7 block text-[15px]">{content.contact.email}</a>
-						</div>
-						<a
-							href={CAL_COM_LINK}
-							target="_blank"
-							rel="noopener noreferrer"
-							class="btn btn-primary gap-2 inline-flex shadow-md hover:shadow-lg transition-all mt-2"
-						>
-							{content.contact.ctaLabel}
-							<ArrowRight class="w-4 h-4" />
-						</a>
-					</div>
-					<div class="rounded-2xl overflow-hidden border border-base-300/80 shadow-lg aspect-video w-full min-h-[280px]">
-						<iframe
-							title="Map: Yonge and Finch, North York, Toronto"
-							src={YONGE_FINCH_MAP_EMBED_URL}
-							width="100%"
-							height="100%"
-							style="border:0;"
-							allowfullscreen
-							loading="lazy"
-							referrerpolicy="no-referrer-when-downgrade"
-						></iframe>
-					</div>
-				</div>
-			</div>
-		</section>
-
-		<!-- CTA strip -->
-		<section class="py-20 md:py-28 bg-primary text-primary-content" aria-labelledby="cta-heading">
-			<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-				<h2 id="cta-heading" class="section-heading mb-5 text-primary-content">{content.cta.heading}</h2>
-				<p class="text-primary-content/95 mb-4 text-lg leading-relaxed" style="line-height: 1.7;">{content.cta.subtext}</p>
-				{#if content.cta.microReassurance}
-					<p class="text-primary-content/85 text-sm mb-8">{content.cta.microReassurance}</p>
-				{/if}
-				<a
-					href={CAL_COM_LINK}
-					target="_blank"
-					rel="noopener noreferrer"
-					class="btn btn-neutral btn-lg gap-2 shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5"
-				>
-					{content.cta.button}
-					<ArrowRight class="w-5 h-5" />
-				</a>
-				{#if content.cta.phoneLabel && content.contact.phone}
-					<p class="mt-8 text-primary-content/95 text-[15px]">
-						{content.cta.phoneLabel}:
-						<a href={`tel:${DEMO_PHONE}`} class="link link-neutral font-semibold hover:underline">{content.contact.phone}</a>
-					</p>
-				{/if}
 			</div>
 		</section>
 	</main>
 
-	<!-- Footer -->
-	<footer class="bg-base-200 text-base-content border-t border-base-300">
-		<div class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20">
-			<div class="grid grid-cols-1 sm:grid-cols-2 gap-12 lg:gap-16">
-				<!-- Quick links -->
-				<div>
-					<h3 class="font-semibold text-base-content mb-5 text-sm uppercase tracking-wider opacity-90">
-						Quick links
-					</h3>
-					<nav class="flex flex-col gap-3">
-						{#each content.footer.links as link}
-							<a href={link.href} class="link link-hover text-base-content/80 hover:text-primary text-sm transition-colors w-fit">
-								{link.label}
-							</a>
-						{/each}
-					</nav>
-				</div>
-
-				<!-- CTA -->
-				<div class="flex flex-col items-start sm:items-end justify-start">
-					<h3 class="font-semibold text-base-content mb-5 text-sm uppercase tracking-wider opacity-90">
-						Book a visit
-					</h3>
-					<a
-						href={CAL_COM_LINK}
-						target="_blank"
-						rel="noopener noreferrer"
-						class="btn btn-primary gap-2 shadow-sm hover:shadow transition-shadow"
-					>
-						{content.footer.ctaLabel}
-						<ArrowRight class="w-4 h-4" />
-					</a>
-				</div>
-			</div>
-		</div>
-
-		<div class="border-t border-base-300 px-4 py-6">
-			<div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-base-content/60">
-				<p>© {new Date().getFullYear()} {displayName}. {content.footer.copyright}</p>
-				<p>Powered by Ed & Sy Inc.</p>
-			</div>
+	<footer class="bg-stone-800 text-stone-200 py-12">
+		<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
+			<p>© {new Date().getFullYear()} {displayName}. All rights reserved.</p>
+			<p class="text-stone-400">Powered by Ed & Sy Inc.</p>
 		</div>
 	</footer>
 
-	<ChatWidget industrySlug={industrySlug} displayName={displayName} />
+	<ChatWidget industrySlug={industrySlug} displayName={displayName} prospectId={prospect.id} />
 </div>
 
 {#if website}
@@ -549,28 +251,9 @@
 {/if}
 
 <style>
-	.healthcare-landing details summary::-webkit-details-marker {
-		display: none;
-	}
 	.healthcare-landing a:focus-visible,
 	.healthcare-landing button:focus-visible {
-		outline: 2px solid oklch(var(--p));
+		outline: 2px solid var(--tw-color-emerald-600);
 		outline-offset: 2px;
-	}
-	.healthcare-landing .section-heading {
-		font-size: clamp(1.75rem, 4vw, 2.25rem);
-		font-weight: 700;
-		letter-spacing: -0.02em;
-		line-height: 1.2;
-		color: oklch(var(--bc));
-	}
-	.healthcare-landing .section-lead {
-		color: oklch(var(--bc) / 0.8);
-		line-height: 1.7;
-		max-width: 42rem;
-	}
-	.healthcare-landing .prose-block {
-		max-width: 42rem;
-		line-height: 1.75;
 	}
 </style>

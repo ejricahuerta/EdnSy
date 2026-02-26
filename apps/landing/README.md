@@ -4,7 +4,7 @@ This is the interactive demo platform for Ednsy, designed to help local business
 
 ## What is Ednsy?
 
-Ednsy empowers local businesses—such as service providers, retailers, and professionals—to streamline operations, save time, and make smarter decisions using AI-powered automation. Our platform lets business owners try out real-world automations in a risk-free, hands-on environment.
+Ednsy empowers local businesses (such as service providers, retailers, and professionals) to streamline operations, save time, and make smarter decisions using AI-powered automation. Our platform lets business owners try out real-world automations in a risk-free, hands-on environment.
 
 ## Who is it for?
 

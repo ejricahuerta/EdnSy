@@ -1,6 +1,5 @@
 /**
- * Fitness demo: gyms, studios, personal trainers.
- * Same content shape as other industries for template reuse.
+ * Fitness demo: Canadian-focused (coast to coast, Canadian locations). Gyms, studios, personal trainers.
  */
 export const fitnessDemoContent = {
 	header: {
@@ -8,11 +7,11 @@ export const fitnessDemoContent = {
 		ctaLabel: 'Book a class'
 	},
 	hero: {
-		badge: 'New members welcome',
+		badge: 'New members welcome across Canada',
 		tagline: 'Train. Sweat. Feel great.',
 		taglineWithCity: 'Your fitness community in {city}',
 		subtext:
-			'Group classes, personal training, and a supportive environment. Whether you\'re new to fitness or levelling up, we\'re here for you.',
+			'Group classes, personal training, and a supportive environment. From Ontario to BC, we\'re one of Canada\'s trusted fitness communities, whether you\'re new to fitness or levelling up.',
 		subheadline: 'Classes • Personal training • Open gym. First class free for new members.',
 		trustBadges: [] as string[],
 		urgencyText: '',
@@ -28,7 +27,7 @@ export const fitnessDemoContent = {
 			{
 				title: 'Expert coaches',
 				description:
-					'Certified trainers who scale workouts to your level. Form and safety come first—then intensity.'
+					'Certified trainers who scale workouts to your level. Form and safety come first, then intensity.'
 			},
 			{
 				title: 'Inclusive vibe',
@@ -69,13 +68,13 @@ export const fitnessDemoContent = {
 	about: {
 		heading: 'About us',
 		subtext:
-			'We\'re a local gym and studio built on community. Our mission is to make fitness accessible, effective, and something you actually enjoy.',
+			'We\'re a Canadian gym and studio built on community. Our mission is to make fitness accessible, effective, and something you actually enjoy, from coast to coast.',
 		subtext2:
-			'We welcome beginners and experienced athletes. Every class can be scaled—you work at your level and progress from there.',
+			'We welcome beginners and experienced athletes at every location. Every class can be scaled: you work at your level and progress from there.',
 		bullets: [
-			'Certified, experienced coaches in every class.',
-			'Clean facility and well-maintained equipment.',
-			'No long-term contract required—month-to-month available.'
+			'Certified, experienced Canadian coaches in every class.',
+			'Clean facilities and well-maintained equipment at all locations.',
+			'No long-term contract required; month-to-month available.'
 		],
 		image: 'https://images.unsplash.com/photo-1581009146145-b5ef050c149e?w=800&q=80',
 		imageAlt: 'Gym interior and equipment'
@@ -167,7 +166,7 @@ export const fitnessDemoContent = {
 		heading: 'Frequently asked questions',
 		items: [
 			{ q: 'Is the first class really free?', a: 'Yes. New members can try one class free. We\'ll send a waiver to complete before you come. No obligation to join.' },
-			{ q: 'Do I need to be in shape to start?', a: 'No. All levels are welcome. Coaches scale every workout—you work at your pace and build from there.' },
+			{ q: 'Do I need to be in shape to start?', a: 'No. All levels are welcome. Coaches scale every workout so you work at your pace and build from there.' },
 			{ q: 'How do I book a class?', a: 'Use the "Book a class" button, call, or drop in. We recommend booking in advance so we save you a spot.' },
 			{ q: 'What are the membership options?', a: 'We have drop-ins, class packs, and monthly memberships. No long-term contract for standard memberships. Details at the front desk or by phone.' }
 		]

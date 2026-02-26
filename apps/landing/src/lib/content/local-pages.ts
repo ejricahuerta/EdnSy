@@ -54,7 +54,7 @@ export const torontoAutomationPage = {
   slug: "toronto-automation-agency",
   hero: {
     headline: "Toronto Automation Agency | Business Automation for Ontario",
-    body: "Ed & Sy Inc. is a Toronto automation agency. We help Toronto, GTA, and Ontario businesses automate workflows—invoicing, follow-ups, scheduling—so you reclaim 15–20+ hours per week. Serving Toronto, " +
+    body: "Ed & Sy Inc. is a Toronto automation agency. We help Toronto, GTA, and Ontario businesses automate workflows (invoicing, follow-ups, scheduling) so you reclaim 15–20+ hours per week. Serving Toronto, " +
       nearbyCities +
       ", and Ontario.",
   },
@@ -70,7 +70,7 @@ export const torontoAutomationPage = {
     {
       question: "What does a Toronto automation agency do?",
       answer:
-        "A Toronto automation agency designs and implements workflow automation—invoicing, follow-ups, CRM updates, scheduling—so Toronto and Ontario businesses save time and never drop a lead.",
+        "A Toronto automation agency designs and implements workflow automation (invoicing, follow-ups, CRM updates, scheduling) so Toronto and Ontario businesses save time and never drop a lead.",
     },
     {
       question: "Do you serve Markham, Mississauga, Vaughan, North York?",
@@ -97,7 +97,7 @@ export const torontoAiWebsitePage = {
   slug: "toronto-ai-website-development",
   hero: {
     headline: "Toronto AI Website Development | AI Website Agency in Ontario",
-    body: "Ed & Sy Inc. is an AI website development agency in Toronto. We build fast, high-converting, SEO-ready websites for Toronto and Ontario businesses—using AI to ship faster than traditional drag-and-drop. Serving Toronto, " +
+    body: "Ed & Sy Inc. is an AI website development agency in Toronto. We build fast, high-converting, SEO-ready websites for Toronto and Ontario businesses, using AI to ship faster than traditional drag-and-drop. Serving Toronto, " +
       nearbyCities +
       ", and Ontario.",
   },
@@ -111,7 +111,7 @@ export const torontoAiWebsitePage = {
     {
       question: "What is AI website development?",
       answer:
-        "AI website development uses AI and modern tooling to build sites quickly and to a high standard—conversion-focused and SEO-ready. Ed & Sy Inc. offers this for Toronto and Ontario businesses.",
+        "AI website development uses AI and modern tooling to build sites quickly and to a high standard, conversion-focused and SEO-ready. Ed & Sy Inc. offers this for Toronto and Ontario businesses.",
     },
     {
       question: "Why choose a Toronto AI website agency?",
@@ -141,7 +141,7 @@ export const ontarioAiAutomationPage = {
     body: "Ed & Sy Inc. is a leading AI automation company serving Ontario and Canada. We provide Voice AI, business automation, and AI website development. Toronto-based, we work with Ontario and Canadian businesses to automate operations and capture more leads.",
   },
   intro:
-    "As an AI automation company in Canada we help Ontario businesses—from Toronto and the GTA to across the province—implement Voice AI, workflow automation, and AI-powered websites. Ontario and Canada-wide.",
+    "As an AI automation company in Canada we help Ontario businesses (from Toronto and the GTA to across the province) implement Voice AI, workflow automation, and AI-powered websites. Ontario and Canada-wide.",
   industries:
     "Service businesses across Ontario and Canada: healthcare, dental, construction, salons, real estate, legal, fitness. We serve Toronto, the GTA, and province-wide.",
   process:

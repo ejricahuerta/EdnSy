@@ -1,5 +1,8 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { listProspects, getProspectById, updateProspectDemoLink } from '$lib/server/notion';
+import { scrapeBusinessData } from '$lib/server/scraper';
+import { generateWebsiteData } from '$lib/server/gemini';
+import { setBusinessData, setWebsiteData } from '$lib/server/demoData';
 import type { PageServerLoad, Actions } from './$types';
 import { getSessionFromCookie, getSessionCookieName } from '$lib/server/session';
 import { industryDisplayToSlug } from '$lib/industries';
@@ -38,6 +41,28 @@ export const actions: Actions = {
 		if (prospect.demoLink) {
 			return fail(400, { message: 'Demo already created' });
 		}
+
+		// 1. Scrape website and/or Yellow Pages → Business Data
+		let businessData;
+		try {
+			businessData = await scrapeBusinessData(prospect);
+			await setBusinessData(prospectId, businessData);
+		} catch (e) {
+			const msg = e instanceof Error ? e.message : 'Scraping failed';
+			return fail(502, { message: `Could not scrape business data: ${msg}` });
+		}
+
+		// 2. Generate Website Data from Business Data using Gemini
+		let websiteData;
+		try {
+			websiteData = await generateWebsiteData(businessData, prospect.industry);
+			await setWebsiteData(prospectId, websiteData);
+		} catch (e) {
+			const msg = e instanceof Error ? e.message : 'Gemini failed';
+			return fail(502, { message: `Could not generate landing content: ${msg}. Ensure GEMINI_API_KEY is set.` });
+		}
+
+		// 3. Create demo URL and update Notion
 		const slug = industryDisplayToSlug(prospect.industry);
 		const origin = url.origin;
 		const demoUrl = `${origin}/${slug}/${prospectId}`;

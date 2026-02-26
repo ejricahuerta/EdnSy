@@ -1,6 +1,5 @@
 /**
- * Solo professionals demo: consultants, coaches, accountants, etc.
- * Same content shape as other industries for template reuse.
+ * Solo professionals demo: Canadian-focused. Consultants, coaches, accountants, etc.
  */
 export const soloProfessionalsDemoContent = {
 	header: {
@@ -12,7 +11,7 @@ export const soloProfessionalsDemoContent = {
 		tagline: 'Expert guidance when you need it',
 		taglineWithCity: 'Trusted professional in {city}',
 		subtext:
-			'One-on-one consulting, clear advice, and ongoing support. I help individuals and small businesses reach their goals with a personal touch.',
+			'One-on-one consulting, clear advice, and ongoing support. I help Canadian individuals and small businesses reach their goals with a personal touch, Ontario and nationwide.',
 		subheadline: 'Consultation • Strategy • Ongoing support. Book a call or send an enquiry.',
 		trustBadges: [] as string[],
 		urgencyText: '',
@@ -38,7 +37,7 @@ export const soloProfessionalsDemoContent = {
 			{
 				title: 'Personal approach',
 				description:
-					'You work directly with me. No handoffs or generic plans—advice tailored to your situation.'
+					'You work directly with me. No handoffs or generic plans: advice tailored to your situation.'
 			}
 		]
 	},
@@ -69,11 +68,11 @@ export const soloProfessionalsDemoContent = {
 	about: {
 		heading: 'About me',
 		subtext:
-			'I built my practice on referrals and repeat clients. My job is to give you clear, actionable guidance so you can move forward with confidence.',
+			'I built my practice on referrals and repeat clients across Canada. My job is to give you clear, actionable guidance so you can move forward with confidence.',
 		subtext2:
-			'I work with individuals and small businesses. Every engagement is confidential and tailored to your goals.',
+			'I work with Canadian individuals and small businesses. Every engagement is confidential and tailored to your goals.',
 		bullets: [
-			'Clear scope and pricing before we start—no surprise fees.',
+			'Clear scope and pricing before we start; no surprise fees.',
 			'Flexible scheduling including evening and weekend calls when needed.',
 			'Professional standards and discretion you can count on.'
 		],
@@ -112,7 +111,7 @@ export const soloProfessionalsDemoContent = {
 		items: [
 			'You book a time that works. I\'ll send a calendar link and any short prep if needed.',
 			'We meet (video or phone). I listen, ask questions, and outline how I can help.',
-			'You get a clear proposal with scope and fee. No pressure—you decide.',
+			'You get a clear proposal with scope and fee. No pressure; you decide.',
 			'If you\'re in, we schedule the first session and go from there.'
 		]
 	},
@@ -168,9 +167,9 @@ export const soloProfessionalsDemoContent = {
 		items: [
 			{ q: 'How do I book a consultation?', a: 'Use the "Book a consultation" button or email me. I\'ll send a link to choose a time and we\'ll have a short intro call.' },
 			{ q: 'What does the intro call cost?', a: 'The initial intro call is free. It\'s a chance for us both to see if the fit is right before any paid engagement.' },
-			{ q: 'What are your fees?', a: 'Fees depend on scope—one-off consultation, project, or retainer. I\'ll outline options and pricing clearly after we discuss your needs.' },
+			{ q: 'What are your fees?', a: 'Fees depend on scope: one-off consultation, project, or retainer. I\'ll outline options and pricing clearly after we discuss your needs.' },
 			{ q: 'Do you work remotely?', a: 'Yes. Most work is by video call or phone. I can also meet in person in the local area when needed.' },
-			{ q: 'How quickly can we start?', a: 'I typically have availability within a few days. Urgent requests can often be accommodated—just ask.' }
+			{ q: 'How quickly can we start?', a: 'I typically have availability within a few days. Urgent requests can often be accommodated; just ask.' }
 		]
 	},
 	footer: {

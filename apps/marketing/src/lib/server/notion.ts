@@ -1,4 +1,5 @@
 import { env } from '$env/dynamic/private';
+import type { BusinessData, WebsiteData } from '$lib/types/demo';
 
 /** Read at request time so Vercel serverless always sees current env (not cached at module load). */
 function getNotionConfig() {
@@ -7,6 +8,8 @@ function getNotionConfig() {
 		databaseId: env.NOTION_DATABASE_ID
 	};
 }
+
+const RICH_TEXT_CHUNK_SIZE = 2000;
 
 /**
  * Notion database schema (verified):
@@ -17,6 +20,8 @@ function getNotionConfig() {
  * - "Industry" (select) → industry
  * - "Demo Link" (rich_text) → demoLink
  * - "Demo Status" (status) → updated when generating demo; "Client Status" (status) → status for display
+ * - "Business Data" (rich_text) → JSON from scraping (company, website text, YP, etc.)
+ * - "Website Data" (rich_text) → JSON from Gemini (landing page content)
  * Optional: "Address", "City", "Postal Code" (rich_text). Share the DB with your integration.
  */
 
@@ -140,6 +145,108 @@ export async function updateProspectDemoLink(
 		return result;
 	} catch (e) {
 		return { ok: false, error: e instanceof Error ? e.message : 'Update failed' };
+	}
+}
+
+/** Chunk a string for Notion rich_text (max 2000 chars per segment). */
+function chunkForRichText(s: string): Array<{ type: 'text'; text: { content: string } }> {
+	const out: Array<{ type: 'text'; text: { content: string } }> = [];
+	for (let i = 0; i < s.length; i += RICH_TEXT_CHUNK_SIZE) {
+		out.push({ type: 'text', text: { content: s.slice(i, i + RICH_TEXT_CHUNK_SIZE) } });
+	}
+	return out.length ? out : [{ type: 'text', text: { content: '' } }];
+}
+
+/** Read rich_text property from a page (by property name). Returns concatenated plain text or null. */
+async function getPageRichTextContent(pageId: string, propertyName: string): Promise<string | null> {
+	const { apiKey } = getNotionConfig();
+	if (!apiKey) return null;
+	const res = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
+		headers: {
+			Authorization: `Bearer ${apiKey}`,
+			'Notion-Version': '2022-06-28',
+			'Content-Type': 'application/json'
+		}
+	});
+	if (!res.ok) return null;
+	const page = (await res.json()) as { properties?: Record<string, { rich_text?: Array<{ plain_text?: string }> }> };
+	const prop = page.properties?.[propertyName];
+	const parts = prop?.rich_text ?? [];
+	const text = parts.map((p) => p.plain_text ?? '').join('');
+	return text || null;
+}
+
+/** Write rich_text property on a page (chunked). Property must exist on the database. */
+async function setPageRichTextContent(
+	pageId: string,
+	propertyName: string,
+	content: string
+): Promise<{ ok: boolean; error?: string }> {
+	const { apiKey } = getNotionConfig();
+	if (!apiKey) return { ok: false, error: 'Notion not configured' };
+	const richText = chunkForRichText(content);
+	try {
+		const res = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
+			method: 'PATCH',
+			headers: {
+				Authorization: `Bearer ${apiKey}`,
+				'Notion-Version': '2022-06-28',
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ properties: { [propertyName]: { rich_text: richText } } })
+		});
+		if (!res.ok) {
+			const err = await res.json().catch(() => ({})) as { message?: string };
+			return { ok: false, error: err.message ?? res.statusText };
+		}
+		return { ok: true };
+	} catch (e) {
+		return { ok: false, error: e instanceof Error ? e.message : 'Update failed' };
+	}
+}
+
+const BUSINESS_DATA_PROP = 'Business Data';
+const WEBSITE_DATA_PROP = 'Website Data';
+
+/**
+ * Save Business Data JSON to the prospect's Notion page (property "Business Data").
+ * Add a rich_text property named "Business Data" to your Notion database if missing.
+ */
+export async function setBusinessDataInNotion(pageId: string, data: BusinessData): Promise<{ ok: boolean; error?: string }> {
+	return setPageRichTextContent(pageId, BUSINESS_DATA_PROP, JSON.stringify(data, null, 2));
+}
+
+/**
+ * Load Business Data JSON from the prospect's Notion page. Returns null if empty or missing.
+ */
+export async function getBusinessDataFromNotion(pageId: string): Promise<BusinessData | null> {
+	const raw = await getPageRichTextContent(pageId, BUSINESS_DATA_PROP);
+	if (!raw || !raw.trim()) return null;
+	try {
+		return JSON.parse(raw) as BusinessData;
+	} catch {
+		return null;
+	}
+}
+
+/**
+ * Save Website Data JSON to the prospect's Notion page (property "Website Data").
+ * Add a rich_text property named "Website Data" to your Notion database if missing.
+ */
+export async function setWebsiteDataInNotion(pageId: string, data: WebsiteData): Promise<{ ok: boolean; error?: string }> {
+	return setPageRichTextContent(pageId, WEBSITE_DATA_PROP, JSON.stringify(data, null, 2));
+}
+
+/**
+ * Load Website Data JSON from the prospect's Notion page. Returns null if empty or missing.
+ */
+export async function getWebsiteDataFromNotion(pageId: string): Promise<WebsiteData | null> {
+	const raw = await getPageRichTextContent(pageId, WEBSITE_DATA_PROP);
+	if (!raw || !raw.trim()) return null;
+	try {
+		return JSON.parse(raw) as WebsiteData;
+	} catch {
+		return null;
 	}
 }
 

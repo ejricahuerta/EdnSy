@@ -4,12 +4,18 @@
 	import { formatChatMessage } from '$lib/formatChatMessage';
 	import { MessageCircle, X, Send, Calendar } from 'lucide-svelte';
 
+	const CHAT_AI_NAME = 'Syd';
+	const CHAT_AI_INTRO =
+		"Hi, I'm Syd! I can answer questions about this business—services, hours, booking, or anything on this page. What would you like to know?";
+
 	let {
 		industrySlug = 'healthcare',
-		displayName = ''
+		displayName = '',
+		prospectId = ''
 	}: {
 		industrySlug: string;
 		displayName?: string;
+		prospectId?: string;
 	} = $props();
 
 	let open = $state(false);
@@ -45,7 +51,8 @@
 				body: JSON.stringify({
 					messages: history,
 					industrySlug,
-					displayName: displayName || undefined
+					displayName: displayName || undefined,
+					prospectId: prospectId || undefined
 				})
 			});
 
@@ -90,7 +97,7 @@
 		>
 			<div class="flex shrink-0 items-center justify-between px-4 py-3 border-b border-base-300 bg-base-200/50">
 				<div class="flex flex-col gap-0.5">
-					<span class="font-semibold text-base-content">Ask Ed & Sy</span>
+					<span class="font-semibold text-base-content">Chat with {CHAT_AI_NAME}</span>
 					<span class="text-xs text-base-content/60">AI powered by Ed and Sy Inc.</span>
 				</div>
 				<button
@@ -111,15 +118,18 @@
 				aria-label="Chat messages"
 			>
 				{#if messages.length === 0}
-					<div class="space-y-2 text-sm text-base-content/70">
-						<p>Ask about services, hours, or how we can help. Answers are tailored to this page.</p>
-						<p class="text-xs text-base-content/50">Powered by Ed and Sy Inc.</p>
+					<div class="flex flex-col gap-1 items-start">
+						<span class="text-xs font-medium text-base-content/60">{CHAT_AI_NAME}</span>
+						<div class="rounded-2xl px-4 py-2 max-w-[90%] text-sm bg-base-200 text-base-content">
+							{CHAT_AI_INTRO}
+						</div>
+						<p class="text-xs text-base-content/50 mt-1">Powered by Ed and Sy Inc.</p>
 					</div>
 				{:else}
 					{#each messages as msg}
 						<div
 							class="flex flex-col gap-1 {msg.role === 'user' ? 'items-end' : 'items-start'}">
-							<span class="text-xs font-medium text-base-content/60">{msg.role === 'user' ? 'You' : 'Assistant'}</span>
+							<span class="text-xs font-medium text-base-content/60">{msg.role === 'user' ? 'You' : CHAT_AI_NAME}</span>
 							<div
 								class="rounded-2xl px-4 py-2 max-w-[90%] text-sm break-words {msg.role === 'user'
 									? 'bg-primary text-primary-content'
@@ -136,7 +146,7 @@
 				{#if loading}
 					<div class="flex items-center gap-2 text-sm text-base-content/70">
 						<span class="loading loading-dots loading-sm"></span>
-						Thinking…
+						{CHAT_AI_NAME} is thinking…
 					</div>
 				{/if}
 				<div bind:this={messagesEnd} class="h-0 w-full shrink-0" aria-hidden="true"></div>
@@ -187,7 +197,7 @@
 		type="button"
 		class="btn btn-primary btn-circle shadow-lg size-14"
 		onclick={() => (open = !open)}
-		aria-label={open ? 'Close chat' : 'Open chat'}
+		aria-label={open ? 'Close chat' : `Open chat with ${CHAT_AI_NAME}`}
 	>
 		<MessageCircle class="w-7 h-7" aria-hidden="true" />
 	</button>

@@ -1,6 +1,5 @@
 /**
- * Real estate demo: agents and brokerages.
- * Same content shape as other industries for template reuse.
+ * Real estate demo: Canadian-focused (Ontario, MLS®, local markets). Agents and brokerages.
  */
 export const realEstateDemoContent = {
 	header: {
@@ -8,11 +7,11 @@ export const realEstateDemoContent = {
 		ctaLabel: 'Schedule a viewing'
 	},
 	hero: {
-		badge: 'Local market expert',
+		badge: 'Ontario & GTA market expert',
 		tagline: 'Your partner in finding the right place',
 		taglineWithCity: 'Real estate in {city}',
 		subtext:
-			'Buying, selling, or renting—I help you navigate the market with local knowledge and a straightforward process.',
+			'Buying, selling, or renting in Ontario: I help you navigate the Canadian market with local MLS® access and a straightforward process. Serving the Greater Toronto Area and beyond.',
 		subheadline: 'Buy • Sell • Rent. Free market evaluations. Schedule a call or viewing.',
 		trustBadges: [] as string[],
 		urgencyText: '',
@@ -23,12 +22,12 @@ export const realEstateDemoContent = {
 	},
 	whyUs: {
 		heading: 'Why work with me',
-		subtext: 'I know the local market and focus on clear communication so you can make confident decisions.',
+		subtext: 'I know the Ontario and GTA market and focus on clear communication so you can make confident decisions.',
 		items: [
 			{
 				title: 'Local expertise',
 				description:
-					'Years in the area. I know the neighbourhoods, trends, and what buyers and sellers are looking for.'
+					'Years in the Ontario market. I know the neighbourhoods, MLS® trends, and what buyers and sellers are looking for across the GTA and beyond.'
 			},
 			{
 				title: 'Clear process',
@@ -44,7 +43,7 @@ export const realEstateDemoContent = {
 	},
 	services: {
 		heading: 'What I offer',
-		subtext: 'Full-service support for buying, selling, and renting in the local market.',
+		subtext: 'Full-service support for buying, selling, and renting in Ontario: MLS® access, market evaluations, and smooth closings.',
 		items: [
 			{
 				title: 'Buy',
@@ -112,7 +111,7 @@ export const realEstateDemoContent = {
 		items: [
 			'We have a short call or meeting to discuss your situation and goals.',
 			'You get a clear plan: search criteria, listing strategy, or next steps.',
-			'We view properties, prepare offers, or market your home—with updates at every stage.',
+			'We view properties, prepare offers, or market your home, with updates at every stage.',
 			'We close the deal together. I coordinate with lawyers, lenders, and other parties as needed.'
 		]
 	},

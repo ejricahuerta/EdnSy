@@ -1,126 +1,133 @@
 /**
- * Legal demo: lawyers, paralegals, law firms.
- * Same content shape as other industries for template reuse.
+ * Legal demo: Canadian-focused (Ontario/Canada practice). Aligned with legal.jpg mockup.
  */
 export const legalDemoContent = {
-	header: { navLinks: [] as { label: string; href: string }[], ctaLabel: 'Book a consultation' },
-	hero: {
-		badge: 'Confidential consultation',
-		tagline: 'Clear legal advice when you need it',
-		taglineWithCity: 'Legal services in {city}',
-		subtext: 'From initial consultation to resolution, I provide straightforward legal guidance. Confidentiality and clear communication are at the core of my practice.',
-		subheadline: 'Consultation • Representation • Peace of mind. Book a confidential call.',
-		trustBadges: [] as string[],
-		urgencyText: '',
-		image: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1200&q=80',
-		imageAlt: 'Legal office',
-		ctaPrimary: 'Book a consultation',
-		ctaSecondary: 'View practice areas'
+	header: {
+		navLinks: [
+			{ label: 'Home', href: '#' },
+			{ label: 'About', href: '#about' },
+			{ label: 'Services', href: '#services' },
+			{ label: 'Attorneys', href: '#attorneys' },
+			{ label: 'Insights', href: '#' },
+			{ label: 'Contact', href: '#contact' }
+		],
+		ctaLabel: 'Request a Call'
 	},
-	whyUs: {
-		heading: 'Why choose this practice',
-		subtext: 'I focus on giving you a clear understanding of your options and a practical path forward.',
-		items: [
-			{ title: 'Experienced', description: 'Years of experience in my practice areas. I stay current on law and procedure so you get sound advice.' },
-			{ title: 'Clear communication', description: 'Legal matters can be confusing. I explain things in plain language and keep you informed at every step.' },
-			{ title: 'Confidential', description: 'Attorney-client privilege and strict confidentiality. What you share stays between us.' }
+	hero: {
+		tagline: 'Trusted Legal Counsel for Over Three Decades',
+		taglineWithCity: 'Trusted Legal Counsel in {city}',
+		subtext:
+			'Our Ontario-based firm combines deep expertise with a client-centered approach. We guide individuals and businesses across Canada through complex legal challenges with integrity and clear communication. Members of the Law Society of Ontario.',
+		image: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1200&q=80',
+		imageAlt: 'Law library and professional legal environment',
+		ctaPrimary: 'Schedule Consultation',
+		ctaSecondary: 'Learn More'
+	},
+	stats: [
+		{ value: '25+', label: 'Years of Experience' },
+		{ value: '2,500', label: 'Cases Won' },
+		{ value: '98%', label: 'Client Satisfaction' },
+		{ value: '50+', label: 'Legal Experts' }
+	],
+	legacy: {
+		heading: 'A Legacy of Legal Excellence and Client-Centered Practice',
+		body: 'For over three decades we have served clients across Ontario and Canada with dedication and skill. Our lawyers are called to the bar in Ontario and bring deep expertise across practice areas while putting your interests first. We believe in clear communication, ethical representation, and results that matter.',
+		values: [
+			{ title: 'Expertise', description: 'Our team stays current on law and procedure so you receive sound, up-to-date advice.' },
+			{ title: 'Tailored Solutions', description: 'We design strategies that fit your unique situation and goals.' },
+			{ title: 'Proactive Approach', description: 'We anticipate issues and act decisively to protect your interests.' },
+			{ title: 'Transparent Communication', description: 'You stay informed at every step with clear, honest guidance.' }
 		]
 	},
 	services: {
-		heading: 'Practice areas',
-		subtext: 'I provide advice and representation in the following areas. Not sure if I can help? Book a consultation.',
+		subtitle: 'Our Expertise',
+		heading: 'Practice Areas',
+		subtext: 'We provide advice and representation across Canadian and Ontario law. Schedule a consultation to discuss your needs.',
 		items: [
-			{ title: 'Family law', description: 'Divorce, separation, custody, support, and related matters. Sensitive handling and clear guidance through difficult times.', icon: 'Scale' },
-			{ title: 'Real estate & property', description: 'Purchases, sales, refinancing, and title issues. I work with your realtor and lender to close smoothly.', icon: 'FileText' },
-			{ title: 'Wills & estates', description: 'Wills, powers of attorney, and estate administration. Plan ahead or get help when someone has passed.', icon: 'ShieldCheck' }
+			{ title: 'Corporate Law', description: 'Canadian business formation, contracts, mergers, and compliance. We help companies navigate legal challenges and opportunities in Ontario and nationally.', icon: 'Scale' },
+			{ title: 'Litigation', description: 'Civil and commercial litigation in Ontario courts. We represent clients in court and alternative dispute resolution with skill and dedication.', icon: 'FileText' },
+			{ title: 'Real Estate', description: 'Ontario purchases, sales, refinancing, and title issues. We work with your realtor and lender to close smoothly under Canadian law.', icon: 'FileText' },
+			{ title: 'Family Law', description: 'Divorce, custody, support, and related matters under Ontario family law. Sensitive handling and clear guidance through difficult times.', icon: 'ShieldCheck' },
+			{ title: 'Intellectual Property', description: 'Canadian trademarks, patents, and IP disputes. We protect your innovations and creative work.', icon: 'Scale' },
+			{ title: 'Employment Law', description: 'Ontario employment contracts, disputes, and workplace issues. We advocate for both employers and employees under Canadian employment law.', icon: 'ShieldCheck' }
 		]
 	},
-	about: {
-		heading: 'About this practice',
-		subtext: 'I built my practice on referrals and repeat clients. My job is to give you clear advice and effective representation so you can make informed decisions.',
-		subtext2: 'I work with individuals and families. Every matter is treated with confidentiality and respect.',
-		bullets: ['Clear fee structure—you know what to expect before we start.', 'Responsive communication. You\'ll hear back promptly.', 'Professional standards and strict confidentiality.'],
-		image: 'https://images.unsplash.com/photo-1505664194779-8beaceb93744?w=800&q=80',
-		imageAlt: 'Professional legal environment'
+	attorneys: {
+		subtitle: 'Our Team',
+		heading: 'Meet Our Lawyers',
+		subtext: 'Our team brings decades of combined experience in Canadian and Ontario law, with a commitment to client-centered representation.',
+		items: [
+			{ name: 'John D. Smith', title: 'Senior Partner', image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=80' },
+			{ name: 'Dr. Sarah Lee', title: 'Associate Attorney', image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&q=80' },
+			{ name: 'Michael Roberts', title: 'Associate Attorney', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80' },
+			{ name: 'Emily Chen', title: 'Associate Attorney', image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&q=80' }
+		]
 	},
-	newPatients: {
-		heading: 'Your first consultation',
-		subtext: 'We start with a confidential conversation to understand your situation and how I can help.',
-		steps: [
-			{ title: 'Book a consultation', description: 'Use the button above or call to schedule. I\'ll send a short intake form so we use our time well.' },
-			{ title: 'We meet (in person or video)', description: 'You tell me about your situation. I\'ll ask questions and outline your options and next steps.' },
-			{ title: 'You decide how to proceed', description: 'I\'ll give you a clear scope and fee quote. No pressure—you decide whether to retain me.' }
+	consultation: {
+		heading: 'Schedule Your Free Consultation',
+		subtext: 'Discuss your legal needs with our team. We\'ll listen and provide clear next steps.',
+		bullets: [
+			{ title: 'Confidential Discussion', description: 'Your information is protected. We treat every conversation with strict confidentiality.' },
+			{ title: 'Expert Advice', description: 'Speak with an attorney who understands your situation and can outline your options.' },
+			{ title: 'Personalized Strategy', description: 'Receive a tailored approach and next steps based on your goals.' }
 		],
-		ctaLabel: 'Book a consultation',
-		switchingEasy: 'Consultations are confidential. No obligation.',
-		whatToBringTitle: 'For the consultation',
-		whatToBring: ['Any relevant documents (agreements, court papers, etc.)', 'A brief summary of your situation and goals', 'Questions you want to ask']
-	},
-	whatToExpect: {
-		heading: 'What to expect',
-		subtext: 'I keep the process clear and confidential.',
-		items: [
-			'You book a consultation. I may send a short intake form to review before we meet.',
-			'We meet (in person or by video). You explain your situation; I ask questions and outline options.',
-			'You receive a clear summary of advice and, if applicable, a fee quote and next steps.',
-			'If you retain me, we proceed according to the agreed scope. I keep you updated throughout.'
+		formTitle: 'Request a Call Back',
+		form: {
+			name: 'Name',
+			email: 'Email',
+			phone: 'Phone',
+			serviceNeeded: 'Service Needed',
+			message: 'Message',
+			submit: 'Submit Request',
+			privacyNote: 'By submitting you agree to our privacy policy. Your information is confidential.'
+		},
+		serviceOptions: [
+			'Corporate Law',
+			'Litigation',
+			'Real Estate',
+			'Family Law',
+			'Intellectual Property',
+			'Employment Law',
+			'Other'
 		]
 	},
-	hours: { heading: 'Office hours', lines: ['Monday – Friday: 9:00 AM – 5:00 PM', 'Consultations by appointment', 'Urgent matters: call to discuss'] },
 	testimonials: {
-		heading: 'What clients say',
-		subtext: 'Feedback from people I\'ve represented (details kept confidential).',
-		ratingDisplay: '5.0',
-		reviewCount: '50+ reviews',
+		subtitle: 'Testimonials',
+		heading: 'What Our Clients Say',
 		items: [
-			{ quote: 'Explained everything clearly and got me through a difficult situation. Professional and compassionate.', author: 'Client', role: 'Family law', rating: 5 },
-			{ quote: 'Handled our real estate closing smoothly. Responsive and easy to work with. Would use again.', author: 'Client', role: 'Real estate', rating: 5 },
-			{ quote: 'Updated our wills and POAs. Straightforward process and peace of mind. Highly recommend.', author: 'Client', role: 'Estates', rating: 5 }
+			{ quote: 'Explained everything clearly and got me through a difficult situation. Professional and compassionate.', author: 'Robert Davis', role: 'CEO, Tech Solutions', rating: 5 },
+			{ quote: 'Handled our real estate closing smoothly. Responsive and easy to work with. Would use again.', author: 'Lisa Johnson', role: 'Real Estate Client', rating: 5 },
+			{ quote: 'Updated our wills and POAs. Straightforward process and peace of mind. Highly recommend.', author: 'James Wilson', role: 'Estates Client', rating: 5 }
 		]
 	},
-	insurance: {
-		heading: 'Fees & billing',
-		body: 'Fees are discussed at the consultation. I offer hourly and fixed-fee options depending on the matter. Retainers may be required. You will receive a clear fee agreement before any work begins. All communications are confidential.'
-	},
-	stats: [
-		{ value: '15+', label: 'Years in practice' },
-		{ value: '500+', label: 'Clients represented' },
-		{ value: '100%', label: 'Confidential' }
-	],
 	contact: {
-		heading: 'Contact the office',
-		subtext: 'Book a consultation or send a confidential enquiry.',
 		address: '1 Yonge Finch Plaza, Toronto, ON',
 		phone: '+1 (289) 513-5055',
-		email: 'hello@example-legal.com',
-		ctaLabel: 'Book a consultation'
-	},
-	faq: {
-		heading: 'Frequently asked questions',
-		items: [
-			{ q: 'How do I book a consultation?', a: 'Use the "Book a consultation" button or call the office. We\'ll find a time and send any intake form. Consultations are confidential.' },
-			{ q: 'What does a consultation cost?', a: 'Consultation fees are explained when you book. Many matters start with a fixed-fee consultation so you know the cost upfront.' },
-			{ q: 'Is everything I say confidential?', a: 'Yes. Attorney-client privilege applies. What you share in a consultation or after retaining me is confidential.' },
-			{ q: 'Do you offer payment plans?', a: 'Depending on the matter, we can discuss payment arrangements. This is addressed at the consultation.' }
-		]
+		email: 'hello@example-legal.com'
 	},
 	footer: {
-		links: [
-			{ label: 'Practice areas', href: '#services' },
-			{ label: 'About', href: '#about' },
-			{ label: 'Consultation', href: '#new-patients' },
-			{ label: 'FAQ', href: '#faq' },
+		tagline: 'Trusted legal counsel when you need it most.',
+		quickLinks: [
+			{ label: 'Home', href: '#' },
+			{ label: 'About Us', href: '#about' },
+			{ label: 'Services', href: '#services' },
+			{ label: 'Attorneys', href: '#attorneys' },
+			{ label: 'Insights', href: '#' },
 			{ label: 'Contact', href: '#contact' }
 		],
-		ctaLabel: 'Book a consultation',
-		ctaHeading: 'Book a consultation',
-		copyright: 'All rights reserved.'
-	},
-	cta: {
-		heading: 'Need legal advice?',
-		subtext: 'Book a confidential consultation. No obligation.',
-		microReassurance: 'All communications are confidential.',
-		button: 'Book a consultation',
-		phoneLabel: 'Or call the office'
+		practiceAreas: [
+			{ label: 'Corporate', href: '#services' },
+			{ label: 'Litigation', href: '#services' },
+			{ label: 'Real Estate', href: '#services' },
+			{ label: 'Family', href: '#services' },
+			{ label: 'IP', href: '#services' },
+			{ label: 'Employment', href: '#services' }
+		],
+		contactHeading: 'Contact Info',
+		copyright: 'All rights reserved.',
+		legal: [
+			{ label: 'Privacy Policy', href: '#' },
+			{ label: 'Terms of Service', href: '#' }
+		]
 	}
 } as const;

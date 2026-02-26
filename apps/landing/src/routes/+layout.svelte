@@ -221,7 +221,7 @@
               <Linkedin class="size-5" aria-hidden="true" />
             </a>
           </div>
-          <p class="text-sm text-slate-400 mt-3">Ed & Sy Inc. — Toronto AI Automation Agency. Voice AI & Automation Experts in Ontario.</p>
+          <p class="text-sm text-slate-400 mt-3">Ed & Sy Inc. · Toronto AI Automation Agency. Voice AI & Automation Experts in Ontario.</p>
         </div>
         <div>
           <p class="text-sm font-semibold mb-3 text-slate-100">Company</p>

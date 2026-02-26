@@ -2,6 +2,7 @@
 	import { CAL_COM_LINK, DEMO_PHONE, YONGE_FINCH_MAP_EMBED_URL } from '$lib/constants';
 	import ChatWidget from '$lib/components/ChatWidget.svelte';
 	import { dentalDemoContent } from '$lib/content/dental';
+	import type { DemoProspect } from '$lib/types/demo';
 	import {
 		Stethoscope,
 		HeartPulse,
@@ -23,28 +24,20 @@
 		CreditCard
 	} from 'lucide-svelte';
 
-	let {
-		companyName = '',
-		website = '',
-		address = '',
-		city = '',
-		industrySlug = 'dental'
-	}: {
-		companyName?: string;
-		website?: string;
-		address?: string;
-		city?: string;
-		industrySlug?: string;
-	} = $props();
-
-	const content = dentalDemoContent;
-	const displayAddress = address || content.contact.address;
-	const displayName = companyName || 'Your dental practice';
-	const heroHeadline = city
-		? content.hero.taglineWithCity.replace('{city}', city)
-		: displayName;
-	const heroSubline = city ? displayName : content.hero.tagline;
+	let { prospect, content = dentalDemoContent }: { prospect: DemoProspect; content?: typeof dentalDemoContent } = $props();
+	const displayAddress = $derived(prospect.address || content.contact.address);
+	const displayPhone = $derived(prospect.phone || content.contact.phone);
+	const displayEmail = $derived(prospect.email || content.contact.email);
+	const displayName = $derived(prospect.companyName || 'Your dental practice');
+	const heroHeadline = $derived(
+		prospect.city
+			? content.hero.taglineWithCity.replace('{city}', prospect.city)
+			: (prospect.companyName || 'Your dental practice')
+	);
+	const heroSubline = $derived(prospect.city ? (prospect.companyName || 'Your dental practice') : content.hero.tagline);
 	const urgencyText = content.hero.urgencyText ?? '';
+	const industrySlug = 'dental';
+	const website = $derived(prospect.website);
 
 	const serviceIcons = { Stethoscope, HeartPulse, CalendarCheck } as const;
 	const whyIcons = [ShieldCheck, Building2, Clock] as const;
@@ -435,14 +428,14 @@
 								<Phone class="w-5 h-5 text-primary shrink-0" aria-hidden="true" />
 								Phone
 							</h3>
-							<a href={`tel:${DEMO_PHONE}`} class="link link-hover text-base-content/80 hover:text-primary pl-7 block text-[15px]">{content.contact.phone}</a>
+							<a href={`tel:${displayPhone.replace(/\D/g, '')}`} class="link link-hover text-base-content/80 hover:text-primary pl-7 block text-[15px]">{displayPhone}</a>
 						</div>
 						<div class="p-6 rounded-xl bg-base-100 border border-base-300/80 shadow-sm">
 							<h3 class="font-semibold text-base-content mb-2 flex items-center gap-2">
 								<Mail class="w-5 h-5 text-primary shrink-0" aria-hidden="true" />
 								Email
 							</h3>
-							<a href={"mailto:" + content.contact.email} class="link link-hover text-base-content/80 hover:text-primary break-all pl-7 block text-[15px]">{content.contact.email}</a>
+							<a href={"mailto:" + displayEmail} class="link link-hover text-base-content/80 hover:text-primary break-all pl-7 block text-[15px]">{displayEmail}</a>
 						</div>
 						<a
 							href={CAL_COM_LINK}
@@ -487,10 +480,10 @@
 					{content.cta.button}
 					<ArrowRight class="w-5 h-5" />
 				</a>
-				{#if content.cta.phoneLabel && content.contact.phone}
+				{#if content.cta.phoneLabel && displayPhone}
 					<p class="mt-8 text-primary-content/95 text-[15px]">
 						{content.cta.phoneLabel}:
-						<a href={`tel:${DEMO_PHONE}`} class="link link-neutral font-semibold hover:underline">{content.contact.phone}</a>
+						<a href={`tel:${displayPhone.replace(/\D/g, '')}`} class="link link-neutral font-semibold hover:underline">{displayPhone}</a>
 					</p>
 				{/if}
 			</div>
@@ -541,7 +534,7 @@
 		</div>
 	</footer>
 
-	<ChatWidget industrySlug={industrySlug} displayName={displayName} />
+	<ChatWidget industrySlug={industrySlug} displayName={displayName} prospectId={prospect.id} />
 </div>
 
 {#if website}

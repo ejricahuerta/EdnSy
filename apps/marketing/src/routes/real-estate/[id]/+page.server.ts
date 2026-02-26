@@ -1,4 +1,7 @@
 import { getProspectById } from '$lib/server/notion';
+import { getWebsiteData } from '$lib/server/demoData';
+import { mergeWithStaticImages } from '$lib/server/mergeWebsiteContent';
+import { realEstateDemoContent } from '$lib/content/realEstate';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
@@ -7,6 +10,8 @@ export const load: PageServerLoad = async ({ params, url }) => {
 	if (!prospect) {
 		throw error(404, 'Prospect not found');
 	}
+	const websiteData = await getWebsiteData(params.id);
+	const content = mergeWithStaticImages(websiteData, realEstateDemoContent) as typeof realEstateDemoContent;
 	const canonicalUrl = `${url.origin}${url.pathname}`;
-	return { prospect, canonicalUrl };
+	return { prospect, content, canonicalUrl };
 };

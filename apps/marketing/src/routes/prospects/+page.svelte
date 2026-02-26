@@ -90,7 +90,7 @@
 						</td>
 						<td>
 							{#if p.demoLink}
-								<span class="text-base-content/60 text-sm">—</span>
+								<span class="text-base-content/60 text-sm">-</span>
 							{:else}
 								<form
 									method="POST"

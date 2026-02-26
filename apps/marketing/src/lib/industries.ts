@@ -25,7 +25,7 @@ export const INDUSTRY_THEMES: Record<IndustrySlug, string> = {
 	salons: 'salons',
 	'solo-professionals': 'forest',
 	'real-estate': 'luxury',
-	legal: 'business',
+	legal: 'legal',
 	fitness: 'sunset'
 };
 

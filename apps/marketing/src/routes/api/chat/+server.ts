@@ -1,7 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { env } from '$env/dynamic/private';
-import { getPageContextForIndustry } from '$lib/server/chatContext';
+import { getPageContextForIndustry, getPageContextForProspect } from '$lib/server/chatContext';
 import { CHAT_DAILY_LIMIT } from '$lib/constants';
 import type { IndustrySlug } from '$lib/industries';
 
@@ -58,20 +58,23 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 		);
 	}
 
-	let body: { messages?: { role: string; content: string }[]; industrySlug?: string; displayName?: string };
+	let body: { messages?: { role: string; content: string }[]; industrySlug?: string; displayName?: string; prospectId?: string };
 	try {
 		body = await request.json();
 	} catch {
 		return json({ error: 'Invalid JSON body' }, { status: 400 });
 	}
 
-	const { messages, industrySlug, displayName } = body;
+	const { messages, industrySlug, displayName, prospectId } = body;
 	if (!Array.isArray(messages) || messages.length === 0) {
 		return json({ error: 'messages array required' }, { status: 400 });
 	}
 
 	const slug = (industrySlug ?? 'healthcare') as IndustrySlug;
-	const pageContext = getPageContextForIndustry(slug, displayName);
+	const pageContext =
+		prospectId && typeof prospectId === 'string'
+			? (await getPageContextForProspect(prospectId, displayName)) ?? getPageContextForIndustry(slug, displayName)
+			: getPageContextForIndustry(slug, displayName);
 
 	const systemMessage = { role: 'system', content: pageContext };
 	const geminiContents = toGeminiContents([systemMessage, ...messages]);

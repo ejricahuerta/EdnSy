@@ -1,6 +1,5 @@
 /**
- * Dental demo industry: full landing content for a family dental practice.
- * Same content shape as healthcare for template reuse; copy tailored for dentistry.
+ * Dental demo: Canadian-focused (CDCP, direct billing, provincial). Family dental practice.
  */
 export const dentalDemoContent = {
 	header: {
@@ -14,12 +13,12 @@ export const dentalDemoContent = {
 		ctaLabel: 'Book an appointment'
 	},
 	hero: {
-		badge: 'Accepting new patients',
+		badge: 'Accepting new patients • CDCP welcome',
 		tagline: 'Your family dentist in the community',
 		taglineWithCity: 'Family dentistry in {city}',
 		subtext:
-			'From checkups and cleanings to crowns and cosmetic care. We keep your whole family smiling in a comfortable, modern practice.',
-		subheadline: 'Routine cleanings. Insurance accepted. Same-day emergency appointments when you need them.',
+			'From checkups and cleanings to crowns and cosmetic care. We keep your whole family smiling. We direct-bill most Canadian dental plans and welcome patients under the Canadian Dental Care Plan (CDCP).',
+		subheadline: 'Routine cleanings. Direct billing to insurance. Same-day emergency appointments. Serving Ontario families.',
 		trustBadges: [] as string[],
 		urgencyText: '',
 		image: 'https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=1200&q=80',
@@ -75,13 +74,13 @@ export const dentalDemoContent = {
 	about: {
 		heading: 'About us',
 		subtext:
-			'We believe everyone deserves a dentist they trust. Our team is dedicated to gentle, clear care so you and your family look forward to visits.',
+			'We believe every Canadian deserves a dentist they trust. Our team is dedicated to gentle, clear care so you and your family look forward to visits.',
 		subtext2:
-			'We work with most insurance plans and offer flexible payment options. Your comfort and oral health are our priority.',
+			'We direct-bill most Canadian dental plans and participate in the Canadian Dental Care Plan (CDCP) for eligible patients. Your comfort and oral health are our priority.',
 		bullets: [
 			'Friendly staff who explain every step and answer your questions.',
 			'Care for all ages, from first checkups to ongoing adult care.',
-			'Direct billing to insurance when possible; we handle the paperwork.'
+			'Direct billing to Canadian insurance and CDCP; we handle the paperwork.'
 		],
 		image: 'https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=800&q=80',
 		imageAlt: 'Dental practice treatment room'
@@ -96,7 +95,7 @@ export const dentalDemoContent = {
 			},
 			{
 				title: 'Bring your information',
-				description: 'Bring your insurance card and ID. New patient forms can be completed online before your visit or at the office.'
+				description: 'Bring your Canadian dental/insurance card and ID. CDCP patients: bring your eligibility letter. New patient forms can be completed online or at the office.'
 			},
 			{
 				title: 'Meet your dental team',
@@ -104,9 +103,9 @@ export const dentalDemoContent = {
 			}
 		],
 		ctaLabel: 'Book your first appointment',
-		switchingEasy: 'We make switching dentists easy.',
+		switchingEasy: 'We make switching dentists easy. CDCP and insurance direct billing available.',
 		whatToBring: [
-			'Dental and/or medical insurance card',
+			'Canadian dental and/or medical insurance card (or CDCP eligibility)',
 			'Photo ID',
 			'List of current medications',
 			'Any X-rays or records from your previous dentist (optional)'
@@ -154,11 +153,11 @@ export const dentalDemoContent = {
 	},
 	insurance: {
 		heading: 'Billing & insurance',
-		body: "We direct-bill most insurance plans. Bring your plan details and we'll handle the rest. For patients without insurance, we offer clear pricing and payment plans."
+		body: "We direct-bill most Canadian dental plans and participate in the Canadian Dental Care Plan (CDCP) for eligible patients. Bring your plan details or CDCP letter and we'll handle the rest. Clear pricing and payment plans for patients without insurance."
 	},
 	stats: [
-		{ value: '12+', label: 'Years in practice' },
-		{ value: '5k+', label: 'Patients' },
+		{ value: '12+', label: 'Years serving Ontario' },
+		{ value: '5k+', label: 'Canadian families' },
 		{ value: '99%', label: 'Would recommend' }
 	],
 	contact: {
@@ -172,10 +171,11 @@ export const dentalDemoContent = {
 	faq: {
 		heading: 'Frequently asked questions',
 		items: [
-			{ q: 'Are you accepting new patients?', a: 'Yes. Book online or call us. We welcome new patients and same-day emergencies when possible.' },
-			{ q: 'Do you direct-bill insurance?', a: "Yes. We direct-bill most dental plans. Bring your insurance card and we'll submit claims for you." },
+			{ q: 'Are you accepting new patients?', a: 'Yes. Book online or call us. We welcome new patients across Ontario and same-day emergencies when possible.' },
+			{ q: 'Do you accept the Canadian Dental Care Plan (CDCP)?', a: 'Yes. We participate in CDCP for eligible patients. Bring your eligibility letter and we can direct-bill where applicable.' },
+			{ q: 'Do you direct-bill insurance?', a: "Yes. We direct-bill most Canadian dental plans. Bring your insurance card and we'll submit claims for you." },
 			{ q: 'How do I book an appointment?', a: 'Use the "Book an appointment" button on this page or call us during office hours. You can also request a callback.' },
-			{ q: 'What should I bring to my first visit?', a: 'Bring your insurance card, ID, and a list of medications. New patient forms can be filled out online before your visit.' },
+			{ q: 'What should I bring to my first visit?', a: 'Bring your Canadian dental/insurance card (or CDCP letter), ID, and a list of medications. New patient forms can be filled out online before your visit.' },
 			{ q: 'Do you see children?', a: 'Yes. We see patients of all ages and help kids feel comfortable with regular checkups and cleanings.' },
 			{ q: 'Do you offer same-day or emergency appointments?', a: "Yes. We reserve time for dental emergencies. Call as early as possible and we'll do our best to see you the same day." },
 			{ q: 'Is parking available?', a: 'Yes. Free parking is available for patients. We can give you directions when you book.' },

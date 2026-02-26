@@ -2,6 +2,7 @@
 	import { CAL_COM_LINK, DEMO_PHONE, YONGE_FINCH_MAP_EMBED_URL } from '$lib/constants';
 	import ChatWidget from '$lib/components/ChatWidget.svelte';
 	import { salonsDemoContent } from '$lib/content/salons';
+	import type { DemoProspect } from '$lib/types/demo';
 	import {
 		Scissors,
 		Sparkles,
@@ -22,28 +23,20 @@
 		CreditCard
 	} from 'lucide-svelte';
 
-	let {
-		companyName = '',
-		website = '',
-		address = '',
-		city = '',
-		industrySlug = 'salons'
-	}: {
-		companyName?: string;
-		website?: string;
-		address?: string;
-		city?: string;
-		industrySlug?: string;
-	} = $props();
-
-	const content = salonsDemoContent;
-	const displayAddress = address || content.contact.address;
-	const displayName = companyName || 'Your salon';
-	const heroHeadline = city
-		? content.hero.taglineWithCity.replace('{city}', city)
-		: displayName;
-	const heroSubline = city ? displayName : content.hero.tagline;
+	let { prospect, content = salonsDemoContent }: { prospect: DemoProspect; content?: typeof salonsDemoContent } = $props();
+	const displayAddress = $derived(prospect.address || content.contact.address);
+	const displayPhone = $derived(prospect.phone || content.contact.phone);
+	const displayEmail = $derived(prospect.email || content.contact.email);
+	const displayName = $derived(prospect.companyName || 'Your salon');
+	const heroHeadline = $derived(
+		prospect.city
+			? content.hero.taglineWithCity.replace('{city}', prospect.city)
+			: (prospect.companyName || 'Your salon')
+	);
+	const heroSubline = $derived(prospect.city ? (prospect.companyName || 'Your salon') : content.hero.tagline);
 	const urgencyText = content.hero.urgencyText ?? '';
+	const industrySlug = 'salons';
+	const website = $derived(prospect.website);
 
 	const serviceIcons = { Scissors, Sparkles, Palette } as const;
 	const whyIcons = [Sparkles, Heart, Clock] as const;
@@ -87,14 +80,14 @@
 			></div>
 			<div class="absolute inset-0 bg-gradient-to-t from-base-content/80 via-base-content/50 to-base-content/40"></div>
 			<div class="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-base-100">
-				{#if content.hero.badge && !city}
+				{#if content.hero.badge && !prospect.city}
 					<span class="badge badge-primary badge-lg mb-5 shadow-lg border-0">{content.hero.badge}</span>
 				{/if}
 				<h1 id="hero-heading" class="text-4xl md:text-6xl lg:text-7xl font-bold mb-4 drop-shadow-lg tracking-tight leading-tight">
 					{heroHeadline}
 				</h1>
 				<p class="text-xl md:text-2xl font-semibold mb-6 drop-shadow text-base-100/95 max-w-2xl mx-auto">
-					{city ? content.hero.subheadline : (content.hero.subheadline || heroSubline)}
+					{prospect.city ? content.hero.subheadline : (content.hero.subheadline || heroSubline)}
 				</p>
 				{#if urgencyText}
 					<p class="text-sm text-base-100/90 mb-6 drop-shadow font-medium">{urgencyText}</p>
@@ -434,14 +427,14 @@
 								<Phone class="w-5 h-5 text-primary shrink-0" aria-hidden="true" />
 								Phone
 							</h3>
-							<a href={`tel:${DEMO_PHONE}`} class="link link-hover text-base-content/80 hover:text-primary pl-7 block text-[15px]">{content.contact.phone}</a>
+							<a href={`tel:${displayPhone.replace(/\D/g, '')}`} class="link link-hover text-base-content/80 hover:text-primary pl-7 block text-[15px]">{displayPhone}</a>
 						</div>
 						<div class="p-6 rounded-xl bg-base-100 border border-base-300/80 shadow-sm">
 							<h3 class="font-semibold text-base-content mb-2 flex items-center gap-2">
 								<Mail class="w-5 h-5 text-primary shrink-0" aria-hidden="true" />
 								Email
 							</h3>
-							<a href={"mailto:" + content.contact.email} class="link link-hover text-base-content/80 hover:text-primary break-all pl-7 block text-[15px]">{content.contact.email}</a>
+							<a href={"mailto:" + displayEmail} class="link link-hover text-base-content/80 hover:text-primary break-all pl-7 block text-[15px]">{displayEmail}</a>
 						</div>
 						<a
 							href={CAL_COM_LINK}
@@ -486,10 +479,10 @@
 					{content.cta.button}
 					<ArrowRight class="w-5 h-5" />
 				</a>
-				{#if content.cta.phoneLabel && content.contact.phone}
+				{#if content.cta.phoneLabel && displayPhone}
 					<p class="mt-8 text-primary-content/95 text-[15px]">
 						{content.cta.phoneLabel}:
-						<a href={`tel:${DEMO_PHONE}`} class="link link-neutral font-semibold hover:underline">{content.contact.phone}</a>
+						<a href={`tel:${displayPhone.replace(/\D/g, '')}`} class="link link-neutral font-semibold hover:underline">{displayPhone}</a>
 					</p>
 				{/if}
 			</div>
@@ -538,7 +531,7 @@
 		</div>
 	</footer>
 
-	<ChatWidget industrySlug={industrySlug} displayName={displayName} />
+	<ChatWidget industrySlug={industrySlug} displayName={displayName} prospectId={prospect.id} />
 </div>
 
 {#if website}

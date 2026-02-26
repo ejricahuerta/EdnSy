@@ -4,11 +4,15 @@
 	import type { PageData } from './$types';
 
 	let { data } = $props<{ data: PageData }>();
-	const { prospect, canonicalUrl } = data;
-	const title = prospect.companyName
-		? `${prospect.companyName} | ${dentalDemoContent.hero.tagline}`
-		: `Dental demo | ${dentalDemoContent.hero.tagline}`;
-	const description = dentalDemoContent.hero.subtext;
+	const prospect = $derived(data.prospect);
+	const content = $derived(data.content ?? dentalDemoContent);
+	const canonicalUrl = $derived(data.canonicalUrl);
+	const title = $derived(
+		prospect.companyName
+			? `${prospect.companyName} | ${content.hero.tagline}`
+			: `Dental demo | ${content.hero.tagline}`
+	);
+	const description = $derived(content.hero.subtext);
 </script>
 
 <svelte:head>
@@ -21,4 +25,4 @@
 	<meta property="og:type" content="website" />
 </svelte:head>
 
-<DentalLanding companyName={prospect.companyName} website={prospect.website} address={prospect.address} city={prospect.city} />
+<DentalLanding prospect={prospect} content={content} />

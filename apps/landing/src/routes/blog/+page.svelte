@@ -23,7 +23,7 @@
     {
       title: "Voice AI vs IVR Systems",
       slug: "voice-ai-vs-ivr-systems",
-      excerpt: "How conversational Voice AI differs from traditional IVR—and why it matters for Toronto businesses.",
+      excerpt: "How conversational Voice AI differs from traditional IVR, and why it matters for Toronto businesses.",
     },
   ];
 </script>

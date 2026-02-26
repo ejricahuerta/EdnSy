@@ -2,6 +2,7 @@
 	import { CAL_COM_LINK, DEMO_PHONE, YONGE_FINCH_MAP_EMBED_URL } from '$lib/constants';
 	import ChatWidget from '$lib/components/ChatWidget.svelte';
 	import { soloProfessionalsDemoContent } from '$lib/content/solo-professionals';
+	import type { DemoProspect } from '$lib/types/demo';
 	import {
 		MessageCircle,
 		Target,
@@ -22,35 +23,29 @@
 		CreditCard
 	} from 'lucide-svelte';
 
-	let {
-		companyName = '',
-		website = '',
-		address = '',
-		city = '',
-		industrySlug = 'solo-professionals'
-	}: {
-		companyName?: string;
-		website?: string;
-		address?: string;
-		city?: string;
-		industrySlug?: string;
-	} = $props();
-
-	const content = soloProfessionalsDemoContent;
-	const displayAddress = address || content.contact.address;
-	const displayName = companyName || 'Your practice';
-	const heroHeadline = city
-		? content.hero.taglineWithCity.replace('{city}', city)
-		: displayName;
-	const heroSubline = city ? displayName : content.hero.tagline;
-	const urgencyText = content.hero.urgencyText ?? '';
+	let { prospect, content = soloProfessionalsDemoContent }: { prospect: DemoProspect; content?: typeof soloProfessionalsDemoContent } = $props();
+	const contact = $derived((content as { contact?: { address?: string; phone?: string; email?: string } })?.contact);
+	const displayAddress = $derived((prospect.address || contact?.address) ?? '');
+	const displayPhone = $derived((prospect.phone || contact?.phone) ?? '');
+	const displayEmail = $derived((prospect.email || contact?.email) ?? '');
+	const displayName = $derived(prospect.companyName || 'Your practice');
+	const hero = $derived((content as { hero?: { tagline?: string; taglineWithCity?: string; urgencyText?: string } })?.hero);
+	const heroHeadline = $derived(
+		prospect.city && hero?.taglineWithCity
+			? hero.taglineWithCity.replace('{city}', prospect.city)
+			: (prospect.companyName || 'Your practice')
+	);
+	const heroSubline = $derived(prospect.city ? (prospect.companyName || 'Your practice') : (hero?.tagline ?? ''));
+	const urgencyText = $derived(hero?.urgencyText ?? '');
+	const industrySlug = 'solo-professionals';
+	const website = $derived(prospect.website);
 
 	const serviceIcons = { MessageCircle, Target, CalendarCheck } as const;
 	const whyIcons = [Briefcase, MessageCircle, Clock] as const;
 
-	const newPatientsCardTitle =
-		(content.newPatients as { whatToBringTitle?: string }).whatToBringTitle ?? 'What to bring';
-	const footerCtaHeading = (content.footer as { ctaHeading?: string }).ctaHeading ?? 'Book a visit';
+	const newPatientsSection = $derived(content.newPatients ?? (content as { gettingStarted?: { whatToBringTitle?: string } }).gettingStarted);
+	const newPatientsCardTitle = $derived((newPatientsSection as { whatToBringTitle?: string })?.whatToBringTitle ?? 'What to bring');
+	const footerCtaHeading = $derived((content.footer as { ctaHeading?: string })?.ctaHeading ?? 'Book a visit');
 </script>
 
 <div class="solo-professionals-landing flex flex-col min-h-screen">
@@ -87,14 +82,14 @@
 			></div>
 			<div class="absolute inset-0 bg-gradient-to-t from-base-content/80 via-base-content/50 to-base-content/40"></div>
 			<div class="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-base-100">
-				{#if content.hero.badge && !city}
+				{#if content.hero.badge && !prospect.city}
 					<span class="badge badge-primary badge-lg mb-5 shadow-lg border-0">{content.hero.badge}</span>
 				{/if}
 				<h1 id="hero-heading" class="text-4xl md:text-6xl lg:text-7xl font-bold mb-4 drop-shadow-lg tracking-tight leading-tight">
 					{heroHeadline}
 				</h1>
 				<p class="text-xl md:text-2xl font-semibold mb-6 drop-shadow text-base-100/95 max-w-2xl mx-auto">
-					{city ? content.hero.subheadline : (content.hero.subheadline || heroSubline)}
+					{prospect.city ? content.hero.subheadline : (content.hero.subheadline || heroSubline)}
 				</p>
 				{#if urgencyText}
 					<p class="text-sm text-base-100/90 mb-6 drop-shadow font-medium">{urgencyText}</p>
@@ -227,126 +222,132 @@
 		</section>
 
 		<!-- Your first visit -->
-		<section id="new-patients" class="py-20 md:py-28 bg-base-200/50" aria-labelledby="new-patients-heading">
-			<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-				<header class="text-center mb-12">
-					<h2 id="new-patients-heading" class="section-heading mx-auto mb-4">
-						{content.newPatients.heading}
-					</h2>
-					<p class="section-lead mx-auto mb-2">
-						{content.newPatients.subtext}
-					</p>
-					{#if content.newPatients.switchingEasy}
-						<p class="font-semibold text-primary mt-4">{content.newPatients.switchingEasy}</p>
-					{/if}
-				</header>
+		{#if newPatientsSection}
+			{@const np = newPatientsSection as { whatToBring?: string[]; steps?: Array<{ title: string; description: string }>; ctaLabel?: string; heading?: string; subtext?: string; switchingEasy?: string }}
+			<section id="new-patients" class="py-20 md:py-28 bg-base-200/50" aria-labelledby="new-patients-heading">
+				<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+					<header class="text-center mb-12">
+						<h2 id="new-patients-heading" class="section-heading mx-auto mb-4">
+							{np.heading ?? 'Your first visit'}
+						</h2>
+						<p class="section-lead mx-auto mb-2">
+							{np.subtext ?? ''}
+						</p>
+						{#if np.switchingEasy}
+							<p class="font-semibold text-primary mt-4">{np.switchingEasy}</p>
+						{/if}
+					</header>
 
-				<div class="grid grid-cols-1 {content.newPatients.whatToBring?.length ? 'lg:grid-cols-2' : 'max-w-2xl mx-auto'} gap-10 lg:gap-14 items-start">
-					{#if content.newPatients.whatToBring && content.newPatients.whatToBring.length > 0}
-						<div class="lg:sticky lg:top-24 space-y-6">
-							<div class="p-6 md:p-8 rounded-2xl bg-base-100 border border-base-300/80 shadow-sm">
-								<h3 class="font-semibold text-base-content mb-5">{newPatientsCardTitle}</h3>
-								<ul class="space-y-3" role="list">
-									{#each content.newPatients.whatToBring as item}
-										<li class="flex items-center gap-3 text-base-content/80 text-[15px] leading-relaxed">
-											<span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary text-xs font-semibold" aria-hidden="true">✓</span>
-											<span>{item}</span>
-										</li>
-									{/each}
-								</ul>
+					<div class="grid grid-cols-1 {np.whatToBring?.length ? 'lg:grid-cols-2' : 'max-w-2xl mx-auto'} gap-10 lg:gap-14 items-start">
+						{#if np.whatToBring && np.whatToBring.length > 0}
+							<div class="lg:sticky lg:top-24 space-y-6">
+								<div class="p-6 md:p-8 rounded-2xl bg-base-100 border border-base-300/80 shadow-sm">
+									<h3 class="font-semibold text-base-content mb-5">{newPatientsCardTitle}</h3>
+									<ul class="space-y-3" role="list">
+										{#each np.whatToBring as item}
+											<li class="flex items-center gap-3 text-base-content/80 text-[15px] leading-relaxed">
+												<span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary text-xs font-semibold" aria-hidden="true">✓</span>
+												<span>{item}</span>
+											</li>
+										{/each}
+									</ul>
+								</div>
+								<a
+									href={CAL_COM_LINK}
+									target="_blank"
+									rel="noopener noreferrer"
+									class="btn btn-primary btn-lg gap-2 shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 w-full"
+								>
+									{np.ctaLabel ?? 'Book a visit'}
+									<ArrowRight class="w-5 h-5" />
+								</a>
 							</div>
+						{/if}
+
+						<div class="space-y-6">
+							<div class="grid grid-cols-1 gap-6">
+								{#each (np.steps ?? []) as step, i}
+									{@const StepIcon = [Calendar, FileCheck, ClipboardList][i] ?? ClipboardList}
+									<div class="card bg-base-100 shadow-md border border-base-300/80 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+										<div class="card-body p-6 md:p-6 flex flex-row gap-4">
+											<div class="rounded-xl bg-primary/10 w-fit h-fit p-3 text-primary shrink-0" aria-hidden="true">
+												<StepIcon class="w-7 h-7" />
+											</div>
+											<div class="min-w-0">
+												<h3 class="card-title text-lg mb-2">{step.title}</h3>
+												<p class="text-base-content/80 text-[15px] leading-relaxed">{step.description}</p>
+											</div>
+										</div>
+									</div>
+								{/each}
+							</div>
+						</div>
+					</div>
+
+					{#if !np.whatToBring?.length}
+						<div class="max-w-2xl mx-auto mt-10 text-center">
 							<a
 								href={CAL_COM_LINK}
 								target="_blank"
 								rel="noopener noreferrer"
-								class="btn btn-primary btn-lg gap-2 shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 w-full"
+								class="btn btn-primary btn-lg gap-2 shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5"
 							>
-								{content.newPatients.ctaLabel}
+								{np.ctaLabel ?? 'Book a visit'}
 								<ArrowRight class="w-5 h-5" />
 							</a>
 						</div>
 					{/if}
-
-					<div class="space-y-6">
-						<div class="grid grid-cols-1 gap-6">
-							{#each content.newPatients.steps as step, i}
-								{@const StepIcon = [Calendar, FileCheck, ClipboardList][i] ?? ClipboardList}
-								<div class="card bg-base-100 shadow-md border border-base-300/80 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-									<div class="card-body p-6 md:p-6 flex flex-row gap-4">
-										<div class="rounded-xl bg-primary/10 w-fit h-fit p-3 text-primary shrink-0" aria-hidden="true">
-											<StepIcon class="w-7 h-7" />
-										</div>
-										<div class="min-w-0">
-											<h3 class="card-title text-lg mb-2">{step.title}</h3>
-											<p class="text-base-content/80 text-[15px] leading-relaxed">{step.description}</p>
-										</div>
-									</div>
-								</div>
-							{/each}
-						</div>
-					</div>
 				</div>
-
-				{#if !content.newPatients.whatToBring?.length}
-					<div class="max-w-2xl mx-auto mt-10 text-center">
-						<a
-							href={CAL_COM_LINK}
-							target="_blank"
-							rel="noopener noreferrer"
-							class="btn btn-primary btn-lg gap-2 shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5"
-						>
-							{content.newPatients.ctaLabel}
-							<ArrowRight class="w-5 h-5" />
-						</a>
-					</div>
-				{/if}
-			</div>
-		</section>
+			</section>
+		{/if}
 
 		<!-- What to expect -->
-		<section class="py-20 md:py-28 bg-base-100" aria-labelledby="expect-heading">
-			<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-				<header class="text-center mb-12">
-					<h2 id="expect-heading" class="section-heading mx-auto mb-4">
-						{content.whatToExpect.heading}
-					</h2>
-					<p class="section-lead mx-auto">{content.whatToExpect.subtext}</p>
-				</header>
-				<ul class="space-y-4" role="list">
-					{#each content.whatToExpect.items as item, i}
-						<li class="flex items-start gap-5 p-5 md:p-6 rounded-xl bg-base-200/60 border border-base-300/50 transition-colors hover:bg-base-200/80">
-							<span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-content font-semibold text-sm" aria-hidden="true">{i + 1}</span>
-							<span class="text-base-content/90 pt-1.5 text-[15px] leading-relaxed">{item}</span>
-						</li>
-					{/each}
-				</ul>
-			</div>
-		</section>
+		{#if content.whatToExpect}
+			<section class="py-20 md:py-28 bg-base-100" aria-labelledby="expect-heading">
+				<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+					<header class="text-center mb-12">
+						<h2 id="expect-heading" class="section-heading mx-auto mb-4">
+							{content.whatToExpect.heading}
+						</h2>
+						<p class="section-lead mx-auto">{content.whatToExpect.subtext}</p>
+					</header>
+					<ul class="space-y-4" role="list">
+						{#each content.whatToExpect.items ?? [] as item, i}
+							<li class="flex items-start gap-5 p-5 md:p-6 rounded-xl bg-base-200/60 border border-base-300/50 transition-colors hover:bg-base-200/80">
+								<span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-content font-semibold text-sm" aria-hidden="true">{i + 1}</span>
+								<span class="text-base-content/90 pt-1.5 text-[15px] leading-relaxed">{item}</span>
+							</li>
+						{/each}
+					</ul>
+				</div>
+			</section>
+		{/if}
 
 		<!-- Testimonials -->
-		<section class="py-20 md:py-28 bg-base-200/50" aria-labelledby="testimonials-heading">
-			<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-				<header class="text-center mb-12">
-					<h2 id="testimonials-heading" class="section-heading mx-auto mb-4">
-						{content.testimonials.heading}
-					</h2>
-					<p class="section-lead mx-auto mb-2">{content.testimonials.subtext}</p>
-					{#if content.testimonials.ratingDisplay || content.testimonials.reviewCount}
-						<p class="mt-6 flex flex-wrap items-center justify-center gap-2">
-							{#if content.testimonials.ratingDisplay}
-								<span class="inline-flex items-center gap-1.5 font-semibold text-base-content">
-									<Star class="w-5 h-5 fill-primary text-primary" aria-hidden="true" />
-									{content.testimonials.ratingDisplay}
-								</span>
-							{/if}
-							{#if content.testimonials.reviewCount}
-								<span class="text-base-content/70 text-sm">({content.testimonials.reviewCount})</span>
-							{/if}
-						</p>
-					{/if}
-				</header>
-				<div class="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10">
-					{#each content.testimonials.items as t}
+		{#if content.testimonials}
+			<section class="py-20 md:py-28 bg-base-200/50" aria-labelledby="testimonials-heading">
+				<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+					<header class="text-center mb-12">
+						<h2 id="testimonials-heading" class="section-heading mx-auto mb-4">
+							{content.testimonials.heading}
+						</h2>
+						<p class="section-lead mx-auto mb-2">{content.testimonials.subtext}</p>
+						{#if content.testimonials.ratingDisplay || content.testimonials.reviewCount}
+							<p class="mt-6 flex flex-wrap items-center justify-center gap-2">
+								{#if content.testimonials.ratingDisplay}
+									<span class="inline-flex items-center gap-1.5 font-semibold text-base-content">
+										<Star class="w-5 h-5 fill-primary text-primary" aria-hidden="true" />
+										{content.testimonials.ratingDisplay}
+									</span>
+								{/if}
+								{#if content.testimonials.reviewCount}
+									<span class="text-base-content/70 text-sm">({content.testimonials.reviewCount})</span>
+								{/if}
+							</p>
+						{/if}
+					</header>
+					<div class="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10">
+						{#each (content.testimonials.items ?? []) as t}
 						<div class="card bg-base-100 shadow-md border border-base-300/80 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col">
 							<div class="card-body p-6 md:p-8 flex flex-col flex-1">
 								<div class="flex gap-1 mb-3" aria-hidden="true">
@@ -362,21 +363,23 @@
 								</footer>
 							</div>
 						</div>
-					{/each}
+						{/each}
+					</div>
 				</div>
-			</div>
-		</section>
+			</section>
+		{/if}
 
 		<!-- FAQ -->
-		<section id="faq" class="py-20 md:py-28 bg-base-100" aria-labelledby="faq-heading">
-			<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-				<header class="text-center mb-12">
-					<h2 id="faq-heading" class="section-heading mx-auto">
-						{content.faq.heading}
-					</h2>
-				</header>
-				<div class="join join-vertical w-full gap-0 rounded-2xl overflow-hidden border border-base-300/80 shadow-sm">
-					{#each content.faq.items as item}
+		{#if content.faq}
+			<section id="faq" class="py-20 md:py-28 bg-base-100" aria-labelledby="faq-heading">
+				<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+					<header class="text-center mb-12">
+						<h2 id="faq-heading" class="section-heading mx-auto">
+							{content.faq.heading}
+						</h2>
+					</header>
+					<div class="join join-vertical w-full gap-0 rounded-2xl overflow-hidden border border-base-300/80 shadow-sm">
+						{#each (content.faq.items ?? []) as item}
 						<details class="join-item group border-0 border-b border-base-300/60 last:border-b-0 bg-base-100">
 							<summary class="flex cursor-pointer items-start justify-between gap-4 px-6 py-5 font-medium text-base-content hover:bg-base-200/50 transition-colors list-none [&::-webkit-details-marker]:hidden">
 								<span class="pr-4 text-left">{item.q}</span>
@@ -386,62 +389,69 @@
 								<p class="pt-3 text-[15px] leading-relaxed" style="line-height: 1.75;">{item.a}</p>
 							</div>
 						</details>
-					{/each}
+						{/each}
+					</div>
 				</div>
-			</div>
-		</section>
+			</section>
+		{/if}
 
 		<!-- Contact -->
-		<section id="contact" class="py-20 md:py-28 bg-base-200/50" aria-labelledby="contact-heading">
-			<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-				<header class="text-center mb-14">
-					<h2 id="contact-heading" class="section-heading mx-auto mb-4">
-						{content.contact.heading}
-					</h2>
-					<p class="section-lead mx-auto">
-						{content.contact.subtext}
-					</p>
-				</header>
-				<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
-					<div class="space-y-5">
-						<div class="p-6 rounded-xl bg-base-100 border border-base-300/80 shadow-sm">
-							<h3 class="font-semibold text-base-content mb-2 flex items-center gap-2">
-								<MapPin class="w-5 h-5 text-primary shrink-0" aria-hidden="true" />
-								Location
-							</h3>
-							<p class="text-base-content/80 text-[15px] leading-relaxed pl-7">{displayAddress}</p>
-						</div>
-						<div id="hours" class="p-6 rounded-xl bg-base-100 border border-base-300/80 shadow-sm">
-							<h3 class="font-semibold text-base-content mb-2 flex items-center gap-2">
-								<Clock class="w-5 h-5 text-primary shrink-0" aria-hidden="true" />
-								{content.hours.heading}
-							</h3>
-							<ul class="space-y-1.5 text-base-content/80 text-[15px] leading-relaxed pl-7" role="list">
-								{#each content.hours.lines as line}
-									<li>{line}</li>
-								{/each}
-							</ul>
-						</div>
-						<div id="insurance" class="p-6 rounded-xl bg-base-100 border border-base-300/80 shadow-sm" aria-labelledby="insurance-heading">
-							<h3 id="insurance-heading" class="font-semibold text-base-content mb-2 flex items-center gap-2">
-								<CreditCard class="w-5 h-5 text-primary shrink-0" aria-hidden="true" />
-								{content.insurance.heading}
-							</h3>
-							<p class="text-base-content/80 text-[15px] leading-relaxed pl-7" style="line-height: 1.75;">{content.insurance.body}</p>
-						</div>
+		{#if content.contact}
+			<section id="contact" class="py-20 md:py-28 bg-base-200/50" aria-labelledby="contact-heading">
+				<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+					<header class="text-center mb-14">
+						<h2 id="contact-heading" class="section-heading mx-auto mb-4">
+							{content.contact.heading}
+						</h2>
+						<p class="section-lead mx-auto">
+							{content.contact.subtext}
+						</p>
+					</header>
+					<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+						<div class="space-y-5">
+							<div class="p-6 rounded-xl bg-base-100 border border-base-300/80 shadow-sm">
+								<h3 class="font-semibold text-base-content mb-2 flex items-center gap-2">
+									<MapPin class="w-5 h-5 text-primary shrink-0" aria-hidden="true" />
+									Location
+								</h3>
+								<p class="text-base-content/80 text-[15px] leading-relaxed pl-7">{displayAddress}</p>
+							</div>
+							{#if content.hours}
+								<div id="hours" class="p-6 rounded-xl bg-base-100 border border-base-300/80 shadow-sm">
+									<h3 class="font-semibold text-base-content mb-2 flex items-center gap-2">
+										<Clock class="w-5 h-5 text-primary shrink-0" aria-hidden="true" />
+										{content.hours.heading}
+									</h3>
+									<ul class="space-y-1.5 text-base-content/80 text-[15px] leading-relaxed pl-7" role="list">
+										{#each (content.hours.lines ?? []) as line}
+											<li>{line}</li>
+										{/each}
+									</ul>
+								</div>
+							{/if}
+							{#if content.insurance || (content as { payment?: { body?: string } }).payment}
+								{@const pay = (content.insurance ?? (content as { payment?: { heading?: string; body?: string } }).payment) as { heading?: string; body?: string }}
+								<div id="insurance" class="p-6 rounded-xl bg-base-100 border border-base-300/80 shadow-sm" aria-labelledby="insurance-heading">
+									<h3 id="insurance-heading" class="font-semibold text-base-content mb-2 flex items-center gap-2">
+										<CreditCard class="w-5 h-5 text-primary shrink-0" aria-hidden="true" />
+										{pay.heading ?? 'Payment'}
+									</h3>
+									<p class="text-base-content/80 text-[15px] leading-relaxed pl-7" style="line-height: 1.75;">{pay.body ?? ''}</p>
+								</div>
+							{/if}
 						<div class="p-6 rounded-xl bg-base-100 border border-base-300/80 shadow-sm">
 							<h3 class="font-semibold text-base-content mb-2 flex items-center gap-2">
 								<Phone class="w-5 h-5 text-primary shrink-0" aria-hidden="true" />
 								Phone
 							</h3>
-							<a href={`tel:${DEMO_PHONE}`} class="link link-hover text-base-content/80 hover:text-primary pl-7 block text-[15px]">{content.contact.phone}</a>
+							<a href={`tel:${displayPhone.replace(/\D/g, '')}`} class="link link-hover text-base-content/80 hover:text-primary pl-7 block text-[15px]">{displayPhone}</a>
 						</div>
 						<div class="p-6 rounded-xl bg-base-100 border border-base-300/80 shadow-sm">
 							<h3 class="font-semibold text-base-content mb-2 flex items-center gap-2">
 								<Mail class="w-5 h-5 text-primary shrink-0" aria-hidden="true" />
 								Email
 							</h3>
-							<a href={"mailto:" + content.contact.email} class="link link-hover text-base-content/80 hover:text-primary break-all pl-7 block text-[15px]">{content.contact.email}</a>
+							<a href={"mailto:" + displayEmail} class="link link-hover text-base-content/80 hover:text-primary break-all pl-7 block text-[15px]">{displayEmail}</a>
 						</div>
 						<a
 							href={CAL_COM_LINK}
@@ -464,36 +474,39 @@
 							loading="lazy"
 							referrerpolicy="no-referrer-when-downgrade"
 						></iframe>
+						</div>
 					</div>
 				</div>
-			</div>
-		</section>
+			</section>
+		{/if}
 
 		<!-- CTA strip -->
-		<section class="py-20 md:py-28 bg-primary text-primary-content" aria-labelledby="cta-heading">
-			<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-				<h2 id="cta-heading" class="section-heading mb-5 text-primary-content">{content.cta.heading}</h2>
-				<p class="text-primary-content/95 mb-4 text-lg leading-relaxed" style="line-height: 1.7;">{content.cta.subtext}</p>
-				{#if content.cta.microReassurance}
-					<p class="text-primary-content/85 text-sm mb-8">{content.cta.microReassurance}</p>
-				{/if}
-				<a
-					href={CAL_COM_LINK}
-					target="_blank"
-					rel="noopener noreferrer"
-					class="btn btn-neutral btn-lg gap-2 shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5"
-				>
-					{content.cta.button}
-					<ArrowRight class="w-5 h-5" />
-				</a>
-				{#if content.cta.phoneLabel && content.contact.phone}
-					<p class="mt-8 text-primary-content/95 text-[15px]">
-						{content.cta.phoneLabel}:
-						<a href={`tel:${DEMO_PHONE}`} class="link link-neutral font-semibold hover:underline">{content.contact.phone}</a>
-					</p>
-				{/if}
-			</div>
-		</section>
+		{#if content.cta}
+			<section class="py-20 md:py-28 bg-primary text-primary-content" aria-labelledby="cta-heading">
+				<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+					<h2 id="cta-heading" class="section-heading mb-5 text-primary-content">{content.cta.heading}</h2>
+					<p class="text-primary-content/95 mb-4 text-lg leading-relaxed" style="line-height: 1.7;">{content.cta.subtext}</p>
+					{#if content.cta.microReassurance}
+						<p class="text-primary-content/85 text-sm mb-8">{content.cta.microReassurance}</p>
+					{/if}
+					<a
+						href={CAL_COM_LINK}
+						target="_blank"
+						rel="noopener noreferrer"
+						class="btn btn-neutral btn-lg gap-2 shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5"
+					>
+						{content.cta.button}
+						<ArrowRight class="w-5 h-5" />
+					</a>
+					{#if content.cta.phoneLabel && displayPhone}
+						<p class="mt-8 text-primary-content/95 text-[15px]">
+							{content.cta.phoneLabel}:
+							<a href={`tel:${displayPhone.replace(/\D/g, '')}`} class="link link-neutral font-semibold hover:underline">{displayPhone}</a>
+						</p>
+					{/if}
+				</div>
+			</section>
+		{/if}
 	</main>
 
 	<!-- Footer -->
@@ -505,7 +518,7 @@
 						Quick links
 					</h3>
 					<nav class="flex flex-col gap-3">
-						{#each content.footer.links as link}
+						{#each (content.footer?.links ?? []) as link}
 							<a href={link.href} class="link link-hover text-base-content/80 hover:text-primary text-sm transition-colors w-fit">
 								{link.label}
 							</a>
@@ -523,7 +536,7 @@
 						rel="noopener noreferrer"
 						class="btn btn-primary gap-2 shadow-sm hover:shadow transition-shadow"
 					>
-						{content.footer.ctaLabel}
+						{(content.footer as { ctaLabel?: string } | undefined)?.ctaLabel ?? 'Book a visit'}
 						<ArrowRight class="w-4 h-4" />
 					</a>
 				</div>
@@ -532,13 +545,13 @@
 
 		<div class="border-t border-base-300 px-4 py-6">
 			<div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-base-content/60">
-				<p>© {new Date().getFullYear()} {displayName}. {content.footer.copyright}</p>
+				<p>© {new Date().getFullYear()} {displayName}. {(content.footer as { copyright?: string } | undefined)?.copyright ?? 'All rights reserved.'}</p>
 				<p>Powered by Ed & Sy Inc.</p>
 			</div>
 		</div>
 	</footer>
 
-	<ChatWidget industrySlug={industrySlug} displayName={displayName} />
+	<ChatWidget industrySlug={industrySlug} displayName={displayName} prospectId={prospect.id} />
 </div>
 
 {#if website}

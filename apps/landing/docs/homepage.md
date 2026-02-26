@@ -7,7 +7,7 @@ We Give You Time
 Your Technology Implementation Partner for Modern Business Operations
 
 ## Body
-Ednsy helps small and mid-sized businesses design, implement, and adopt integrated technology systems—so your team spends less time on manual work and more time on what matters.
+Ednsy helps small and mid-sized businesses design, implement, and adopt integrated technology systems so your team spends less time on manual work and more time on what matters.
 
 ## Value Points
 - Digital adoption
@@ -29,7 +29,7 @@ Book a Free Tech Assessment
 Technology Was Supposed to Save Time
 
 ## Body
-Most businesses have invested in software, tools, and platforms—but those systems don’t work together.
+Most businesses have invested in software, tools, and platforms, but those systems don’t work together.
 
 Instead of saving time:
 - Workflows stay manual
@@ -123,7 +123,7 @@ We stay involved long after launch.
 - On-call technical support and optimization
 
 ### Service 4 Outcome
-No internal tech team—and no time lost managing vendors.
+No internal tech team, and no time lost managing vendors.
 
 ---
 
