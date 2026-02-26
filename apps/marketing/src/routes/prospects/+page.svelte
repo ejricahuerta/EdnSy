@@ -119,7 +119,24 @@
 			</tbody>
 		</table>
 	</div>
-	{#if prospects.length === 0}
+	{#if data.notionError === 'not_configured'}
+		<div class="alert alert-warning text-left">
+			<p class="font-medium">Notion is not configured</p>
+			<p class="text-sm mt-1">{data.notionMessage ?? 'Set NOTION_API_KEY and NOTION_DATABASE_ID in your environment.'}</p>
+			<p class="text-sm mt-2 opacity-90 font-medium">On Vercel:</p>
+			<ul class="text-sm mt-1 list-disc list-inside opacity-90">
+				<li>Settings → General → <strong>Root Directory</strong> = <code class="bg-base-200 px-1 rounded">apps/marketing</code> (if monorepo)</li>
+				<li>Settings → Environment Variables → add <code class="bg-base-200 px-1 rounded">NOTION_API_KEY</code> and <code class="bg-base-200 px-1 rounded">NOTION_DATABASE_ID</code></li>
+				<li>Redeploy after changing env vars</li>
+			</ul>
+		</div>
+	{:else if data.notionError === 'api_error'}
+		<div class="alert alert-error text-left">
+			<p class="font-medium">Could not load prospects from Notion</p>
+			<p class="text-sm mt-1">{data.notionMessage ?? 'Check your Notion connection.'}</p>
+			<p class="text-sm mt-2 opacity-90">Ensure the database is shared with your Notion integration (Database → Connect to → your integration).</p>
+		</div>
+	{:else if prospects.length === 0}
 		<p class="text-base-content/70 py-6">No prospects yet. Add rows in your Notion database.</p>
 	{/if}
 </div>

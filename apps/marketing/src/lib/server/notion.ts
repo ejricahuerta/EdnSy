@@ -1,7 +1,12 @@
 import { env } from '$env/dynamic/private';
 
-const NOTION_API_KEY = env.NOTION_API_KEY;
-const NOTION_DATABASE_ID = env.NOTION_DATABASE_ID;
+/** Read at request time so Vercel serverless always sees current env (not cached at module load). */
+function getNotionConfig() {
+	return {
+		apiKey: env.NOTION_API_KEY,
+		databaseId: env.NOTION_DATABASE_ID
+	};
+}
 
 /**
  * Notion database schema (verified):
@@ -33,13 +38,14 @@ export type Prospect = {
  * Returns null if Notion is not configured or the page is not found.
  */
 export async function getProspectById(id: string): Promise<Prospect | null> {
-	if (!NOTION_API_KEY || !NOTION_DATABASE_ID) return null;
+	const { apiKey } = getNotionConfig();
+	if (!apiKey) return null;
 
 	try {
 		// Notion API: retrieve page then get properties
 		const res = await fetch(`https://api.notion.com/v1/pages/${id}`, {
 			headers: {
-				Authorization: `Bearer ${NOTION_API_KEY}`,
+				Authorization: `Bearer ${apiKey}`,
 				'Notion-Version': '2022-06-28',
 				'Content-Type': 'application/json'
 			}
@@ -52,28 +58,41 @@ export async function getProspectById(id: string): Promise<Prospect | null> {
 	}
 }
 
+export type ListProspectsResult =
+	| { prospects: Prospect[]; error?: undefined }
+	| { prospects: []; error: 'not_configured' | 'api_error'; message?: string };
+
 /**
  * List prospects from the Notion database (for CRM table).
- * Returns empty array if Notion is not configured or the request fails.
+ * Returns prospects and optional error so the UI can show a clear message.
  */
-export async function listProspects(): Promise<Prospect[]> {
-	if (!NOTION_API_KEY || !NOTION_DATABASE_ID) return [];
+export async function listProspects(): Promise<ListProspectsResult> {
+	const { apiKey, databaseId } = getNotionConfig();
+	if (!apiKey || !databaseId) {
+		return { prospects: [], error: 'not_configured', message: 'NOTION_API_KEY and NOTION_DATABASE_ID must be set in your environment (e.g. Vercel).' };
+	}
 
 	try {
-		const res = await fetch(`https://api.notion.com/v1/databases/${NOTION_DATABASE_ID}/query`, {
+		const res = await fetch(`https://api.notion.com/v1/databases/${databaseId}/query`, {
 			method: 'POST',
 			headers: {
-				Authorization: `Bearer ${NOTION_API_KEY}`,
+				Authorization: `Bearer ${apiKey}`,
 				'Notion-Version': '2022-06-28',
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({ page_size: 100 })
 		});
-		if (!res.ok) return [];
+		if (!res.ok) {
+			const body = await res.json().catch(() => ({})) as { message?: string; code?: string };
+			const msg = body.message ?? body.code ?? res.statusText;
+			return { prospects: [], error: 'api_error', message: `Notion API error (${res.status}): ${msg}` };
+		}
 		const data = (await res.json()) as { results: Array<{ id: string; properties: Record<string, unknown> }> };
-		return data.results.map((page) => mapNotionPageToProspect(page));
-	} catch {
-		return [];
+		const prospects = data.results.map((page) => mapNotionPageToProspect(page));
+		return { prospects };
+	} catch (e) {
+		const message = e instanceof Error ? e.message : 'Request failed';
+		return { prospects: [], error: 'api_error', message };
 	}
 }
 
@@ -87,9 +106,10 @@ export async function updateProspectDemoLink(
 	demoUrl: string,
 	statusValue: string = 'Demo Created'
 ): Promise<{ ok: boolean; error?: string }> {
-	if (!NOTION_API_KEY) return { ok: false, error: 'Notion not configured' };
+	const { apiKey } = getNotionConfig();
+	if (!apiKey) return { ok: false, error: 'Notion not configured' };
 	const headers = {
-		Authorization: `Bearer ${NOTION_API_KEY}`,
+		Authorization: `Bearer ${apiKey}`,
 		'Notion-Version': '2022-06-28',
 		'Content-Type': 'application/json'
 	};
@@ -174,7 +194,7 @@ function mapNotionPageToProspect(page: { id: string; properties: Record<string, 
 		id: page.id,
 		companyName: firstTitle('Name', 'Company', 'Company Name'),
 		email: emailVal ?? '',
-		website: websiteUrl || firstRich('Website') || undefined,
+		website: websiteUrl || firstRich('Website') || '',
 		phone: phoneVal || undefined,
 		address: firstRich('Address') || undefined,
 		city: firstRich('City') || undefined,

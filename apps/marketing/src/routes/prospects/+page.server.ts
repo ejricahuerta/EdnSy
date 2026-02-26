@@ -10,8 +10,13 @@ export const load: PageServerLoad = async ({ cookies }) => {
 	if (!user) {
 		throw redirect(303, '/auth/login');
 	}
-	const prospects = await listProspects();
-	return { prospects, user };
+	const result = await listProspects();
+	return {
+		prospects: result.prospects,
+		notionError: result.error,
+		notionMessage: result.message,
+		user
+	};
 };
 
 export const actions: Actions = {

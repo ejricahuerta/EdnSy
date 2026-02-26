@@ -53,9 +53,22 @@ SvelteKit app for the marketing CRM: prospects table, industry demo pages, and (
    - Prospects: http://localhost:5173/prospects
    - Demo pages use Notion row IDs, e.g. http://localhost:5173/healthcare/[notion-page-id]
 
-## Deploy
+## Deploy (Vercel)
 
-Connect this app to Vercel via GitHub and set the same env vars in the Vercel project. The app uses `adapter-auto` (Vercel-compatible).
+1. **Connect the repo** to Vercel and import the project.
+
+2. **Set Root Directory** (if this app lives in a monorepo):
+   - In Vercel: Project → **Settings** → **General** → **Root Directory** → set to `apps/marketing`.
+   - This ensures Vercel builds and runs this app, not the repo root.
+
+3. **Environment variables** (Project → **Settings** → **Environment Variables**):
+   - Add `NOTION_API_KEY` and `NOTION_DATABASE_ID` (required for prospects and demos).
+   - Add Google OAuth and session vars if you use `/prospects`: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `SESSION_SECRET`.
+   - Use the **exact** names above (case-sensitive). Assign to **Production** (and **Preview** if you use preview deployments).
+
+4. **Redeploy** after adding or changing env vars (Deployments → ⋯ → Redeploy).
+
+If you see “Notion is not configured” or an empty prospects list on Vercel, confirm Root Directory is `apps/marketing` and both Notion env vars are set for the correct environment.
 
 ## Routes
 
