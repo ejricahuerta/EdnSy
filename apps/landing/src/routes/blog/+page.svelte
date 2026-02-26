@@ -9,7 +9,13 @@
   ]);
 
   /** Placeholder for pillar articles. Add slugs and titles as content is published. */
-  const blogPosts: { title: string; slug: string; excerpt: string }[] = [
+  const blogPosts: { title: string; slug: string; excerpt: string; href?: string }[] = [
+    {
+      title: "Chart Rosetta",
+      slug: "chart-rosetta",
+      excerpt: "Decode any chart screenshot into plain English. Paste a screenshot, get an instant explanation—no sign-up. From Ed & Sy.",
+      href: "/blog/chart-rosetta",
+    },
     {
       title: "What is Voice AI for Businesses?",
       slug: "what-is-voice-ai-for-businesses",
@@ -57,11 +63,21 @@
         <li>
           <Card.Root class="border-border bg-card">
             <Card.Header>
-              <Card.Title class="text-xl">{post.title}</Card.Title>
+              <Card.Title class="text-xl">
+                {#if post.href}
+                  <a href={post.href} class="text-foreground hover:text-primary hover:underline">{post.title}</a>
+                {:else}
+                  {post.title}
+                {/if}
+              </Card.Title>
               <Card.Description class="leading-relaxed">{post.excerpt}</Card.Description>
             </Card.Header>
             <Card.Content>
-              <span class="text-sm text-muted-foreground">Article coming soon.</span>
+              {#if post.href}
+                <a href={post.href} class="text-sm text-primary hover:underline">Read article →</a>
+              {:else}
+                <span class="text-sm text-muted-foreground">Article coming soon.</span>
+              {/if}
             </Card.Content>
           </Card.Root>
         </li>

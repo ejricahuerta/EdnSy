@@ -147,6 +147,12 @@ export const seoPages: Record<string, PageSeo> = {
       "Articles on Voice AI, business automation, and AI website development for Toronto and Ontario businesses.",
     canonicalPath: "/blog",
   },
+  "/blog/chart-rosetta": {
+    title: "Chart Rosetta | Ed & Sy Toronto",
+    description:
+      "Chart Rosetta decodes any chart screenshot into plain English. Paste a screenshot, get an instant explanation—no sign-up. From Ed & Sy.",
+    canonicalPath: "/blog/chart-rosetta",
+  },
 };
 
 /** Industry pages SEO: built from industryDetails so /industries/:slug has correct canonical and meta. */
