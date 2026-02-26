@@ -46,6 +46,7 @@
 		e.preventDefault();
 		window.open(CAL_COM_LINK, '_blank', 'noopener,noreferrer');
 	}
+
 </script>
 
 <div class="legal-landing flex flex-col min-h-screen">
@@ -103,13 +104,15 @@
 			class="relative min-h-[40vh] flex flex-col justify-end pb-16 md:pb-20 pt-24 md:pt-28"
 			aria-labelledby="hero-heading"
 		>
-			<div
-				class="absolute inset-0 bg-cover bg-center bg-no-repeat"
-				style="background-image: url('{content.hero.image}');"
-				role="img"
-				aria-label={content.hero.imageAlt}
-			></div>
-			<div class="absolute inset-0 bg-neutral/85"></div>
+			<img
+				src={content.hero.image}
+				alt={content.hero.imageAlt}
+				class="absolute inset-0 w-full h-full object-cover object-center"
+				width="1200"
+				height="800"
+				fetchpriority="high"
+			/>
+			<div class="absolute inset-0 bg-neutral/85" aria-hidden="true"></div>
 			<div class="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-neutral-content">
 				<h1 id="hero-heading" class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 tracking-tight leading-tight">
 					{heroHeadline}

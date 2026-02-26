@@ -36,5 +36,27 @@ export function mergeWithStaticImages<T extends Record<string, unknown>>(
 		imageAlt: (about.imageAlt && String(about.imageAlt).trim()) ? about.imageAlt : (staticAbout.imageAlt ?? '')
 	};
 
+	// Innovation (e.g. healthcare): ensure image and imageAlt when static has them
+	const staticInnovation = s.innovation as Record<string, unknown> | undefined;
+	if (staticInnovation) {
+		const innovation = (w.innovation as Record<string, unknown>) ?? {};
+		(result as Record<string, unknown>).innovation = {
+			...innovation,
+			image: isValidImageUrl(innovation.image) ? innovation.image : (staticInnovation.image ?? ''),
+			imageAlt: (innovation.imageAlt && String(innovation.imageAlt).trim()) ? innovation.imageAlt : (staticInnovation.imageAlt ?? '')
+		};
+	}
+
+	// CTA (e.g. healthcare): ensure image and imageAlt when static has them
+	const staticCta = s.cta as Record<string, unknown> | undefined;
+	if (staticCta) {
+		const cta = (w.cta as Record<string, unknown>) ?? {};
+		(result as Record<string, unknown>).cta = {
+			...cta,
+			image: isValidImageUrl(cta.image) ? cta.image : (staticCta.image ?? ''),
+			imageAlt: (cta.imageAlt && String(cta.imageAlt).trim()) ? cta.imageAlt : (staticCta.imageAlt ?? '')
+		};
+	}
+
 	return result;
 }

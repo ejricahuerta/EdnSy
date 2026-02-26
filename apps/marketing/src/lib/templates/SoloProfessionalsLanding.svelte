@@ -74,13 +74,15 @@
 			class="relative min-h-[80vh] flex flex-col justify-end pb-16 md:pb-24 pt-24 md:pt-32"
 			aria-labelledby="hero-heading"
 		>
-			<div
-				class="absolute inset-0 bg-cover bg-center bg-no-repeat"
-				style="background-image: url('{content.hero.image}');"
-				role="img"
-				aria-label={content.hero.imageAlt}
-			></div>
-			<div class="absolute inset-0 bg-gradient-to-t from-base-content/80 via-base-content/50 to-base-content/40"></div>
+			<img
+				src={content.hero.image}
+				alt={content.hero.imageAlt}
+				class="absolute inset-0 w-full h-full object-cover object-center"
+				width="1200"
+				height="800"
+				fetchpriority="high"
+			/>
+			<div class="absolute inset-0 bg-gradient-to-t from-base-content/80 via-base-content/50 to-base-content/40" aria-hidden="true"></div>
 			<div class="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-base-100">
 				{#if content.hero.badge && !prospect.city}
 					<span class="badge badge-primary badge-lg mb-5 shadow-lg border-0">{content.hero.badge}</span>
