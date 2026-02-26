@@ -41,7 +41,7 @@ SvelteKit app for the marketing CRM: prospects table, industry demo pages, and (
    Add your app’s **Authorized redirect URI** in Google Cloud Console:  
    `http://localhost:5173/auth/google/callback` (dev) or your production origin + `/auth/google/callback`.
 
-   **Notion database (prospects):** The app expects a database with properties such as **Name** or **Company** (title), **Email**, **Website**, **Phone**, **Industry** (select), **Status** (select), and optionally **Address**, **City**, **Demo link**. Alternative names (e.g. "Company Name", "E-mail", "Vertical", "Stage") are supported. Without Notion/Resend, the app runs with **stub data**. Without Google/SESSION_SECRET, the app runs but **Sign in** and `/prospects` require auth to be configured.
+   **Notion database (prospects):** The app expects a database with properties such as **Name** or **Company** (title), **Email**, **Website**, **Phone**, **Industry** (select), **Status** (select), and optionally **Address**, **City**, **Demo link**. Alternative names (e.g. "Company Name", "E-mail", "Vertical", "Stage") are supported. **Notion is required** for the prospects table and industry demo pages; without it, the prospects list is empty and demo pages return 404. Without Google/SESSION_SECRET, the app runs but **Sign in** and `/prospects` require auth to be configured.
 
 3. **Run**
 
@@ -51,8 +51,7 @@ SvelteKit app for the marketing CRM: prospects table, industry demo pages, and (
 
    - Home: http://localhost:5173
    - Prospects: http://localhost:5173/prospects
-   - Demo (stub): http://localhost:5173/healthcare/mock-id-1  
-  - Dental demo (stub): http://localhost:5173/dental/mock-id-1
+   - Demo pages use Notion row IDs, e.g. http://localhost:5173/healthcare/[notion-page-id]
 
 ## Deploy
 

@@ -1,5 +1,4 @@
 import { env } from '$env/dynamic/private';
-import type { IndustrySlug } from '$lib/industries';
 
 const NOTION_API_KEY = env.NOTION_API_KEY;
 const NOTION_DATABASE_ID = env.NOTION_DATABASE_ID;
@@ -29,106 +28,12 @@ export type Prospect = {
 	demoLink?: string;
 };
 
-/** Mock prospects per industry (stub mode when Notion env is not set). */
-const MOCK_PROSPECTS: Record<IndustrySlug, Omit<Prospect, 'id' | 'demoLink'>> = {
-	healthcare: {
-		companyName: 'Acme Family Clinic',
-		email: 'hello@acmeclinic.example',
-		website: 'https://acmeclinic.example',
-		phone: '+1 (289) 513-5055',
-		address: '1 Yonge Finch Plaza, Toronto, ON',
-		city: 'Toronto',
-		industry: 'healthcare',
-		status: 'Demo Created'
-	},
-	dental: {
-		companyName: 'Bright Smile Dental',
-		email: 'hello@brightsmile.example',
-		website: 'https://brightsmile.example',
-		phone: '+1 (289) 513-5055',
-		address: '1 Yonge Finch Plaza, Toronto, ON',
-		city: 'Toronto',
-		industry: 'dental',
-		status: 'Demo Created'
-	},
-	construction: {
-		companyName: 'Summit Builders Inc.',
-		email: 'hello@summitbuilders.example',
-		website: 'https://summitbuilders.example',
-		phone: '+1 (289) 513-5055',
-		address: '1 Yonge Finch Plaza, Toronto, ON',
-		city: 'Toronto',
-		industry: 'construction',
-		status: 'Demo Created'
-	},
-	salons: {
-		companyName: 'Luxe Hair & Beauty',
-		email: 'hello@luxehair.example',
-		website: 'https://luxehair.example',
-		phone: '+1 (289) 513-5055',
-		address: '1 Yonge Finch Plaza, Toronto, ON',
-		city: 'Toronto',
-		industry: 'salons',
-		status: 'Demo Created'
-	},
-	'solo-professionals': {
-		companyName: 'Morgan Consulting',
-		email: 'hello@morganconsulting.example',
-		website: 'https://morganconsulting.example',
-		phone: '+1 (289) 513-5055',
-		address: '1 Yonge Finch Plaza, Toronto, ON',
-		city: 'Toronto',
-		industry: 'solo-professionals',
-		status: 'Demo Created'
-	},
-	'real-estate': {
-		companyName: 'Parkview Realty',
-		email: 'hello@parkviewrealty.example',
-		website: 'https://parkviewrealty.example',
-		phone: '+1 (289) 513-5055',
-		address: '1 Yonge Finch Plaza, Toronto, ON',
-		city: 'Toronto',
-		industry: 'real-estate',
-		status: 'Demo Created'
-	},
-	legal: {
-		companyName: 'Hart & Associates',
-		email: 'hello@hartlegal.example',
-		website: 'https://hartlegal.example',
-		phone: '+1 (289) 513-5055',
-		address: '1 Yonge Finch Plaza, Toronto, ON',
-		city: 'Toronto',
-		industry: 'legal',
-		status: 'Demo Created'
-	},
-	fitness: {
-		companyName: 'Peak Fitness Studio',
-		email: 'hello@peakfitness.example',
-		website: 'https://peakfitness.example',
-		phone: '+1 (289) 513-5055',
-		address: '1 Yonge Finch Plaza, Toronto, ON',
-		city: 'Toronto',
-		industry: 'fitness',
-		status: 'Demo Created'
-	}
-};
-
 /**
  * Fetch a single prospect (Notion page) by id.
- * In stub mode, industrySlug selects which mock prospect to return (so each industry demo has its own mock).
- * Returns null if not found or env is missing (stub mode) and industrySlug is unknown.
+ * Returns null if Notion is not configured or the page is not found.
  */
-export async function getProspectById(id: string, industrySlug?: IndustrySlug): Promise<Prospect | null> {
-	if (!NOTION_API_KEY || !NOTION_DATABASE_ID) {
-		const slug = industrySlug ?? 'healthcare';
-		const mock = MOCK_PROSPECTS[slug];
-		if (!mock) return MOCK_PROSPECTS.healthcare ? { ...MOCK_PROSPECTS.healthcare, id, demoLink: `/healthcare/${id}` } : null;
-		return {
-			...mock,
-			id,
-			demoLink: `/${slug}/${id}`
-		};
-	}
+export async function getProspectById(id: string): Promise<Prospect | null> {
+	if (!NOTION_API_KEY || !NOTION_DATABASE_ID) return null;
 
 	try {
 		// Notion API: retrieve page then get properties
@@ -148,22 +53,11 @@ export async function getProspectById(id: string, industrySlug?: IndustrySlug): 
 }
 
 /**
- * List prospects from the Notion database (optional; for CRM table).
- * In stub mode, returns one mock prospect per industry so all demo links work.
+ * List prospects from the Notion database (for CRM table).
+ * Returns empty array if Notion is not configured or the request fails.
  */
 export async function listProspects(): Promise<Prospect[]> {
-	if (!NOTION_API_KEY || !NOTION_DATABASE_ID) {
-		const slugs: IndustrySlug[] = ['healthcare', 'dental', 'construction', 'salons', 'solo-professionals', 'real-estate', 'legal', 'fitness'];
-		return slugs.map((slug) => {
-			const mock = MOCK_PROSPECTS[slug];
-			const id = `mock-${slug}`;
-			return {
-				...mock,
-				id,
-				demoLink: `/${slug}/${id}`
-			};
-		});
-	}
+	if (!NOTION_API_KEY || !NOTION_DATABASE_ID) return [];
 
 	try {
 		const res = await fetch(`https://api.notion.com/v1/databases/${NOTION_DATABASE_ID}/query`, {
