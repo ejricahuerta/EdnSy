@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button";
   import * as Card from "$lib/components/ui/card";
+  import { RosettaSuiteCta } from "$lib/components/landing";
   import { Phone, Workflow, Globe, Puzzle } from "lucide-svelte";
   import { site, services, servicesIntro, ctaBlock } from "$lib/content/site";
 
@@ -107,5 +108,8 @@
       {ctaBlock.button}
     </Button>
     <p class="text-sm text-muted-foreground mt-4">{ctaBlock.note}</p>
+    <div class="mt-6 flex justify-center">
+      <RosettaSuiteCta variant="inline" />
+    </div>
   </div>
 </section>

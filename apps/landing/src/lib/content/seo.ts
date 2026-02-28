@@ -1,5 +1,5 @@
 /**
- * SEO config and schema for Ed & Sy: AI Automation Agency in Toronto
+ * SEO config and schema for Ed & Sy: Tech implementation partner in Toronto
  * Title format: Primary Keyword | Ed & Sy Toronto
  * Meta description: Pain point + benefit + CTA (under 155 chars)
  */
@@ -67,9 +67,9 @@ export const seoPages: Record<string, PageSeo> = {
     canonicalPath: "/contact",
   },
   "/about": {
-    title: "About Ed & Sy | AI Automation Agency Toronto",
+    title: "About Ed & Sy | Tech Implementation Partner Toronto",
     description:
-      "We're a Toronto-based AI automation agency helping service businesses scale with Voice AI, automation, and website & SEO.",
+      "We're your Toronto tech implementation partner. Voice AI, automation, websites & SEO for service businesses across Ontario.",
     canonicalPath: "/about",
   },
   "/services": {
@@ -150,7 +150,7 @@ export const seoPages: Record<string, PageSeo> = {
   "/blog/chart-rosetta": {
     title: "Chart Rosetta | Ed & Sy Toronto",
     description:
-      "Chart Rosetta decodes any chart screenshot into plain English. Paste a screenshot, get an instant explanation—no sign-up. From Ed & Sy.",
+      "Chart Rosetta decodes any chart screenshot into plain English. Paste a screenshot, get an instant explanation, no sign-up. From Ed & Sy.",
     canonicalPath: "/blog/chart-rosetta",
   },
 };
@@ -187,7 +187,7 @@ export function buildOrganizationSchema() {
     url: SITE_URL,
     logo: `${SITE_URL}/logo/logo%20with%20bg.png`,
     description:
-      "Ed & Sy Inc. is a Toronto-based AI agency specializing in Voice AI systems, business automation workflows, and AI-powered website development for small and mid-sized businesses in Ontario and across Canada.",
+      "Ed & Sy Inc. is a Toronto-based tech implementation partner. We help small and mid-sized businesses with Voice AI, business automation, websites & SEO across Ontario and Canada.",
     address: {
       "@type": "PostalAddress",
       addressLocality: "Toronto",
@@ -203,7 +203,8 @@ export function buildOrganizationSchema() {
     serviceType: [
       "Voice AI Development",
       "Business Automation",
-      "AI Website Development",
+      "Website & SEO",
+      "Tech Implementation",
     ],
     sameAs: [
       "https://www.instagram.com/ed.n.sy/",
@@ -222,7 +223,7 @@ export function buildLocalBusinessSchema() {
     logo: `${SITE_URL}/logo/logo%20with%20bg.png`,
     image: `${SITE_URL}/logo/logo%20with%20bg.png`,
     description:
-      "Ed & Sy Inc. is a Toronto Voice AI agency and automation company. We provide Voice AI development, business automation, and AI website development for businesses in Toronto, Ontario, and Canada.",
+      "Ed & Sy Inc. is a Toronto tech implementation partner. Voice AI, business automation, websites & SEO for businesses in Toronto, Ontario, and Canada.",
     address: {
       "@type": "PostalAddress",
       addressLocality: "Toronto",
@@ -244,7 +245,8 @@ export function buildLocalBusinessSchema() {
     serviceType: [
       "Voice AI Development",
       "Business Automation",
-      "AI Website Development",
+      "Website & SEO",
+      "Tech Implementation",
     ],
     contactPoint: {
       "@type": "ContactPoint",
@@ -324,7 +326,7 @@ export function buildWebSiteSchema() {
     name: "Ed & Sy",
     url: SITE_URL,
     description:
-      "Ed & Sy is a Toronto-based AI automation agency. Voice AI, business automation, and website & SEO for Toronto and Ontario businesses.",
+      "Ed & Sy is a Toronto-based tech implementation partner. Voice AI, automation, websites & SEO for Toronto and Ontario businesses.",
     inLanguage: "en-CA",
     publisher: {
       "@type": "Organization",

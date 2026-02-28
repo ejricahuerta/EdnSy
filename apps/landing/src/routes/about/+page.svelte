@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button";
   import * as Card from "$lib/components/ui/card";
+  import { RosettaSuiteCta } from "$lib/components/landing";
   import { Cpu, Sparkles, Clock, Handshake, Target } from "lucide-svelte";
   import { teamIntro, teamMembers, teamValues, teamStats, ctaBlock } from "$lib/content/site";
   const teamMemberIcons = [Cpu, Sparkles];
@@ -83,5 +84,8 @@
     >
       {ctaBlock.button}
     </Button>
+    <div class="mt-6">
+      <RosettaSuiteCta variant="inline" />
+    </div>
   </div>
 </section>

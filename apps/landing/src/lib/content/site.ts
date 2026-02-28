@@ -1,6 +1,6 @@
 /**
- * Ed & Sy site content – AI-Powered Growth Systems for Service Businesses
- * Primary market: Toronto, Ontario. Positioning: AI Automation Agency in Toronto.
+ * Ed & Sy site content – Tech implementation partner for service businesses
+ * Primary market: Toronto, Ontario. Positioning: Tech implementation partner (Voice AI, automation, websites & SEO).
  */
 
 export const site = {
@@ -16,9 +16,9 @@ export const definitionBlocks = {
   voiceAi:
     "Voice AI is the implementation of conversational artificial intelligence systems that allow businesses to automate customer interactions using natural language processing. Ed & Sy deploys Voice AI so Toronto businesses can answer every call 24/7, qualify leads, and book appointments.",
   automation:
-    "Business automation is the use of software and workflows to handle repetitive tasks—such as invoicing, follow-ups, and scheduling—so teams can focus on clients and growth. AI automation goes beyond traditional software by adding smart routing, summaries, and triggers that reduce manual work further.",
+    "Business automation is the use of software and workflows to handle repetitive tasks (such as invoicing, follow-ups, and scheduling) so teams can focus on clients and growth. AI automation goes beyond traditional software by adding smart routing, summaries, and triggers that reduce manual work further.",
   aiWebsite:
-    "AI website development uses AI-assisted tools and methods to build fast, high-converting, SEO-ready websites—reducing time to launch compared to traditional drag-and-drop CMS builds while improving performance and local search visibility for Toronto and Ontario businesses.",
+    "AI website development uses AI-assisted tools and methods to build fast, high-converting, SEO-ready websites, reducing time to launch compared to traditional drag-and-drop CMS builds while improving performance and local search visibility for Toronto and Ontario businesses.",
 } as const;
 
 /** Homepage hero: main headline benefit-led; value prop section carries SEO H2 */
@@ -34,7 +34,7 @@ export const hero = {
 /** About Ed & Sy (single short block) */
 export const valueProposition = {
   headline: "About Ed & Sy",
-  body: "We're a Toronto-based AI agency. We help service businesses in the GTA and across Ontario automate operations, capture more leads, and scale with Voice AI, business automation, and website & SEO.",
+  body: "We're your Toronto tech implementation partner. We help service businesses in the GTA and across Ontario with Voice AI, business automation, websites & SEO, so you automate operations, capture more leads, and scale.",
 } as const;
 
 /** The problems we solve (homepage); icon = lucide-svelte name for +page.svelte */
@@ -299,7 +299,7 @@ export const faqItems = [
     id: "6",
     question: "What industries benefit most from AI websites?",
     answer:
-      "Service businesses that need to rank locally and convert visitors—healthcare, dental, contractors, salons, real estate, legal, and fitness—benefit most from AI-built websites with strong SEO for Toronto and Ontario markets.",
+      "Service businesses that need to rank locally and convert visitors (healthcare, dental, contractors, salons, real estate, legal, and fitness) benefit most from AI-built websites with strong SEO for Toronto and Ontario markets.",
   },
   {
     id: "7",
@@ -348,7 +348,7 @@ export const ctaBlock = {
 } as const;
 
 export const teamIntro =
-  "We're Ed & Sy, a Toronto-based AI automation agency helping service businesses scale with Voice AI, business automation, and website & SEO.";
+  "We're Ed & Sy, your Toronto tech implementation partner. We help service businesses scale with Voice AI, automation, websites & SEO.";
 
 export const teamMembers = [
   {

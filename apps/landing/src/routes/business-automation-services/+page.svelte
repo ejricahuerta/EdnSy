@@ -2,6 +2,7 @@
   import { Button } from "$lib/components/ui/button";
   import * as Card from "$lib/components/ui/card";
   import * as Accordion from "$lib/components/ui/accordion";
+  import { RosettaSuiteCta } from "$lib/components/landing";
   import { Zap, Clock, GitBranch, Link2, Building2, HelpCircle } from "lucide-svelte";
   import { automationPage } from "$lib/content/service-pages";
   import { buildServiceSchema, buildFAQSchema, buildBreadcrumbSchema } from "$lib/content/seo";
@@ -101,15 +102,16 @@
         <Card.Title>Ready to automate?</Card.Title>
         <Card.Description>Book a free strategy call. We'll map your workflows and outline a custom automation plan for your Toronto business.</Card.Description>
       </Card.Header>
-      <Card.Footer>
+      <Card.Footer class="flex flex-col gap-3">
         <Button
           href="/contact"
-          class="bg-primary hover:bg-primary/90"
+          class="bg-primary hover:bg-primary/90 w-fit"
           data-cal-link="edmel-ednsy/enable-ai"
           data-cal-namespace="enable-ai"
         >
           Book a Free Strategy Call
         </Button>
+        <RosettaSuiteCta variant="inline" />
       </Card.Footer>
     </Card.Root>
   </div>

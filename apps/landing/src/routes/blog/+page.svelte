@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button";
   import * as Card from "$lib/components/ui/card";
+  import { RosettaSuiteCta } from "$lib/components/landing";
   import { buildBreadcrumbSchema } from "$lib/content/seo";
 
   const breadcrumbSchema = buildBreadcrumbSchema([
@@ -13,7 +14,7 @@
     {
       title: "Chart Rosetta",
       slug: "chart-rosetta",
-      excerpt: "Decode any chart screenshot into plain English. Paste a screenshot, get an instant explanation—no sign-up. From Ed & Sy.",
+      excerpt: "Decode any chart screenshot into plain English. Paste a screenshot, get an instant explanation, no sign-up. From Ed & Sy.",
       href: "/blog/chart-rosetta",
     },
     {
@@ -29,7 +30,7 @@
     {
       title: "Voice AI vs IVR Systems",
       slug: "voice-ai-vs-ivr-systems",
-      excerpt: "How conversational Voice AI differs from traditional IVR—and why it matters for Toronto businesses.",
+      excerpt: "How conversational Voice AI differs from traditional IVR, and why it matters for Toronto businesses.",
     },
   ];
 </script>
@@ -88,6 +89,9 @@
       <Button href="/business-automation-services" variant="outline">Business Automation</Button>
       <Button href="/website-design-toronto" variant="outline">Website & SEO</Button>
       <Button href="/contact" class="bg-primary hover:bg-primary/90">Contact Us</Button>
+    </div>
+    <div class="mt-6">
+      <RosettaSuiteCta variant="inline" />
     </div>
   </div>
 </section>

@@ -208,7 +208,7 @@
   <!-- FOOTER - Local SEO: Ed & Sy, Toronto Ontario, contact (dark theme) -->
   <footer class="bg-slate-900 border-t border-slate-800 py-12 md:py-16 text-slate-100">
     <div class="max-w-6xl mx-auto px-6 lg:px-8">
-      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12">
+      <div class="grid md:grid-cols-2 lg:grid-cols-5 gap-10 md:gap-12">
         <div class="lg:col-span-1">
           <p class="text-2xl font-semibold tracking-tight mb-2">Ed & Sy</p>
           <p class="text-sm text-slate-400">Toronto, Ontario</p>
@@ -221,7 +221,7 @@
               <Linkedin class="size-5" aria-hidden="true" />
             </a>
           </div>
-          <p class="text-sm text-slate-400 mt-3">Ed & Sy Inc. — Toronto AI Automation Agency. Voice AI & Automation Experts in Ontario.</p>
+          <p class="text-sm text-slate-400 mt-3">Ed & Sy Inc. Your Toronto tech implementation partner. Voice AI, automation, websites & SEO for Ontario.</p>
         </div>
         <div>
           <p class="text-sm font-semibold mb-3 text-slate-100">Company</p>
@@ -232,7 +232,13 @@
             <li><Button href="/case-studies" variant="link" class="text-slate-400 hover:text-slate-100 p-0 h-auto font-heading">Case Studies</Button></li>
             <li><Button href="/blog" variant="link" class="text-slate-400 hover:text-slate-100 p-0 h-auto font-heading">Blog</Button></li>
             <li><Button href="/contact" variant="link" class="text-slate-400 hover:text-slate-100 p-0 h-auto font-heading">Contact</Button></li>
-            <li><a href="https://chartrosetta.com" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-slate-100 transition-colors text-sm font-heading inline-flex items-center">Chart Rosetta</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="text-sm font-semibold mb-3 text-slate-100">Rosetta Suite</p>
+          <ul class="space-y-2">
+            <li><a href="https://chartrosetta.com" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-slate-100 transition-colors text-sm font-heading inline-flex items-center">Chart</a></li>
+            <li><a href="https://reportrosetta.com" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-slate-100 transition-colors text-sm font-heading inline-flex items-center">Report</a></li>
           </ul>
         </div>
         <div>
