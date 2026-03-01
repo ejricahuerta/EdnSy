@@ -249,7 +249,7 @@
 				{#if user}
 					<li><a href="/dashboard">Dashboard</a></li>
 					<li>
-						<span class="nav-email" style="font-size: 0.875rem; color: var(--muted);" title={user.email}>
+						<span class="nav-email" style="font-size: 0.875rem; color: #a39e92;" title={user.email}>
 							{user.email}
 						</span>
 					</li>
@@ -258,8 +258,8 @@
 					<li><a href="/#how">How it works</a></li>
 					<li><a href="/#pricing">Pricing</a></li>
 					<li><a href="/auth/login">Sign in</a></li>
+					<li><a href="/try" class="btn-nav">Try free →</a></li>
 				{/if}
-				<li><a href="/try" class="btn-nav">Try free →</a></li>
 			</ul>
 		</nav>
 		<main>

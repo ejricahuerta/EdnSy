@@ -23,7 +23,6 @@
 		</p>
 		<div class="hero-ctas">
 			<a href="/try" class="lr-btn-primary">Try free: one demo →</a>
-			<a href="#how" class="btn-outline">See how it works</a>
 		</div>
 	</div>
 	<div style="width: 100%; text-align: center; box-sizing: border-box;">

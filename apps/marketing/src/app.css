@@ -1197,7 +1197,7 @@ body [data-slot="textarea"]::placeholder {
 }
 .leadrosetta-app .nav-links a {
   text-decoration: none;
-  color: var(--muted);
+  color: var(--nav-text, #a39e92);
   font-size: 0.875rem;
   transition: color 0.2s;
 }
