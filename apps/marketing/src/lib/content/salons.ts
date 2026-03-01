@@ -166,7 +166,7 @@ export const salonsDemoContent = {
 	faq: {
 		heading: 'Frequently asked questions',
 		items: [
-			{ q: 'Do I need to book in advance?', a: 'We recommend booking so we can reserve time for you. We do take walk-ins when we have availability—call or pop in to check.' },
+			{ q: 'Do I need to book in advance?', a: 'We recommend booking so we can reserve time for you. We do take walk-ins when we have availability. Call or pop in to check.' },
 			{ q: 'What payment methods do you accept?', a: 'We accept card, cash, and most digital payment apps. Payment is due at the end of your service.' },
 			{ q: 'How do I book an appointment?', a: 'Use the "Book an appointment" button on this page or call us during salon hours. We\'ll confirm your appointment and send a reminder.' },
 			{ q: 'Do you do kids\' hair?', a: 'Yes. We welcome clients of all ages. Let us know when you book if you\'re bringing a child so we can allow the right amount of time.' },

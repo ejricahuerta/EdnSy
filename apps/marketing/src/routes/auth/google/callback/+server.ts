@@ -12,7 +12,7 @@ import {
 
 export const GET: RequestHandler = async ({ url, cookies }) => {
 	const code = url.searchParams.get('code');
-	const redirectTo = url.searchParams.get('redirect') ?? '/prospects';
+	const redirectTo = url.searchParams.get('redirect') ?? '/dashboard';
 	if (!code) {
 		throw redirect(303, '/auth/login');
 	}

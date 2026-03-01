@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lead Rosetta — Style Guide: Fitness & Wellness</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Nunito+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink:       #1a1d21;
+    --ink-mid:   #2d3238;
+    --vital:     #0d9488;
+    --vital-dark: #0f766e;
+    --vital-pale: #ccfbf1;
+    --lime:      #84cc16;
+    --lime-pale: #ecfccb;
+    --surface:  #f0fdf4;
+    --white:    #ffffff;
+    --slate:    #64748b;
+    --mist:     #94a3b8;
+    --border:   #e2e8f0;
+
+    --font-display: 'Archivo', sans-serif;
+    --font-body:    'Nunito Sans', sans-serif;
+  }
+
+  body {
+    background: var(--surface);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.6;
+  }
+
+  .sg-page { max-width: 1100px; margin: 0 auto; padding: 3rem 2rem 6rem; }
+
+  .sg-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-bottom: 1.75rem;
+    margin-bottom: 3.5rem;
+    border-bottom: 3px solid var(--vital);
+  }
+
+  .sg-eyebrow {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--vital);
+    margin-bottom: 0.5rem;
+  }
+
+  .sg-title {
+    font-family: var(--font-display);
+    font-size: 2.75rem;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+  }
+  .sg-title span { color: var(--vital); }
+
+  .sg-meta { text-align: right; font-size: 0.72rem; color: var(--slate); letter-spacing: 0.06em; text-transform: uppercase; }
+
+  .sg-section { margin-bottom: 5rem; }
+
+  .sg-section-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--vital);
+    margin-bottom: 1.75rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .sg-section-label::after { content: ''; flex: 1; height: 2px; background: var(--vital); opacity: 0.3; }
+
+  /* SWATCHES */
+  .swatch-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .swatch { display: flex; flex-direction: column; gap: 0.5rem; }
+  .swatch-block { width: 100px; height: 70px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.06); }
+  .swatch-name { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--slate); }
+  .swatch-hex { font-size: 0.7rem; color: var(--mist); font-family: monospace; }
+
+  /* TYPE */
+  .type-specimens { display: flex; flex-direction: column; gap: 1.25rem; }
+  .type-row { display: flex; align-items: baseline; gap: 2rem; padding: 1.75rem; background: var(--white); border-radius: 12px; border: 1px solid var(--border); }
+  .type-label { font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mist); width: 90px; flex-shrink: 0; }
+
+  .t-h1 { font-family: var(--font-display); font-size: 3rem; font-weight: 700; color: var(--ink); line-height: 1.05; letter-spacing: -0.03em; }
+  .t-h1 em { font-style: italic; color: var(--vital); }
+  .t-h2 { font-family: var(--font-display); font-size: 2rem; font-weight: 600; color: var(--ink); letter-spacing: -0.02em; }
+  .t-h3 { font-family: var(--font-body); font-size: 1rem; font-weight: 600; color: var(--slate); }
+  .t-body { font-family: var(--font-body); font-size: 0.95rem; font-weight: 300; color: var(--slate); max-width: 480px; line-height: 1.75; }
+  .t-caption { font-family: var(--font-body); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--vital); }
+
+  /* COMPONENTS */
+  .component-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+  .component-box { background: var(--white); border-radius: 12px; padding: 1.75rem; border: 1px solid var(--border); }
+  .component-box-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mist); margin-bottom: 1.25rem; }
+
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: var(--vital); color: white;
+    font-family: var(--font-body); font-size: 0.9rem; font-weight: 600;
+    letter-spacing: 0.04em; padding: 0.9rem 1.75rem;
+    border: none; border-radius: 100px; cursor: pointer;
+    transition: background 0.2s, transform 0.15s; text-decoration: none;
+  }
+  .btn-primary:hover { background: var(--vital-dark); transform: translateY(-2px); }
+
+  .btn-secondary {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: transparent; color: var(--ink);
+    font-family: var(--font-body); font-size: 0.9rem; font-weight: 600;
+    letter-spacing: 0.04em; padding: 0.9rem 1.75rem;
+    border: 2px solid var(--vital); border-radius: 100px; cursor: pointer;
+    transition: all 0.2s; text-decoration: none;
+    margin-left: 0.75rem;
+  }
+  .btn-secondary:hover { background: var(--vital-pale); transform: translateY(-2px); }
+
+  .energy-pill {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    background: var(--vital-pale); border: 1px solid rgba(13,148,136,0.25);
+    color: var(--vital-dark); font-size: 0.75rem; font-weight: 700;
+    letter-spacing: 0.04em; padding: 0.4rem 1rem; border-radius: 100px;
+  }
+
+  .stat-card-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+  .stat-card {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.25rem; text-align: center;
+    transition: box-shadow 0.2s;
+  }
+  .stat-card:hover { box-shadow: 0 4px 20px rgba(13,148,136,0.12); }
+  .stat-num { font-family: var(--font-display); font-size: 2rem; font-weight: 700; color: var(--vital); line-height: 1; margin-bottom: 0.25rem; }
+  .stat-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--slate); }
+
+  .service-card {
+    display: flex; align-items: flex-start; gap: 1rem;
+    padding: 1.25rem; background: var(--white); border-radius: 12px;
+    border: 1px solid var(--border); margin-bottom: 0.75rem;
+    transition: all 0.2s;
+  }
+  .service-card:hover { border-color: var(--vital); box-shadow: 0 4px 16px rgba(13,148,136,0.1); }
+  .service-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: var(--vital-pale); display: flex; align-items: center; justify-content: center;
+    font-size: 1.25rem; flex-shrink: 0;
+  }
+  .service-name { font-size: 0.9rem; font-weight: 600; color: var(--ink); margin-bottom: 0.25rem; }
+  .service-desc { font-size: 0.8rem; color: var(--slate); line-height: 1.5; font-weight: 300; }
+
+  /* DEMO PREVIEW */
+  .demo-preview { border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: 0 16px 56px rgba(26,29,33,0.08); }
+  .demo-browser-bar { background: var(--white); padding: 0.65rem 1rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--border); }
+  .browser-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .bd-r { background: #ff5f56; } .bd-y { background: #ffbd2e; } .bd-g { background: #27c93f; }
+  .browser-url { background: var(--surface); border-radius: 8px; padding: 0.3rem 0.75rem; font-size: 0.7rem; color: var(--slate); font-family: monospace; margin-left: 0.5rem; flex: 1; max-width: 280px; }
+
+  .demo-site { background: var(--white); font-family: var(--font-body); }
+  .demo-nav {
+    background: var(--white); border-bottom: 1px solid var(--border);
+    padding: 0 2rem; height: 60px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .demo-logo { font-family: var(--font-display); font-size: 1.35rem; font-weight: 700; color: var(--ink); letter-spacing: -0.02em; }
+  .demo-logo span { color: var(--vital); }
+  .demo-nav-links { display: flex; gap: 1.5rem; }
+  .demo-nav-link { font-size: 0.85rem; font-weight: 600; color: var(--slate); text-decoration: none; }
+  .demo-nav-cta { font-size: 0.85rem; font-weight: 600; color: white; background: var(--vital); padding: 0.55rem 1.35rem; border-radius: 100px; text-decoration: none; }
+
+  .demo-hero {
+    padding: 3.5rem 2rem;
+    background: linear-gradient(180deg, var(--vital-pale) 0%, var(--white) 100%);
+    border-bottom: 1px solid var(--border);
+  }
+  .demo-hero-eyebrow { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--vital); margin-bottom: 1rem; }
+  .demo-hero-h1 { font-family: var(--font-display); font-size: clamp(1.85rem, 3.5vw, 2.5rem); font-weight: 700; color: var(--ink); line-height: 1.1; letter-spacing: -0.03em; margin-bottom: 1rem; }
+  .demo-hero-h1 em { font-style: italic; color: var(--vital); }
+  .demo-hero-p { font-size: 0.95rem; font-weight: 300; color: var(--slate); line-height: 1.75; margin-bottom: 1.5rem; max-width: 480px; }
+  .demo-hero-ctas { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .demo-trust-row { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+
+  .demo-stats-bar {
+    background: var(--ink); padding: 1.5rem 2rem;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+  }
+  .demo-stat-item { text-align: center; }
+  .demo-stat-num { font-family: var(--font-display); font-size: 1.75rem; font-weight: 700; color: var(--vital); line-height: 1; margin-bottom: 0.2rem; }
+  .demo-stat-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mist); }
+
+  .demo-services { padding: 2.5rem 2rem; background: var(--surface); border-top: 1px solid var(--border); }
+  .demo-services-eyebrow { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--vital); margin-bottom: 0.35rem; }
+  .demo-services-h2 { font-family: var(--font-display); font-size: 1.75rem; font-weight: 600; color: var(--ink); letter-spacing: -0.02em; margin-bottom: 1.25rem; }
+  .demo-services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  .demo-service-card {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.25rem;
+    transition: all 0.2s;
+  }
+  .demo-service-card:hover { border-color: var(--vital); box-shadow: 0 6px 24px rgba(13,148,136,0.12); }
+  .demo-service-icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+  .demo-service-name { font-size: 0.9rem; font-weight: 600; color: var(--ink); margin-bottom: 0.3rem; }
+  .demo-service-desc { font-size: 0.78rem; color: var(--slate); line-height: 1.55; font-weight: 300; }
+
+  .demo-cta-footer {
+    background: var(--vital); padding: 1.75rem 2rem;
+    display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+  }
+  .demo-cta-h { font-family: var(--font-display); font-size: 1.3rem; font-weight: 700; color: white; letter-spacing: -0.02em; }
+  .demo-cta-sub { font-size: 0.8rem; color: rgba(255,255,255,0.85); margin-top: 0.25rem; font-weight: 300; }
+  .demo-cta-footer .btn-primary { background: white; color: var(--vital); }
+  .demo-cta-footer .btn-primary:hover { background: var(--vital-pale); color: var(--vital-dark); }
+
+  .notes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .note-card { background: var(--white); border-radius: 12px; padding: 1.25rem; border: 1px solid var(--border); border-left: 4px solid var(--vital); }
+  .note-title { font-size: 0.8rem; font-weight: 600; color: var(--ink); margin-bottom: 0.5rem; }
+  .note-body { font-size: 0.8rem; color: var(--slate); line-height: 1.65; font-weight: 300; }
+  .note-body code { background: var(--vital-pale); color: var(--vital-dark); font-family: monospace; font-size: 0.78rem; padding: 0.1rem 0.35rem; border-radius: 6px; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  .sg-section { animation: fadeUp 0.5s ease both; }
+  .sg-section:nth-child(2) { animation-delay: 0.06s; }
+  .sg-section:nth-child(3) { animation-delay: 0.12s; }
+  .sg-section:nth-child(4) { animation-delay: 0.18s; }
+  .sg-section:nth-child(5) { animation-delay: 0.24s; }
+  .sg-section:nth-child(6) { animation-delay: 0.30s; }
+</style>
+</head>
+<body>
+<div class="sg-page">
+
+  <div class="sg-header">
+    <div>
+      <div class="sg-eyebrow">Lead Rosetta — Style Guide</div>
+      <div class="sg-title">Fitness & <span>Wellness</span></div>
+    </div>
+    <div class="sg-meta">Fitness Template<br>Version 1.0 · 2026</div>
+  </div>
+
+  <!-- 1. COLORS -->
+  <div class="sg-section">
+    <div class="sg-section-label">01 — Color Palette</div>
+    <div class="swatch-row">
+      <div class="swatch"><div class="swatch-block" style="background:#1a1d21;"></div><div class="swatch-name">Ink</div><div class="swatch-hex">#1a1d21 — Headlines</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#0d9488;"></div><div class="swatch-name">Vital (Teal)</div><div class="swatch-hex">#0d9488 — Primary, CTAs</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#84cc16;"></div><div class="swatch-name">Lime</div><div class="swatch-hex">#84cc16 — Secondary accent</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#f0fdf4; border:1px solid #e2e8f0;"></div><div class="swatch-name">Surface</div><div class="swatch-hex">#f0fdf4 — Page BG</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#64748b;"></div><div class="swatch-name">Slate</div><div class="swatch-hex">#64748b — Body text</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#ccfbf1; border:1px solid #99f6e4;"></div><div class="swatch-name">Vital Pale</div><div class="swatch-hex">#ccfbf1 — Highlights</div></div>
+    </div>
+  </div>
+
+  <!-- 2. TYPOGRAPHY -->
+  <div class="sg-section">
+    <div class="sg-section-label">02 — Typography</div>
+    <div class="type-specimens">
+      <div class="type-row"><div class="type-label">H1 / Hero</div><div class="t-h1">Your <em>stronger</em> self starts here.</div></div>
+      <div class="type-row"><div class="type-label">H2 / Section</div><div class="t-h2">Programs & Classes</div></div>
+      <div class="type-row"><div class="type-label">H3 / Sub</div><div class="t-h3">Personal training, group classes, and nutrition support in Toronto</div></div>
+      <div class="type-row"><div class="type-label">Body</div><div class="t-body">We help you build lasting habits with programs designed around your goals. Whether you're training for a race or just want to move better, we're here for you.</div></div>
+      <div class="type-row"><div class="type-label">Caption</div><div class="t-caption">Toronto · GTA · Free Trial · No Commitment</div></div>
+    </div>
+    <div style="margin-top:1rem; font-size:0.78rem; color:var(--slate);">
+      Display: <strong style="color:var(--ink);">Archivo</strong> (400, 500, 600, 700) &nbsp;·&nbsp;
+      Body: <strong style="color:var(--ink);">Nunito Sans</strong> (300, 400, 600)
+    </div>
+  </div>
+
+  <!-- 3. COMPONENTS -->
+  <div class="sg-section">
+    <div class="sg-section-label">03 — UI Components</div>
+    <div class="component-grid">
+      <div class="component-box">
+        <div class="component-box-label">Buttons</div>
+        <div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;">
+          <a href="#" class="btn-primary">Start Free Trial →</a>
+          <a href="#" class="btn-secondary">View Programs</a>
+        </div>
+      </div>
+      <div class="component-box">
+        <div class="component-box-label">Energy Pills</div>
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+          <span class="energy-pill">✓ Free Trial</span>
+          <span class="energy-pill">✓ No Contract</span>
+          <span class="energy-pill">✓ GTA Locations</span>
+        </div>
+      </div>
+      <div class="component-box">
+        <div class="component-box-label">Stats</div>
+        <div class="stat-card-row">
+          <div class="stat-card"><div class="stat-num">500+</div><div class="stat-label">Members</div></div>
+          <div class="stat-card"><div class="stat-num">20+</div><div class="stat-label">Classes/Week</div></div>
+          <div class="stat-card"><div class="stat-num">4.9★</div><div class="stat-label">Rating</div></div>
+        </div>
+      </div>
+      <div class="component-box">
+        <div class="component-box-label">Service Cards</div>
+        <div class="service-card">
+          <div class="service-icon">💪</div>
+          <div>
+            <div class="service-name">Personal Training</div>
+            <div class="service-desc">One-on-one sessions tailored to your goals and schedule.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. DEMO PREVIEW -->
+  <div class="sg-section">
+    <div class="sg-section-label">04 — Demo Site Preview</div>
+    <div class="demo-preview">
+      <div class="demo-browser-bar">
+        <div class="browser-dot bd-r"></div><div class="browser-dot bd-y"></div><div class="browser-dot bd-g"></div>
+        <div class="browser-url">demo.leadrosetta.com/peak-fitness-toronto</div>
+      </div>
+      <div class="demo-site">
+        <div class="demo-nav">
+          <div class="demo-logo">Peak <span>Fitness</span></div>
+          <div class="demo-nav-links">
+            <a href="#" class="demo-nav-link">Programs</a>
+            <a href="#" class="demo-nav-link">Classes</a>
+            <a href="#" class="demo-nav-link">Contact</a>
+          </div>
+          <a href="#" class="demo-nav-cta">Free Trial</a>
+        </div>
+        <div class="demo-hero">
+          <div class="demo-hero-eyebrow">Toronto & GTA · Est. 2015</div>
+          <h1 class="demo-hero-h1">Your <em>stronger</em> self starts here.</h1>
+          <p class="demo-hero-p">Peak Fitness offers personal training, group classes, and nutrition support. Start with a free trial — no commitment required.</p>
+          <div class="demo-hero-ctas">
+            <a href="#" class="btn-primary">Start Free Trial →</a>
+            <a href="#" class="btn-secondary">View Programs</a>
+          </div>
+          <div class="demo-trust-row">
+            <span class="energy-pill">✓ Free Trial</span>
+            <span class="energy-pill">✓ No Contract</span>
+            <span class="energy-pill">✓ GTA Locations</span>
+          </div>
+        </div>
+        <div class="demo-stats-bar">
+          <div class="demo-stat-item"><div class="demo-stat-num">500+</div><div class="demo-stat-label">Members</div></div>
+          <div class="demo-stat-item"><div class="demo-stat-num">20+</div><div class="demo-stat-label">Classes/Week</div></div>
+          <div class="demo-stat-item"><div class="demo-stat-num">GTA</div><div class="demo-stat-label">Locations</div></div>
+          <div class="demo-stat-item"><div class="demo-stat-num">4.9★</div><div class="demo-stat-label">Rating</div></div>
+        </div>
+        <div class="demo-services">
+          <div class="demo-services-eyebrow">What We Offer</div>
+          <div class="demo-services-h2">Programs & Classes</div>
+          <div class="demo-services-grid">
+            <div class="demo-service-card">
+              <div class="demo-service-icon">💪</div>
+              <div class="demo-service-name">Personal Training</div>
+              <div class="demo-service-desc">One-on-one sessions tailored to your goals.</div>
+            </div>
+            <div class="demo-service-card">
+              <div class="demo-service-icon">🧘</div>
+              <div class="demo-service-name">Group Classes</div>
+              <div class="demo-service-desc">HIIT, yoga, and strength — 20+ classes weekly.</div>
+            </div>
+            <div class="demo-service-card">
+              <div class="demo-service-icon">🥗</div>
+              <div class="demo-service-name">Nutrition</div>
+              <div class="demo-service-desc">Meal plans and coaching to fuel your progress.</div>
+            </div>
+          </div>
+        </div>
+        <div class="demo-cta-footer">
+          <div>
+            <div class="demo-cta-h">Ready to get started?</div>
+            <div class="demo-cta-sub">Peak Fitness · Toronto · Free trial · No commitment</div>
+          </div>
+          <a href="#" class="btn-primary">Start Free Trial →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. USAGE NOTES -->
+  <div class="sg-section">
+    <div class="sg-section-label">05 — Usage Notes for Lead Rosetta</div>
+    <div class="notes-grid">
+      <div class="note-card">
+        <div class="note-title">When to use this template</div>
+        <div class="note-body">Use for gyms, personal trainers, yoga studios, wellness coaches, and fitness brands. Match tone: energetic, encouraging, approachable. Rounded shapes (pills, 12px radius) support the friendly feel.</div>
+      </div>
+      <div class="note-card">
+        <div class="note-title">Dynamic fields</div>
+        <div class="note-body">Replace <code>[business_name]</code>, <code>[programs]</code>, <code>[classes]</code>, <code>[phone]</code>, <code>[email]</code>. Stats: members, classes/week, rating. Service cards from CSV or defaults (Personal Training, Group Classes, Nutrition).</div>
+      </div>
+      <div class="note-card">
+        <div class="note-title">Vital teal rule</div>
+        <div class="note-body">Teal <code>#0d9488</code> is the primary CTA and accent. Use for buttons, section labels, stats in the dark bar. Lime <code>#84cc16</code> only for optional secondary highlights — do not overuse.</div>
+      </div>
+      <div class="note-card">
+        <div class="note-title">Voice & tone</div>
+        <div class="note-body">Energetic but clear. CTAs: "Start Free Trial", "View Programs", "Book a Session". Headlines should feel motivating and inclusive. Avoid corporate or stiff language.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

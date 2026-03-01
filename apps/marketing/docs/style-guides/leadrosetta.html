@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lead Rosetta — Cold Outreach That Shows Up With Their Site Already Built</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream: #F5F0E8;
+    --ink: #1A1A14;
+    --sage: #3D5A3E;
+    --sage-light: #5A7F5B;
+    --amber: #C17D2A;
+    --amber-light: #E09B3D;
+    --muted: #7A7566;
+    --border: #D8D0BF;
+    --surface: #EEEAE0;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 2.5rem;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--cream);
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.3rem;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .logo span { color: var(--sage); }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    list-style: none;
+  }
+  .nav-links a {
+    text-decoration: none;
+    color: var(--muted);
+    font-size: 0.875rem;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--ink); }
+
+  .btn-nav {
+    background: var(--sage) !important;
+    color: white !important;
+    padding: 0.5rem 1.25rem;
+    border-radius: 100px;
+    font-weight: 500 !important;
+  }
+
+  .hero {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 7rem 2.5rem 5rem;
+    text-align: center;
+  }
+
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--amber);
+    background: rgba(193, 125, 42, 0.1);
+    padding: 0.35rem 0.9rem;
+    border-radius: 100px;
+    margin-bottom: 2rem;
+    border: 1px solid rgba(193,125,42,0.2);
+  }
+
+  h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(2.8rem, 6vw, 4.5rem);
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+  }
+  h1 em { font-style: italic; color: var(--sage); }
+
+  .hero-sub {
+    font-size: 1.125rem;
+    line-height: 1.65;
+    color: var(--muted);
+    max-width: 560px;
+    margin: 0 auto 2.5rem;
+    font-weight: 300;
+  }
+  .hero-sub strong { color: var(--ink); font-weight: 500; }
+
+  .hero-ctas {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 1.25rem;
+  }
+
+  .btn-primary {
+    background: var(--amber);
+    color: white;
+    padding: 0.875rem 2rem;
+    border-radius: 100px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .btn-primary:hover { background: var(--amber-light); transform: translateY(-1px); }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--ink);
+    padding: 0.875rem 2rem;
+    border-radius: 100px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-decoration: none;
+    border: 1.5px solid var(--border);
+    transition: border-color 0.2s, transform 0.15s;
+  }
+  .btn-outline:hover { border-color: var(--ink); transform: translateY(-1px); }
+
+  .hero-note {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  .preview-strip {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 2.5rem;
+  }
+
+  .preview-label {
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.75rem;
+  }
+
+  .demo-flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    max-width: 900px;
+    margin: 0 auto;
+    flex-wrap: wrap;
+  }
+
+  .demo-step {
+    flex: 1;
+    min-width: 160px;
+    text-align: center;
+    padding: 1.25rem 1rem;
+  }
+
+  .step-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: white;
+    border: 1.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 0.75rem;
+    font-size: 1.2rem;
+  }
+
+  .step-num {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 0.25rem;
+  }
+
+  .step-title { font-size: 0.875rem; font-weight: 500; margin-bottom: 0.25rem; }
+  .step-desc { font-size: 0.75rem; color: var(--muted); line-height: 1.5; }
+
+  .step-arrow {
+    font-size: 1.2rem;
+    color: var(--border);
+    flex-shrink: 0;
+    align-self: center;
+    margin-top: -1rem;
+  }
+
+  .section {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 6rem 2.5rem;
+  }
+
+  .section-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+
+  h2 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+  }
+  h2 em { font-style: italic; color: var(--sage); }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: start;
+  }
+
+  .problem-list, .solution-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-top: 2rem;
+  }
+
+  .problem-list li, .solution-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.875rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .problem-list li { color: var(--muted); }
+  .solution-list li { color: var(--ink); }
+
+  .problem-list li::before {
+    content: '✕';
+    color: #C04040;
+    font-size: 0.8rem;
+    margin-top: 0.2rem;
+    flex-shrink: 0;
+    font-weight: 600;
+  }
+
+  .solution-list li::before {
+    content: '✓';
+    color: var(--sage);
+    font-size: 0.85rem;
+    margin-top: 0.15rem;
+    flex-shrink: 0;
+    font-weight: 600;
+  }
+
+  .email-mock {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.07);
+    max-width: 620px;
+    margin: 0 auto;
+  }
+
+  .email-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0.875rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .email-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-r { background: #ff5f56; }
+  .dot-y { background: #ffbd2e; }
+  .dot-g { background: #27c93f; }
+
+  .email-body { padding: 1.5rem; }
+
+  .email-field {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 0.35rem;
+    display: flex;
+    gap: 0.5rem;
+  }
+  .email-field span { color: var(--ink); font-weight: 500; }
+
+  .email-divider { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
+
+  .email-text { font-size: 0.875rem; color: var(--ink); line-height: 1.7; }
+
+  .email-link {
+    display: inline-block;
+    margin: 0.75rem 0;
+    background: var(--sage);
+    color: white;
+    padding: 0.5rem 1.1rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .email-snippet {
+    margin: 1rem 0;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    max-width: 100%;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+  .email-snippet-browser {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .email-snippet-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .email-snippet-dot:nth-child(1) { background: #ff5f56; }
+  .email-snippet-dot:nth-child(2) { background: #ffbd2e; }
+  .email-snippet-dot:nth-child(3) { background: #27c93f; }
+  .email-snippet-url {
+    flex: 1;
+    max-width: 180px;
+    height: 18px;
+    margin-left: 4px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 10px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+  }
+  .email-snippet-preview {
+    height: 100px;
+    background: linear-gradient(135deg, var(--surface) 0%, var(--cream) 100%);
+    background-image:
+      linear-gradient(105deg, var(--border) 1px, transparent 1px),
+      linear-gradient(-105deg, var(--border) 1px, transparent 1px),
+      linear-gradient(135deg, var(--surface) 0%, var(--cream) 100%);
+    background-size: 24px 28px, 24px 28px, 100% 100%;
+    background-position: 0 0, 0 0, 0 0;
+    opacity: 0.85;
+  }
+  .email-snippet-caption {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    color: var(--muted);
+    background: white;
+    border-top: 1px solid var(--border);
+  }
+  .email-snippet-caption strong { color: var(--ink); font-weight: 500; }
+
+  .email-reply-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(61, 90, 62, 0.1);
+    color: var(--sage);
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.3rem 0.75rem;
+    border-radius: 100px;
+    margin-top: 1rem;
+    border: 1px solid rgba(61,90,62,0.2);
+  }
+
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    margin-top: 3rem;
+  }
+
+  .pricing-card {
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem 1.75rem;
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .pricing-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.08); }
+
+  .pricing-card.featured {
+    border-color: var(--sage);
+    background: var(--sage);
+    color: white;
+  }
+
+  .featured-badge {
+    position: absolute;
+    top: -0.75rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--amber);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.75rem;
+    border-radius: 100px;
+    white-space: nowrap;
+  }
+
+  .plan-name {
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+  }
+  .pricing-card.featured .plan-name { color: rgba(255,255,255,0.6); }
+
+  .price {
+    font-family: 'Instrument Serif', serif;
+    font-size: 2.75rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.25rem;
+  }
+
+  .price-period { font-size: 0.8rem; color: var(--muted); margin-bottom: 1.5rem; }
+  .pricing-card.featured .price-period { color: rgba(255,255,255,0.6); }
+
+  .plan-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .plan-features li {
+    font-size: 0.875rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    line-height: 1.4;
+    color: var(--ink);
+  }
+  .pricing-card.featured .plan-features li { color: rgba(255,255,255,0.9); }
+
+  .plan-features li::before {
+    content: '✓';
+    color: var(--sage);
+    font-size: 0.8rem;
+    margin-top: 0.1rem;
+    flex-shrink: 0;
+    font-weight: 600;
+  }
+  .pricing-card.featured .plan-features li::before { color: var(--amber-light); }
+
+  .btn-plan {
+    display: block;
+    text-align: center;
+    padding: 0.75rem 1.5rem;
+    border-radius: 100px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    border: 1.5px solid var(--border);
+    color: var(--ink);
+    transition: all 0.2s;
+    width: 100%;
+    margin-top: auto;
+  }
+  .btn-plan:hover { border-color: var(--ink); }
+
+  .btn-plan-primary {
+    background: var(--amber);
+    color: white;
+    border-color: var(--amber);
+  }
+  .btn-plan-primary:hover { background: var(--amber-light); border-color: var(--amber-light); }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  .who-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    margin-top: 3rem;
+  }
+
+  .who-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+
+  .who-icon { font-size: 1.5rem; margin-bottom: 0.75rem; }
+  .who-title { font-size: 0.95rem; font-weight: 500; margin-bottom: 0.4rem; }
+  .who-desc { font-size: 0.825rem; color: var(--muted); line-height: 1.55; }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2rem 2.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  .footer-note { font-size: 0.8rem; color: var(--muted); }
+  .footer-links { display: flex; gap: 1.5rem; }
+  .footer-links a { font-size: 0.8rem; color: var(--muted); text-decoration: none; }
+  .footer-links a:hover { color: var(--ink); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .hero > * { animation: fadeUp 0.6s ease both; }
+  .hero > *:nth-child(1) { animation-delay: 0.05s; }
+  .hero > *:nth-child(2) { animation-delay: 0.15s; }
+  .hero > *:nth-child(3) { animation-delay: 0.25s; }
+  .hero > *:nth-child(4) { animation-delay: 0.35s; }
+  .hero > *:nth-child(5) { animation-delay: 0.4s; }
+
+  @media (max-width: 700px) {
+    .two-col { grid-template-columns: 1fr; gap: 2rem; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .who-grid { grid-template-columns: 1fr 1fr; }
+    nav { padding: 1rem 1.25rem; }
+    .section { padding: 4rem 1.25rem; }
+    .hero { padding: 4rem 1.25rem 3rem; }
+    footer { flex-direction: column; gap: 1rem; text-align: center; }
+    .step-arrow { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="logo">Lead <span>Rosetta</span></a>
+  <ul class="nav-links">
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#" style="color: var(--ink);">Sign in</a></li>
+    <li><a href="#pricing" class="btn-nav">Try free →</a></li>
+  </ul>
+</nav>
+
+<section class="hero">
+  <div class="eyebrow">Cold outreach, reinvented</div>
+  <h1>Stop pitching.<br><em>Show up with their<br>site already built.</em></h1>
+  <p class="hero-sub">
+    Upload your lead list. Lead Rosetta generates a <strong>personalized demo website</strong> for each prospect — with their branding, their services, their location. Then sends it. <strong>They click. They're sold.</strong>
+  </p>
+  <div class="hero-ctas">
+    <a href="#pricing" class="btn-primary">Try free — one demo →</a>
+    <a href="#how" class="btn-outline">See how it works</a>
+  </div>
+  <p class="hero-note">No account needed to try · No credit card · Your lead data is never stored</p>
+</section>
+
+<div class="preview-strip" id="how">
+  <div class="preview-label">How it works — four steps, minutes not days</div>
+  <div class="demo-flow">
+    <div class="demo-step">
+      <div class="step-icon">📋</div>
+      <div class="step-num">Step 1</div>
+      <div class="step-title">Upload your leads</div>
+      <div class="step-desc">CSV free. Connect your CRM on Pro. Name, business, location, services.</div>
+    </div>
+    <div class="step-arrow">→</div>
+    <div class="demo-step">
+      <div class="step-icon">✨</div>
+      <div class="step-num">Step 2</div>
+      <div class="step-title">Generate demo pages</div>
+      <div class="step-desc">AI builds a real, personalized website for each prospect. Their branding. Their services.</div>
+    </div>
+    <div class="step-arrow">→</div>
+    <div class="demo-step">
+      <div class="step-icon">✏️</div>
+      <div class="step-num">Step 3</div>
+      <div class="step-title">Review & confirm</div>
+      <div class="step-desc">Check each demo, adjust anything, approve before it goes out.</div>
+    </div>
+    <div class="step-arrow">→</div>
+    <div class="demo-step">
+      <div class="step-icon">📤</div>
+      <div class="step-num">Step 4</div>
+      <div class="step-title">Send via email</div>
+      <div class="step-desc">"We built this for you. Want to keep it?" They click. They convert.</div>
+    </div>
+  </div>
+</div>
+
+<section class="section">
+  <div class="two-col">
+    <div>
+      <div class="section-label">The problem</div>
+      <h2>Cold outreach<br>is <em>broken.</em></h2>
+      <ul class="problem-list">
+        <li>Generic "we build websites" emails get deleted in 2 seconds</li>
+        <li>Everyone's pitching the same thing in the same way</li>
+        <li>Prospects can't visualize what you're actually selling</li>
+        <li>Response rates under 2% for most cold email campaigns</li>
+        <li>Building a custom demo for each prospect takes hours</li>
+      </ul>
+    </div>
+    <div>
+      <div class="section-label">The Lead Rosetta way</div>
+      <h2>Send a <em>gift,</em><br>not a pitch.</h2>
+      <ul class="solution-list">
+        <li>Show up with their website already built — for free</li>
+        <li>They open it because it has their name and logo on it</li>
+        <li>They can see exactly what they're getting before saying yes</li>
+        <li>The pitch writes itself: "want to keep it?"</li>
+        <li>Generate 20 personalized demos in the time it took to write one cold email</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<section class="section">
+  <div style="text-align: center; margin-bottom: 3.5rem;">
+    <div class="section-label">What your prospect receives</div>
+    <h2>The email that <em>actually</em> gets replied to</h2>
+  </div>
+  <div class="email-mock">
+    <div class="email-header">
+      <div class="email-dot dot-r"></div>
+      <div class="email-dot dot-y"></div>
+      <div class="email-dot dot-g"></div>
+      <div style="flex:1; text-align:center; font-size: 0.75rem; color: var(--muted);">New Email</div>
+    </div>
+    <div class="email-body">
+      <div class="email-field">From: <span>Ed @ Ed & Sy</span></div>
+      <div class="email-field">To: <span>Mike — OhMyGlass Toronto</span></div>
+      <div class="email-field">Subject: <span>I rebuilt your site. (You're welcome.)</span></div>
+      <hr class="email-divider">
+      <div class="email-text">
+        Hey Mike,<br><br>
+        Your old site had gambling, porn, and random pages from other builders. So we built you a real one — your services, your GTA coverage, 24/7 AI phone answering. The works.<br><br>
+        <div class="email-snippet">
+          <div class="email-snippet-browser">
+            <span class="email-snippet-dot"></span>
+            <span class="email-snippet-dot"></span>
+            <span class="email-snippet-dot"></span>
+            <span class="email-snippet-url">ohmyglass.ca</span>
+          </div>
+          <div class="email-snippet-preview" aria-hidden="true"></div>
+          <div class="email-snippet-caption"><strong>Your demo site</strong> — ohmyglass.ca</div>
+        </div>
+        <a class="email-link" href="#">→ View your demo site</a>
+        <br><br>
+        Have a look when you get a sec. No catch. (We might send a follow-up.)<br><br>
+        — Ed
+      </div>
+      <div class="email-reply-badge">✓ &nbsp;Reply received: "When can we talk?"</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<section class="section">
+  <div class="section-label">Who it's for</div>
+  <h2>Built for people who<br><em>sell websites</em> for a living</h2>
+  <div class="who-grid">
+    <div class="who-card">
+      <div class="who-icon">🏢</div>
+      <div class="who-title">Web & SEO agencies</div>
+      <div class="who-desc">Turn cold lead lists into warm conversations. Close more local business clients without increasing your outreach volume.</div>
+    </div>
+    <div class="who-card">
+      <div class="who-icon">💻</div>
+      <div class="who-title">Freelancers</div>
+      <div class="who-desc">Compete with agencies by showing up with something real. One demo email beats a hundred generic pitches.</div>
+    </div>
+    <div class="who-card">
+      <div class="who-icon">📊</div>
+      <div class="who-title">B2B cold outreach teams</div>
+      <div class="who-desc">Any team selling digital services to local businesses. Replace generic templates with personalized proof.</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<section class="section" id="pricing">
+  <div style="text-align: center; margin-bottom: 0.5rem;">
+    <div class="section-label">Pricing</div>
+    <h2>Simple. <em>No surprises.</em></h2>
+    <p style="color: var(--muted); font-size: 0.95rem; margin-top: 0.5rem;">Try one demo free — no account, no credit card.<br>Then pick a plan when it works.</p>
+  </div>
+  <div class="pricing-grid">
+
+    <div class="pricing-card">
+      <div class="plan-name">Starter</div>
+      <div class="price">$49</div>
+      <div class="price-period">per month</div>
+      <p style="color: var(--muted); font-size: 0.9rem; margin-bottom: 1rem;">For freelancers closing 2–3 clients a month</p>
+      <ul class="plan-features">
+        <li>30 demo pages/month</li>
+        <li>CSV upload</li>
+        <li>Manual send (copy link)</li>
+        <li>Open tracking</li>
+        <li>Unused demos roll over 30 days</li>
+      </ul>
+      <a href="#" class="btn-plan">Get started →</a>
+    </div>
+
+    <div class="pricing-card featured">
+      <div class="featured-badge">Most Popular</div>
+      <div class="plan-name">Pro</div>
+      <div class="price">$99</div>
+      <div class="price-period">per month</div>
+      <p style="color: var(--muted); font-size: 0.9rem; margin-bottom: 1rem;">For agencies running outreach at scale</p>
+      <ul class="plan-features">
+        <li>100 demo pages/month</li>
+        <li>CSV + CRM connection</li>
+        <li>Automated email sending</li>
+        <li>Review & approve before send</li>
+        <li>Custom sender name</li>
+        <li>Unused demos roll over 30 days</li>
+      </ul>
+      <a href="#" class="btn-plan btn-plan-primary">Start Pro →</a>
+    </div>
+
+    <div class="pricing-card">
+      <div class="plan-name">Agency</div>
+      <div class="price">$299</div>
+      <div class="price-period">per month</div>
+      <p style="color: var(--muted); font-size: 0.9rem; margin-bottom: 1rem;">For teams selling on behalf of clients</p>
+      <ul class="plan-features">
+        <li>Unlimited demo pages</li>
+        <li>Everything in Pro</li>
+        <li>White-label demos (your branding)</li>
+        <li>Team seats (up to 5)</li>
+        <li>Client dashboard</li>
+        <li>Priority support</li>
+      </ul>
+      <a href="mailto:?subject=Lead%20Rosetta%20Agency%20plan" class="btn-plan">Contact us</a>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <span class="footer-note">Lead Rosetta · by <a href="https://ednsy.com" style="color:var(--muted);text-decoration:none;">Ed & Sy Inc.</a> · Toronto, Ontario · © 2026</span>
+  <div class="footer-links">
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+    <a href="https://ednsy.com">Ed & Sy →</a>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,5 +1,8 @@
 /**
- * Industry slugs (match landing app). Used for routes and Notion industry field.
+ * Single source of truth for demo industries. Used by:
+ * - Demo routes (/{slug}/[id]), try/upload forms, dashboard demo generation
+ * - industryMapping.ts (Notion/CRM industry → slug), chatContext (content by slug)
+ * Keep INDUSTRY_SLUGS, INDUSTRY_STYLE_GUIDES, INDUSTRY_LABELS, INDUSTRY_THEMES in sync.
  */
 export const INDUSTRY_SLUGS = [
 	'healthcare',
@@ -15,7 +18,34 @@ export const INDUSTRY_SLUGS = [
 export type IndustrySlug = (typeof INDUSTRY_SLUGS)[number];
 
 /**
- * daisyUI theme per industry. Custom dark themes for healthcare, construction, salons;
+ * Style guide file (under docs/style-guides/industries/) per industry.
+ * File name without .html; each industry maps to one style guide for demo theming.
+ */
+export const INDUSTRY_STYLE_GUIDES: Record<IndustrySlug, string> = {
+	healthcare: 'healthcare-and-dental',
+	dental: 'healthcare-and-dental',
+	construction: 'construction',
+	salons: 'salon-and-spa',
+	'solo-professionals': 'solo-professionals',
+	'real-estate': 'real-estate',
+	legal: 'legal',
+	fitness: 'fitness'
+};
+
+/** Human-readable labels for industry dropdowns (e.g. try-free form). */
+export const INDUSTRY_LABELS: Record<IndustrySlug, string> = {
+	healthcare: 'Healthcare',
+	dental: 'Dental',
+	construction: 'Construction',
+	salons: 'Salons & beauty',
+	'solo-professionals': 'Solo professionals',
+	'real-estate': 'Real estate',
+	legal: 'Legal',
+	fitness: 'Fitness'
+};
+
+/**
+ * Custom theme per industry (healthcare, construction, salons, etc.);
  * built-ins (aqua, forest, luxury, business, sunset) for the rest.
  */
 export const INDUSTRY_THEMES: Record<IndustrySlug, string> = {

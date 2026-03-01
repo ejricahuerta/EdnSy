@@ -1,12 +1,7 @@
-import { getProspectById } from '$lib/server/notion';
-import { error } from '@sveltejs/kit';
+import { getProspectForDemoPage } from '$lib/server/freeDemo';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ params, url }) => {
-	const prospect = await getProspectById(params.id);
-	if (!prospect) {
-		throw error(404, 'Prospect not found');
-	}
-	const canonicalUrl = `${url.origin}${url.pathname}`;
-	return { prospect, canonicalUrl };
+export const load: PageServerLoad = async ({ params, url, cookies }) => {
+	const industrySlug = url.pathname.split('/').filter(Boolean)[0] ?? 'dental';
+	return getProspectForDemoPage(params.id, industrySlug, cookies, url.origin, url.pathname);
 };

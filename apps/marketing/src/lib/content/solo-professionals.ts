@@ -38,7 +38,7 @@ export const soloProfessionalsDemoContent = {
 			{
 				title: 'Personal approach',
 				description:
-					'You work directly with me. No handoffs or generic plans—advice tailored to your situation.'
+					'You work directly with me. No handoffs or generic plans. Advice tailored to your situation.'
 			}
 		]
 	},
@@ -73,7 +73,7 @@ export const soloProfessionalsDemoContent = {
 		subtext2:
 			'I work with individuals and small businesses. Every engagement is confidential and tailored to your goals.',
 		bullets: [
-			'Clear scope and pricing before we start—no surprise fees.',
+			'Clear scope and pricing before we start. No surprise fees.',
 			'Flexible scheduling including evening and weekend calls when needed.',
 			'Professional standards and discretion you can count on.'
 		],
@@ -112,7 +112,7 @@ export const soloProfessionalsDemoContent = {
 		items: [
 			'You book a time that works. I\'ll send a calendar link and any short prep if needed.',
 			'We meet (video or phone). I listen, ask questions, and outline how I can help.',
-			'You get a clear proposal with scope and fee. No pressure—you decide.',
+			'You get a clear proposal with scope and fee. No pressure. You decide.',
 			'If you\'re in, we schedule the first session and go from there.'
 		]
 	},
@@ -168,9 +168,9 @@ export const soloProfessionalsDemoContent = {
 		items: [
 			{ q: 'How do I book a consultation?', a: 'Use the "Book a consultation" button or email me. I\'ll send a link to choose a time and we\'ll have a short intro call.' },
 			{ q: 'What does the intro call cost?', a: 'The initial intro call is free. It\'s a chance for us both to see if the fit is right before any paid engagement.' },
-			{ q: 'What are your fees?', a: 'Fees depend on scope—one-off consultation, project, or retainer. I\'ll outline options and pricing clearly after we discuss your needs.' },
+			{ q: 'What are your fees?', a: 'Fees depend on scope: one-off consultation, project, or retainer. I\'ll outline options and pricing clearly after we discuss your needs.' },
 			{ q: 'Do you work remotely?', a: 'Yes. Most work is by video call or phone. I can also meet in person in the local area when needed.' },
-			{ q: 'How quickly can we start?', a: 'I typically have availability within a few days. Urgent requests can often be accommodated—just ask.' }
+			{ q: 'How quickly can we start?', a: 'I typically have availability within a few days. Urgent requests can often be accommodated. Just ask.' }
 		]
 	},
 	footer: {

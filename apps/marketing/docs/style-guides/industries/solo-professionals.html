@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lead Rosetta — Style Guide: Solo Professionals & Consultants</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Karla:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink:       #292524;
+    --ink-mid:   #44403c;
+    --warm:      #78716c;
+    --accent:    #4b6b8a;
+    --accent-light: #5c7d9c;
+    --accent-pale: #e8eef3;
+    --cream:     #faf8f5;
+    --ivory:     #f5f2ed;
+    --slate:     #6b7280;
+    --mist:      #9ca3af;
+    --border:   #e7e5e4;
+    --white:    #ffffff;
+
+    --font-display: 'DM Serif Display', serif;
+    --font-body:    'Karla', sans-serif;
+  }
+
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.6;
+  }
+
+  .sg-page { max-width: 1100px; margin: 0 auto; padding: 3rem 2rem 6rem; }
+
+  .sg-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-bottom: 1.75rem;
+    margin-bottom: 3.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sg-eyebrow {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+
+  .sg-title {
+    font-family: var(--font-display);
+    font-size: 2.6rem;
+    font-weight: 400;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    line-height: 1.08;
+  }
+  .sg-title em { font-style: italic; color: var(--accent); }
+
+  .sg-meta { text-align: right; font-size: 0.72rem; color: var(--slate); letter-spacing: 0.06em; text-transform: uppercase; }
+
+  .sg-section { margin-bottom: 5rem; }
+
+  .sg-section-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.75rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .sg-section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* SWATCHES */
+  .swatch-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .swatch { display: flex; flex-direction: column; gap: 0.5rem; }
+  .swatch-block { width: 100px; height: 70px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.06); }
+  .swatch-name { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--slate); }
+  .swatch-hex { font-size: 0.7rem; color: var(--mist); font-family: monospace; }
+
+  /* TYPE */
+  .type-specimens { display: flex; flex-direction: column; gap: 1.25rem; }
+  .type-row { display: flex; align-items: baseline; gap: 2rem; padding: 1.75rem; background: var(--white); border-radius: 10px; border: 1px solid var(--border); }
+  .type-label { font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mist); width: 90px; flex-shrink: 0; }
+
+  .t-h1 { font-family: var(--font-display); font-size: 3rem; font-weight: 400; color: var(--ink); line-height: 1.08; letter-spacing: -0.02em; }
+  .t-h1 em { font-style: italic; color: var(--accent); }
+  .t-h2 { font-family: var(--font-display); font-size: 2rem; font-weight: 400; color: var(--ink); letter-spacing: -0.02em; }
+  .t-h3 { font-family: var(--font-display); font-size: 1.2rem; font-weight: 400; font-style: italic; color: var(--slate); }
+  .t-body { font-family: var(--font-body); font-size: 0.9rem; font-weight: 300; color: var(--slate); max-width: 480px; line-height: 1.75; }
+  .t-caption { font-family: var(--font-body); font-size: 0.68rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+
+  /* COMPONENTS */
+  .component-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+  .component-box { background: var(--white); border-radius: 10px; padding: 1.75rem; border: 1px solid var(--border); }
+  .component-box-label { font-size: 0.62rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mist); margin-bottom: 1.25rem; }
+
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: var(--accent); color: white;
+    font-family: var(--font-body); font-size: 0.875rem; font-weight: 500;
+    letter-spacing: 0.02em; padding: 0.85rem 1.75rem;
+    border: none; border-radius: 8px; cursor: pointer;
+    transition: background 0.2s, transform 0.15s; text-decoration: none;
+  }
+  .btn-primary:hover { background: var(--accent-light); transform: translateY(-1px); }
+
+  .btn-secondary {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: transparent; color: var(--ink);
+    font-family: var(--font-body); font-size: 0.875rem; font-weight: 500;
+    letter-spacing: 0.02em; padding: 0.85rem 1.75rem;
+    border: 1.5px solid var(--border); border-radius: 8px; cursor: pointer;
+    transition: border-color 0.2s, background 0.2s; text-decoration: none;
+    margin-left: 0.75rem;
+  }
+  .btn-secondary:hover { border-color: var(--accent); background: var(--accent-pale); }
+
+  .expertise-pill {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    background: var(--accent-pale); border: 1px solid rgba(75,107,138,0.2);
+    color: var(--accent); font-size: 0.72rem; font-weight: 600;
+    letter-spacing: 0.04em; padding: 0.35rem 0.875rem; border-radius: 8px;
+  }
+
+  .stat-card-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+  .stat-card {
+    background: var(--ivory); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1.1rem; text-align: center;
+  }
+  .stat-num { font-family: var(--font-display); font-size: 1.75rem; font-weight: 400; color: var(--accent); line-height: 1; margin-bottom: 0.2rem; }
+  .stat-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--slate); }
+
+  .service-card {
+    display: flex; align-items: flex-start; gap: 0.875rem;
+    padding: 1rem; background: var(--ivory); border-radius: 8px;
+    border: 1px solid var(--border); margin-bottom: 0.6rem;
+    transition: border-color 0.2s;
+  }
+  .service-card:hover { border-color: var(--accent-light); }
+  .service-icon {
+    width: 38px; height: 38px; border-radius: 8px;
+    background: var(--accent-pale); display: flex; align-items: center; justify-content: center;
+    font-size: 0.95rem; flex-shrink: 0;
+  }
+  .service-name { font-size: 0.875rem; font-weight: 600; color: var(--ink); margin-bottom: 0.2rem; }
+  .service-desc { font-size: 0.75rem; color: var(--slate); line-height: 1.5; font-weight: 300; }
+
+  /* DEMO PREVIEW */
+  .demo-preview { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 12px 48px rgba(41,37,36,0.06); }
+  .demo-browser-bar { background: var(--ivory); padding: 0.6rem 1rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--border); }
+  .browser-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .bd-r { background: #ff5f56; } .bd-y { background: #ffbd2e; } .bd-g { background: #27c93f; }
+  .browser-url { background: rgba(255,255,255,0.8); border-radius: 6px; padding: 0.25rem 0.75rem; font-size: 0.7rem; color: var(--slate); font-family: monospace; margin-left: 0.5rem; flex: 1; max-width: 280px; }
+
+  .demo-site { background: var(--white); font-family: var(--font-body); }
+  .demo-nav {
+    background: var(--white); border-bottom: 1px solid var(--border);
+    padding: 0 2rem; height: 58px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .demo-logo { font-family: var(--font-display); font-size: 1.25rem; font-weight: 400; color: var(--ink); letter-spacing: -0.01em; }
+  .demo-logo span { font-style: italic; color: var(--accent); }
+  .demo-nav-links { display: flex; gap: 1.75rem; }
+  .demo-nav-link { font-size: 0.8rem; font-weight: 400; color: var(--slate); text-decoration: none; }
+  .demo-nav-cta { font-size: 0.8rem; font-weight: 500; color: white; background: var(--accent); padding: 0.5rem 1.25rem; border-radius: 8px; text-decoration: none; }
+
+  .demo-hero {
+    padding: 3rem 2rem;
+    background: var(--cream);
+    border-bottom: 1px solid var(--border);
+  }
+  .demo-hero-eyebrow { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 1rem; }
+  .demo-hero-h1 { font-family: var(--font-display); font-size: clamp(1.75rem, 3vw, 2.25rem); font-weight: 400; color: var(--ink); line-height: 1.12; letter-spacing: -0.02em; margin-bottom: 1rem; }
+  .demo-hero-h1 em { font-style: italic; color: var(--accent); }
+  .demo-hero-p { font-size: 0.9rem; font-weight: 300; color: var(--slate); line-height: 1.75; margin-bottom: 1.5rem; max-width: 500px; }
+  .demo-hero-ctas { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .demo-trust-row { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+
+  .demo-stats-bar {
+    background: var(--ink); padding: 1.25rem 2rem;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+  }
+  .demo-stat-item { text-align: center; }
+  .demo-stat-num { font-family: var(--font-display); font-size: 1.5rem; font-weight: 400; color: white; line-height: 1; margin-bottom: 0.2rem; }
+  .demo-stat-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mist); }
+
+  .demo-services { padding: 2rem 2rem; background: var(--ivory); border-top: 1px solid var(--border); }
+  .demo-services-eyebrow { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.35rem; }
+  .demo-services-h2 { font-family: var(--font-display); font-size: 1.6rem; font-weight: 400; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 1.25rem; }
+  .demo-services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.875rem; }
+  .demo-service-card {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1.25rem;
+    transition: border-color 0.2s;
+  }
+  .demo-service-card:hover { border-color: var(--accent-light); }
+  .demo-service-icon { font-size: 1.25rem; margin-bottom: 0.5rem; }
+  .demo-service-name { font-size: 0.9rem; font-weight: 600; color: var(--ink); margin-bottom: 0.3rem; }
+  .demo-service-desc { font-size: 0.76rem; color: var(--slate); line-height: 1.55; font-weight: 300; }
+
+  .demo-cta-footer {
+    background: var(--accent-pale); border-top: 1px solid var(--border);
+    padding: 1.5rem 2rem;
+    display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+  }
+  .demo-cta-h { font-family: var(--font-display); font-size: 1.2rem; font-weight: 400; font-style: italic; color: var(--ink); }
+  .demo-cta-sub { font-size: 0.75rem; color: var(--slate); margin-top: 0.2rem; font-weight: 300; }
+
+  .notes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .note-card { background: var(--white); border-radius: 8px; padding: 1.25rem; border: 1px solid var(--border); border-left: 3px solid var(--accent); }
+  .note-title { font-size: 0.8rem; font-weight: 600; color: var(--ink); margin-bottom: 0.5rem; }
+  .note-body { font-size: 0.8rem; color: var(--slate); line-height: 1.65; font-weight: 300; }
+  .note-body code { background: var(--accent-pale); color: var(--accent); font-family: monospace; font-size: 0.78rem; padding: 0.1rem 0.35rem; border-radius: 4px; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  .sg-section { animation: fadeUp 0.5s ease both; }
+  .sg-section:nth-child(2) { animation-delay: 0.06s; }
+  .sg-section:nth-child(3) { animation-delay: 0.12s; }
+  .sg-section:nth-child(4) { animation-delay: 0.18s; }
+  .sg-section:nth-child(5) { animation-delay: 0.24s; }
+  .sg-section:nth-child(6) { animation-delay: 0.30s; }
+</style>
+</head>
+<body>
+<div class="sg-page">
+
+  <div class="sg-header">
+    <div>
+      <div class="sg-eyebrow">Lead Rosetta — Style Guide</div>
+      <div class="sg-title">Solo Professionals & <em>Consultants</em></div>
+    </div>
+    <div class="sg-meta">Solo Pro Template<br>Version 1.0 · 2026</div>
+  </div>
+
+  <!-- 1. COLORS -->
+  <div class="sg-section">
+    <div class="sg-section-label">01 — Color Palette</div>
+    <div class="swatch-row">
+      <div class="swatch"><div class="swatch-block" style="background:#292524;"></div><div class="swatch-name">Ink</div><div class="swatch-hex">#292524 — Headlines</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#4b6b8a;"></div><div class="swatch-name">Accent (Dusty Blue)</div><div class="swatch-hex">#4b6b8a — Primary, CTAs</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#faf8f5; border:1px solid #e7e5e4;"></div><div class="swatch-name">Cream</div><div class="swatch-hex">#faf8f5 — Page BG</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#6b7280;"></div><div class="swatch-name">Slate</div><div class="swatch-hex">#6b7280 — Body text</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#e8eef3; border:1px solid #c8d4e0;"></div><div class="swatch-name">Accent Pale</div><div class="swatch-hex">#e8eef3 — Highlights</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#e7e5e4;"></div><div class="swatch-name">Border</div><div class="swatch-hex">#e7e5e4 — Dividers</div></div>
+    </div>
+  </div>
+
+  <!-- 2. TYPOGRAPHY -->
+  <div class="sg-section">
+    <div class="sg-section-label">02 — Typography</div>
+    <div class="type-specimens">
+      <div class="type-row"><div class="type-label">H1 / Hero</div><div class="t-h1">Built for <em>independent</em> professionals.</div></div>
+      <div class="type-row"><div class="type-label">H2 / Section</div><div class="t-h2">How I Can Help</div></div>
+      <div class="type-row"><div class="type-label">H3 / Sub</div><div class="t-h3">Strategy, coaching, and advisory for solopreneurs and small teams</div></div>
+      <div class="type-row"><div class="type-label">Body</div><div class="t-body">I work one-on-one with founders and leaders to clarify goals, build systems, and get results without the overhead of a big firm. Think of me as your part-time strategic partner.</div></div>
+      <div class="type-row"><div class="type-label">Caption</div><div class="t-caption">Toronto · GTA · Remote · Discovery Call</div></div>
+    </div>
+    <div style="margin-top:1rem; font-size:0.78rem; color:var(--slate);">
+      Display: <strong style="color:var(--ink);">DM Serif Display</strong> (400 — regular & italic) &nbsp;·&nbsp;
+      Body: <strong style="color:var(--ink);">Karla</strong> (300, 400, 500, 600)
+    </div>
+  </div>
+
+  <!-- 3. COMPONENTS -->
+  <div class="sg-section">
+    <div class="sg-section-label">03 — UI Components</div>
+    <div class="component-grid">
+      <div class="component-box">
+        <div class="component-box-label">Buttons</div>
+        <div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;">
+          <a href="#" class="btn-primary">Book a Discovery Call →</a>
+          <a href="#" class="btn-secondary">How I Work</a>
+        </div>
+      </div>
+      <div class="component-box">
+        <div class="component-box-label">Expertise Pills</div>
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+          <span class="expertise-pill">Strategy</span>
+          <span class="expertise-pill">Coaching</span>
+          <span class="expertise-pill">Advisory</span>
+        </div>
+      </div>
+      <div class="component-box">
+        <div class="component-box-label">Stats</div>
+        <div class="stat-card-row">
+          <div class="stat-card"><div class="stat-num">50+</div><div class="stat-label">Clients</div></div>
+          <div class="stat-card"><div class="stat-num">12+</div><div class="stat-label">Years</div></div>
+          <div class="stat-card"><div class="stat-num">GTA</div><div class="stat-label">& Remote</div></div>
+        </div>
+      </div>
+      <div class="component-box">
+        <div class="component-box-label">Service Cards</div>
+        <div class="service-card">
+          <div class="service-icon">🎯</div>
+          <div>
+            <div class="service-name">Strategy & Planning</div>
+            <div class="service-desc">Clarify goals and build a roadmap that fits your capacity.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. DEMO PREVIEW -->
+  <div class="sg-section">
+    <div class="sg-section-label">04 — Demo Site Preview</div>
+    <div class="demo-preview">
+      <div class="demo-browser-bar">
+        <div class="browser-dot bd-r"></div><div class="browser-dot bd-y"></div><div class="browser-dot bd-g"></div>
+        <div class="browser-url">demo.leadrosetta.com/jordan-consulting</div>
+      </div>
+      <div class="demo-site">
+        <div class="demo-nav">
+          <div class="demo-logo">Jordan <span>Consulting</span></div>
+          <div class="demo-nav-links">
+            <a href="#" class="demo-nav-link">Services</a>
+            <a href="#" class="demo-nav-link">About</a>
+            <a href="#" class="demo-nav-link">Contact</a>
+          </div>
+          <a href="#" class="demo-nav-cta">Discovery Call</a>
+        </div>
+        <div class="demo-hero">
+          <div class="demo-hero-eyebrow">Toronto & GTA · Remote</div>
+          <h1 class="demo-hero-h1">Built for <em>independent</em> professionals.</h1>
+          <p class="demo-hero-p">I help founders and leaders clarify goals, build systems, and get results. One-on-one strategy, coaching, and advisory — no big-firm overhead.</p>
+          <div class="demo-hero-ctas">
+            <a href="#" class="btn-primary">Book a Discovery Call →</a>
+            <a href="#" class="btn-secondary">How I Work</a>
+          </div>
+          <div class="demo-trust-row">
+            <span class="expertise-pill">Strategy</span>
+            <span class="expertise-pill">Coaching</span>
+            <span class="expertise-pill">Advisory</span>
+          </div>
+        </div>
+        <div class="demo-stats-bar">
+          <div class="demo-stat-item"><div class="demo-stat-num">50+</div><div class="demo-stat-label">Clients</div></div>
+          <div class="demo-stat-item"><div class="demo-stat-num">12+</div><div class="demo-stat-label">Years</div></div>
+          <div class="demo-stat-item"><div class="demo-stat-num">GTA</div><div class="demo-stat-label">& Remote</div></div>
+          <div class="demo-stat-item"><div class="demo-stat-num">5★</div><div class="demo-stat-label">Reviews</div></div>
+        </div>
+        <div class="demo-services">
+          <div class="demo-services-eyebrow">What I Offer</div>
+          <div class="demo-services-h2">Services</div>
+          <div class="demo-services-grid">
+            <div class="demo-service-card">
+              <div class="demo-service-icon">🎯</div>
+              <div class="demo-service-name">Strategy & Planning</div>
+              <div class="demo-service-desc">Clarify goals and build a roadmap that fits your capacity.</div>
+            </div>
+            <div class="demo-service-card">
+              <div class="demo-service-icon">💬</div>
+              <div class="demo-service-name">Executive Coaching</div>
+              <div class="demo-service-desc">One-on-one sessions to sharpen leadership and decision-making.</div>
+            </div>
+            <div class="demo-service-card">
+              <div class="demo-service-icon">📋</div>
+              <div class="demo-service-name">Advisory</div>
+              <div class="demo-service-desc">Ongoing support for key projects and transitions.</div>
+            </div>
+          </div>
+        </div>
+        <div class="demo-cta-footer">
+          <div>
+            <div class="demo-cta-h">Ready to get started?</div>
+            <div class="demo-cta-sub">Jordan Consulting · Toronto · Discovery call · No obligation</div>
+          </div>
+          <a href="#" class="btn-primary">Book a Call →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. USAGE NOTES -->
+  <div class="sg-section">
+    <div class="sg-section-label">05 — Usage Notes for Lead Rosetta</div>
+    <div class="notes-grid">
+      <div class="note-card">
+        <div class="note-title">When to use this template</div>
+        <div class="note-body">Use for solo consultants, coaches, freelancers, advisors, and independent professionals (e.g. business coaches, marketing consultants, fractional executives). Tone: professional but approachable, personal but credible. Warmer than corporate; more refined than generic.</div>
+      </div>
+      <div class="note-card">
+        <div class="note-title">Dynamic fields</div>
+        <div class="note-body">Replace <code>[name]</code>, <code>[services]</code>, <code>[years]</code>, <code>[phone]</code>, <code>[email]</code>. Use first-person or “I” where it fits (“I help…”, “Book a call with me”). Stats: clients, years, service area. Service cards from CSV or defaults (Strategy, Coaching, Advisory).</div>
+      </div>
+      <div class="note-card">
+        <div class="note-title">Dusty blue accent</div>
+        <div class="note-body">Accent <code>#4b6b8a</code> is the primary CTA and highlight. Use for buttons, section labels, stat numbers in the dark bar. Keeps a professional, trustworthy feel without looking corporate. Do not swap for a brighter or more saturated blue.</div>
+      </div>
+      <div class="note-card">
+        <div class="note-title">Voice & tone</div>
+        <div class="note-body">First-person optional (“I help…”). CTAs: "Book a Discovery Call", "How I Work", "Get in Touch". Headlines should feel personal and confident. Avoid cold corporate language; avoid overly casual or playful. Balanced and human.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

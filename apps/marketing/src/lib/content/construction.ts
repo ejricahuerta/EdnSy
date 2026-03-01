@@ -33,7 +33,7 @@ export const constructionDemoContent = {
 			{
 				title: 'On time, on budget',
 				description:
-					'We provide detailed quotes and stick to timelines. No surprise costs—we communicate clearly from day one.'
+					'We provide detailed quotes and stick to timelines. No surprise costs. We communicate clearly from day one.'
 			},
 			{
 				title: 'Experienced team',

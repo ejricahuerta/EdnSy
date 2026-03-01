@@ -39,7 +39,7 @@ export const legalDemoContent = {
 		heading: 'About this practice',
 		subtext: 'I built my practice on referrals and repeat clients. My job is to give you clear advice and effective representation so you can make informed decisions.',
 		subtext2: 'I work with individuals and families. Every matter is treated with confidentiality and respect.',
-		bullets: ['Clear fee structure—you know what to expect before we start.', 'Responsive communication. You\'ll hear back promptly.', 'Professional standards and strict confidentiality.'],
+		bullets: ['Clear fee structure. You know what to expect before we start.', 'Responsive communication. You\'ll hear back promptly.', 'Professional standards and strict confidentiality.'],
 		image: 'https://images.unsplash.com/photo-1505664194779-8beaceb93744?w=800&q=80',
 		imageAlt: 'Professional legal environment'
 	},
@@ -49,7 +49,7 @@ export const legalDemoContent = {
 		steps: [
 			{ title: 'Book a consultation', description: 'Use the button above or call to schedule. I\'ll send a short intake form so we use our time well.' },
 			{ title: 'We meet (in person or video)', description: 'You tell me about your situation. I\'ll ask questions and outline your options and next steps.' },
-			{ title: 'You decide how to proceed', description: 'I\'ll give you a clear scope and fee quote. No pressure—you decide whether to retain me.' }
+			{ title: 'You decide how to proceed', description: 'I\'ll give you a clear scope and fee quote. No pressure. You decide whether to retain me.' }
 		],
 		ctaLabel: 'Book a consultation',
 		switchingEasy: 'Consultations are confidential. No obligation.',

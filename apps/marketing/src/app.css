@@ -1,179 +1,2373 @@
 @import "tailwindcss";
 
 /* ==========================================================================
-   EdnSy Marketing – Theming
-   Default dark for app shell; industry themes for demo routes (data-theme).
+   Demo route theme (industry landing pages) – theme tokens and component classes.
    ========================================================================== */
-
-@plugin "daisyui/theme" {
-  name: "dark";
-  default: true;
-  prefersdark: false;
-  color-scheme: "dark";
-  --color-base-100: oklch(24% 0.014 260);
-  --color-base-200: oklch(21% 0.012 260);
-  --color-base-300: oklch(18% 0.01 260);
-  --color-base-content: oklch(92% 0.01 260);
-  --color-primary: oklch(62% 0.22 277);
-  --color-primary-content: oklch(96% 0.02 277);
-  --color-secondary: oklch(64% 0.22 350);
-  --color-secondary-content: oklch(94% 0.02 350);
-  --color-accent: oklch(72% 0.15 185);
-  --color-accent-content: oklch(22% 0.04 185);
-  --color-neutral: oklch(22% 0.02 260);
-  --color-neutral-content: oklch(88% 0.01 260);
-  --color-info: oklch(72% 0.17 232);
-  --color-info-content: oklch(20% 0.05 232);
-  --color-success: oklch(70% 0.16 160);
-  --color-success-content: oklch(20% 0.04 160);
-  --color-warning: oklch(80% 0.17 85);
-  --color-warning-content: oklch(22% 0.05 85);
-  --color-error: oklch(68% 0.2 25);
-  --color-error-content: oklch(96% 0.02 25);
+@theme {
+  /* Dark theme for demo pages (single theme; industry-specific theming can be added later) */
+  --color-base-100: #1c1917;
+  --color-base-200: #292524;
+  --color-base-300: #44403c;
+  --color-base-content: #e7e5e4;
+  --color-primary: #2D6A4F;
+  --color-primary-content: #fafaf9;
+  --color-primary-foreground: #ffffff;
+  --color-neutral: #3f3f46;
+  --color-neutral-content: #d4d4d8;
+  --color-success: #16a34a;
+  --color-warning: #d97706;
+  --color-error: #dc2626;
   --radius-selector: 0.75rem;
-  --radius-field: 0.5rem;
   --radius-box: 0.75rem;
-  --size-selector: 0.25rem;
-  --size-field: 0.25rem;
-  --border: 1px;
-  --depth: 1;
-  --noise: 0;
+
+  /* shadcn-svelte (dropdown, dialog, select, etc.) – defaults so bg-popover/text-popover-foreground resolve everywhere, including portaled content */
+  --color-background: #F5F0E8;
+  --color-foreground: #1A1A14;
+  --color-card: #FFFFFF;
+  --color-card-foreground: #1A1A14;
+  --color-popover: #FFFFFF;
+  --color-popover-foreground: #1A1A14;
+  --color-muted: #EEEAE0;
+  --color-muted-foreground: #7A7566;
+  --color-accent: #EEEAE0;
+  --color-accent-foreground: #1A1A14;
+  --color-border: #D8D0BF;
+  --color-input: #D8D0BF;
+  --color-ring: #3D5A3E;
 }
 
-/* Healthcare – dark, calm green (replaces light emerald for consistent demo hero) */
-@plugin "daisyui/theme" {
-  name: "healthcare";
-  default: false;
-  prefersdark: false;
-  color-scheme: "dark";
-  --color-base-100: oklch(22% 0.012 165);
-  --color-base-200: oklch(19% 0.01 165);
-  --color-base-300: oklch(16% 0.008 165);
-  --color-base-content: oklch(88% 0.01 165);
-  --color-primary: oklch(68% 0.16 155);
-  --color-primary-content: oklch(18% 0.04 155);
-  --color-secondary: oklch(62% 0.12 200);
-  --color-secondary-content: oklch(92% 0.02 200);
-  --color-accent: oklch(72% 0.14 135);
-  --color-accent-content: oklch(20% 0.04 135);
-  --color-neutral: oklch(26% 0.025 165);
-  --color-neutral-content: oklch(86% 0.008 165);
-  --color-info: oklch(70% 0.17 232);
-  --color-info-content: oklch(18% 0.04 232);
-  --color-success: oklch(66% 0.15 160);
-  --color-success-content: oklch(18% 0.04 160);
-  --color-warning: oklch(78% 0.16 85);
-  --color-warning-content: oklch(20% 0.04 85);
-  --color-error: oklch(66% 0.2 25);
-  --color-error-content: oklch(94% 0.02 25);
-  --radius-selector: 0.75rem;
-  --radius-field: 0.5rem;
-  --radius-box: 0.75rem;
-  --size-selector: 0.25rem;
-  --size-field: 0.25rem;
-  --border: 1px;
-  --depth: 0;
-  --noise: 0;
+/* Demo route: component classes used by industry landing templates.
+   Industry themes (fonts + full palette) come from docs/style-guides/industries/*.html and
+   are applied via data-demo-theme (construction, real-estate, healthcare, dental, salons,
+   solo-professionals, legal, fitness). Default below is fallback; each industry overrides. */
+.demo-route {
+  --font-display: 'Fraunces', serif;
+  --font-body: 'Epilogue', sans-serif;
+  /* Landing content width: change these to adjust overall content/container width (72rem = 1152px, 56rem = 896px) */
+  --landing-content-max: 72rem;
+  --landing-hero-max: 56rem;
+  color-scheme: dark;
+  min-height: 100vh;
+  padding-top: 2.75rem;
+  background-color: var(--color-base-100);
+  color: var(--color-base-content);
+  font-family: var(--font-body);
+}
+/* Shared container for landing sections: max-width and padding controlled from .demo-route variables */
+.demo-route .landing-container {
+  max-width: var(--landing-content-max);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+@media (min-width: 640px) {
+  .demo-route .landing-container { padding-left: 1.5rem; padding-right: 1.5rem; }
+}
+@media (min-width: 1024px) {
+  .demo-route .landing-container { padding-left: 2rem; padding-right: 2rem; }
+}
+.demo-route .landing-hero-inner {
+  max-width: var(--landing-hero-max);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+@media (min-width: 640px) {
+  .demo-route .landing-hero-inner { padding-left: 1.5rem; padding-right: 1.5rem; }
+}
+@media (min-width: 1024px) {
+  .demo-route .landing-hero-inner { padding-left: 2rem; padding-right: 2rem; }
+}
+.demo-route h1,
+.demo-route h2,
+.demo-route h3,
+.demo-route h4,
+.demo-route .demo-card-title,
+.demo-route .section-heading,
+.demo-route .font-display {
+  font-family: var(--font-display);
+}
+.demo-route .section-lead,
+.demo-route .font-body {
+  font-family: var(--font-body);
+}
+.demo-route .demo-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.demo-route .demo-nav .demo-nav-start a,
+.demo-route header nav .demo-nav-start a {
+  font-family: var(--font-display);
+}
+.demo-route .demo-btn {
+  font-family: var(--font-body);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+  border-radius: var(--radius-selector, 0.5rem);
+  border: none;
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.demo-route .demo-btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-primary-content);
+}
+.demo-route .demo-btn-primary:hover {
+  filter: brightness(1.1);
+}
+.demo-route .demo-btn-outline {
+  background-color: transparent;
+  border: 2px solid currentColor;
+}
+.demo-route .demo-btn-neutral {
+  background-color: var(--color-neutral);
+  color: var(--color-neutral-content);
+}
+.demo-route .demo-btn-sm { padding: 0.25rem 0.75rem; font-size: 0.8125rem; }
+.demo-route .demo-btn-md { padding: 0.5rem 1rem; }
+.demo-route .demo-btn-lg { padding: 0.75rem 1.5rem; font-size: 1rem; }
+.demo-route .demo-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 9999px;
+}
+.demo-route .demo-badge-primary {
+  background-color: var(--color-primary);
+  color: var(--color-primary-content);
+  border: 0;
+}
+.demo-route .demo-badge-lg { padding: 0.35rem 0.85rem; font-size: 0.8125rem; }
+.demo-route .demo-card { background-color: var(--color-base-100); border-radius: var(--radius-box); }
+.demo-route .demo-card-body { padding: 1.5rem; }
+.demo-route .demo-card-title { font-weight: 600; }
+.demo-route .link { color: inherit; text-decoration: none; }
+.demo-route .link:hover { text-decoration: underline; }
+.demo-route .link-primary { color: var(--color-primary); }
+.demo-route .link-hover:hover { opacity: 0.9; }
+
+/* User-edited custom demo HTML (from dashboard Templates) */
+.demo-route .demo-custom-html {
+  max-width: var(--landing-content-max);
+  margin-left: auto;
+  margin-right: auto;
+  padding: 1rem;
+}
+@media (min-width: 1024px) {
+  .demo-route .demo-custom-html { padding: 2rem; }
 }
 
-/* Construction – dark, warm earth/amber */
-@plugin "daisyui/theme" {
-  name: "construction";
-  default: false;
-  prefersdark: false;
-  color-scheme: "dark";
-  --color-base-100: oklch(22% 0.02 55);
-  --color-base-200: oklch(19% 0.018 55);
-  --color-base-300: oklch(16% 0.015 55);
-  --color-base-content: oklch(90% 0.02 55);
-  --color-primary: oklch(72% 0.14 65);
-  --color-primary-content: oklch(20% 0.04 65);
-  --color-secondary: oklch(58% 0.12 45);
-  --color-secondary-content: oklch(92% 0.02 45);
-  --color-accent: oklch(68% 0.1 85);
-  --color-accent-content: oklch(22% 0.03 85);
-  --color-neutral: oklch(28% 0.03 50);
-  --color-neutral-content: oklch(86% 0.01 50);
-  --color-info: oklch(68% 0.14 232);
-  --color-info-content: oklch(20% 0.04 232);
-  --color-success: oklch(64% 0.14 155);
-  --color-success-content: oklch(18% 0.04 155);
-  --color-warning: oklch(78% 0.16 75);
-  --color-warning-content: oklch(22% 0.04 75);
-  --color-error: oklch(64% 0.2 25);
-  --color-error-content: oklch(94% 0.02 25);
+/* Section headings/leads use theme base-content so industry themes apply (overrides template oklch) */
+.demo-route .section-heading {
+  color: var(--color-base-content) !important;
+}
+.demo-route .section-lead {
+  color: var(--color-base-content) !important;
+  opacity: 0.85;
+}
+
+/* Floating Lead Rosetta banner on all demo pages – distinct from dark UI (e.g. Crisp) */
+.demo-lr-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  padding: 0.5rem 1rem 0.5rem 1.25rem;
+  background: var(--color-base-200);
+  border-bottom: 1px solid var(--color-base-300);
+  color: var(--color-base-content);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+.demo-lr-banner-home {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: inherit;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+.demo-lr-banner-home:hover {
+  opacity: 0.9;
+}
+.demo-lr-banner-logo {
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  object-fit: contain;
+}
+.demo-lr-banner-brand {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.demo-lr-banner-brand span {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+.demo-lr-banner-urgency {
+  font-weight: 600;
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+.demo-lr-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+.demo-lr-banner-link {
+  color: var(--color-base-content);
+  text-decoration: none;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-base-300);
+  transition: background 0.2s, border-color 0.2s;
+}
+.demo-lr-banner-link:hover {
+  background: var(--color-base-300);
+  border-color: var(--color-base-content);
+}
+.demo-lr-banner-cta {
+  color: var(--color-primary-content);
+  font-size: 0.75rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 9999px;
+  background: var(--color-primary);
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15);
+  transition: filter 0.2s;
+}
+.demo-lr-banner-cta:hover {
+  filter: brightness(1.1);
+}
+
+/* Lead Rosetta vs demo: clearly mark platform (LR) sections so they’re distinct from the business demo content */
+.demo-route .lr-from-platform {
+  position: relative;
+  border-left: 3px solid var(--color-primary);
+}
+.demo-route .lr-platform-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-primary);
+  opacity: 0.95;
+}
+.demo-route .lr-platform-label::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  opacity: 0.8;
+}
+.demo-route .lr-footer-platform.lr-from-platform {
+  border-left-width: 2px;
+}
+
+/* ==========================================================================
+   Demo route: industry-specific themes from docs/style-guides/industries/*.html
+   All tokens (colors, fonts, radius) must match the style guides. Light vs dark
+   follows each guide: construction = dark; real-estate, healthcare, salon,
+   generic = light.
+   ========================================================================== */
+/* construction.html — Dark. Steel/iron/concrete, safety yellow accent. */
+.demo-route[data-demo-theme="construction"] {
+  color-scheme: dark;
+  --font-display: 'Barlow Condensed', sans-serif;
+  --font-body: 'Barlow', sans-serif;
+  --color-primary: #f5c518;
+  --color-primary-content: #0f1113;
+  --color-primary-foreground: #0f1113;
+  --color-base-100: #0f1113;
+  --color-base-200: #1c1f22;
+  --color-base-300: #2a2f34;
+  --color-base-content: #f0ede8;
+  --color-neutral: #6b7280;
+  --color-neutral-content: #9ca3af;
   --radius-selector: 0.5rem;
-  --radius-field: 0.5rem;
   --radius-box: 0.5rem;
-  --size-selector: 0.25rem;
-  --size-field: 0.25rem;
-  --border: 1px;
-  --depth: 1;
-  --noise: 0;
+}
+/* real-estate.html — Light. Off-white bg, obsidian text, champagne accent. */
+.demo-route[data-demo-theme="real-estate"] {
+  color-scheme: light;
+  --font-display: 'Libre Baskerville', serif;
+  --font-body: 'Outfit', sans-serif;
+  --color-primary: #d4b896;
+  --color-primary-content: #0d0f0f;
+  --color-primary-foreground: #0d0f0f;
+  --color-base-100: #f2f4f4;
+  --color-base-200: #e8ebeb;
+  --color-base-300: #c8d4d4;
+  --color-base-content: #0d0f0f;
+  --color-neutral: #6b7575;
+  --color-neutral-content: #252a2a;
+}
+/* healthcare-and-dental.html — Light. Porcelain/ivory bg, navy text, teal accent. */
+.demo-route[data-demo-theme="healthcare"] {
+  color-scheme: light;
+  --font-display: 'Playfair Display', serif;
+  --font-body: 'Mulish', sans-serif;
+  --color-primary: #256b7a;
+  --color-primary-content: #ffffff;
+  --color-primary-foreground: #ffffff;
+  --color-base-100: #fafaf8;
+  --color-base-200: #f4f1ec;
+  --color-base-300: #eae5dc;
+  --color-base-content: #1e2d3d;
+  --color-neutral: #6b7a8d;
+  --color-neutral-content: #2e4057;
+}
+.demo-route[data-demo-theme="dental"] {
+  color-scheme: light;
+  --font-display: 'Playfair Display', serif;
+  --font-body: 'Mulish', sans-serif;
+  --color-primary: #256b7a;
+  --color-primary-content: #ffffff;
+  --color-primary-foreground: #ffffff;
+  --color-base-100: #fafaf8;
+  --color-base-200: #f4f1ec;
+  --color-base-300: #eae5dc;
+  --color-base-content: #1e2d3d;
+  --color-neutral: #6b7a8d;
+  --color-neutral-content: #2e4057;
+}
+/* salon-and-spa.html — Light. Blush-pale/cream bg, espresso text, rose accent. */
+.demo-route[data-demo-theme="salons"] {
+  color-scheme: light;
+  --font-display: 'Cormorant Garamond', serif;
+  --font-body: 'Jost', sans-serif;
+  --color-primary: #b85c6c;
+  --color-primary-content: #faf6f1;
+  --color-primary-foreground: #faf6f1;
+  --color-base-100: #f5ede6;
+  --color-base-200: #faf6f1;
+  --color-base-300: #c5b8b0;
+  --color-base-content: #1e1410;
+  --color-neutral: #9b8c82;
+  --color-neutral-content: #2e2018;
+}
+/* legal.html — Light. Cream/navy, forest green primary, gold accent. */
+.demo-route[data-demo-theme="legal"] {
+  color-scheme: light;
+  --font-display: 'Crimson Pro', serif;
+  --font-body: 'Source Sans 3', sans-serif;
+  --color-primary: #2d4a3e;
+  --color-primary-content: #ffffff;
+  --color-primary-foreground: #ffffff;
+  --color-base-100: #f5f3ef;
+  --color-base-200: #faf9f7;
+  --color-base-300: #e0ddd8;
+  --color-base-content: #1a2332;
+  --color-neutral: #5c6873;
+  --color-neutral-content: #2c3a4d;
+  --radius-selector: 0.25rem;
+  --radius-box: 0.375rem;
+}
+/* fitness.html — Light. Surface green tint, vital teal primary. */
+.demo-route[data-demo-theme="fitness"] {
+  color-scheme: light;
+  --font-display: 'Archivo', sans-serif;
+  --font-body: 'Nunito Sans', sans-serif;
+  --color-primary: #0d9488;
+  --color-primary-content: #ffffff;
+  --color-primary-foreground: #ffffff;
+  --color-base-100: #f0fdf4;
+  --color-base-200: #ffffff;
+  --color-base-300: #e2e8f0;
+  --color-base-content: #1a1d21;
+  --color-neutral: #64748b;
+  --color-neutral-content: #2d3238;
+  --radius-selector: 0.75rem;
+  --radius-box: 0.75rem;
+}
+/* solo-professionals.html — Light. Cream, dusty blue accent. */
+.demo-route[data-demo-theme="solo-professionals"] {
+  color-scheme: light;
+  --font-display: 'DM Serif Display', serif;
+  --font-body: 'Karla', sans-serif;
+  --color-primary: #4b6b8a;
+  --color-primary-content: #ffffff;
+  --color-primary-foreground: #ffffff;
+  --color-base-100: #faf8f5;
+  --color-base-200: #f5f2ed;
+  --color-base-300: #e7e5e4;
+  --color-base-content: #292524;
+  --color-neutral: #6b7280;
+  --color-neutral-content: #44403c;
+  --radius-selector: 0.5rem;
+  --radius-box: 0.5rem;
 }
 
-/* Salons – dark, soft rose/mauve */
-@plugin "daisyui/theme" {
-  name: "salons";
-  default: false;
-  prefersdark: false;
-  color-scheme: "dark";
-  --color-base-100: oklch(24% 0.02 340);
-  --color-base-200: oklch(21% 0.018 340);
-  --color-base-300: oklch(18% 0.015 340);
-  --color-base-content: oklch(90% 0.02 340);
-  --color-primary: oklch(68% 0.18 350);
-  --color-primary-content: oklch(96% 0.02 350);
-  --color-secondary: oklch(64% 0.14 320);
-  --color-secondary-content: oklch(92% 0.02 320);
-  --color-accent: oklch(72% 0.12 300);
-  --color-accent-content: oklch(22% 0.03 300);
-  --color-neutral: oklch(26% 0.022 330);
-  --color-neutral-content: oklch(86% 0.01 330);
-  --color-info: oklch(70% 0.15 250);
-  --color-info-content: oklch(20% 0.04 250);
-  --color-success: oklch(66% 0.14 160);
-  --color-success-content: oklch(18% 0.04 160);
-  --color-warning: oklch(76% 0.14 75);
-  --color-warning-content: oklch(22% 0.04 75);
-  --color-error: oklch(64% 0.2 15);
-  --color-error-content: oklch(94% 0.02 15);
-  --radius-selector: 1rem;
-  --radius-field: 0.5rem;
-  --radius-box: 1rem;
-  --size-selector: 0.25rem;
-  --size-field: 0.25rem;
-  --border: 1px;
-  --depth: 0;
-  --noise: 0;
+/* Lead Rosetta style guide – MUST come after industry themes. LR platform
+   components (banner, modal, sticky CTA, footer) always use LR branding. */
+.demo-route .lr-brand {
+  --color-primary: #2D6A4F !important;
+  --color-primary-content: #fafaf9 !important;
+  --font-display: 'Fraunces', serif !important;
+  --font-body: 'Epilogue', sans-serif !important;
+  --color-base-100: #1c1917 !important;
+  --color-base-200: #292524 !important;
+  --color-base-300: #44403c !important;
+  --color-base-content: #e7e5e4 !important;
+  --color-neutral: #3f3f46 !important;
+  --color-neutral-content: #d4d4d8 !important;
+  --color-success: #16a34a !important;
+  --color-warning: #d97706 !important;
+  --color-error: #dc2626 !important;
+  font-family: var(--font-body) !important;
+}
+.demo-route .lr-brand h1,
+.demo-route .lr-brand h2,
+.demo-route .lr-brand h3,
+.demo-route .lr-brand h4,
+.demo-route .lr-brand .font-display {
+  font-family: var(--font-display) !important;
+}
+/* Ensure buttons inside .lr-brand use LR theme (variables may not apply to pseudo-classes) */
+.demo-route .lr-brand .btn-primary {
+  background-color: #2D6A4F !important;
+  color: #fafaf9 !important;
+}
+.demo-route .lr-brand .btn-primary:hover {
+  filter: brightness(1.1);
+}
+.demo-route .lr-brand .btn-ghost:hover {
+  background-color: #292524 !important;
+  color: #e7e5e4 !important;
+}
+.demo-route .lr-brand .btn-neutral {
+  background-color: #3f3f46 !important;
+  color: #d4d4d8 !important;
+}
+/* Force LR background/text on .lr-brand and descendants (Tailwind utilities use vars) */
+.demo-route .lr-brand.bg-base-100,
+.demo-route .lr-brand .bg-base-100 {
+  background-color: #1c1917 !important;
+}
+.demo-route .lr-brand.bg-base-100\/98 {
+  background-color: rgb(28 25 23 / 0.98) !important;
+}
+.demo-route .lr-brand .bg-base-200\/60 {
+  background-color: rgb(41 37 36 / 0.6) !important;
+}
+.demo-route .lr-brand .border-base-300\/80 {
+  border-color: rgb(68 64 60 / 0.8) !important;
+}
+.demo-route .lr-brand .text-base-content,
+.demo-route .lr-brand .text-base-content\/70,
+.demo-route .lr-brand .text-base-content\/80 {
+  color: #e7e5e4 !important;
+}
+.demo-route .lr-brand .text-base-content\/70 { color: rgb(231 229 228 / 0.7) !important; }
+.demo-route .lr-brand .text-base-content\/80 { color: rgb(231 229 228 / 0.8) !important; }
+.demo-route .lr-brand .text-primary { color: #2D6A4F !important; }
+.demo-route .lr-brand .bg-primary\/10 { background-color: rgb(45 106 79 / 0.1) !important; }
+/* Top banner (fixed) always Lead Rosetta brand */
+.demo-route .demo-lr-banner.lr-brand {
+  background: #292524 !important;
+  border-bottom-color: #44403c !important;
+  color: #e7e5e4 !important;
+}
+.demo-route .demo-lr-banner.lr-brand .demo-lr-banner-brand span {
+  color: #2D6A4F !important;
+}
+.demo-route .demo-lr-banner.lr-brand .demo-lr-banner-link {
+  color: #e7e5e4 !important;
+  border-color: #44403c !important;
+}
+.demo-route .demo-lr-banner.lr-brand .demo-lr-banner-link:hover {
+  background: #44403c !important;
+  border-color: #e7e5e4 !important;
+}
+.demo-route .demo-lr-banner.lr-brand .demo-lr-banner-cta {
+  background: #2D6A4F !important;
+  color: #fafaf9 !important;
+}
+.demo-route .demo-lr-banner.lr-brand .demo-lr-banner-cta:hover {
+  filter: brightness(1.1);
 }
 
-@plugin "daisyui" {
-  themes: dark --default, healthcare, aqua, construction, salons, forest, luxury, business, sunset;
+/* Demo banner and audit modal: use the same fonts as the landing page (theme), not LR brand fonts. */
+.demo-route .demo-lr-banner {
+  --font-display: inherit;
+  --font-body: inherit;
+  font-family: var(--font-body) !important;
+}
+.demo-route .demo-lr-banner .demo-lr-banner-brand {
+  font-family: var(--font-display) !important;
+}
+.demo-route .audit-modal,
+.demo-route .audit-modal-wrapper {
+  font-family: var(--font-body);
+}
+.demo-route .audit-modal .audit-modal-eyebrow,
+.demo-route .audit-modal .audit-modal-title,
+.demo-route .audit-modal .audit-modal-card-title {
+  font-family: var(--font-display);
 }
 
-/* Smooth theme switch when navigating between industry demos */
-[data-theme] {
-  transition:
-    background-color 0.25s ease,
-    color 0.2s ease;
-}
-
-/* Focus and selection for better accessibility across all themes */
+/* Focus and selection for better accessibility */
 :root {
-  --focus-ring: 2px solid oklch(62% 0.22 277);
+  --focus-ring: 2px solid #2D6A4F;
 }
 :focus-visible {
   outline: var(--focus-ring);
   outline-offset: 2px;
 }
 ::selection {
-  background-color: oklch(62% 0.22 277 / 0.35);
+  background-color: rgb(45 106 79 / 0.25);
   color: inherit;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   font-family: var(--font-sans, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Portaled shadcn content (dialogs, dropdowns, select, sheet, etc.) renders outside the app
+   tree (e.g. under body), so it does not inherit .leadrosetta-app-dashboard variables.
+   Define fallbacks on body so popovers have opaque backgrounds and correct text color. */
+body {
+  --background: #F5F0E8;
+  --foreground: #1A1A14;
+  --card: #FFFFFF;
+  --card-foreground: #1A1A14;
+  --popover: #FFFFFF;
+  --popover-foreground: #1A1A14;
+  --color-background: #F5F0E8;
+  --color-foreground: #1A1A14;
+  --color-card: #FFFFFF;
+  --color-card-foreground: #1A1A14;
+  --color-popover: #FFFFFF;
+  --color-popover-foreground: #1A1A14;
+  --color-input-placeholder: #5a5347;
+}
+
+/* ==========================================================================
+   Lead Rosetta app shell – Component Style Guide (docs/styl-guides/style-guide.html)
+   Instrument Serif (display/headings), DM Sans (body/UI). Cream/ink/sage/amber palette.
+   ========================================================================== */
+.leadrosetta-app {
+  font-size: 15px;
+  /* Style guide palette (Lead Rosetta – docs/style-guides/leadrosetta.html). Landing only – no shadcn vars here. */
+  --cream: #F5F0E8;
+  --ink: #1A1A14;
+  --sage: #3D5A3E;
+  --sage-light: #5A7F5B;
+  --amber: #C17D2A;
+  --amber-light: #E09B3D;
+  --muted: #7A7566;
+  --border: #D8D0BF;
+  --surface: #EEEAE0;
+  --white: #FFFFFF;
+  --error: #C04040;
+  --success: #3D5A3E;
+
+  /* Backward-compat aliases for existing lr-* and inline styles (landing + dashboard) */
+  --color-bg: var(--cream);
+  --color-surface: var(--white);
+  --color-border: var(--border);
+  --color-text-primary: var(--ink);
+  --color-text-secondary: var(--muted);
+  --color-text-muted: var(--muted);
+  --color-brand-green: var(--sage);
+  --color-accent-green: var(--sage-light);
+  --color-pale-green: rgba(61, 90, 62, 0.15);
+  --color-cta: var(--amber);
+  --color-cta-hover: var(--amber-light);
+  --color-success: var(--sage);
+  --color-warning: var(--amber);
+  --color-featured-bg: var(--ink);
+  --color-featured-text: var(--cream);
+
+  /* Spacing (8px base) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.05);
+  --shadow-elevated: 0 4px 24px rgba(0, 0, 0, 0.1);
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 350ms;
+  --ease-default: cubic-bezier(0.16, 1, 0.3, 1);
+
+  min-height: 100vh;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  line-height: 1.5;
+}
+
+/* ==========================================================================
+   shadcn-svelte theming for dashboard (Lead Rosetta palette)
+   https://www.shadcn-svelte.com/docs/theming
+   All variables so components (card, popover, dropdown, select, sidebar, chart)
+   use the same cream/ink/sage/amber/surface palette as the landing.
+   ========================================================================== */
+.leadrosetta-app-dashboard {
+  /* Dashboard shell (custom sidebar/topnav) */
+  --lr-dashboard-bg: var(--cream);
+  --lr-dashboard-sidebar-bg: var(--surface);
+  --lr-dashboard-border: var(--border);
+  --lr-dashboard-sidebar-hover: rgba(61, 90, 62, 0.08);
+
+  /* Muted text: use hex so it does not resolve to --muted (overridden to surface below) */
+  --color-text-secondary: #7A7566;
+  --color-text-muted: #7A7566;
+
+  /* Core theme (background/foreground convention) */
+  --radius: 0.5rem;
+  --background: var(--cream);
+  --foreground: var(--ink);
+  --card: var(--white);
+  --card-foreground: var(--ink);
+  --popover: var(--white);
+  --popover-foreground: var(--ink);
+  --primary: var(--sage);
+  --primary-foreground: #ffffff;
+  --secondary: var(--surface);
+  --secondary-foreground: var(--ink);
+  --muted: var(--surface);
+  --muted-foreground: var(--color-text-secondary);
+  --accent: var(--surface);
+  --accent-foreground: var(--ink);
+  --destructive: var(--error);
+  --border: var(--border);
+  --input: var(--border);
+  --ring: var(--sage);
+
+  /* Charts (Lead Rosetta–aligned) */
+  --chart-1: var(--sage);
+  --chart-2: var(--amber);
+  --chart-3: var(--sage-light);
+  --chart-4: var(--amber-light);
+  --chart-5: var(--muted);
+
+  /* Sidebar component (shadcn Sidebar when used in dashboard) */
+  --sidebar: var(--surface);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--sage);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgba(61, 90, 62, 0.08);
+  --sidebar-accent-foreground: var(--ink);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--sage);
+
+  /* Tailwind v4 @theme color utilities (bg-background, text-foreground, etc.) */
+  --color-background: var(--cream);
+  --color-foreground: var(--ink);
+  --color-card: var(--white);
+  --color-card-foreground: var(--ink);
+  --color-popover: var(--white);
+  --color-popover-foreground: var(--ink);
+  --color-primary: var(--sage);
+  --color-primary-foreground: #ffffff;
+  --color-secondary: var(--surface);
+  --color-secondary-foreground: var(--ink);
+  --color-muted: var(--surface);
+  --color-muted-foreground: #7A7566;
+  --color-accent: var(--surface);
+  --color-accent-foreground: var(--ink);
+  --color-destructive: var(--error);
+  --color-border: var(--border);
+  --color-input: var(--border);
+  --color-ring: var(--sage);
+  --color-chart-1: var(--sage);
+  --color-chart-2: var(--amber);
+  --color-chart-3: var(--sage-light);
+  --color-chart-4: var(--amber-light);
+  --color-chart-5: var(--muted);
+  --color-sidebar: var(--surface);
+  --color-sidebar-foreground: var(--ink);
+  --color-sidebar-primary: var(--sage);
+  --color-sidebar-primary-foreground: #ffffff;
+  --color-sidebar-accent: rgba(61, 90, 62, 0.08);
+  --color-sidebar-accent-foreground: var(--ink);
+  --color-sidebar-border: var(--border);
+  --color-sidebar-ring: var(--sage);
+
+  /* Inputs: white background (card) for contrast on cream; matches shadcn convention for form fields */
+  --input-bg: var(--card);
+  /* Placeholder: darker than muted-foreground for readability on white/cream */
+  --color-input-placeholder: #5a5347;
+}
+
+/* Input background: white (card) everywhere so inputs are consistent; dashboard shadcn uses --input-bg */
+.leadrosetta-app-dashboard [data-slot="input"],
+.leadrosetta-app-dashboard [data-slot="input-group-control"],
+.leadrosetta-app-dashboard [data-slot="sidebar-input"] {
+  background-color: var(--input-bg, var(--card)) !important;
+}
+
+/* Placeholder text: darker for readability (dashboard and portaled content e.g. modals) */
+.leadrosetta-app-dashboard [data-slot="input"]::placeholder,
+.leadrosetta-app-dashboard [data-slot="textarea"]::placeholder,
+.leadrosetta-app-dashboard input::placeholder,
+.leadrosetta-app-dashboard textarea::placeholder,
+body [data-slot="input"]::placeholder,
+body [data-slot="textarea"]::placeholder {
+  color: var(--color-input-placeholder, #5a5347) !important;
+}
+
+/* Typography: Instrument Serif for display/headings, DM Sans for body (style guide) */
+.leadrosetta-app .lr-heading-hero {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.leadrosetta-app .lr-heading-hero em {
+  font-style: italic;
+  color: var(--sage);
+}
+
+.leadrosetta-app .lr-heading-display {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.leadrosetta-app .lr-heading-display em {
+  font-style: italic;
+  color: var(--sage);
+}
+
+.leadrosetta-app .lr-heading-page {
+  font-family: 'Instrument Serif', serif;
+  font-size: 1.75rem;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.leadrosetta-app .lr-subline {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 1.125rem;
+  line-height: 1.65;
+  color: var(--muted);
+  margin-top: var(--space-2);
+}
+
+/* Primary CTA: Amber, pill (style guide .btn-primary) */
+.leadrosetta-app .lr-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.875rem 2rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  color: #ffffff;
+  background: var(--amber);
+  border: none;
+  border-radius: 100px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.leadrosetta-app .lr-btn-primary:hover {
+  background: var(--amber-light);
+  transform: translateY(-1px);
+}
+
+/* Semantic .btn .btn-primary (e.g. StickyCtaBar, ChatWidget): green/sage must use light text for contrast */
+.leadrosetta-app .btn.btn-primary,
+.leadrosetta-app .btn-primary.bg-primary {
+  color: #ffffff;
+}
+.leadrosetta-app .btn.btn-primary:hover,
+.leadrosetta-app .btn-primary.bg-primary:hover {
+  color: #ffffff;
+}
+
+/* Ghost: Outline, ink border (style guide .btn-outline); sage variant for secondary CTA */
+.leadrosetta-app .lr-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.875rem 2rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  color: var(--ink);
+  background: transparent;
+  border: 1.5px solid var(--border);
+  border-radius: 100px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.2s;
+}
+
+.leadrosetta-app .lr-btn-ghost:hover {
+  border-color: var(--ink);
+}
+
+/* Wordmark: Instrument Serif, Lead ink / Rosetta sage (style guide .brand-logo) */
+.leadrosetta-app .lr-wordmark {
+  font-family: 'Instrument Serif', serif;
+  font-size: 1.5rem;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.leadrosetta-app .lr-wordmark .lr-wordmark-strong {
+  color: var(--sage);
+}
+
+.leadrosetta-app .lr-nav-ghost {
+  padding: var(--space-2) var(--space-4);
+  font-size: 0.95rem;
+  font-weight: 500;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-pill);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.leadrosetta-app .lr-nav-ghost:hover {
+  color: var(--ink);
+}
+
+.leadrosetta-app .lr-table-header {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-family: 'DM Sans', system-ui, sans-serif;
+}
+
+.leadrosetta-app .lr-table-body {
+  font-size: 0.875rem;
+  color: var(--ink);
+  font-family: 'DM Sans', system-ui, sans-serif;
+}
+
+.leadrosetta-app .lr-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  border-radius: var(--radius-pill);
+}
+
+.leadrosetta-app .lr-status-default {
+  background: rgba(61, 90, 62, 0.1);
+  color: var(--sage);
+  border: 1px solid rgba(61, 90, 62, 0.2);
+}
+
+.leadrosetta-app .lr-status-warning {
+  background: rgba(193, 125, 42, 0.12);
+  color: var(--amber);
+  border: 1px solid rgba(193, 125, 42, 0.25);
+}
+
+.leadrosetta-app .lr-status-success {
+  background: rgba(61, 90, 62, 0.1);
+  color: var(--sage);
+  border: 1px solid rgba(61, 90, 62, 0.2);
+}
+
+.leadrosetta-app .lr-status-muted {
+  background: var(--surface);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+.leadrosetta-app .lr-alert {
+  padding: var(--space-4);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  font-family: 'DM Sans', system-ui, sans-serif;
+}
+
+.leadrosetta-app .lr-alert-warning {
+  background: rgba(193, 125, 42, 0.08);
+  border-color: rgba(193, 125, 42, 0.2);
+  color: var(--amber);
+}
+
+.leadrosetta-app .lr-alert-error {
+  background: rgba(192, 64, 64, 0.08);
+  border-color: rgba(192, 64, 64, 0.2);
+  color: var(--error);
+}
+
+.leadrosetta-app .lr-alert-success {
+  background: rgba(61, 90, 62, 0.08);
+  border-color: rgba(61, 90, 62, 0.2);
+  color: var(--sage);
+}
+
+/* Auth: header + centered main (Lead Rosetta branding) */
+.leadrosetta-app-auth {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--cream);
+}
+.leadrosetta-app-auth .lr-auth-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background: var(--cream);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+.leadrosetta-app-auth .lr-auth-header-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Instrument Serif', serif;
+  font-size: 1.3rem;
+  color: var(--ink);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+.leadrosetta-app-auth .lr-auth-header-logo:hover {
+  opacity: 0.85;
+}
+.leadrosetta-app-auth .lr-auth-header-logo-img {
+  flex-shrink: 0;
+  height: 2rem;
+  width: auto;
+  object-fit: contain;
+}
+.leadrosetta-app-auth .lr-auth-header-logo-text span {
+  color: var(--sage);
+}
+.leadrosetta-app-auth .lr-auth-header-back {
+  font-size: 0.875rem;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.leadrosetta-app-auth .lr-auth-header-back:hover {
+  color: var(--ink);
+}
+.leadrosetta-app-auth .lr-auth-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6) var(--space-4);
+}
+.leadrosetta-app .lr-auth-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+.leadrosetta-app .lr-auth-card {
+  width: 100%;
+  max-width: 420px;
+  padding: var(--space-8) var(--space-7);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  text-align: center;
+}
+.leadrosetta-app .lr-auth-card-logo {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: var(--ink);
+  margin-bottom: var(--space-4);
+}
+.leadrosetta-app .lr-auth-card-logo img {
+  width: 3rem;
+  height: 3rem;
+  object-fit: contain;
+}
+.leadrosetta-app .lr-auth-card-logo-text {
+  font-family: 'Instrument Serif', serif;
+  font-size: 1.15rem;
+}
+.leadrosetta-app .lr-auth-card-logo-text span {
+  color: var(--sage);
+}
+.leadrosetta-app .lr-auth-card-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 1.5rem;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin: 0;
+}
+.leadrosetta-app .lr-auth-card-sub {
+  font-size: 0.9375rem;
+  color: var(--muted);
+  margin: var(--space-2) 0 var(--space-6);
+}
+.leadrosetta-app .lr-auth-google-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  width: 100%;
+  padding: 0.875rem 1.5rem;
+}
+.leadrosetta-app .lr-auth-google-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+}
+.leadrosetta-app .lr-auth-card-note {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  margin: var(--space-5) 0 0;
+  max-width: none;
+}
+
+/* Max paragraph width per style guide (~68 characters) */
+.leadrosetta-app p {
+  max-width: 68ch;
+}
+
+/* Form elements (style guide .form-group, .form-label, .form-input) */
+.leadrosetta-app .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  width: 100%;
+  max-width: 360px;
+}
+
+.leadrosetta-app .form-label {
+  font-size: 0.825rem;
+  font-weight: 500;
+  color: var(--ink);
+  font-family: 'DM Sans', system-ui, sans-serif;
+}
+
+.leadrosetta-app .form-input,
+.leadrosetta-app input[type="text"],
+.leadrosetta-app input[type="email"],
+.leadrosetta-app input[type="url"],
+.leadrosetta-app input[type="password"] {
+  padding: 0.7rem 1rem;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 0.875rem;
+  color: var(--ink);
+  background-color: var(--white);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.leadrosetta-app select.form-input,
+.leadrosetta-app select {
+  padding: 0.7rem 2.5rem 0.7rem 1rem;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 0.875rem;
+  color: var(--ink);
+  background-color: var(--white);
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237A7566' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  transition: border-color 0.2s;
+}
+
+.leadrosetta-app .form-input:focus,
+.leadrosetta-app input:focus,
+.leadrosetta-app select:focus {
+  border-color: var(--sage);
+}
+
+.leadrosetta-app .form-input::placeholder,
+.leadrosetta-app input::placeholder {
+  color: #5a5347;
+}
+
+.leadrosetta-app .form-hint {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.leadrosetta-app .form-error-text {
+  font-size: 0.75rem;
+  color: var(--error);
+}
+
+/* ==========================================================================
+   Landing page layout (docs/style-guides/leadrosetta.html)
+   ========================================================================== */
+.leadrosetta-app .landing-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 2.5rem;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--cream);
+  z-index: 100;
+  /* Clear separation from dark UI (e.g. Crisp) so nav doesn’t blend */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+.leadrosetta-app .landing-nav .logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Instrument Serif', serif;
+  font-size: 1.3rem;
+  color: var(--ink);
+  text-decoration: none;
+}
+.leadrosetta-app .landing-nav .logo .logo-img {
+  flex-shrink: 0;
+  height: 2rem;
+  width: auto;
+  object-fit: contain;
+}
+.leadrosetta-app .landing-nav .logo .logo-text span { color: var(--sage); }
+.leadrosetta-app .nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.leadrosetta-app .nav-links a {
+  text-decoration: none;
+  color: var(--muted);
+  font-size: 0.875rem;
+  transition: color 0.2s;
+}
+.leadrosetta-app .nav-links a:hover { color: var(--ink); }
+/* Try free: amber CTA so it doesn’t blend with dark UI (e.g. Crisp recording bar) */
+.leadrosetta-app .btn-nav {
+  background: var(--amber);
+  color: #ffffff;
+  padding: 0.5rem 1.25rem;
+  border-radius: 100px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.15s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+.leadrosetta-app .btn-nav:hover {
+  background: var(--amber-light);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+.leadrosetta-app .btn-outline {
+  background: transparent;
+  color: var(--ink);
+  padding: 0.875rem 2rem;
+  border-radius: 100px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-decoration: none;
+  border: 1.5px solid var(--border);
+  transition: border-color 0.2s, transform 0.15s;
+}
+.leadrosetta-app .btn-outline:hover {
+  border-color: var(--ink);
+  transform: translateY(-1px);
+}
+
+.leadrosetta-app .hero {
+  padding: 7rem 2.5rem 5rem;
+  text-align: center;
+}
+.leadrosetta-app .hero-inner {
+  max-width: 860px;
+  margin: 0 auto;
+}
+.leadrosetta-app .hero .eyebrow {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--amber);
+  background: rgba(193, 125, 42, 0.1);
+  padding: 0.35rem 0.9rem;
+  border-radius: 100px;
+  margin-bottom: 2rem;
+  border: 1px solid rgba(193, 125, 42, 0.2);
+}
+.leadrosetta-app .hero h1 {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(2.8rem, 6vw, 4.5rem);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.5rem;
+  max-width: none;
+}
+.leadrosetta-app .hero h1 em { font-style: italic; color: var(--sage); }
+.leadrosetta-app .hero-sub {
+  font-size: 1.125rem;
+  line-height: 1.65;
+  color: var(--muted);
+  max-width: 560px;
+  margin: 0 auto 2.5rem;
+  font-weight: 300;
+}
+.leadrosetta-app .hero-sub strong { color: var(--ink); font-weight: 500; }
+.leadrosetta-app .hero-ctas {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+.leadrosetta-app .hero-note {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0 2.5rem;
+  box-sizing: border-box;
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-align: center !important;
+}
+
+.leadrosetta-app .preview-strip {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 2.5rem;
+}
+.leadrosetta-app .preview-label {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1.75rem;
+}
+.leadrosetta-app .demo-flow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  max-width: 900px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+}
+.leadrosetta-app .demo-step {
+  flex: 1;
+  min-width: 160px;
+  text-align: center;
+  padding: 1.25rem 1rem;
+}
+.leadrosetta-app .step-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: white;
+  border: 1.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 0.75rem;
+  color: var(--ink);
+}
+.leadrosetta-app .step-icon :global(svg) {
+  display: block;
+  flex-shrink: 0;
+}
+.leadrosetta-app .step-num {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 0.25rem;
+}
+.leadrosetta-app .step-title { font-size: 0.875rem; font-weight: 500; margin-bottom: 0.25rem; }
+.leadrosetta-app .step-desc { font-size: 0.75rem; color: var(--muted); line-height: 1.5; }
+.leadrosetta-app .step-arrow {
+  font-size: 1.2rem;
+  color: var(--border);
+  flex-shrink: 0;
+  align-self: center;
+  margin-top: -1rem;
+}
+
+.leadrosetta-app .section {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 6rem 2.5rem;
+}
+.leadrosetta-app .section-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+.leadrosetta-app .section h2 {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.5rem;
+}
+.leadrosetta-app .section h2 em { font-style: italic; color: var(--sage); }
+.leadrosetta-app .two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: start;
+}
+.leadrosetta-app .problem-list,
+.leadrosetta-app .solution-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-top: 2rem;
+  padding: 0;
+}
+.leadrosetta-app .problem-list li,
+.leadrosetta-app .solution-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+.leadrosetta-app .problem-list li { color: var(--muted); }
+.leadrosetta-app .solution-list li { color: var(--ink); }
+.leadrosetta-app .problem-list li::before {
+  content: '✕';
+  color: var(--error);
+  font-size: 0.8rem;
+  margin-top: 0.2rem;
+  flex-shrink: 0;
+  font-weight: 600;
+}
+.leadrosetta-app .solution-list li::before {
+  content: '✓';
+  color: var(--sage);
+  font-size: 0.85rem;
+  margin-top: 0.15rem;
+  flex-shrink: 0;
+  font-weight: 600;
+}
+
+.leadrosetta-app .email-mock {
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.07);
+  max-width: 620px;
+  margin: 0 auto;
+}
+.leadrosetta-app .email-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0.875rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.leadrosetta-app .email-dot { width: 10px; height: 10px; border-radius: 50%; }
+.leadrosetta-app .dot-r { background: #ff5f56; }
+.leadrosetta-app .dot-y { background: #ffbd2e; }
+.leadrosetta-app .dot-g { background: #27c93f; }
+.leadrosetta-app .email-body { padding: 1.5rem 1.75rem; }
+.leadrosetta-app .email-meta { margin-bottom: 0.25rem; }
+.leadrosetta-app .email-field {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 0.35rem;
+  display: flex;
+  gap: 0.5rem;
+}
+.leadrosetta-app .email-field span { color: var(--ink); font-weight: 500; }
+.leadrosetta-app .email-divider { border: none; border-top: 1px solid var(--border); margin: 1rem 0 1.25rem; }
+.leadrosetta-app .email-text {
+  font-size: 0.9375rem;
+  color: var(--ink);
+  line-height: 1.65;
+}
+.leadrosetta-app .email-text p {
+  margin: 0 0 1rem;
+}
+.leadrosetta-app .email-text p:last-of-type { margin-bottom: 0; }
+.leadrosetta-app .email-greeting { margin-top: 0; }
+.leadrosetta-app .email-cta-line { margin: 1.25rem 0 1rem !important; }
+.leadrosetta-app .email-snippet {
+  margin: 1rem 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  max-width: 100%;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+.leadrosetta-app .email-snippet-browser {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.leadrosetta-app .email-snippet-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.leadrosetta-app .email-snippet-dot:nth-child(1) { background: #ff5f56; }
+.leadrosetta-app .email-snippet-dot:nth-child(2) { background: #ffbd2e; }
+.leadrosetta-app .email-snippet-dot:nth-child(3) { background: #27c93f; }
+.leadrosetta-app .email-snippet-url {
+  flex: 1;
+  max-width: 180px;
+  height: 18px;
+  margin-left: 4px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 10px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+}
+.leadrosetta-app .email-snippet-preview {
+  height: 100px;
+  background: linear-gradient(135deg, var(--surface) 0%, var(--cream) 100%);
+  background-image:
+    linear-gradient(105deg, var(--border) 1px, transparent 1px),
+    linear-gradient(-105deg, var(--border) 1px, transparent 1px),
+    linear-gradient(135deg, var(--surface) 0%, var(--cream) 100%);
+  background-size: 24px 28px, 24px 28px, 100% 100%;
+  background-position: 0 0, 0 0, 0 0;
+  opacity: 0.85;
+}
+.leadrosetta-app .email-snippet-caption {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+  background: white;
+  border-top: 1px solid var(--border);
+}
+.leadrosetta-app .email-snippet-caption strong { color: var(--ink); font-weight: 500; }
+.leadrosetta-app .email-body-link {
+  color: var(--sage);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  font-weight: 500;
+}
+.leadrosetta-app .email-body-link:hover { color: var(--ink); }
+.leadrosetta-app .email-signature { margin-top: 1.25rem; margin-bottom: 0; }
+.leadrosetta-app .email-link {
+  color: var(--sage);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  font-weight: 500;
+}
+.leadrosetta-app .email-link:hover { color: var(--ink); }
+.leadrosetta-app .email-reply-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  background: none;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.leadrosetta-app .pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin-top: 3rem;
+}
+.leadrosetta-app .pricing-testimonial {
+  display: block;
+  width: 100%;
+  margin-top: 2rem;
+  margin-left: 0;
+  margin-right: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+  text-align: center !important;
+}
+.leadrosetta-app .pricing-card {
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem 1.75rem;
+  position: relative;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.leadrosetta-app .pricing-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+}
+.leadrosetta-app .pricing-card.featured {
+  border-color: var(--sage);
+  background: var(--sage);
+  color: white;
+}
+.leadrosetta-app .featured-badge {
+  position: absolute;
+  top: -0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--amber);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.75rem;
+  border-radius: 100px;
+  white-space: nowrap;
+}
+.leadrosetta-app .plan-name {
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.75rem;
+}
+.leadrosetta-app .pricing-card.featured .plan-name { color: rgba(255, 255, 255, 0.6); }
+.leadrosetta-app .price {
+  font-family: 'Instrument Serif', serif;
+  font-size: 2.75rem;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.25rem;
+}
+.leadrosetta-app .price-period { font-size: 0.8rem; color: var(--muted); margin-bottom: 1.5rem; }
+.leadrosetta-app .pricing-card.featured .price-period { color: rgba(255, 255, 255, 0.6); }
+.leadrosetta-app .plan-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.75rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.leadrosetta-app .plan-features li {
+  font-size: 0.875rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  line-height: 1.4;
+  color: var(--ink);
+}
+.leadrosetta-app .pricing-card.featured .plan-features li { color: rgba(255, 255, 255, 0.9); }
+.leadrosetta-app .plan-features li::before {
+  content: '✓';
+  color: var(--sage);
+  font-size: 0.8rem;
+  margin-top: 0.1rem;
+  flex-shrink: 0;
+  font-weight: 600;
+}
+.leadrosetta-app .pricing-card.featured .plan-features li::before { color: var(--amber-light); }
+.leadrosetta-app .btn-plan {
+  display: block;
+  text-align: center;
+  padding: 0.75rem 1.5rem;
+  border-radius: 100px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  border: 1.5px solid var(--border);
+  margin-top: auto;
+  color: var(--ink);
+  transition: all 0.2s;
+  width: 100%;
+}
+.leadrosetta-app .btn-plan:hover { border-color: var(--ink); }
+.leadrosetta-app .btn-plan-primary {
+  background: var(--amber);
+  color: white;
+  border-color: var(--amber);
+}
+.leadrosetta-app .btn-plan-primary:hover {
+  background: var(--amber-light);
+  border-color: var(--amber-light);
+}
+
+.leadrosetta-app .divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.leadrosetta-app .who-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin-top: 3rem;
+}
+.leadrosetta-app .who-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+.leadrosetta-app .who-icon {
+  color: var(--ink);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.leadrosetta-app .who-icon :global(svg) {
+  display: block;
+  flex-shrink: 0;
+}
+.leadrosetta-app .who-title { font-size: 0.95rem; font-weight: 500; margin-bottom: 0.4rem; }
+.leadrosetta-app .who-desc { font-size: 0.825rem; color: var(--muted); line-height: 1.55; }
+
+.leadrosetta-app .landing-footer {
+  border-top: 1px solid var(--border);
+  padding: 2rem 2.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 960px;
+  margin: 0 auto;
+}
+.leadrosetta-app .footer-note { font-size: 0.8rem; color: var(--muted); }
+.leadrosetta-app .footer-note a { color: var(--muted); text-decoration: none; }
+.leadrosetta-app .footer-note a:hover { color: var(--ink); }
+.leadrosetta-app .footer-links { display: flex; gap: 1.5rem; }
+.leadrosetta-app .footer-links a { font-size: 0.8rem; color: var(--muted); text-decoration: none; }
+.leadrosetta-app .footer-links a:hover { color: var(--ink); }
+
+@keyframes lr-fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.leadrosetta-app .hero > * { animation: lr-fadeUp 0.6s ease both; }
+.leadrosetta-app .hero > *:nth-child(1) { animation-delay: 0.05s; }
+.leadrosetta-app .hero > *:nth-child(2) { animation-delay: 0.15s; }
+.leadrosetta-app .hero > *:nth-child(3) { animation-delay: 0.25s; }
+.leadrosetta-app .hero > *:nth-child(4) { animation-delay: 0.35s; }
+.leadrosetta-app .hero > *:nth-child(5) { animation-delay: 0.4s; }
+.leadrosetta-app .hero > *:nth-child(6) { animation-delay: 0.45s; }
+.leadrosetta-app .hero > *:nth-child(7) { animation-delay: 0.5s; }
+
+/* Inner pages (try, upload, dashboard, etc.) — consistent width and padding */
+.leadrosetta-app .page-content {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 4rem 2.5rem;
+}
+
+/* ==========================================================================
+   Dashboard (shadcn-style): sidebar + main, card, bordered table
+   ========================================================================== */
+.leadrosetta-app-dashboard {
+  --sidebar-width: 16rem;
+  display: flex;
+  height: 100vh;
+  min-height: 100vh;
+  overflow: hidden;
+  background: var(--lr-dashboard-bg, #fafafa);
+  transition: --sidebar-width 0.2s ease;
+}
+.leadrosetta-app-dashboard .lr-dashboard-sidebar {
+  width: var(--sidebar-width);
+  flex-shrink: 0;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--lr-dashboard-sidebar-bg, #fff);
+  border-right: 1px solid var(--lr-dashboard-border, #e5e7eb);
+  transition: width 0.2s ease;
+  overflow: hidden;
+}
+.leadrosetta-app-dashboard .lr-dashboard-sidebar-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--lr-dashboard-border, #e5e7eb);
+}
+.leadrosetta-app-dashboard .lr-dashboard-sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: 'Instrument Serif', serif;
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: var(--ink);
+  text-decoration: none;
+  letter-spacing: -0.02em;
+}
+.leadrosetta-app-dashboard .lr-dashboard-sidebar-logo-img {
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  object-fit: contain;
+}
+.leadrosetta-app-dashboard .lr-dashboard-sidebar-logo span {
+  font-weight: 600;
+}
+.leadrosetta-app-dashboard .lr-dashboard-sidebar-nav {
+  flex: 1;
+  min-height: 0;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+.leadrosetta-app-dashboard .lr-dashboard-sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ink);
+  text-decoration: none;
+  border-radius: 0.375rem;
+  transition: color 0.15s, background 0.15s;
+}
+.leadrosetta-app-dashboard .lr-dashboard-sidebar-link-icon {
+  flex-shrink: 0;
+  width: 1.125rem;
+  height: 1.125rem;
+  opacity: 0.9;
+  color: var(--sage);
+}
+.leadrosetta-app-dashboard .lr-dashboard-sidebar-link:hover {
+  color: var(--sage);
+  background: var(--lr-dashboard-sidebar-hover, #f3f4f6);
+}
+.leadrosetta-app-dashboard .lr-dashboard-sidebar-link:hover .lr-dashboard-sidebar-link-icon {
+  color: var(--sage-light);
+}
+.leadrosetta-app-dashboard .lr-dashboard-sidebar-link-active {
+  color: var(--sage);
+  font-weight: 600;
+  background: rgba(61, 90, 62, 0.08);
+}
+.leadrosetta-app-dashboard .lr-dashboard-sidebar-link-active .lr-dashboard-sidebar-link-icon {
+  color: var(--sage);
+}
+.leadrosetta-app-dashboard .lr-dashboard-sidebar-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--lr-dashboard-border, #e5e7eb);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  position: relative;
+}
+.leadrosetta-app-dashboard .lr-dashboard-sidebar-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.leadrosetta-app-dashboard .lr-dashboard-sidebar-plan {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.leadrosetta-app-dashboard .lr-dashboard-sidebar-demos {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--sage);
+}
+.leadrosetta-app-dashboard .lr-dashboard-sidebar-upgrade {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--sage);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.leadrosetta-app-dashboard .lr-dashboard-sidebar-upgrade:hover {
+  color: var(--sage-light);
+  text-decoration: underline;
+}
+.leadrosetta-app-dashboard .lr-dashboard-sidebar-powered {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary, #6b7280);
+  text-decoration: none;
+  transition: color 0.15s;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--lr-dashboard-border, #e5e7eb);
+}
+.leadrosetta-app-dashboard .lr-dashboard-sidebar-powered:hover {
+  color: var(--ink);
+}
+.leadrosetta-app-dashboard .lr-dashboard-sidebar-email {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.leadrosetta-app-dashboard .lr-dashboard-sidebar-rail {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translateX(100%);
+  width: 1rem;
+  min-width: 1rem;
+  height: 2.5rem;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--lr-dashboard-sidebar-bg, #fff);
+  border: 1px solid var(--lr-dashboard-border, #e5e7eb);
+  border-left: none;
+  border-radius: 0 0.375rem 0.375rem 0;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  transition: color 0.15s, background 0.15s;
+}
+.leadrosetta-app-dashboard .lr-dashboard-sidebar-rail:hover {
+  color: var(--ink);
+  background: var(--lr-dashboard-sidebar-hover, #f3f4f6);
+}
+.leadrosetta-app-dashboard .lr-dashboard-sidebar-rail-icon {
+  width: 1rem;
+  height: 1rem;
+  opacity: 0.9;
+}
+.leadrosetta-app-dashboard .lr-dashboard-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+.leadrosetta-app-dashboard .lr-dashboard-topnav {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0 1rem 0 0.75rem;
+  height: 3rem;
+  border-bottom: 1px solid var(--lr-dashboard-border, #e5e7eb);
+  background: var(--lr-dashboard-bg, #fafafa);
+}
+.leadrosetta-app-dashboard .lr-dashboard-topnav-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.leadrosetta-app-dashboard .lr-dashboard-sidebar-trigger {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin: 0 0.25rem 0 0;
+  padding: 0;
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+.leadrosetta-app-dashboard .lr-dashboard-sidebar-trigger:hover {
+  color: var(--ink);
+  background: var(--lr-dashboard-sidebar-hover, #f3f4f6);
+}
+.leadrosetta-app-dashboard .lr-dashboard-breadcrumb {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+.leadrosetta-app-dashboard .lr-dashboard-breadcrumb a {
+  color: var(--sage);
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.leadrosetta-app-dashboard .lr-dashboard-breadcrumb a:hover {
+  color: var(--sage-light);
+}
+.leadrosetta-app-dashboard .lr-dashboard-breadcrumb-sep {
+  color: var(--lr-dashboard-border, #e5e7eb);
+  user-select: none;
+}
+.leadrosetta-app-dashboard .lr-dashboard-breadcrumb-current {
+  color: var(--ink);
+  font-weight: 500;
+}
+.leadrosetta-app-dashboard .lr-dashboard-topnav-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+.leadrosetta-app-dashboard .lr-dashboard-topnav-user {
+  font-size: 0.8125rem;
+  color: var(--ink);
+  max-width: 12rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.leadrosetta-app-dashboard .lr-dashboard-topnav-logout {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--sage);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.leadrosetta-app-dashboard .lr-dashboard-topnav-logout:hover {
+  color: var(--sage-light);
+}
+.leadrosetta-app-dashboard .lr-dashboard-main-content {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 1.5rem 2rem;
+}
+
+/* Dashboard content: scheme colors so links and buttons pop (sage/amber vs cream/surface) */
+.leadrosetta-app-dashboard .lr-dash-page a:not([data-slot="button"]) {
+  color: var(--sage);
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.leadrosetta-app-dashboard .lr-dash-page a:not([data-slot="button"]):hover {
+  color: var(--sage-light);
+  text-decoration: underline;
+}
+/* Ghost and outline buttons in dashboard use sage so they don't blend with bg.
+   Do not override solid CTA buttons (e.g. Create demo) that use white/light text. */
+.leadrosetta-app-dashboard .lr-dash-page [data-slot="button"]:not(.bg-primary):not(.text-white):not(.lr-dash-cta-create-demo):not([class*="text-primary-foreground"]) {
+  color: var(--sage);
+}
+.leadrosetta-app-dashboard .lr-dash-page [data-slot="button"]:not(.bg-primary):not(.text-white):not(.lr-dash-cta-create-demo):not([class*="text-primary-foreground"]):hover {
+  color: var(--sage-light);
+}
+
+/* Create demo CTA: always visible (amber + dark text + shadow). Global selector so it works
+   in portaled dialogs (content is outside .leadrosetta-app-dashboard). */
+.lr-dash-cta-create-demo {
+  background: var(--amber) !important;
+  color: #1c1917 !important;
+  border: 1px solid rgba(120, 80, 30, 0.6) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+}
+.lr-dash-cta-create-demo:hover {
+  background: var(--amber-light) !important;
+  color: #1c1917 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12) !important;
+}
+/* Table header sort buttons: ink by default, sage on hover */
+.leadrosetta-app-dashboard .lr-dash-page [data-slot="table"] th button {
+  color: var(--ink);
+  font-weight: 600;
+}
+.leadrosetta-app-dashboard .lr-dash-page [data-slot="table"] th button:hover {
+  color: var(--sage);
+}
+
+/* Dashboard: cards are borderless and shadowless by default */
+.leadrosetta-app-dashboard [data-slot="card"] {
+  border: 0;
+  box-shadow: none;
+}
+
+/* Dashboard page: content and table spacing */
+.leadrosetta-app-dashboard .lr-dash-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.leadrosetta-app-dashboard .lr-dash-page .lr-dash-card-content {
+  padding: 0 1.5rem 1.25rem 1.5rem;
+  background: var(--white, #fff);
+}
+.leadrosetta-app-dashboard .lr-dash-page [data-slot="table-container"] {
+  border-radius: 0.375rem;
+  margin: 1rem 0 1.5rem;
+  background: var(--white, #fff);
+}
+.leadrosetta-app-dashboard .lr-dash-page [data-slot="table"] th {
+  height: auto;
+  padding: 0.75rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ink);
+  text-transform: none;
+  letter-spacing: 0;
+  border-bottom: 1px solid var(--border);
+}
+.leadrosetta-app-dashboard .lr-dash-page [data-slot="table"] td {
+  padding: 0.875rem 1rem;
+  font-size: 0.875rem;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--border);
+}
+.leadrosetta-app-dashboard .lr-dash-page [data-slot="table"] tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* Collapsed state: icon-only sidebar (shadcn-style) */
+.leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-logo-img {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+.leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-logo-text {
+  overflow: hidden;
+  width: 0;
+  opacity: 0;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-header {
+  padding: 1rem;
+  justify-content: center;
+}
+.leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-logo {
+  justify-content: center;
+}
+.leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-link-label {
+  overflow: hidden;
+  width: 0;
+  opacity: 0;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-link {
+  justify-content: center;
+  padding: 0.5rem;
+}
+.leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-nav {
+  padding: 0.75rem 0.5rem;
+  align-items: center;
+}
+.leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-footer {
+  padding: 1rem 0.5rem;
+  align-items: center;
+}
+.leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-bottom {
+  overflow: hidden;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Dashboard page: shadcn-style card and table */
+.lr-dashboard-main .lr-dash-card {
+  background: #fff;
+  border: 1px solid var(--lr-dashboard-border, #e5e7eb);
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+.lr-dashboard-main .lr-dash-card-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--lr-dashboard-border, #e5e7eb);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.lr-dashboard-main .lr-dash-card-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0;
+}
+.lr-dashboard-main .lr-dash-card-description {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin: 0.25rem 0 0;
+}
+.lr-dashboard-main .lr-dash-table-wrap {
+  overflow-x: auto;
+}
+.lr-dashboard-main .lr-dash-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+.lr-dashboard-main .lr-dash-table th {
+  text-align: left;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  background: var(--lr-dashboard-th-bg, #f9fafb);
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--lr-dashboard-border, #e5e7eb);
+}
+.lr-dashboard-main .lr-dash-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--lr-dashboard-border, #e5e7eb);
+  vertical-align: middle;
+}
+.lr-dashboard-main .lr-dash-table tbody tr:hover {
+  background: var(--lr-dashboard-row-hover, #f9fafb);
+}
+.lr-dashboard-main .lr-dash-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.lr-dashboard-main .lr-dash-table th.lr-dash-table-actions,
+.lr-dashboard-main .lr-dash-table td.lr-dash-table-actions {
+  white-space: nowrap;
+  min-width: 12rem;
+  width: 1%;
+}
+.lr-dashboard-main .lr-dash-actions-group {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.25rem;
+}
+.lr-dashboard-main .lr-dash-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 9999px;
+}
+.lr-dashboard-main .lr-dash-badge-default {
+  background: var(--lr-dashboard-sidebar-hover, #f3f4f6);
+  color: var(--ink);
+}
+.lr-dashboard-main .lr-dash-badge-success {
+  background: rgba(61, 90, 62, 0.12);
+  color: var(--sage);
+}
+.lr-dashboard-main .lr-dash-badge-warning {
+  background: rgba(193, 125, 42, 0.12);
+  color: var(--amber);
+}
+.lr-dashboard-main .lr-dash-badge-muted {
+  background: var(--lr-dashboard-sidebar-hover, #f3f4f6);
+  color: var(--color-text-secondary);
+}
+.lr-dashboard-main .lr-dash-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ink);
+  background: transparent;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.lr-dashboard-main .lr-dash-btn-ghost:hover {
+  background: var(--lr-dashboard-sidebar-hover, #f3f4f6);
+}
+.lr-dashboard-main .lr-dash-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: white;
+  background: var(--amber);
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.lr-dashboard-main .lr-dash-btn-primary:hover {
+  background: var(--amber-light);
+}
+.lr-dashboard-main .lr-dash-alert {
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+.lr-dashboard-main .lr-dash-alert-success {
+  background: rgba(61, 90, 62, 0.08);
+  border: 1px solid rgba(61, 90, 62, 0.2);
+  color: var(--sage);
+}
+.lr-dashboard-main .lr-dash-alert-error {
+  background: rgba(192, 64, 64, 0.08);
+  border: 1px solid rgba(192, 64, 64, 0.2);
+  color: var(--error);
+}
+.lr-dashboard-main .lr-dash-alert-warning {
+  background: rgba(193, 125, 42, 0.08);
+  border: 1px solid rgba(193, 125, 42, 0.2);
+  color: var(--amber);
+}
+.lr-dashboard-main .lr-dash-link {
+  color: var(--sage);
+  text-decoration: none;
+}
+.lr-dashboard-main .lr-dash-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .leadrosetta-app-dashboard {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+  .leadrosetta-app-dashboard .lr-dashboard-sidebar {
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    flex-direction: row;
+    flex-wrap: wrap;
+    border-right: none;
+    border-bottom: 1px solid var(--lr-dashboard-border, #e5e7eb);
+    overflow: visible;
+  }
+  .leadrosetta-app-dashboard .lr-dashboard-sidebar-header {
+    border-bottom: none;
+  }
+  .leadrosetta-app-dashboard .lr-dashboard-sidebar-nav {
+    flex: 0;
+    flex-direction: row;
+  }
+  .leadrosetta-app-dashboard .lr-dashboard-sidebar-footer {
+    margin-left: auto;
+    border-top: none;
+    flex-direction: row;
+    align-items: center;
+  }
+  .leadrosetta-app-dashboard .lr-dashboard-sidebar-rail {
+    display: none;
+  }
+  .leadrosetta-app-dashboard .lr-dashboard-sidebar-trigger {
+    display: none;
+  }
+  .leadrosetta-app-dashboard .lr-dashboard-main {
+    min-height: 0;
+    overflow: visible;
+  }
+  .leadrosetta-app-dashboard .lr-dashboard-main-content {
+    overflow: visible;
+    padding: 1rem 1.25rem;
+  }
+  .leadrosetta-app-dashboard .lr-dashboard-topnav {
+    padding: 0.5rem 1rem;
+  }
+  /* On mobile, always show full labels (ignore collapsed state) */
+  .leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-logo-img {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+  .leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-logo-text {
+    width: auto;
+    opacity: 1;
+  }
+  .leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-link-label {
+    width: auto;
+    opacity: 1;
+  }
+  .leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-link {
+    justify-content: flex-start;
+  }
+  .leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-footer {
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 700px) {
+  .leadrosetta-app .two-col { grid-template-columns: 1fr; gap: 2rem; }
+  .leadrosetta-app .pricing-grid { grid-template-columns: 1fr; }
+  .leadrosetta-app .who-grid { grid-template-columns: 1fr 1fr; }
+  .leadrosetta-app .landing-nav { padding: 1rem 1.25rem; }
+  .leadrosetta-app .section { padding: 4rem 1.25rem; }
+  .leadrosetta-app .hero { padding: 4rem 1.25rem 3rem; }
+  .leadrosetta-app .hero-note { padding-left: 1.25rem; padding-right: 1.25rem; }
+  .leadrosetta-app .landing-footer { flex-direction: column; gap: 1rem; text-align: center; }
+  .leadrosetta-app .step-arrow { display: none; }
+  .leadrosetta-app .page-content { padding: 2rem 1.25rem; }
 }

@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lead Rosetta — Style Guide: Construction & Trades</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    /* === CONSTRUCTION PALETTE === */
+    --steel:    #1C1F22;
+    --iron:     #2A2F34;
+    --concrete: #3E444C;
+    --slate:    #6B7280;
+    --dust:     #9CA3AF;
+    --offwhite: #F0EDE8;
+    --yellow:   #F5C518;  /* safety yellow — the signature accent */
+    --yellow-d: #D4A900;
+    --accent-red: #C94A3A;  /* secondary accent (distinct from Lead Rosetta amber) */
+    --white:    #FFFFFF;
+
+    /* typography */
+    --font-display: 'Barlow Condensed', sans-serif;
+    --font-body:    'Barlow', sans-serif;
+
+    /* spacing */
+    --gap: 1.5rem;
+  }
+
+  body {
+    background: #0F1113;
+    color: var(--offwhite);
+    font-family: var(--font-body);
+    line-height: 1.5;
+  }
+
+  /* ─── STYLE GUIDE WRAPPER ─────────────────────── */
+  .sg-page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 3rem 2rem 6rem;
+  }
+
+  .sg-header {
+    border-bottom: 3px solid var(--yellow);
+    padding-bottom: 1.5rem;
+    margin-bottom: 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  .sg-title {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--white);
+  }
+
+  .sg-title span { color: var(--yellow); }
+
+  .sg-meta {
+    font-size: 0.75rem;
+    color: var(--slate);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-align: right;
+  }
+
+  .sg-section {
+    margin-bottom: 4rem;
+  }
+
+  .sg-section-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--yellow);
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .sg-section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--iron);
+  }
+
+  /* ─── COLOR SWATCHES ─────────────────────────── */
+  .swatch-row {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .swatch {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .swatch-block {
+    width: 100px;
+    height: 70px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .swatch-name {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--slate);
+  }
+
+  .swatch-hex {
+    font-size: 0.75rem;
+    color: var(--dust);
+    font-family: monospace;
+  }
+
+  /* ─── TYPOGRAPHY SPECIMENS ───────────────────── */
+  .type-specimens {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .type-row {
+    display: flex;
+    align-items: baseline;
+    gap: 2rem;
+    padding: 1.25rem;
+    background: var(--iron);
+    border-radius: 8px;
+    border-left: 3px solid var(--yellow);
+  }
+
+  .type-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--slate);
+    width: 90px;
+    flex-shrink: 0;
+  }
+
+  .type-sample-h1 {
+    font-family: var(--font-display);
+    font-size: 4rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--white);
+    line-height: 1;
+  }
+
+  .type-sample-h2 {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--offwhite);
+    line-height: 1.1;
+  }
+
+  .type-sample-h3 {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--offwhite);
+  }
+
+  .type-sample-body {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--dust);
+    line-height: 1.65;
+    max-width: 500px;
+  }
+
+  .type-sample-caption {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--slate);
+  }
+
+  /* ─── COMPONENT PREVIEWS ─────────────────────── */
+  .component-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+
+  .component-box {
+    background: var(--iron);
+    border-radius: 10px;
+    padding: 1.5rem;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .component-box-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--slate);
+    margin-bottom: 1.25rem;
+  }
+
+  /* Buttons */
+  .btn-yellow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--yellow);
+    color: var(--steel);
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.75rem 1.75rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    text-decoration: none;
+  }
+  .btn-yellow:hover { background: var(--yellow-d); transform: translateY(-1px); }
+
+  .btn-outline-white {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: transparent;
+    color: var(--white);
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.75rem 1.75rem;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+    text-decoration: none;
+    margin-left: 0.75rem;
+  }
+  .btn-outline-white:hover { border-color: var(--white); }
+
+  /* Service badge */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(245, 197, 24, 0.12);
+    border: 1px solid rgba(245, 197, 24, 0.3);
+    color: var(--yellow);
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.75rem;
+    border-radius: 3px;
+  }
+
+  /* Stat card */
+  .stat-card {
+    background: var(--steel);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-top: 3px solid var(--yellow);
+    border-radius: 6px;
+    padding: 1.25rem;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--yellow);
+    line-height: 1;
+    margin-bottom: 0.25rem;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--slate);
+  }
+
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+  }
+
+  /* Service list item */
+  .service-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0.875rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .service-item:last-child { border-bottom: none; }
+
+  .service-icon {
+    width: 36px;
+    height: 36px;
+    background: rgba(245, 197, 24, 0.1);
+    border: 1px solid rgba(245, 197, 24, 0.2);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .service-name {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--white);
+    margin-bottom: 0.2rem;
+  }
+
+  .service-desc {
+    font-size: 0.8rem;
+    color: var(--slate);
+    line-height: 1.5;
+  }
+
+  /* ─── FULL DEMO PREVIEW ──────────────────────── */
+  .demo-preview {
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .demo-browser-bar {
+    background: var(--concrete);
+    padding: 0.6rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 1px solid rgba(0,0,0,0.3);
+  }
+
+  .browser-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .bd-r { background: #ff5f56; }
+  .bd-y { background: #ffbd2e; }
+  .bd-g { background: #27c93f; }
+
+  .browser-url {
+    background: rgba(0,0,0,0.3);
+    border-radius: 4px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.7rem;
+    color: var(--slate);
+    font-family: monospace;
+    margin-left: 0.5rem;
+    flex: 1;
+    max-width: 280px;
+  }
+
+  /* The actual demo site inside the browser */
+  .demo-site {
+    background: var(--steel);
+    font-family: var(--font-body);
+  }
+
+  .demo-nav {
+    background: var(--iron);
+    padding: 0.875rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--yellow);
+  }
+
+  .demo-logo {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--white);
+  }
+  .demo-logo span { color: var(--yellow); }
+
+  .demo-nav-phone {
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--yellow);
+    text-transform: uppercase;
+  }
+
+  .demo-hero {
+    position: relative;
+    padding: 4rem 2rem 3.5rem;
+    background:
+      linear-gradient(160deg, rgba(28,31,34,0.97) 55%, rgba(42,47,52,0.85) 100%),
+      repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 2px,
+        rgba(255,255,255,0.015) 2px,
+        rgba(255,255,255,0.015) 4px
+      );
+    overflow: hidden;
+  }
+
+  /* diagonal stripe accent */
+  .demo-hero::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 6px;
+    height: 100%;
+    background: repeating-linear-gradient(
+      180deg,
+      var(--yellow) 0px,
+      var(--yellow) 24px,
+      var(--steel) 24px,
+      var(--steel) 32px
+    );
+  }
+
+  .demo-hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--yellow);
+    margin-bottom: 1rem;
+  }
+  .demo-hero-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 2px;
+    background: var(--yellow);
+  }
+
+  .demo-hero-h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2.2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    line-height: 1.0;
+    color: var(--white);
+    margin-bottom: 1.25rem;
+    max-width: 580px;
+  }
+
+  .demo-hero-h1 em {
+    font-style: normal;
+    color: var(--yellow);
+  }
+
+  .demo-hero-p {
+    font-size: 0.95rem;
+    color: var(--dust);
+    max-width: 460px;
+    line-height: 1.65;
+    margin-bottom: 2rem;
+    font-weight: 300;
+  }
+
+  .demo-hero-ctas {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .demo-trust {
+    margin-top: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .demo-trust-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    color: var(--slate);
+  }
+  .demo-trust-item::before {
+    content: '✓';
+    color: var(--yellow);
+    font-weight: 700;
+    font-size: 0.8rem;
+  }
+
+  .demo-stats {
+    background: var(--iron);
+    border-top: 1px solid rgba(255,255,255,0.05);
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--concrete);
+  }
+
+  .demo-stat {
+    background: var(--iron);
+    padding: 1.25rem 1.5rem;
+    text-align: center;
+  }
+
+  .demo-stat-num {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--yellow);
+    line-height: 1;
+    margin-bottom: 0.2rem;
+  }
+
+  .demo-stat-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--slate);
+  }
+
+  .demo-services {
+    padding: 3rem 2rem;
+    background: var(--steel);
+  }
+
+  .demo-services-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--yellow);
+    margin-bottom: 0.5rem;
+  }
+
+  .demo-services-h2 {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--white);
+    margin-bottom: 1.75rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    padding-bottom: 1.25rem;
+  }
+
+  .demo-services-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .demo-service-card {
+    background: var(--iron);
+    padding: 1.25rem;
+    display: flex;
+    gap: 0.875rem;
+    align-items: flex-start;
+    transition: background 0.15s;
+  }
+  .demo-service-card:hover { background: var(--concrete); }
+
+  .demo-service-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+
+  .demo-service-name {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--white);
+    margin-bottom: 0.25rem;
+  }
+
+  .demo-service-desc {
+    font-size: 0.78rem;
+    color: var(--slate);
+    line-height: 1.5;
+  }
+
+  .demo-cta-bar {
+    background: var(--yellow);
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .demo-cta-bar-text {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--steel);
+  }
+
+  .btn-dark {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--steel);
+    color: var(--white);
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.65rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  /* ─── USAGE NOTES ────────────────────────────── */
+  .notes-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .note-card {
+    background: var(--iron);
+    border-radius: 8px;
+    padding: 1.25rem;
+    border-left: 3px solid var(--yellow);
+  }
+
+  .note-title {
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--white);
+    margin-bottom: 0.5rem;
+  }
+
+  .note-body {
+    font-size: 0.82rem;
+    color: var(--slate);
+    line-height: 1.6;
+  }
+
+  .note-body code {
+    background: rgba(245,197,24,0.12);
+    color: var(--yellow);
+    font-family: monospace;
+    font-size: 0.8rem;
+    padding: 0.1rem 0.35rem;
+    border-radius: 3px;
+  }
+
+  /* ─── ANIMATIONS ─────────────────────────────── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .sg-header, .sg-section { animation: fadeUp 0.5s ease both; }
+  .sg-section:nth-child(2) { animation-delay: 0.08s; }
+  .sg-section:nth-child(3) { animation-delay: 0.14s; }
+  .sg-section:nth-child(4) { animation-delay: 0.2s; }
+  .sg-section:nth-child(5) { animation-delay: 0.26s; }
+  .sg-section:nth-child(6) { animation-delay: 0.32s; }
+</style>
+</head>
+<body>
+
+<div class="sg-page">
+
+  <!-- HEADER -->
+  <div class="sg-header">
+    <div class="sg-title">Lead <span>Rosetta</span> — Style Guide</div>
+    <div class="sg-meta">Industry: Construction & Trades<br>Version 1.0 · 2026</div>
+  </div>
+
+  <!-- 1. COLORS -->
+  <div class="sg-section">
+    <div class="sg-section-label">01 — Color Palette</div>
+    <div class="swatch-row">
+      <div class="swatch">
+        <div class="swatch-block" style="background:#F5C518;"></div>
+        <div class="swatch-name">Safety Yellow</div>
+        <div class="swatch-hex">#F5C518 — Primary accent</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background:#E07B2A;"></div>
+        <div class="swatch-name">Rust Orange</div>
+        <div class="swatch-hex">#E07B2A — Secondary accent</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background:#1C1F22;"></div>
+        <div class="swatch-name">Steel</div>
+        <div class="swatch-hex">#1C1F22 — Background</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background:#2A2F34;"></div>
+        <div class="swatch-name">Iron</div>
+        <div class="swatch-hex">#2A2F34 — Surface</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background:#3E444C;"></div>
+        <div class="swatch-name">Concrete</div>
+        <div class="swatch-hex">#3E444C — Dividers</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background:#6B7280;"></div>
+        <div class="swatch-name">Slate</div>
+        <div class="swatch-hex">#6B7280 — Muted text</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background:#F0EDE8; border:1px solid #3E444C;"></div>
+        <div class="swatch-name">Off-white</div>
+        <div class="swatch-hex">#F0EDE8 — Body text</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. TYPOGRAPHY -->
+  <div class="sg-section">
+    <div class="sg-section-label">02 — Typography</div>
+    <div class="type-specimens">
+      <div class="type-row">
+        <div class="type-label">H1 / Hero</div>
+        <div class="type-sample-h1">Built Tough.<br>Built Right.</div>
+      </div>
+      <div class="type-row">
+        <div class="type-label">H2 / Section</div>
+        <div class="type-sample-h2">Our Services</div>
+      </div>
+      <div class="type-row">
+        <div class="type-label">H3 / Card</div>
+        <div class="type-sample-h3">Roofing & Exteriors</div>
+      </div>
+      <div class="type-row">
+        <div class="type-label">Body</div>
+        <div class="type-sample-body">Toronto-based general contractors serving the GTA for over 15 years. We handle everything from foundation to finish — no subcontractors, no surprises.</div>
+      </div>
+      <div class="type-row">
+        <div class="type-label">Caption / Label</div>
+        <div class="type-sample-caption">Licensed · Insured · GTA Certified</div>
+      </div>
+    </div>
+    <div style="margin-top:1rem; font-size:0.78rem; color:var(--slate);">
+      Display: <strong style="color:var(--dust);">Barlow Condensed</strong> (600, 700, 800) &nbsp;·&nbsp;
+      Body: <strong style="color:var(--dust);">Barlow</strong> (300, 400, 500)
+    </div>
+  </div>
+
+  <!-- 3. COMPONENTS -->
+  <div class="sg-section">
+    <div class="sg-section-label">03 — UI Components</div>
+    <div class="component-grid">
+
+      <div class="component-box">
+        <div class="component-box-label">Buttons</div>
+        <div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;">
+          <a href="#" class="btn-yellow">Get a Free Quote →</a>
+          <a href="#" class="btn-outline-white">Our Work</a>
+        </div>
+      </div>
+
+      <div class="component-box">
+        <div class="component-box-label">Badges / Tags</div>
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+          <span class="badge">⚡ Emergency Available</span>
+          <span class="badge">✓ Licensed & Insured</span>
+          <span class="badge">📍 GTA Coverage</span>
+        </div>
+      </div>
+
+      <div class="component-box">
+        <div class="component-box-label">Stats / Social Proof</div>
+        <div class="stat-row">
+          <div class="stat-card">
+            <div class="stat-num">15+</div>
+            <div class="stat-label">Years in GTA</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">400+</div>
+            <div class="stat-label">Projects Done</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">24/7</div>
+            <div class="stat-label">Emergency Line</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="component-box">
+        <div class="component-box-label">Service List Items</div>
+        <div class="service-item">
+          <div class="service-icon">🏗️</div>
+          <div>
+            <div class="service-name">General Contracting</div>
+            <div class="service-desc">Full project management from permits to final inspection.</div>
+          </div>
+        </div>
+        <div class="service-item">
+          <div class="service-icon">🔧</div>
+          <div>
+            <div class="service-name">Emergency Repairs</div>
+            <div class="service-desc">On-site within 2 hours across the GTA, 24/7.</div>
+          </div>
+        </div>
+        <div class="service-item">
+          <div class="service-icon">🪟</div>
+          <div>
+            <div class="service-name">Window & Door</div>
+            <div class="service-desc">Supply and install, all makes and models.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 4. FULL DEMO PREVIEW -->
+  <div class="sg-section">
+    <div class="sg-section-label">04 — Demo Site Preview</div>
+    <div class="demo-preview">
+      <div class="demo-browser-bar">
+        <div class="browser-dot bd-r"></div>
+        <div class="browser-dot bd-y"></div>
+        <div class="browser-dot bd-g"></div>
+        <div class="browser-url">demo.leadrosetta.com/apex-construction-toronto</div>
+      </div>
+      <div class="demo-site">
+
+        <!-- demo nav -->
+        <div class="demo-nav">
+          <div class="demo-logo">Apex <span>Construction</span></div>
+          <div class="demo-nav-phone">📞 Call Now: (416) 555-0192</div>
+        </div>
+
+        <!-- demo hero -->
+        <div class="demo-hero">
+          <div class="demo-hero-eyebrow">Toronto & GTA · Licensed & Insured</div>
+          <h1 class="demo-hero-h1">Built Tough.<br><em>Built Right.</em><br>Built to Last.</h1>
+          <p class="demo-hero-p">Toronto's trusted general contractor for residential and commercial construction. From foundations to finishing — no surprises, on time, on budget.</p>
+          <div class="demo-hero-ctas">
+            <a href="#" class="btn-yellow">Get a Free Quote →</a>
+            <a href="#" class="btn-outline-white">See Our Work</a>
+          </div>
+          <div class="demo-trust">
+            <div class="demo-trust-item">15+ Years in GTA</div>
+            <div class="demo-trust-item">400+ Projects Completed</div>
+            <div class="demo-trust-item">24/7 Emergency Line</div>
+            <div class="demo-trust-item">WSIB Certified</div>
+          </div>
+        </div>
+
+        <!-- stats bar -->
+        <div class="demo-stats">
+          <div class="demo-stat">
+            <div class="demo-stat-num">15+</div>
+            <div class="demo-stat-label">Years Experience</div>
+          </div>
+          <div class="demo-stat">
+            <div class="demo-stat-num">400+</div>
+            <div class="demo-stat-label">Projects Done</div>
+          </div>
+          <div class="demo-stat">
+            <div class="demo-stat-num">24/7</div>
+            <div class="demo-stat-label">Emergency Service</div>
+          </div>
+          <div class="demo-stat">
+            <div class="demo-stat-num">100%</div>
+            <div class="demo-stat-label">GTA Coverage</div>
+          </div>
+        </div>
+
+        <!-- services -->
+        <div class="demo-services">
+          <div class="demo-services-label">What We Do</div>
+          <div class="demo-services-h2">Our Services</div>
+          <div class="demo-services-grid">
+            <div class="demo-service-card">
+              <div class="demo-service-icon">🏗️</div>
+              <div>
+                <div class="demo-service-name">General Contracting</div>
+                <div class="demo-service-desc">Full project management, permits, inspections. We handle everything so you don't have to.</div>
+              </div>
+            </div>
+            <div class="demo-service-card">
+              <div class="demo-service-icon">🔧</div>
+              <div>
+                <div class="demo-service-name">Emergency Repairs</div>
+                <div class="demo-service-desc">On-site within 2 hours, 24 hours a day, 7 days a week across the GTA.</div>
+              </div>
+            </div>
+            <div class="demo-service-card">
+              <div class="demo-service-icon">🪟</div>
+              <div>
+                <div class="demo-service-name">Windows & Doors</div>
+                <div class="demo-service-desc">Supply and installation. Energy-efficient options available. All makes and models.</div>
+              </div>
+            </div>
+            <div class="demo-service-card">
+              <div class="demo-service-icon">🏠</div>
+              <div>
+                <div class="demo-service-name">Renovations</div>
+                <div class="demo-service-desc">Kitchen, bathroom, basement — full residential renovation with no subcontractors.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- cta bar -->
+        <div class="demo-cta-bar">
+          <div class="demo-cta-bar-text">Ready to start your project?</div>
+          <a href="#" class="btn-dark">Book a Free Consultation →</a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. USAGE NOTES -->
+  <div class="sg-section">
+    <div class="sg-section-label">05 — Usage Notes for Lead Rosetta</div>
+    <div class="notes-grid">
+      <div class="note-card">
+        <div class="note-title">Dynamic fields to populate</div>
+        <div class="note-body">
+          Replace <code>[business_name]</code>, <code>[years_exp]</code>, <code>[service_area]</code>, <code>[phone]</code>, and <code>[services_list]</code> from the lead CSV. Hero headline stays fixed — only business name in the nav/logo changes.
+        </div>
+      </div>
+      <div class="note-card">
+        <div class="note-title">Stats defaults</div>
+        <div class="note-body">
+          If no data in CSV: use <code>15+ years</code>, <code>200+ projects</code>, <code>24/7 emergency</code>, <code>GTA coverage</code>. These are safe defaults that feel credible for any established trades business.
+        </div>
+      </div>
+      <div class="note-card">
+        <div class="note-title">Service cards</div>
+        <div class="note-body">
+          Show max 4 service cards. If CSV has more than 4 services, prioritize the first 4. Icon is auto-matched from a trades emoji map — no custom icons needed.
+        </div>
+      </div>
+      <div class="note-card">
+        <div class="note-title">CTA phone number</div>
+        <div class="note-body">
+          Always pull from CSV <code>[phone]</code> field and place in nav + CTA bar. If missing, show <code>Book a Free Quote →</code> button linking to a contact form instead.
+        </div>
+      </div>
+      <div class="note-card">
+        <div class="note-title">Dark theme rationale</div>
+        <div class="note-body">
+          Trades business owners respond to dark, heavy, confident aesthetics. It signals durability and seriousness. Do not lighten this template — the contrast is intentional and tested.
+        </div>
+      </div>
+      <div class="note-card">
+        <div class="note-title">Yellow accent rule</div>
+        <div class="note-body">
+          Safety yellow <code>#F5C518</code> is used exclusively on: primary CTA button, top stat numbers, section eyebrows, and the left-border accent stripe. Nowhere else. Overuse kills the impact.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

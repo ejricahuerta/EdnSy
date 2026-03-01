@@ -12,7 +12,7 @@ export const realEstateDemoContent = {
 		tagline: 'Your partner in finding the right place',
 		taglineWithCity: 'Real estate in {city}',
 		subtext:
-			'Buying, selling, or renting—I help you navigate the market with local knowledge and a straightforward process.',
+			'Buying, selling, or renting. I help you navigate the market with local knowledge and a straightforward process.',
 		subheadline: 'Buy • Sell • Rent. Free market evaluations. Schedule a call or viewing.',
 		trustBadges: [] as string[],
 		urgencyText: '',
@@ -112,7 +112,7 @@ export const realEstateDemoContent = {
 		items: [
 			'We have a short call or meeting to discuss your situation and goals.',
 			'You get a clear plan: search criteria, listing strategy, or next steps.',
-			'We view properties, prepare offers, or market your home—with updates at every stage.',
+			'We view properties, prepare offers, or market your home, with updates at every stage.',
 			'We close the deal together. I coordinate with lawyers, lenders, and other parties as needed.'
 		]
 	},

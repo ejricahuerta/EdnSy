@@ -14,6 +14,13 @@ export const YONGE_FINCH_MAP_EMBED_URL =
 /** Max AI chat messages per browser per day; when exceeded, show Cal.com CTA. */
 export const CHAT_DAILY_LIMIT = 10;
 
+/** Minutes before dashboard overview can be regenerated (rate limit). */
+export const OVERVIEW_REFRESH_COOLDOWN_MINUTES = 15;
+
 /** Demo phone number for all industry landings (tel: link and display). */
 export const DEMO_PHONE = '+12895135055';
 export const DEMO_PHONE_DISPLAY = '+1 (289) 513-5055';
+
+/** Legal: company name and physical address for email footers (AUP/CASL). Update with full address. */
+export const LEGAL_COMPANY_NAME = 'Ed & Sy Inc.';
+export const LEGAL_COMPANY_ADDRESS = 'Ontario, Canada';

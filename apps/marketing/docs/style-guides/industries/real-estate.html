@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lead Rosetta — Style Guide: Real Estate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --obsidian:   #0D0F0F;
+    --charcoal:   #181C1C;
+    --graphite:   #252A2A;
+    --steel:      #3A4040;
+    --pewter:     #6B7575;
+    --silver:     #9AABAB;
+    --fog:        #C8D4D4;
+    --off-white:  #F2F4F4;
+    --white:      #FFFFFF;
+    --champagne:  #D4B896;
+    --champagne-d:#B89A78;
+    --champagne-p:#F5EFE8;
+
+    --font-display: 'Libre Baskerville', serif;
+    --font-body:    'Outfit', sans-serif;
+  }
+
+  body {
+    background: var(--off-white);
+    color: var(--obsidian);
+    font-family: var(--font-body);
+    line-height: 1.6;
+  }
+
+  .sg-page { max-width: 1100px; margin: 0 auto; padding: 3rem 2rem 6rem; }
+
+  .sg-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-bottom: 1.75rem;
+    margin-bottom: 3.5rem;
+    border-bottom: 1px solid var(--fog);
+  }
+
+  .sg-eyebrow {
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--champagne-d);
+    margin-bottom: 0.5rem;
+  }
+
+  .sg-title {
+    font-family: var(--font-display);
+    font-size: 2.8rem;
+    font-weight: 400;
+    color: var(--obsidian);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .sg-title em { font-style: italic; color: var(--champagne-d); }
+
+  .sg-meta { text-align: right; font-size: 0.72rem; color: var(--pewter); letter-spacing: 0.06em; text-transform: uppercase; }
+
+  .sg-section { margin-bottom: 5rem; }
+
+  .sg-section-label {
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--champagne-d);
+    margin-bottom: 1.75rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .sg-section-label::after { content: ''; flex: 1; height: 1px; background: var(--fog); }
+
+  /* SWATCHES */
+  .swatch-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .swatch { display: flex; flex-direction: column; gap: 0.5rem; }
+  .swatch-block { width: 100px; height: 70px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.08); }
+  .swatch-name { font-size: 0.68rem; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; color: var(--pewter); }
+  .swatch-hex { font-size: 0.7rem; color: var(--silver); font-family: monospace; }
+
+  /* TYPE */
+  .type-specimens { display: flex; flex-direction: column; gap: 1.25rem; }
+  .type-row {
+    display: flex; align-items: baseline; gap: 2rem;
+    padding: 1.75rem; background: white;
+    border-radius: 10px; border: 1px solid var(--fog);
+  }
+  .type-label { font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--silver); width: 90px; flex-shrink: 0; }
+
+  .t-h1 { font-family: var(--font-display); font-size: 3.5rem; font-weight: 400; color: var(--obsidian); line-height: 1.08; letter-spacing: -0.02em; }
+  .t-h1 em { font-style: italic; color: var(--champagne-d); }
+  .t-h2 { font-family: var(--font-display); font-size: 2.2rem; font-weight: 400; color: var(--obsidian); letter-spacing: -0.02em; }
+  .t-h3 { font-family: var(--font-display); font-size: 1.3rem; font-weight: 400; font-style: italic; color: var(--pewter); }
+  .t-body { font-family: var(--font-body); font-size: 0.9rem; font-weight: 300; color: var(--pewter); max-width: 480px; line-height: 1.8; }
+  .t-caption { font-family: var(--font-body); font-size: 0.68rem; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--champagne-d); }
+
+  /* COMPONENTS */
+  .component-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+  .component-box { background: white; border-radius: 12px; padding: 1.75rem; border: 1px solid var(--fog); }
+  .component-box-label { font-size: 0.62rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--silver); margin-bottom: 1.25rem; }
+
+  .btn-obsidian {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: var(--obsidian); color: white;
+    font-family: var(--font-body); font-size: 0.8rem; font-weight: 500;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 0.85rem 2rem; border: none; border-radius: 2px;
+    cursor: pointer; transition: background 0.2s; text-decoration: none;
+  }
+  .btn-obsidian:hover { background: var(--charcoal); }
+
+  .btn-champagne {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: transparent; color: var(--obsidian);
+    font-family: var(--font-body); font-size: 0.8rem; font-weight: 500;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 0.85rem 2rem; border: 1px solid var(--champagne-d); border-radius: 2px;
+    cursor: pointer; transition: all 0.2s; text-decoration: none; margin-left: 0.75rem;
+  }
+  .btn-champagne:hover { background: var(--champagne-p); }
+
+  /* Property card */
+  .property-card {
+    background: white;
+    border: 1px solid var(--fog);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .property-img {
+    height: 140px;
+    background: linear-gradient(135deg, var(--graphite) 0%, var(--steel) 100%);
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    padding: 1rem;
+  }
+
+  .property-status {
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: var(--champagne);
+    color: var(--obsidian);
+    padding: 0.25rem 0.65rem;
+    border-radius: 2px;
+  }
+
+  .property-body { padding: 1rem; }
+
+  .property-price {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--obsidian);
+    margin-bottom: 0.2rem;
+  }
+
+  .property-address {
+    font-size: 0.8rem;
+    color: var(--pewter);
+    font-weight: 300;
+    margin-bottom: 0.75rem;
+  }
+
+  .property-stats {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.72rem;
+    color: var(--pewter);
+    font-weight: 400;
+    border-top: 1px solid var(--fog);
+    padding-top: 0.75rem;
+  }
+
+  .property-stat { display: flex; align-items: center; gap: 0.3rem; }
+
+  /* Agent card */
+  .agent-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--champagne-p);
+    border-radius: 8px;
+    border: 1px solid rgba(212,184,150,0.3);
+  }
+
+  .agent-avatar {
+    width: 52px; height: 52px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--champagne-d), var(--champagne));
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-size: 1.2rem; font-weight: 700;
+    color: white; flex-shrink: 0;
+  }
+
+  .agent-name { font-family: var(--font-display); font-size: 1rem; font-weight: 700; color: var(--obsidian); }
+  .agent-title { font-size: 0.72rem; color: var(--pewter); font-weight: 300; margin-top: 0.1rem; }
+  .agent-contact { font-size: 0.72rem; color: var(--champagne-d); font-weight: 500; margin-top: 0.3rem; letter-spacing: 0.02em; }
+
+  /* Stat pill */
+  .stat-pill {
+    display: inline-flex; flex-direction: column; align-items: center;
+    padding: 1rem 1.5rem;
+    background: var(--obsidian); border-radius: 4px;
+  }
+  .stat-pill-num { font-family: var(--font-display); font-size: 1.8rem; font-weight: 700; color: var(--champagne); line-height: 1; }
+  .stat-pill-label { font-size: 0.65rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--silver); margin-top: 0.3rem; }
+
+  /* DEMO PREVIEW */
+  .demo-preview { border: 1px solid var(--fog); border-radius: 14px; overflow: hidden; box-shadow: 0 20px 70px rgba(13,15,15,0.1); }
+
+  .demo-browser-bar { background: var(--fog); padding: 0.6rem 1rem; display: flex; align-items: center; gap: 0.5rem; }
+  .browser-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .bd-r { background: #ff5f56; } .bd-y { background: #ffbd2e; } .bd-g { background: #27c93f; }
+  .browser-url { background: rgba(255,255,255,0.6); border-radius: 4px; padding: 0.25rem 0.75rem; font-size: 0.7rem; color: var(--pewter); font-family: monospace; margin-left: 0.5rem; flex: 1; max-width: 300px; }
+
+  .demo-site { background: white; font-family: var(--font-body); }
+
+  /* Demo nav */
+  .demo-nav {
+    padding: 0 2.5rem;
+    height: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--fog);
+    background: white;
+  }
+
+  .demo-logo { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--obsidian); letter-spacing: 0.04em; text-transform: uppercase; }
+  .demo-logo span { color: var(--champagne-d); font-style: italic; font-weight: 400; font-size: 0.9rem; }
+
+  .demo-nav-links { display: flex; gap: 2rem; }
+  .demo-nav-link { font-size: 0.75rem; font-weight: 400; letter-spacing: 0.06em; color: var(--pewter); text-decoration: none; }
+  .demo-nav-cta { font-size: 0.75rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: white; background: var(--obsidian); padding: 0.5rem 1.25rem; border-radius: 2px; text-decoration: none; }
+
+  /* Demo hero — full dark with champagne accent bar */
+  .demo-hero {
+    background: var(--obsidian);
+    padding: 4rem 2.5rem 3rem;
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 2rem;
+    align-items: center;
+  }
+
+  /* subtle grid texture */
+  .demo-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  .demo-hero-eyebrow {
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--champagne);
+    margin-bottom: 1.25rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .demo-hero-eyebrow::before { content: ''; width: 32px; height: 1px; background: var(--champagne); }
+
+  .demo-hero-h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 400;
+    color: white;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.25rem;
+    position: relative;
+  }
+  .demo-hero-h1 em { font-style: italic; color: var(--champagne); }
+
+  .demo-hero-p { font-size: 0.88rem; color: var(--silver); line-height: 1.75; font-weight: 300; margin-bottom: 2rem; position: relative; max-width: 460px; }
+
+  .demo-hero-ctas { display: flex; gap: 0.75rem; flex-wrap: wrap; position: relative; }
+
+  .btn-champagne-solid {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: var(--champagne); color: var(--obsidian);
+    font-family: var(--font-body); font-size: 0.78rem; font-weight: 500;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 0.8rem 1.75rem; border: none; border-radius: 2px;
+    cursor: pointer; text-decoration: none; transition: background 0.2s;
+  }
+  .btn-champagne-solid:hover { background: var(--champagne-d); }
+
+  .btn-ghost-white {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: transparent; color: white;
+    font-family: var(--font-body); font-size: 0.78rem; font-weight: 500;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 0.8rem 1.75rem; border: 1px solid rgba(255,255,255,0.25); border-radius: 2px;
+    cursor: pointer; text-decoration: none; transition: border-color 0.2s;
+  }
+  .btn-ghost-white:hover { border-color: rgba(255,255,255,0.6); }
+
+  /* Contact card in hero */
+  .demo-hero-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .demo-hero-card-label {
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--silver);
+    margin-bottom: 1rem;
+  }
+
+  .demo-hero-card-agent {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--fog);
+  }
+
+  .demo-card-avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--champagne-d), var(--champagne));
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-size: 1rem; font-weight: 700;
+    color: white; flex-shrink: 0;
+  }
+
+  .demo-card-name { font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; color: var(--obsidian); }
+  .demo-card-title { font-size: 0.7rem; color: var(--pewter); font-weight: 300; }
+
+  .demo-card-input {
+    width: 100%; padding: 0.6rem 0.875rem;
+    border: 1px solid var(--fog); border-radius: 4px;
+    font-size: 0.8rem; color: var(--obsidian); font-family: var(--font-body);
+    background: var(--off-white); margin-bottom: 0.5rem;
+  }
+
+  .demo-card-btn {
+    width: 100%; padding: 0.7rem;
+    background: var(--obsidian); color: white;
+    font-size: 0.75rem; font-weight: 500; letter-spacing: 0.08em;
+    text-transform: uppercase; border: none; border-radius: 2px; cursor: pointer;
+    margin-top: 0.25rem;
+  }
+
+  /* Stats bar */
+  .demo-stats {
+    background: var(--charcoal);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: rgba(0,0,0,0.2);
+  }
+
+  .demo-stat-item { background: var(--charcoal); padding: 1.25rem; text-align: center; }
+  .demo-stat-num { font-family: var(--font-display); font-size: 1.7rem; font-weight: 700; color: var(--champagne); line-height: 1; margin-bottom: 0.2rem; }
+  .demo-stat-label { font-size: 0.65rem; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--silver); }
+
+  /* Listings section */
+  .demo-listings { padding: 3rem 2.5rem; background: var(--off-white); }
+
+  .demo-listings-eyebrow { font-size: 0.65rem; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--champagne-d); margin-bottom: 0.4rem; }
+  .demo-listings-h2 { font-family: var(--font-display); font-size: 1.8rem; font-weight: 400; color: var(--obsidian); margin-bottom: 1.75rem; letter-spacing: -0.01em; }
+
+  .demo-listings-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+
+  .demo-listing-card { background: white; border: 1px solid var(--fog); border-radius: 8px; overflow: hidden; }
+
+  .demo-listing-img {
+    height: 120px;
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    padding: 0.75rem;
+  }
+
+  .demo-listing-img-1 { background: linear-gradient(135deg, #2A3030 0%, #3A4848 100%); }
+  .demo-listing-img-2 { background: linear-gradient(135deg, #302A28 0%, #483830 100%); }
+  .demo-listing-img-3 { background: linear-gradient(135deg, #282A30 0%, #303848 100%); }
+
+  .demo-listing-tag {
+    font-size: 0.6rem; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: var(--champagne); color: var(--obsidian);
+    padding: 0.2rem 0.5rem; border-radius: 2px;
+  }
+
+  .demo-listing-body { padding: 0.875rem; }
+  .demo-listing-price { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; color: var(--obsidian); }
+  .demo-listing-addr { font-size: 0.72rem; color: var(--pewter); font-weight: 300; margin: 0.2rem 0 0.6rem; }
+  .demo-listing-specs { display: flex; gap: 0.75rem; font-size: 0.68rem; color: var(--pewter); border-top: 1px solid var(--fog); padding-top: 0.6rem; }
+
+  /* CTA footer */
+  .demo-cta {
+    background: var(--obsidian);
+    padding: 2rem 2.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .demo-cta-text { font-family: var(--font-display); font-size: 1.3rem; font-weight: 400; font-style: italic; color: white; }
+  .demo-cta-sub { font-size: 0.75rem; color: var(--silver); margin-top: 0.3rem; font-weight: 300; }
+
+  /* NOTES */
+  .notes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .note-card { background: white; border-radius: 10px; padding: 1.25rem; border: 1px solid var(--fog); border-left: 3px solid var(--champagne-d); }
+  .note-title { font-size: 0.8rem; font-weight: 500; color: var(--obsidian); margin-bottom: 0.5rem; }
+  .note-body { font-size: 0.8rem; color: var(--pewter); line-height: 1.65; font-weight: 300; }
+  .note-body code { background: var(--champagne-p); color: var(--umber, #6B4C3B); font-family: monospace; font-size: 0.78rem; padding: 0.1rem 0.35rem; border-radius: 3px; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  .sg-section { animation: fadeUp 0.5s ease both; }
+  .sg-section:nth-child(2) { animation-delay: 0.06s; }
+  .sg-section:nth-child(3) { animation-delay: 0.12s; }
+  .sg-section:nth-child(4) { animation-delay: 0.18s; }
+  .sg-section:nth-child(5) { animation-delay: 0.24s; }
+  .sg-section:nth-child(6) { animation-delay: 0.30s; }
+</style>
+</head>
+<body>
+<div class="sg-page">
+
+  <div class="sg-header">
+    <div>
+      <div class="sg-eyebrow">Lead Rosetta — Style Guide</div>
+      <div class="sg-title"><em>Real</em> Estate</div>
+    </div>
+    <div class="sg-meta">Industry 04 of N<br>Version 1.0 · 2026</div>
+  </div>
+
+  <!-- 1. COLORS -->
+  <div class="sg-section">
+    <div class="sg-section-label">01 — Color Palette</div>
+    <div class="swatch-row">
+      <div class="swatch"><div class="swatch-block" style="background:#0D0F0F;"></div><div class="swatch-name">Obsidian</div><div class="swatch-hex">#0D0F0F — Background</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#181C1C;"></div><div class="swatch-name">Charcoal</div><div class="swatch-hex">#181C1C — Surface</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#D4B896;"></div><div class="swatch-name">Champagne</div><div class="swatch-hex">#D4B896 — Primary accent</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#B89A78;"></div><div class="swatch-name">Champagne Dark</div><div class="swatch-hex">#B89A78 — Hover / text</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#F5EFE8; border:1px solid #e0d8d0;"></div><div class="swatch-name">Champagne Pale</div><div class="swatch-hex">#F5EFE8 — Light BG</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#6B7575;"></div><div class="swatch-name">Pewter</div><div class="swatch-hex">#6B7575 — Muted text</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#F2F4F4; border:1px solid #dce4e4;"></div><div class="swatch-name">Off White</div><div class="swatch-hex">#F2F4F4 — Page BG</div></div>
+    </div>
+  </div>
+
+  <!-- 2. TYPOGRAPHY -->
+  <div class="sg-section">
+    <div class="sg-section-label">02 — Typography</div>
+    <div class="type-specimens">
+      <div class="type-row"><div class="type-label">H1 / Hero</div><div class="t-h1">Find Your <em>Next<br>Chapter</em> Here.</div></div>
+      <div class="type-row"><div class="type-label">H2 / Section</div><div class="t-h2">Featured Listings</div></div>
+      <div class="type-row"><div class="type-label">H3 / Italic</div><div class="t-h3">Serving Toronto, Yorkville & the GTA since 2008</div></div>
+      <div class="type-row"><div class="type-label">Body</div><div class="t-body">With deep roots in Toronto's most sought-after neighbourhoods, we bring buyers and sellers together through market expertise, honest guidance, and results that speak for themselves.</div></div>
+      <div class="type-row"><div class="type-label">Caption</div><div class="t-caption">TRREB Member · Licensed RECO Agent · GTA Specialist</div></div>
+    </div>
+    <div style="margin-top:1rem; font-size:0.78rem; color:var(--pewter);">
+      Display: <strong style="color:var(--obsidian);">Libre Baskerville</strong> (400, 700 — regular & italic) &nbsp;·&nbsp;
+      Body: <strong style="color:var(--obsidian);">Outfit</strong> (300, 400, 500)
+    </div>
+  </div>
+
+  <!-- 3. COMPONENTS -->
+  <div class="sg-section">
+    <div class="sg-section-label">03 — UI Components</div>
+    <div class="component-grid">
+
+      <div class="component-box">
+        <div class="component-box-label">Buttons</div>
+        <div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;">
+          <a href="#" class="btn-obsidian">View Listings →</a>
+          <a href="#" class="btn-champagne">Book a Call</a>
+        </div>
+      </div>
+
+      <div class="component-box">
+        <div class="component-box-label">Agent Card</div>
+        <div class="agent-card">
+          <div class="agent-avatar">JM</div>
+          <div>
+            <div class="agent-name">James Mercer</div>
+            <div class="agent-title">Senior Sales Representative · TRREB</div>
+            <div class="agent-contact">📞 (416) 555-0147</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="component-box">
+        <div class="component-box-label">Property Card</div>
+        <div class="property-card">
+          <div class="property-img">
+            <span class="property-status">For Sale</span>
+          </div>
+          <div class="property-body">
+            <div class="property-price">$1,249,000</div>
+            <div class="property-address">48 Rosedale Valley Rd, Toronto</div>
+            <div class="property-stats">
+              <div class="property-stat">🛏 3 Bed</div>
+              <div class="property-stat">🚿 2 Bath</div>
+              <div class="property-stat">📐 1,850 sqft</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="component-box">
+        <div class="component-box-label">Stats / Track Record</div>
+        <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+          <div class="stat-pill"><div class="stat-pill-num">$2.1B</div><div class="stat-pill-label">Sold Volume</div></div>
+          <div class="stat-pill"><div class="stat-pill-num">340+</div><div class="stat-pill-label">Homes Sold</div></div>
+          <div class="stat-pill"><div class="stat-pill-num">98%</div><div class="stat-pill-label">List Price Achieved</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 4. DEMO PREVIEW -->
+  <div class="sg-section">
+    <div class="sg-section-label">04 — Demo Site Preview</div>
+    <div class="demo-preview">
+      <div class="demo-browser-bar">
+        <div class="browser-dot bd-r"></div><div class="browser-dot bd-y"></div><div class="browser-dot bd-g"></div>
+        <div class="browser-url">demo.leadrosetta.com/mercer-realty-toronto</div>
+      </div>
+      <div class="demo-site">
+
+        <div class="demo-nav">
+          <div class="demo-logo">Mercer <span>Realty</span></div>
+          <div class="demo-nav-links">
+            <a href="#" class="demo-nav-link">Buy</a>
+            <a href="#" class="demo-nav-link">Sell</a>
+            <a href="#" class="demo-nav-link">Listings</a>
+            <a href="#" class="demo-nav-link">About</a>
+          </div>
+          <a href="#" class="demo-nav-cta">Book a Call</a>
+        </div>
+
+        <div class="demo-hero">
+          <div style="position:relative; z-index:1;">
+            <div class="demo-hero-eyebrow">Toronto & GTA Real Estate</div>
+            <h1 class="demo-hero-h1">Find Your<br><em>Next Chapter</em><br>Here.</h1>
+            <p class="demo-hero-p">Mercer Realty brings buyers and sellers together through deep local knowledge, honest guidance, and a track record built over 15+ years in Toronto's most sought-after neighbourhoods.</p>
+            <div class="demo-hero-ctas">
+              <a href="#" class="btn-champagne-solid">View Listings →</a>
+              <a href="#" class="btn-ghost-white">Book a Free Consultation</a>
+            </div>
+          </div>
+          <div class="demo-hero-card">
+            <div class="demo-hero-card-label">Get in Touch</div>
+            <div class="demo-hero-card-agent">
+              <div class="demo-card-avatar">JM</div>
+              <div>
+                <div class="demo-card-name">James Mercer</div>
+                <div class="demo-card-title">Senior Sales Rep · RECO Licensed</div>
+              </div>
+            </div>
+            <input class="demo-card-input" placeholder="Your name" type="text">
+            <input class="demo-card-input" placeholder="Your email or phone" type="text">
+            <input class="demo-card-input" placeholder="Buying, selling, or both?" type="text">
+            <button class="demo-card-btn">Send Message →</button>
+          </div>
+        </div>
+
+        <div class="demo-stats">
+          <div class="demo-stat-item"><div class="demo-stat-num">$2.1B</div><div class="demo-stat-label">Sold Volume</div></div>
+          <div class="demo-stat-item"><div class="demo-stat-num">340+</div><div class="demo-stat-label">Homes Sold</div></div>
+          <div class="demo-stat-item"><div class="demo-stat-num">98%</div><div class="demo-stat-label">List Price Achieved</div></div>
+          <div class="demo-stat-item"><div class="demo-stat-num">15+</div><div class="demo-stat-label">Years in GTA</div></div>
+        </div>
+
+        <div class="demo-listings">
+          <div class="demo-listings-eyebrow">Active Listings</div>
+          <div class="demo-listings-h2">Featured Properties</div>
+          <div class="demo-listings-grid">
+            <div class="demo-listing-card">
+              <div class="demo-listing-img demo-listing-img-1"><span class="demo-listing-tag">For Sale</span></div>
+              <div class="demo-listing-body">
+                <div class="demo-listing-price">$1,249,000</div>
+                <div class="demo-listing-addr">48 Rosedale Valley Rd, Toronto</div>
+                <div class="demo-listing-specs"><span>🛏 3 Bed</span><span>🚿 2 Bath</span><span>📐 1,850 sqft</span></div>
+              </div>
+            </div>
+            <div class="demo-listing-card">
+              <div class="demo-listing-img demo-listing-img-2"><span class="demo-listing-tag">Just Listed</span></div>
+              <div class="demo-listing-body">
+                <div class="demo-listing-price">$879,000</div>
+                <div class="demo-listing-addr">214 Danforth Ave, East York</div>
+                <div class="demo-listing-specs"><span>🛏 2 Bed</span><span>🚿 1 Bath</span><span>📐 1,100 sqft</span></div>
+              </div>
+            </div>
+            <div class="demo-listing-card">
+              <div class="demo-listing-img demo-listing-img-3"><span class="demo-listing-tag">Sold</span></div>
+              <div class="demo-listing-body">
+                <div class="demo-listing-price">$2,150,000</div>
+                <div class="demo-listing-addr">7 Forest Hill Rd, Forest Hill</div>
+                <div class="demo-listing-specs"><span>🛏 5 Bed</span><span>🚿 4 Bath</span><span>📐 3,800 sqft</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="demo-cta">
+          <div>
+            <div class="demo-cta-text">Ready to make your move?</div>
+            <div class="demo-cta-sub">Mercer Realty · Toronto · RECO Licensed · (416) 555-0147</div>
+          </div>
+          <a href="#" class="btn-champagne-solid">Book a Free Consultation →</a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. USAGE NOTES -->
+  <div class="sg-section">
+    <div class="sg-section-label">05 — Usage Notes for Lead Rosetta</div>
+    <div class="notes-grid">
+      <div class="note-card">
+        <div class="note-title">Dynamic fields to populate</div>
+        <div class="note-body">Replace <code>[agent_name]</code>, <code>[agency_name]</code>, <code>[initials]</code>, <code>[phone]</code>, <code>[years_exp]</code>, <code>[sold_volume]</code>, <code>[homes_sold]</code>. Agent card initials auto-generated from name field.</div>
+      </div>
+      <div class="note-card">
+        <div class="note-title">Stat defaults (if CSV missing)</div>
+        <div class="note-body">Use <code>$50M+ sold</code>, <code>100+ homes</code>, <code>97% list price</code>, <code>10+ years GTA</code>. These are conservative enough to be true for almost any established Toronto agent without fabricating specific numbers.</div>
+      </div>
+      <div class="note-card">
+        <div class="note-title">Property listings</div>
+        <div class="note-body">Show 3 placeholder listing cards — always include one "Sold" to signal track record. If the agent has real listings in the CSV, pull addresses. Otherwise use realistic Toronto neighbourhood placeholders like Rosedale, Danforth, Forest Hill.</div>
+      </div>
+      <div class="note-card">
+        <div class="note-title">Contact card in hero</div>
+        <div class="note-body">The inline contact form on the hero right is the conversion mechanism. Never remove it — for real estate, the first contact is everything. Keep the three fields: name, contact, and intent (buying/selling/both).</div>
+      </div>
+      <div class="note-card">
+        <div class="note-title">Dark hero rationale</div>
+        <div class="note-body">Obsidian dark with champagne accents signals prestige and confidence. Toronto real estate buyers respond to this aesthetic — it communicates premium market positioning. Never use bright colours or gradients in this template.</div>
+      </div>
+      <div class="note-card">
+        <div class="note-title">Licence / credential rule</div>
+        <div class="note-body">Always include <code>RECO Licensed</code> and <code>TRREB Member</code> in the agent card and footer. These are trust signals every Ontario buyer looks for. If not in CSV, include both as defaults — all licensed Ontario agents have them.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

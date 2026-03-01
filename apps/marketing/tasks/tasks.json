@@ -1,0 +1,341 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Landing page and marketing site",
+        "description": "Build and maintain the marketing landing per PRD: hero, how it works, pricing, CTAs. Style guide is single source of truth; no ad-hoc typography/colors.",
+        "status": "done",
+        "priority": "high",
+        "dependencies": [],
+        "details": "Landing at / with hero, 4-step flow, problem/solution, pricing (Free/Pro/Agency), testimonials, CTAs to /try and /auth/login. Uses style guide tokens (cream, ink, sage, amber). No shadcn on landing.",
+        "testStrategy": "Visual review against style-guide.html; mobile responsiveness; CTA links to /try and /auth/login.",
+        "subtasks": []
+      },
+      {
+        "id": 2,
+        "title": "Free tier Try flow (one demo, no account)",
+        "description": "Implement free tier flow: land on /try, enter one business (form or CSV row 1), generate demo, user copies link and sends manually. No lead data stored after session.",
+        "status": "done",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "details": "/try form: company name, email, website (optional), industry, compliance confirm. Free limit enforced via cookie (getFreeBriefingsState, incrementFreeBriefings). Redirect to /{industry}/demo with prospect in cookie (setFreeDemoCookie). Privacy-first: no storage of prospect data beyond session cookie for demo view.",
+        "testStrategy": "Submit form → redirect to /construction/demo (or chosen industry); demo shows cookie data; free limit message when at limit.",
+        "subtasks": []
+      },
+      {
+        "id": 3,
+        "title": "Free tier monthly limit and at-limit UX",
+        "description": "Enforce free demo limit per month (e.g. 3 or 5); show remaining count and at-limit message with sign-in CTA.",
+        "status": "done",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "details": "freeLimit from getFreeBriefingsState(cookies); atLimit and message on try and upload; link to /auth/login for Starter/Pro.",
+        "testStrategy": "Exhaust limit → see at-limit alert and sign-in CTA.",
+        "subtasks": []
+      },
+      {
+        "id": 4,
+        "title": "Industry demo pages and templates",
+        "description": "Hosted demo pages at /{industry}/{id} following industry style guides. Lead Rosetta modal/banner use leadrosetta.html. Prospect data from connected CRM by id (provider + provider_row_id) or cookie (id=demo).",
+        "status": "done",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "details": "Routes: construction, healthcare, dental, salons, real-estate, legal, fitness, solo-professionals with [id]. getProspectForDemoPage(id, industrySlug, cookies): id=demo → getFreeDemoProspect from cookie; else getProspectById from dashboard (provider + id). Each route uses industry Landing template + content from lib/content. Layout: demo-route, demo-lr-banner (Lead Rosetta style guide).",
+        "testStrategy": "Visit /construction/demo after try flow; visit /construction/{prospectId} when logged in (prospect from connected CRM); 404 for invalid id.",
+        "subtasks": []
+      },
+      {
+        "id": 5,
+        "title": "Design system and style guides",
+        "description": "Landing and dashboard follow style guide; industry demos follow industry style guides; Lead Rosetta UI in demos follows leadrosetta.html.",
+        "status": "done",
+        "priority": "high",
+        "dependencies": [
+          1,
+          4
+        ],
+        "details": "docs/style-guides/style-guide.html, industries/*.html, leadrosetta.html. Map tokens to CSS variables; shadcn only in dashboard. INDUSTRY_THEMES, INDUSTRY_STYLE_GUIDES in lib/industries.",
+        "testStrategy": "Audit landing and one demo against style guides.",
+        "subtasks": []
+      },
+      {
+        "id": 6,
+        "title": "CSV upload page and parsing",
+        "description": "Upload CSV with business_name, website, city, services, contact_email, contact_phone. Free: first row only; Starter+ can upload. Redirect to demo for selected row.",
+        "status": "done",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "details": "/upload: parse CSV (flexible column mapping: company/name, email, website/url, industry). canUploadCsv(plan) gates access; free limit applied. setFreeDemoCookie and redirect to /{slug}/demo for chosen row.",
+        "testStrategy": "Upload CSV → see rows; create demo for one row → redirect to demo.",
+        "subtasks": []
+      },
+      {
+        "id": 7,
+        "title": "Dashboard and prospects from Notion",
+        "description": "Pro/Starter dashboard: list prospects from Notion, create demo (store demo link), copy link, open mailto/sms with demo link. CSV export.",
+        "status": "done",
+        "priority": "high",
+        "dependencies": [
+          4
+        ],
+        "details": "Dashboard loads prospects via Notion API. Create demo action builds URL origin/{slug}/{prospectId}, updates Notion Demo Link. Copy link, mailto:, sms: with demo body. Data table with shadcn; CSV export. Dashboard uses shadcn only (per marketing-shadcn-scope).",
+        "testStrategy": "Sign in → dashboard shows Notion prospects; create demo → link appears; copy and mailto/sms work.",
+        "subtasks": []
+      },
+      {
+        "id": 8,
+        "title": "Auth (Google OAuth) and session",
+        "description": "Sign-in page and Google OAuth; protect dashboard; redirect unauthenticated to /auth/login.",
+        "status": "done",
+        "priority": "high",
+        "dependencies": [],
+        "details": "/auth/login with Google button; /auth/google and /auth/google/callback. Session stored; dashboard +page.server and [id] redirect to /auth/login if not authenticated.",
+        "testStrategy": "Sign in with Google → land on dashboard; sign out → dashboard redirects to login.",
+        "subtasks": []
+      },
+      {
+        "id": 9,
+        "title": "Privacy and Terms pages",
+        "description": "Public Privacy and Terms pages; linked from try and footer. CASL/compliance note where relevant.",
+        "status": "done",
+        "priority": "medium",
+        "dependencies": [
+          1
+        ],
+        "details": "/terms exists with compliance note. /privacy linked from try page. No tracking of prospect data (free tier).",
+        "testStrategy": "Visit /terms; links from /try to /privacy and /terms work.",
+        "subtasks": []
+      },
+      {
+        "id": 10,
+        "title": "Demo view tracking API",
+        "description": "API endpoint for recording when a prospect views a demo; foundation for open/click tracking.",
+        "status": "done",
+        "priority": "medium",
+        "dependencies": [
+          4
+        ],
+        "details": "/api/demo/track: accept prospectId, event, path; log or persist for future dashboard. Used by demo pages to record view.",
+        "testStrategy": "Call track endpoint from demo page load; verify logs or DB.",
+        "subtasks": []
+      },
+      {
+        "id": 11,
+        "title": "F1 — Demo page generation (GBP-first, DataForSEO + ScrapingBee)",
+        "description": "F1: Input business name (minimum; URL optional). Data sources waterfall: (1) GBP via DataForSEO, (2) website via ScrapingBee, (3) socials via ScrapingBee, (4) Yelp/YP last resort. If all fail → flag low data, do not generate. Local cache if DataForSEO down. Target <90s per demo.",
+        "status": "done",
+        "priority": "high",
+        "dependencies": [
+          4
+        ],
+        "details": "DataForSEO GBP API primary; ScrapingBee for website + socials. Generate demo from brand colors, logo, copy, service areas, real review quotes, SEO gap analysis. Output: hosted demo at unique URL. Data cached locally. No Yellow Pages as primary.",
+        "testStrategy": "Business name only → demo generated from GBP; <90s; cache serves when API unavailable.",
+        "subtasks": []
+      },
+      {
+        "id": 12,
+        "title": "F2 — CSV upload with AI mapping",
+        "description": "Any .csv: AI reads headers + sample rows, auto-maps to business_name, contact_name, email, phone, location, website, industry. User confirmation screen; approve or adjust. Auto-clean: duplicates, phone format, email validation, trim. Preview: e.g. 47 valid, 3 duplicates removed, 5 missing emails flagged. Free: first row only; Starter+: within plan.",
+        "status": "pending",
+        "priority": "high",
+        "dependencies": [
+          6
+        ],
+        "details": "AI mapping to Lead Rosetta fields; unrecognized columns user assigns or skips. After mapping: strip duplicates, standardize phone, validate email, flag missing critical fields. Show count before generating.",
+        "testStrategy": "Upload arbitrary CSV → AI suggests mapping → confirm → see cleaned preview; Free gets row 1 only.",
+        "subtasks": []
+      },
+      {
+        "id": 13,
+        "title": "F3 — Review and approve queue (hard gate)",
+        "description": "Grid view of generated demos with confidence score visible. Inline edit name, services, location, headline, AI content. Review & approve is a hard gate — no demo sent without user approval. Disclaimer on every demo. Status: Draft/Approved/Sent/Opened/Replied. Bulk approve; single-click send or schedule.",
+        "status": "done",
+        "priority": "high",
+        "dependencies": [
+          7
+        ],
+        "details": "Show data confidence score per demo. Disclaimer: This demo was built from public data. Review all content before sending to ensure accuracy. No send without approval.",
+        "testStrategy": "Queue shows confidence; cannot send without approve; disclaimer visible on demo.",
+        "subtasks": []
+      },
+      {
+        "id": 14,
+        "title": "F4 — Email template suite (cold, follow-up, SMS)",
+        "description": "Every demo produces three ready-to-copy templates: cold outreach email, follow-up email, SMS nudge. Auto-populated: prospect first name, business name, demo link, sender name, one personalized line from scraped data. Users copy into own tool (Instantly, Smartlead, Gmail). Resend for transactional/notification emails only; Lead Rosetta does not own cold send.",
+        "status": "done",
+        "priority": "high",
+        "dependencies": [
+          7,
+          13
+        ],
+        "details": "Default cold subject: I built something for [Business Name]. Personalized line logic: no website, unanswered reviews, missing GBP, low photos. Follow-up Day 3-5; SMS optional. Unsubscribe link on demo page.",
+        "testStrategy": "Generate demo → three templates visible; copy works; Resend used only for notifications.",
+        "subtasks": []
+      },
+      {
+        "id": 15,
+        "title": "F5 — Demo intelligence dashboard (Pro+)",
+        "description": "Per-demo: Viewed, time on page, sections visited, return visits. Hot lead trigger: 2+ minutes on page = sender notification (e.g. True North Builders viewed 6 min). Real-time sender notifications. Dashboard: open tracking, time-on-page, return visits, hot lead alerts. Primary retention mechanic.",
+        "status": "done",
+        "priority": "high",
+        "dependencies": [
+          10,
+          14
+        ],
+        "details": "Tracked demo URLs. Persist view, duration, scroll/sections, return count. Notify sender when prospect hits 2+ min. Replied = manual or CRM sync.",
+        "testStrategy": "Open demo → dashboard shows viewed + time; 2+ min triggers notification.",
+        "subtasks": []
+      },
+      {
+        "id": 16,
+        "title": "Pro tier enforcement and plans",
+        "description": "Enforce plan limits per PRD: Starter 30 demos/month, Pro 100/month, Agency unlimited; CSV and send gated by tier. Plan from auth/session or Stripe.",
+        "status": "done",
+        "priority": "high",
+        "dependencies": [
+          8
+        ],
+        "details": "getPlanTier(user) in use for upload. getDemoCreationLimit(plan): Starter 30, Pro 100, Agency null (unlimited). canSendAutomated(plan): Pro and Agency only (Resend for notifications; cold email = user's own tool). Dashboard shows plan and usage; generateDemo returns 403 when at limit. Stripe integration is Task 17.",
+        "testStrategy": "Free user cannot access dashboard/Pro features; Starter at 30 demos/month gets 403; Pro at 100 gets 403; Agency unlimited. Starter: manual copy link + template.",
+        "subtasks": []
+      },
+      {
+        "id": 17,
+        "title": "Stripe payments and Pro subscription",
+        "description": "Stripe integration for Starter ($49), Pro ($99), and Agency ($299). Subscribe → set plan tier; cancel → downgrade.",
+        "status": "in-progress",
+        "priority": "high",
+        "dependencies": [
+          8,
+          16
+        ],
+        "details": "Checkout for Pro; webhook for subscription created/cancelled. Store subscription status; map to plan tier in app.",
+        "testStrategy": "Complete test checkout → user has Pro; cancel → reverted to free.",
+        "subtasks": []
+      },
+      {
+        "id": 18,
+        "title": "CRM connectors (Pro v1.1)",
+        "description": "Connect HubSpot, GoHighLevel, Pipedrive, or Notion (Pro); sync leads to prospects; optional reply sync for F5. Priority: GoHighLevel first, then HubSpot.",
+        "status": "pending",
+        "priority": "low",
+        "dependencies": [
+          7,
+          16
+        ],
+        "details": "OAuth or API key for CRM. Contacts synced keyed by provider + provider_row_id. Replied status from CRM webhook or poll. PRD: CRM is Pro stretch goal; GHL most common in agency world.",
+        "testStrategy": "Connect CRM → prospects appear in dashboard; reply in CRM updates status.",
+        "subtasks": []
+      },
+      {
+        "id": 19,
+        "title": "F1a — Data confidence scoring",
+        "description": "Before generating a demo, score prospect data quality: GBP verified 30, 5+ reviews 25, website exists 20, photos 15, social 10. 80–100: full demo; 50–79: partial, flag for review; below 50: do not generate, notify user with reason. Show score to user (e.g. 85% complete — high confidence).",
+        "status": "pending",
+        "priority": "high",
+        "dependencies": [
+          11
+        ],
+        "details": "Calculate score from scraped signals. Display in UI and review queue. Block generation below 50; show reason. PRD target: avg 70%+ across demos.",
+        "testStrategy": "Low-data prospect → no generate + message; 50–79 → demo + flag; 80+ → auto generate.",
+        "subtasks": []
+      },
+      {
+        "id": 20,
+        "title": "F1b — Pain modal and sticky CTA on demo pages",
+        "description": "Every demo page: (1) Pain modal on load — 1s delay, force-read 4s, red/amber/green for website, reviews, GBP, service pages; CTA See what it looks like fixed; session cookie so no re-trigger on refresh. (2) Sticky CTA bar: Want this live in 48 hours? Reply to [sender name] / Book a call; mobile-first. (3) Footer: Lead Rosetta subtle branding.",
+        "status": "pending",
+        "priority": "high",
+        "dependencies": [
+          4
+        ],
+        "details": "Structure per PRD F1b: pain modal, hero, full demo content, sticky CTA (sender name dynamic), footer. Use leadrosetta.html for Lead Rosetta UI.",
+        "testStrategy": "Load demo → pain modal appears; dismiss; sticky CTA visible; refresh does not re-show modal.",
+        "subtasks": []
+      },
+      {
+        "id": 21,
+        "title": "F6 — On-demand data refresh",
+        "description": "Show data freshness per lead (e.g. Last scraped: 3 days ago / 45 days ago). One-click refresh: re-scrape via DataForSEO; demo regenerates with fresh data. ~$0.003 cost per refresh.",
+        "status": "pending",
+        "priority": "medium",
+        "dependencies": [
+          11,
+          7
+        ],
+        "details": "Store last_scraped_at; display in dashboard and lead detail. Refresh button calls DataForSEO, then regenerate demo content.",
+        "testStrategy": "Click refresh → new scrape; demo content and freshness label update.",
+        "subtasks": []
+      },
+      {
+        "id": 22,
+        "title": "F7 — Deliverability pre-send checklist",
+        "description": "Before any demo is sent, surface checklist: domain warmed up (2+ weeks), SPF/DKIM, under 50 emails/day on new domain, subject line free of spam words. Warning if user skips. Link to deliverability guide in onboarding.",
+        "status": "pending",
+        "priority": "medium",
+        "dependencies": [
+          13
+        ],
+        "details": "Checklist UI (modal or inline) before copy/send. Skip shows warning. Onboarding and help link to deliverability guide.",
+        "testStrategy": "Attempt send → checklist shown; skip → warning; complete → proceed.",
+        "subtasks": []
+      },
+      {
+        "id": 23,
+        "title": "3-step onboarding flow (first demo in session)",
+        "description": "Step 1: Welcome (30s) — Lead Rosetta works in 3 steps. Step 2: Generate sample demo — type any local business name, watch output. Step 3: Send first real demo — add prospect name/email, generate, get email template. Goal: first demo sent = activated user.",
+        "status": "pending",
+        "priority": "high",
+        "dependencies": [
+          2,
+          14
+        ],
+        "details": "Onboarding route or modal sequence. Track completion; first demo sent = activation. Per PRD Section 5.4.",
+        "testStrategy": "New user → sees 3 steps; complete step 2 and 3 → activated.",
+        "subtasks": []
+      },
+      {
+        "id": 24,
+        "title": "Compliance: ToS, signup checkbox, unsubscribe link",
+        "description": "Checkbox on signup: I confirm I am responsible for ensuring my outreach complies with applicable laws. ToS line (Termly.io): Lead Rosetta is a demo generation tool; users solely responsible for anti-spam/data protection. Unsubscribe link on every demo page: Not interested? Click here to never receive a demo from this sender again.",
+        "status": "pending",
+        "priority": "high",
+        "dependencies": [
+          8,
+          9
+        ],
+        "details": "Signup flow checkbox; ToS + Privacy Policy via Termly.io. Unsubscribe link auto-appended on demo pages; handle opt-out (store or redirect). CASL/GDPR: transfer liability to user.",
+        "testStrategy": "Signup shows checkbox; ToS/privacy live; demo page shows unsubscribe link.",
+        "subtasks": []
+      },
+      {
+        "id": 25,
+        "title": "Agency tier: Contact us CTA (no self-serve)",
+        "description": "Agency ($299) requires contacting us; no self-serve signup. Replace any waitlist with Contact us CTA: mailto with subject Lead Rosetta Agency plan. Always available.",
+        "status": "pending",
+        "priority": "medium",
+        "dependencies": [
+          1,
+          16
+        ],
+        "details": "Pricing/landing: Agency card shows Contact us button (mailto), not Sign up. Remove waitlist logic if present.",
+        "testStrategy": "Agency plan shows Contact us; mailto opens with correct subject.",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "created": "2026-03-01T01:23:10.021Z",
+      "updated": "2026-03-01T02:47:21.221Z",
+      "description": "Tasks for master context"
+    }
+  }
+}

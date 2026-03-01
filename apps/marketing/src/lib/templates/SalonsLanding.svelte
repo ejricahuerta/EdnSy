@@ -1,7 +1,10 @@
 <script lang="ts">
 	import { CAL_COM_LINK, DEMO_PHONE, YONGE_FINCH_MAP_EMBED_URL } from '$lib/constants';
 	import ChatWidget from '$lib/components/ChatWidget.svelte';
+	import AuditModal from '$lib/components/demo/AuditModal.svelte';
+	import DemoTracking from '$lib/components/demo/DemoTracking.svelte';
 	import { salonsDemoContent } from '$lib/content/salons';
+	import type { DemoAudit } from '$lib/types/demo';
 	import {
 		Scissors,
 		Sparkles,
@@ -27,13 +30,21 @@
 		website = '',
 		address = '',
 		city = '',
-		industrySlug = 'salons'
+		industrySlug = 'salons',
+		senderName = '',
+		audit = null as DemoAudit | null | undefined,
+		prospectId = '',
+		dataConfidenceScore
 	}: {
 		companyName?: string;
 		website?: string;
 		address?: string;
 		city?: string;
 		industrySlug?: string;
+		senderName?: string;
+		audit?: DemoAudit | null;
+		prospectId?: string;
+		dataConfidenceScore?: number;
 	} = $props();
 
 	const content = salonsDemoContent;
@@ -54,18 +65,18 @@
 </script>
 
 <div class="salons-landing flex flex-col min-h-screen">
-	<!-- Header -->
+	<!-- Contents nav: document/company name only (Lead Rosetta banner: urgency + Try free; Reply / Book a call in sticky CTA) -->
 	<header class="sticky top-0 z-50 bg-base-100/95 backdrop-blur-md border-b border-base-300/80 shadow-sm">
-		<nav class="navbar min-h-16 lg:min-h-[4.25rem] w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 gap-2">
-			<div class="navbar-start flex-1 min-w-0">
-				<a href="/" class="text-lg sm:text-xl font-bold text-base-content truncate tracking-tight hover:text-primary transition-colors">{displayName}</a>
+		<nav class="demo-nav min-h-16 lg:min-h-[4.25rem] w-full landing-container gap-2 flex-wrap sm:flex-nowrap">
+			<div class="demo-nav-start flex-1 min-w-0">
+				<a href="#" class="text-lg sm:text-xl font-bold text-base-content truncate tracking-tight hover:text-primary transition-colors">{displayName}</a>
 			</div>
-			<div class="navbar-end flex-none">
+			<div class="demo-nav-end shrink-0">
 				<a
 					href={CAL_COM_LINK}
 					target="_blank"
 					rel="noopener noreferrer"
-					class="btn btn-primary btn-sm sm:btn-md shadow-sm hover:shadow transition-shadow"
+					class="demo-btn demo-btn-primary demo-btn-sm sm:demo-btn-md"
 				>
 					{content.header.ctaLabel}
 				</a>
@@ -73,7 +84,7 @@
 		</nav>
 	</header>
 
-	<main class="flex-1">
+	<main class="flex-1 pb-20 md:pb-24">
 		<!-- Hero -->
 		<section
 			class="relative min-h-[80vh] flex flex-col justify-end pb-16 md:pb-24 pt-24 md:pt-32"
@@ -86,9 +97,9 @@
 				aria-label={content.hero.imageAlt}
 			></div>
 			<div class="absolute inset-0 bg-gradient-to-t from-base-content/80 via-base-content/50 to-base-content/40"></div>
-			<div class="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-base-100">
+			<div class="relative z-10 landing-hero-inner text-center text-base-100">
 				{#if content.hero.badge && !city}
-					<span class="badge badge-primary badge-lg mb-5 shadow-lg border-0">{content.hero.badge}</span>
+					<span class="demo-badge demo-badge-primary demo-badge-lg mb-5 shadow-lg border-0">{content.hero.badge}</span>
 				{/if}
 				<h1 id="hero-heading" class="text-4xl md:text-6xl lg:text-7xl font-bold mb-4 drop-shadow-lg tracking-tight leading-tight">
 					{heroHeadline}
@@ -104,7 +115,7 @@
 						href={CAL_COM_LINK}
 						target="_blank"
 						rel="noopener noreferrer"
-						class="btn btn-primary btn-lg text-primary-content gap-2 shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5"
+						class="demo-btn demo-btn-primary demo-btn-lg text-primary-content gap-2 shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5"
 					>
 						{content.hero.ctaPrimary}
 						<ArrowRight class="w-5 h-5" />
@@ -112,7 +123,7 @@
 					{#if content.hero.ctaSecondary}
 						<a
 							href="#services"
-							class="btn btn-outline btn-lg border-2 border-base-100 text-base-100 hover:bg-base-100 hover:text-base-content gap-2 transition-all hover:-translate-y-0.5"
+							class="demo-btn demo-btn-outline demo-btn-lg border-2 border-base-100 text-base-100 hover:bg-base-100 hover:text-base-content gap-2 transition-all hover:-translate-y-0.5"
 						>
 							{content.hero.ctaSecondary}
 							<ArrowRight class="w-5 h-5" />
@@ -132,7 +143,7 @@
 
 		<!-- Why choose us -->
 		<section class="py-16 md:py-24 bg-base-100" aria-labelledby="why-heading">
-			<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+			<div class="landing-container">
 				<header class="text-center mb-14">
 					<h2 id="why-heading" class="section-heading mx-auto mb-4">
 						{content.whyUs.heading}
@@ -156,7 +167,7 @@
 
 		<!-- Services -->
 		<section id="services" class="py-20 md:py-28 bg-base-200/50" aria-labelledby="services-heading">
-			<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+			<div class="landing-container">
 				<header class="text-center mb-14">
 					<h2 id="services-heading" class="section-heading mx-auto mb-4">
 						{content.services.heading}
@@ -168,18 +179,18 @@
 				<div class="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10">
 					{#each content.services.items as service}
 						{@const Icon = serviceIcons[service.icon as keyof typeof serviceIcons] ?? Scissors}
-						<div class="card bg-base-100 shadow-md border border-base-300/80 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-primary/30 flex flex-col">
-							<div class="card-body p-6 md:p-8 flex flex-col flex-1">
+						<div class="demo-card bg-base-100 shadow-md border border-base-300/80 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-primary/30 flex flex-col">
+							<div class="demo-card-body p-6 md:p-8 flex flex-col flex-1">
 								<div class="rounded-xl bg-primary/10 w-fit p-3.5 text-primary mb-5" aria-hidden="true">
 									<Icon class="w-8 h-8" />
 								</div>
-								<h3 class="card-title text-lg md:text-xl text-base-content mb-3">{service.title}</h3>
+								<h3 class="demo-card-title text-lg md:text-xl text-base-content mb-3">{service.title}</h3>
 								<p class="text-base-content/80 text-[15px] leading-relaxed flex-1">{service.description}</p>
 								<a
 									href={CAL_COM_LINK}
 									target="_blank"
 									rel="noopener noreferrer"
-									class="btn btn-primary btn-sm mt-6 gap-2 w-fit transition-all hover:gap-3"
+									class="demo-btn demo-btn-primary demo-btn-sm mt-6 gap-2 w-fit transition-all hover:gap-3"
 								>
 									{content.header.ctaLabel}
 									<ArrowRight class="w-4 h-4" />
@@ -193,7 +204,7 @@
 
 		<!-- About -->
 		<section id="about" class="py-20 md:py-28 bg-base-100" aria-labelledby="about-heading">
-			<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+			<div class="landing-container">
 				<div class="grid grid-cols-1 lg:grid-cols-2 gap-14 lg:gap-20 items-center">
 					<div class="lg:pr-4">
 						<h2 id="about-heading" class="section-heading mb-6">
@@ -228,7 +239,7 @@
 
 		<!-- Your first visit -->
 		<section id="new-patients" class="py-20 md:py-28 bg-base-200/50" aria-labelledby="new-patients-heading">
-			<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+			<div class="landing-container">
 				<header class="text-center mb-12">
 					<h2 id="new-patients-heading" class="section-heading mx-auto mb-4">
 						{content.newPatients.heading}
@@ -259,7 +270,7 @@
 								href={CAL_COM_LINK}
 								target="_blank"
 								rel="noopener noreferrer"
-								class="btn btn-primary btn-lg gap-2 shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 w-full"
+								class="demo-btn demo-btn-primary demo-btn-lg gap-2 shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 w-full"
 							>
 								{content.newPatients.ctaLabel}
 								<ArrowRight class="w-5 h-5" />
@@ -271,13 +282,13 @@
 						<div class="grid grid-cols-1 gap-6">
 							{#each content.newPatients.steps as step, i}
 								{@const StepIcon = [Calendar, FileCheck, ClipboardList][i] ?? ClipboardList}
-								<div class="card bg-base-100 shadow-md border border-base-300/80 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-									<div class="card-body p-6 md:p-6 flex flex-row gap-4">
+								<div class="demo-card bg-base-100 shadow-md border border-base-300/80 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+									<div class="demo-card-body p-6 md:p-6 flex flex-row gap-4">
 										<div class="rounded-xl bg-primary/10 w-fit h-fit p-3 text-primary shrink-0" aria-hidden="true">
 											<StepIcon class="w-7 h-7" />
 										</div>
 										<div class="min-w-0">
-											<h3 class="card-title text-lg mb-2">{step.title}</h3>
+											<h3 class="demo-card-title text-lg mb-2">{step.title}</h3>
 											<p class="text-base-content/80 text-[15px] leading-relaxed">{step.description}</p>
 										</div>
 									</div>
@@ -293,7 +304,7 @@
 							href={CAL_COM_LINK}
 							target="_blank"
 							rel="noopener noreferrer"
-							class="btn btn-primary btn-lg gap-2 shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5"
+							class="demo-btn demo-btn-primary demo-btn-lg gap-2 shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5"
 						>
 							{content.newPatients.ctaLabel}
 							<ArrowRight class="w-5 h-5" />
@@ -325,7 +336,7 @@
 
 		<!-- Testimonials -->
 		<section class="py-20 md:py-28 bg-base-200/50" aria-labelledby="testimonials-heading">
-			<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+			<div class="landing-container">
 				<header class="text-center mb-12">
 					<h2 id="testimonials-heading" class="section-heading mx-auto mb-4">
 						{content.testimonials.heading}
@@ -347,8 +358,8 @@
 				</header>
 				<div class="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10">
 					{#each content.testimonials.items as t}
-						<div class="card bg-base-100 shadow-md border border-base-300/80 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col">
-							<div class="card-body p-6 md:p-8 flex flex-col flex-1">
+						<div class="demo-card bg-base-100 shadow-md border border-base-300/80 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col">
+							<div class="demo-card-body p-6 md:p-8 flex flex-col flex-1">
 								<div class="flex gap-1 mb-3" aria-hidden="true">
 									{#each Array.from({ length: t.rating ?? 5 }) as _}
 										<Star class="w-4 h-4 fill-primary text-primary shrink-0" />
@@ -393,7 +404,7 @@
 
 		<!-- Contact -->
 		<section id="contact" class="py-20 md:py-28 bg-base-200/50" aria-labelledby="contact-heading">
-			<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+			<div class="landing-container">
 				<header class="text-center mb-14">
 					<h2 id="contact-heading" class="section-heading mx-auto mb-4">
 						{content.contact.heading}
@@ -447,7 +458,7 @@
 							href={CAL_COM_LINK}
 							target="_blank"
 							rel="noopener noreferrer"
-							class="btn btn-primary gap-2 inline-flex shadow-md hover:shadow-lg transition-all mt-2"
+							class="demo-btn demo-btn-primary gap-2 inline-flex shadow-md hover:shadow-lg transition-all mt-2"
 						>
 							{content.contact.ctaLabel}
 							<ArrowRight class="w-4 h-4" />
@@ -481,7 +492,7 @@
 					href={CAL_COM_LINK}
 					target="_blank"
 					rel="noopener noreferrer"
-					class="btn btn-neutral btn-lg gap-2 shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5"
+					class="demo-btn demo-btn-neutral demo-btn-lg gap-2 shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5"
 				>
 					{content.cta.button}
 					<ArrowRight class="w-5 h-5" />
@@ -496,9 +507,14 @@
 		</section>
 	</main>
 
+	<AuditModal businessName={displayName} {audit} {dataConfidenceScore} />
+	{#if prospectId}
+		<DemoTracking {prospectId} />
+	{/if}
+
 	<!-- Footer -->
 	<footer class="bg-base-200 text-base-content border-t border-base-300">
-		<div class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20">
+		<div class="w-full landing-container py-14 md:py-20">
 			<div class="grid grid-cols-1 sm:grid-cols-2 gap-12 lg:gap-16">
 				<div>
 					<h3 class="font-semibold text-base-content mb-5 text-sm uppercase tracking-wider opacity-90">
@@ -521,7 +537,7 @@
 						href={CAL_COM_LINK}
 						target="_blank"
 						rel="noopener noreferrer"
-						class="btn btn-primary gap-2 shadow-sm hover:shadow transition-shadow"
+						class="demo-btn demo-btn-primary gap-2 shadow-sm hover:shadow transition-shadow"
 					>
 						{content.footer.ctaLabel}
 						<ArrowRight class="w-4 h-4" />
@@ -531,14 +547,23 @@
 		</div>
 
 		<div class="border-t border-base-300 px-4 py-6">
-			<div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-base-content/60">
-				<p>© {new Date().getFullYear()} {displayName}. {content.footer.copyright}</p>
-				<p>Powered by Ed & Sy Inc.</p>
+			<div class="landing-container flex flex-col gap-3 text-sm text-base-content/60">
+				<p class="text-center sm:text-left">
+					Not interested?
+					<a href="/unsubscribe?prospect={prospectId || 'demo'}" class="link link-hover text-primary font-medium">Click here to never receive a demo from this sender again.</a>
+				</p>
+				<div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+					<p>© {new Date().getFullYear()} {displayName}. {content.footer.copyright}</p>
+					<p class="lr-brand lr-from-platform lr-footer-platform opacity-80 pl-3 sm:pl-4">
+						<span class="lr-platform-label mr-2" aria-hidden="true">Lead Rosetta</span>
+						Powered by <a href="/" class="link link-hover">Lead Rosetta</a> · Ed & Sy Inc.
+					</p>
+				</div>
 			</div>
 		</div>
 	</footer>
 
-	<ChatWidget industrySlug={industrySlug} displayName={displayName} />
+	<ChatWidget industrySlug={industrySlug} displayName={displayName} prospectId={prospectId} />
 </div>
 
 {#if website}

@@ -28,7 +28,7 @@ export const fitnessDemoContent = {
 			{
 				title: 'Expert coaches',
 				description:
-					'Certified trainers who scale workouts to your level. Form and safety come first—then intensity.'
+					'Certified trainers who scale workouts to your level. Form and safety come first, then intensity.'
 			},
 			{
 				title: 'Inclusive vibe',
@@ -71,11 +71,11 @@ export const fitnessDemoContent = {
 		subtext:
 			'We\'re a local gym and studio built on community. Our mission is to make fitness accessible, effective, and something you actually enjoy.',
 		subtext2:
-			'We welcome beginners and experienced athletes. Every class can be scaled—you work at your level and progress from there.',
+			'We welcome beginners and experienced athletes. Every class can be scaled. You work at your level and progress from there.',
 		bullets: [
 			'Certified, experienced coaches in every class.',
 			'Clean facility and well-maintained equipment.',
-			'No long-term contract required—month-to-month available.'
+			'No long-term contract required. Month-to-month available.'
 		],
 		image: 'https://images.unsplash.com/photo-1581009146145-b5ef050c149e?w=800&q=80',
 		imageAlt: 'Gym interior and equipment'
@@ -167,7 +167,7 @@ export const fitnessDemoContent = {
 		heading: 'Frequently asked questions',
 		items: [
 			{ q: 'Is the first class really free?', a: 'Yes. New members can try one class free. We\'ll send a waiver to complete before you come. No obligation to join.' },
-			{ q: 'Do I need to be in shape to start?', a: 'No. All levels are welcome. Coaches scale every workout—you work at your pace and build from there.' },
+			{ q: 'Do I need to be in shape to start?', a: 'No. All levels are welcome. Coaches scale every workout. You work at your pace and build from there.' },
 			{ q: 'How do I book a class?', a: 'Use the "Book a class" button, call, or drop in. We recommend booking in advance so we save you a spot.' },
 			{ q: 'What are the membership options?', a: 'We have drop-ins, class packs, and monthly memberships. No long-term contract for standard memberships. Details at the front desk or by phone.' }
 		]

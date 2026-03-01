@@ -2,14 +2,18 @@
 	import { tick } from 'svelte';
 	import { CAL_COM_LINK, CHAT_DAILY_LIMIT } from '$lib/constants';
 	import { formatChatMessage } from '$lib/formatChatMessage';
-	import { MessageCircle, X, Send, Calendar } from 'lucide-svelte';
+	import { trackDemoEvent } from '$lib/demoTracking';
+	import CallbackDialog from '$lib/components/demo/CallbackDialog.svelte';
+	import { MessageCircle, X, Send, Calendar, Phone } from 'lucide-svelte';
 
 	let {
 		industrySlug = 'healthcare',
-		displayName = ''
+		displayName = '',
+		prospectId = ''
 	}: {
 		industrySlug: string;
 		displayName?: string;
+		prospectId?: string;
 	} = $props();
 
 	let open = $state(false);
@@ -20,6 +24,9 @@
 	let lockedMessage = $state('');
 	let messagesEnd: HTMLDivElement | null = $state(null);
 	let scrollArea: HTMLDivElement | null = $state(null);
+	let callbackDialogOpen = $state(false);
+	let chatOpenedTracked = $state(false);
+	let callbackOpenedTracked = $state(false);
 
 	$effect(() => {
 		if (!open) return;
@@ -27,6 +34,21 @@
 		tick().then(() => {
 			messagesEnd?.scrollIntoView({ behavior: 'smooth', block: 'end' });
 		});
+	});
+
+	$effect(() => {
+		if (open && prospectId && !chatOpenedTracked) {
+			chatOpenedTracked = true;
+			trackDemoEvent(prospectId, 'chat_opened');
+		}
+	});
+
+	$effect(() => {
+		if (callbackDialogOpen && prospectId && !callbackOpenedTracked) {
+			callbackOpenedTracked = true;
+			trackDemoEvent(prospectId, 'callback_opened');
+		}
+		if (!callbackDialogOpen) callbackOpenedTracked = false;
 	});
 
 	async function send() {
@@ -67,6 +89,9 @@
 			}
 
 			messages = [...messages, { role: 'assistant', content: data.content ?? '' }];
+			if (prospectId) {
+				trackDemoEvent(prospectId, 'chat_message_sent', { message_count: messages.length });
+			}
 		} catch {
 			messages = [...messages, { role: 'assistant', content: 'Unable to send. Check your connection and try again.' }];
 		} finally {
@@ -156,20 +181,20 @@
 					</a>
 				</div>
 			{:else}
-				<div class="p-3 border-t border-base-300">
-					<div class="flex gap-2">
-						<input
-							type="text"
-							class="input input-bordered input-sm flex-1"
+				<div class="chat-widget-footer">
+					<div class="chat-widget-input-row">
+						<textarea
+							class="chat-widget-textarea"
 							placeholder="Type a message…"
 							bind:value={input}
 							onkeydown={handleKeydown}
 							disabled={loading}
+							rows="1"
 							aria-label="Chat message"
-						/>
+						></textarea>
 						<button
 							type="button"
-							class="btn btn-primary btn-sm gap-1"
+							class="chat-widget-send"
 							onclick={send}
 							disabled={loading || !input.trim()}
 							aria-label="Send message"
@@ -178,6 +203,15 @@
 							Send
 						</button>
 					</div>
+					<button
+						type="button"
+						class="chat-widget-callback-btn"
+						onclick={() => (callbackDialogOpen = true)}
+						aria-label="Request a callback"
+					>
+						<Phone class="w-4 h-4" aria-hidden="true" />
+						Request a callback
+					</button>
 				</div>
 			{/if}
 		</div>
@@ -192,3 +226,97 @@
 		<MessageCircle class="w-7 h-7" aria-hidden="true" />
 	</button>
 </div>
+
+<CallbackDialog
+	open={callbackDialogOpen}
+	prospectId={prospectId}
+	termsUrl="/terms"
+	onClose={() => (callbackDialogOpen = false)}
+/>
+
+<style>
+	.chat-widget-footer {
+		padding: 0.75rem;
+		border-top: 1px solid var(--color-base-300, #44403c);
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		background: var(--color-base-100, #1c1917);
+	}
+	.chat-widget-input-row {
+		display: flex;
+		gap: 0.5rem;
+		align-items: flex-end;
+	}
+	.chat-widget-textarea {
+		flex: 1;
+		min-height: 2.5rem;
+		max-height: 8rem;
+		resize: none;
+		padding: 0.5rem 0.75rem;
+		font-size: 0.875rem;
+		line-height: 1.25rem;
+		border-radius: 0.5rem;
+		border: 1px solid var(--color-base-300, #44403c);
+		background: var(--color-base-200, #292524);
+		color: var(--color-base-content, #e7e5e4);
+		transition: border-color 0.15s, box-shadow 0.15s;
+	}
+	.chat-widget-textarea::placeholder {
+		color: var(--color-base-content);
+		opacity: 0.5;
+	}
+	.chat-widget-textarea:focus {
+		outline: none;
+		border-color: var(--color-primary, #2D6A4F);
+		box-shadow: 0 0 0 2px rgba(45, 106, 79, 0.25);
+	}
+	.chat-widget-textarea:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+	.chat-widget-send {
+		flex-shrink: 0;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.25rem;
+		height: 2.5rem;
+		padding: 0 0.75rem;
+		font-size: 0.875rem;
+		font-weight: 500;
+		border-radius: 0.5rem;
+		border: none;
+		background: var(--color-primary, #2D6A4F);
+		color: var(--color-primary-content, #fafaf9);
+		cursor: pointer;
+		transition: filter 0.15s;
+	}
+	.chat-widget-send:hover:not(:disabled) {
+		filter: brightness(1.1);
+	}
+	.chat-widget-send:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+	.chat-widget-callback-btn {
+		width: 100%;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+		padding: 0.5rem 0.75rem;
+		font-size: 0.8125rem;
+		border-radius: 0.5rem;
+		border: 1px solid var(--color-base-300, #44403c);
+		background: transparent;
+		color: var(--color-base-content, #e7e5e4);
+		opacity: 0.9;
+		cursor: pointer;
+		transition: background 0.15s, opacity 0.15s;
+	}
+	.chat-widget-callback-btn:hover {
+		background: var(--color-base-200, #292524);
+		opacity: 1;
+	}
+</style>

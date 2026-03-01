@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lead Rosetta — Style Guide: Healthcare & Dental</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Mulish:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --porcelain:  #FAFAF8;
+    --ivory:      #F4F1EC;
+    --linen:      #EAE5DC;
+    --teal:       #256B7A;
+    --teal-light: #3A8E9C;
+    --teal-pale:  #E5F2F4;
+    --navy:       #1E2D3D;
+    --navy-mid:   #2E4057;
+    --slate:      #6B7A8D;
+    --mist:       #9AABB8;
+    --blush:      #E8DDD4;
+    --gold:       #B8956A;
+
+    --font-display: 'Playfair Display', serif;
+    --font-body:    'Mulish', sans-serif;
+  }
+
+  body {
+    background: #EFEFEB;
+    color: var(--navy);
+    font-family: var(--font-body);
+    line-height: 1.6;
+  }
+
+  /* ─── STYLE GUIDE SHELL ──────────────────────── */
+  .sg-page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 3rem 2rem 6rem;
+  }
+
+  .sg-header {
+    border-bottom: 1px solid var(--linen);
+    padding-bottom: 1.5rem;
+    margin-bottom: 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  .sg-wordmark {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    color: var(--slate);
+    font-style: italic;
+    margin-bottom: 0.4rem;
+  }
+
+  .sg-title {
+    font-family: var(--font-display);
+    font-size: 2.4rem;
+    font-weight: 600;
+    color: var(--navy);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  .sg-title span { color: var(--teal); }
+
+  .sg-meta {
+    text-align: right;
+    font-size: 0.75rem;
+    color: var(--slate);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .sg-section {
+    margin-bottom: 4.5rem;
+  }
+
+  .sg-section-label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .sg-section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--linen);
+  }
+
+  /* ─── SWATCHES ────────────────────────────────── */
+  .swatch-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+  .swatch { display: flex; flex-direction: column; gap: 0.5rem; }
+
+  .swatch-block {
+    width: 100px;
+    height: 70px;
+    border-radius: 8px;
+    border: 1px solid rgba(0,0,0,0.07);
+  }
+
+  .swatch-name {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--slate);
+  }
+
+  .swatch-hex { font-size: 0.72rem; color: var(--mist); font-family: monospace; }
+
+  /* ─── TYPE SPECIMENS ─────────────────────────── */
+  .type-specimens { display: flex; flex-direction: column; gap: 1.25rem; }
+
+  .type-row {
+    display: flex;
+    align-items: baseline;
+    gap: 2rem;
+    padding: 1.5rem;
+    background: var(--porcelain);
+    border-radius: 10px;
+    border: 1px solid var(--linen);
+  }
+
+  .type-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mist);
+    width: 90px;
+    flex-shrink: 0;
+  }
+
+  .t-h1 {
+    font-family: var(--font-display);
+    font-size: 3.5rem;
+    font-weight: 600;
+    color: var(--navy);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+  .t-h1 em { font-style: italic; color: var(--teal); }
+
+  .t-h2 {
+    font-family: var(--font-display);
+    font-size: 2.2rem;
+    font-weight: 600;
+    color: var(--navy);
+    letter-spacing: -0.01em;
+  }
+
+  .t-h3 {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 400;
+    font-style: italic;
+    color: var(--teal);
+  }
+
+  .t-body {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    font-weight: 300;
+    color: var(--slate);
+    max-width: 500px;
+    line-height: 1.75;
+  }
+
+  .t-caption {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--teal);
+  }
+
+  /* ─── COMPONENTS ─────────────────────────────── */
+  .component-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+
+  .component-box {
+    background: var(--porcelain);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid var(--linen);
+  }
+
+  .component-box-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mist);
+    margin-bottom: 1.25rem;
+  }
+
+  /* Buttons */
+  .btn-teal {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--teal);
+    color: white;
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 0.8rem 1.75rem;
+    border: none;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    text-decoration: none;
+  }
+  .btn-teal:hover { background: var(--teal-light); transform: translateY(-1px); }
+
+  .btn-outline-teal {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: transparent;
+    color: var(--teal);
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 0.8rem 1.75rem;
+    border: 1.5px solid var(--teal);
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    margin-left: 0.75rem;
+  }
+  .btn-outline-teal:hover { background: var(--teal-pale); }
+
+  /* Trust badge */
+  .trust-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--teal-pale);
+    border: 1px solid rgba(74,124,111,0.2);
+    color: var(--teal);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 0.4rem 1rem;
+    border-radius: 100px;
+  }
+
+  /* Review card */
+  .review-card {
+    background: var(--ivory);
+    border: 1px solid var(--linen);
+    border-radius: 12px;
+    padding: 1.25rem;
+  }
+
+  .review-stars {
+    color: var(--gold);
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.6rem;
+  }
+
+  .review-text {
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    font-style: italic;
+    color: var(--navy-mid);
+    line-height: 1.6;
+    margin-bottom: 0.75rem;
+  }
+
+  .review-author {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--slate);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  /* Service pill */
+  .service-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    background: var(--ivory);
+    border: 1px solid var(--linen);
+    border-radius: 10px;
+    margin-bottom: 0.6rem;
+    transition: border-color 0.2s;
+  }
+  .service-pill:hover { border-color: var(--teal-light); }
+
+  .pill-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--teal);
+    flex-shrink: 0;
+  }
+
+  .pill-name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--navy);
+    flex: 1;
+  }
+
+  .pill-arrow {
+    font-size: 0.8rem;
+    color: var(--mist);
+  }
+
+  /* Appointment card */
+  .appt-card {
+    background: var(--teal);
+    border-radius: 12px;
+    padding: 1.25rem;
+    color: white;
+  }
+
+  .appt-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 0.5rem;
+  }
+
+  .appt-title {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+  }
+
+  .appt-slots {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .appt-slot {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.35rem 0.75rem;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .appt-slot:hover, .appt-slot.active { background: rgba(255,255,255,0.3); }
+
+  /* ─── FULL DEMO PREVIEW ──────────────────────── */
+  .demo-preview {
+    border: 1px solid var(--linen);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 12px 48px rgba(30,45,61,0.08);
+  }
+
+  .demo-browser-bar {
+    background: var(--linen);
+    padding: 0.6rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--blush);
+  }
+
+  .browser-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .bd-r { background: #ff5f56; }
+  .bd-y { background: #ffbd2e; }
+  .bd-g { background: #27c93f; }
+
+  .browser-url {
+    background: rgba(255,255,255,0.6);
+    border-radius: 4px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.7rem;
+    color: var(--slate);
+    font-family: monospace;
+    margin-left: 0.5rem;
+    flex: 1;
+    max-width: 300px;
+  }
+
+  /* Demo site internals */
+  .demo-site { background: var(--porcelain); font-family: var(--font-body); }
+
+  .demo-nav {
+    background: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--linen);
+  }
+
+  .demo-logo {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--navy);
+    letter-spacing: -0.01em;
+  }
+  .demo-logo span { color: var(--teal); font-style: italic; }
+
+  .demo-nav-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .demo-nav-link {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--slate);
+    text-decoration: none;
+  }
+
+  .demo-nav-cta {
+    background: var(--teal);
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.5rem 1.25rem;
+    border-radius: 100px;
+    text-decoration: none;
+  }
+
+  /* Hero */
+  .demo-hero {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 0;
+    min-height: 340px;
+    background: white;
+  }
+
+  .demo-hero-left {
+    padding: 3rem 2rem 3rem 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .demo-hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--teal);
+    background: var(--teal-pale);
+    padding: 0.35rem 0.875rem;
+    border-radius: 100px;
+    margin-bottom: 1.25rem;
+    width: fit-content;
+  }
+
+  .demo-hero-h1 {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    font-weight: 600;
+    color: var(--navy);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+  }
+  .demo-hero-h1 em { font-style: italic; color: var(--teal); }
+
+  .demo-hero-p {
+    font-size: 0.9rem;
+    font-weight: 300;
+    color: var(--slate);
+    line-height: 1.7;
+    margin-bottom: 1.75rem;
+    max-width: 400px;
+  }
+
+  .demo-hero-ctas {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .demo-hero-trust {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .demo-trust-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--slate);
+  }
+  .demo-trust-chip::before {
+    content: '✓';
+    color: var(--teal);
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  /* Hero right — appointment panel */
+  .demo-hero-right {
+    background: var(--teal);
+    padding: 2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1.25rem;
+  }
+
+  .appt-panel-title {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 0.25rem;
+  }
+
+  .appt-panel-sub {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.65);
+    margin-bottom: 0.5rem;
+  }
+
+  .appt-type-btn {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 0.6rem 0.875rem;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    transition: background 0.15s;
+  }
+  .appt-type-btn.selected { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.5); }
+
+  .appt-btn-book {
+    background: white;
+    color: var(--teal);
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 0.75rem;
+    border-radius: 8px;
+    text-align: center;
+    margin-top: 0.5rem;
+    cursor: pointer;
+  }
+
+  /* Stats strip */
+  .demo-stats-strip {
+    background: var(--navy);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: rgba(0,0,0,0.15);
+  }
+
+  .demo-stat-item {
+    background: var(--navy);
+    padding: 1.25rem;
+    text-align: center;
+  }
+
+  .demo-stat-num {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 0.2rem;
+  }
+
+  .demo-stat-label {
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--mist);
+  }
+
+  /* Services section */
+  .demo-services {
+    padding: 2.5rem 2rem;
+    background: var(--ivory);
+  }
+
+  .demo-services-eyebrow {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 0.5rem;
+  }
+
+  .demo-services-h2 {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.01em;
+  }
+
+  .demo-services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+  }
+
+  .demo-service-card {
+    background: white;
+    border: 1px solid var(--linen);
+    border-radius: 10px;
+    padding: 1.25rem;
+    transition: box-shadow 0.2s, border-color 0.2s;
+  }
+  .demo-service-card:hover {
+    box-shadow: 0 4px 20px rgba(74,124,111,0.1);
+    border-color: var(--teal-light);
+  }
+
+  .demo-service-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .demo-service-name {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 0.35rem;
+  }
+
+  .demo-service-desc {
+    font-size: 0.75rem;
+    color: var(--slate);
+    line-height: 1.55;
+    font-weight: 300;
+  }
+
+  /* Testimonial strip */
+  .demo-testimonial {
+    background: white;
+    border-top: 1px solid var(--linen);
+    padding: 2rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .demo-quote-mark {
+    font-family: var(--font-display);
+    font-size: 4rem;
+    color: var(--teal-pale);
+    line-height: 1;
+    margin-top: -0.5rem;
+    flex-shrink: 0;
+  }
+
+  .demo-quote-text {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--navy-mid);
+    line-height: 1.65;
+    margin-bottom: 0.5rem;
+  }
+
+  .demo-quote-author {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--mist);
+  }
+
+  .demo-quote-stars {
+    color: var(--gold);
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+  }
+
+  /* CTA footer */
+  .demo-cta-footer {
+    background: var(--teal-pale);
+    border-top: 1px solid rgba(74,124,111,0.15);
+    padding: 1.75rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .demo-cta-footer-text {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--navy);
+    letter-spacing: -0.01em;
+  }
+
+  .demo-cta-footer-sub {
+    font-size: 0.78rem;
+    color: var(--slate);
+    margin-top: 0.2rem;
+    font-weight: 300;
+  }
+
+  /* ─── USAGE NOTES ────────────────────────────── */
+  .notes-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .note-card {
+    background: var(--porcelain);
+    border-radius: 10px;
+    padding: 1.25rem;
+    border: 1px solid var(--linen);
+    border-left: 3px solid var(--teal);
+  }
+
+  .note-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.02em;
+  }
+
+  .note-body {
+    font-size: 0.8rem;
+    color: var(--slate);
+    line-height: 1.65;
+    font-weight: 300;
+  }
+
+  .note-body code {
+    background: var(--teal-pale);
+    color: var(--teal);
+    font-family: monospace;
+    font-size: 0.78rem;
+    padding: 0.1rem 0.35rem;
+    border-radius: 3px;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .sg-section { animation: fadeUp 0.5s ease both; }
+  .sg-section:nth-child(2) { animation-delay: 0.06s; }
+  .sg-section:nth-child(3) { animation-delay: 0.12s; }
+  .sg-section:nth-child(4) { animation-delay: 0.18s; }
+  .sg-section:nth-child(5) { animation-delay: 0.24s; }
+  .sg-section:nth-child(6) { animation-delay: 0.30s; }
+</style>
+</head>
+<body>
+
+<div class="sg-page">
+
+  <!-- HEADER -->
+  <div class="sg-header">
+    <div>
+      <div class="sg-wordmark">Lead Rosetta — Style Guide</div>
+      <div class="sg-title">Healthcare <span>&</span> Dental</div>
+    </div>
+    <div class="sg-meta">Industry 02 of N<br>Version 1.0 · 2026</div>
+  </div>
+
+  <!-- 1. COLORS -->
+  <div class="sg-section">
+    <div class="sg-section-label">01 — Color Palette</div>
+    <div class="swatch-row">
+      <div class="swatch">
+        <div class="swatch-block" style="background:#256B7A;"></div>
+        <div class="swatch-name">Teal</div>
+        <div class="swatch-hex">#256B7A — Primary</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background:#3A8E9C;"></div>
+        <div class="swatch-name">Teal Light</div>
+        <div class="swatch-hex">#3A8E9C — Hover</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background:#E5F2F4; border:1px solid #c8e2e8;"></div>
+        <div class="swatch-name">Teal Pale</div>
+        <div class="swatch-hex">#E5F2F4 — Backgrounds</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background:#1E2D3D;"></div>
+        <div class="swatch-name">Navy</div>
+        <div class="swatch-hex">#1E2D3D — Headlines</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background:#6B7A8D;"></div>
+        <div class="swatch-name">Slate</div>
+        <div class="swatch-hex">#6B7A8D — Body text</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background:#F4F1EC; border:1px solid #e0dcd4;"></div>
+        <div class="swatch-name">Ivory</div>
+        <div class="swatch-hex">#F4F1EC — Surface</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background:#B8956A;"></div>
+        <div class="swatch-name">Gold</div>
+        <div class="swatch-hex">#B8956A — Stars/accents</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. TYPOGRAPHY -->
+  <div class="sg-section">
+    <div class="sg-section-label">02 — Typography</div>
+    <div class="type-specimens">
+      <div class="type-row">
+        <div class="type-label">H1 / Hero</div>
+        <div class="t-h1">Your Smile,<br><em>Expertly Cared For.</em></div>
+      </div>
+      <div class="type-row">
+        <div class="type-label">H2 / Section</div>
+        <div class="t-h2">Our Services</div>
+      </div>
+      <div class="type-row">
+        <div class="type-label">H3 / Italic</div>
+        <div class="t-h3">Accepting new patients in Toronto & GTA</div>
+      </div>
+      <div class="type-row">
+        <div class="type-label">Body</div>
+        <div class="t-body">A warm, welcoming dental practice serving families across the GTA. We combine the latest technology with a gentle, patient-first approach — so every visit feels comfortable and every outcome exceeds expectations.</div>
+      </div>
+      <div class="type-row">
+        <div class="type-label">Caption</div>
+        <div class="t-caption">HARP Accredited · RCDSO Licensed · Direct Billing Available</div>
+      </div>
+    </div>
+    <div style="margin-top:1rem; font-size:0.78rem; color:var(--slate);">
+      Display: <strong style="color:var(--navy);">Playfair Display</strong> (400, 600 — regular & italic) &nbsp;·&nbsp;
+      Body: <strong style="color:var(--navy);">Mulish</strong> (300, 400, 500, 600)
+    </div>
+  </div>
+
+  <!-- 3. COMPONENTS -->
+  <div class="sg-section">
+    <div class="sg-section-label">03 — UI Components</div>
+    <div class="component-grid">
+
+      <div class="component-box">
+        <div class="component-box-label">Buttons</div>
+        <div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;">
+          <a href="#" class="btn-teal">Book Appointment →</a>
+          <a href="#" class="btn-outline-teal">Our Services</a>
+        </div>
+      </div>
+
+      <div class="component-box">
+        <div class="component-box-label">Trust Badges</div>
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+          <span class="trust-badge">✓ RCDSO Licensed</span>
+          <span class="trust-badge">✓ Direct Billing</span>
+          <span class="trust-badge">✓ New Patients Welcome</span>
+        </div>
+      </div>
+
+      <div class="component-box">
+        <div class="component-box-label">Patient Review Card</div>
+        <div class="review-card">
+          <div class="review-stars">★★★★★</div>
+          <div class="review-text">"The most comfortable dental experience I've had in 20 years. The whole team made me feel completely at ease."</div>
+          <div class="review-author">— Sarah M., North York</div>
+        </div>
+      </div>
+
+      <div class="component-box">
+        <div class="component-box-label">Service List</div>
+        <div class="service-pill">
+          <div class="pill-dot"></div>
+          <div class="pill-name">General Dentistry</div>
+          <div class="pill-arrow">→</div>
+        </div>
+        <div class="service-pill">
+          <div class="pill-dot"></div>
+          <div class="pill-name">Teeth Whitening</div>
+          <div class="pill-arrow">→</div>
+        </div>
+        <div class="service-pill">
+          <div class="pill-dot"></div>
+          <div class="pill-name">Invisalign & Orthodontics</div>
+          <div class="pill-arrow">→</div>
+        </div>
+      </div>
+
+      <div class="component-box" style="grid-column: 1 / -1;">
+        <div class="component-box-label">Appointment Booking Widget</div>
+        <div style="max-width:360px;">
+          <div class="appt-card">
+            <div class="appt-label">Book Your Visit</div>
+            <div class="appt-title">Select an appointment type</div>
+            <div class="appt-type-btn selected">🦷 New Patient Exam <span>→</span></div>
+            <div class="appt-type-btn">✨ Teeth Cleaning <span>→</span></div>
+            <div class="appt-type-btn">🚨 Emergency Visit <span>→</span></div>
+            <div class="appt-btn-book">Check Available Times →</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 4. DEMO PREVIEW -->
+  <div class="sg-section">
+    <div class="sg-section-label">04 — Demo Site Preview</div>
+    <div class="demo-preview">
+
+      <div class="demo-browser-bar">
+        <div class="browser-dot bd-r"></div>
+        <div class="browser-dot bd-y"></div>
+        <div class="browser-dot bd-g"></div>
+        <div class="browser-url">demo.leadrosetta.com/parkview-dental-toronto</div>
+      </div>
+
+      <div class="demo-site">
+
+        <!-- Nav -->
+        <div class="demo-nav">
+          <div class="demo-logo">Parkview <span>Dental</span></div>
+          <div class="demo-nav-right">
+            <a href="#" class="demo-nav-link">Services</a>
+            <a href="#" class="demo-nav-link">About</a>
+            <a href="#" class="demo-nav-link">Contact</a>
+            <a href="#" class="demo-nav-cta">Book Now</a>
+          </div>
+        </div>
+
+        <!-- Hero split -->
+        <div class="demo-hero">
+          <div class="demo-hero-left">
+            <div class="demo-hero-eyebrow">Toronto · Accepting New Patients</div>
+            <h1 class="demo-hero-h1">Your Smile,<br><em>Expertly<br>Cared For.</em></h1>
+            <p class="demo-hero-p">A warm, modern dental practice in the heart of Toronto. Family dentistry, cosmetic care, and emergency appointments — all under one roof.</p>
+            <div class="demo-hero-ctas">
+              <a href="#" class="btn-teal">Book Appointment →</a>
+              <a href="#" class="btn-outline-teal">Our Services</a>
+            </div>
+            <div class="demo-hero-trust">
+              <div class="demo-trust-chip">Direct Billing</div>
+              <div class="demo-trust-chip">RCDSO Licensed</div>
+              <div class="demo-trust-chip">Same-Day Emergency</div>
+            </div>
+          </div>
+          <div class="demo-hero-right">
+            <div>
+              <div class="appt-panel-title">Book Your Visit</div>
+              <div class="appt-panel-sub">Next available: Tomorrow, 9:00 AM</div>
+            </div>
+            <div>
+              <div class="appt-type-btn selected">🦷 New Patient Exam <span>→</span></div>
+              <div class="appt-type-btn">✨ Cleaning & Polish <span>→</span></div>
+              <div class="appt-type-btn">🚨 Emergency Visit <span>→</span></div>
+            </div>
+            <div class="appt-btn-book">Check Available Times →</div>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="demo-stats-strip">
+          <div class="demo-stat-item">
+            <div class="demo-stat-num">20+</div>
+            <div class="demo-stat-label">Years Serving Toronto</div>
+          </div>
+          <div class="demo-stat-item">
+            <div class="demo-stat-num">4,500+</div>
+            <div class="demo-stat-label">Happy Patients</div>
+          </div>
+          <div class="demo-stat-item">
+            <div class="demo-stat-num">4.9★</div>
+            <div class="demo-stat-label">Google Rating</div>
+          </div>
+          <div class="demo-stat-item">
+            <div class="demo-stat-num">Same Day</div>
+            <div class="demo-stat-label">Emergency Appointments</div>
+          </div>
+        </div>
+
+        <!-- Services -->
+        <div class="demo-services">
+          <div class="demo-services-eyebrow">What We Offer</div>
+          <div class="demo-services-h2">Comprehensive Dental Care</div>
+          <div class="demo-services-grid">
+            <div class="demo-service-card">
+              <div class="demo-service-icon">🦷</div>
+              <div class="demo-service-name">General Dentistry</div>
+              <div class="demo-service-desc">Cleanings, fillings, and preventive care for the whole family.</div>
+            </div>
+            <div class="demo-service-card">
+              <div class="demo-service-icon">✨</div>
+              <div class="demo-service-name">Cosmetic Services</div>
+              <div class="demo-service-desc">Whitening, veneers, and smile makeovers tailored to you.</div>
+            </div>
+            <div class="demo-service-card">
+              <div class="demo-service-icon">📐</div>
+              <div class="demo-service-name">Invisalign</div>
+              <div class="demo-service-desc">Discreet teeth straightening with clear aligners. All ages welcome.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Testimonial -->
+        <div class="demo-testimonial">
+          <div class="demo-quote-mark">"</div>
+          <div>
+            <div class="demo-quote-stars">★★★★★</div>
+            <div class="demo-quote-text">I've been coming to Parkview Dental for 12 years and I wouldn't go anywhere else. The team remembers your name, your history, and actually makes you look forward to your checkup.</div>
+            <div class="demo-quote-author">— Michael T., patient since 2012 · Verified Google Review</div>
+          </div>
+        </div>
+
+        <!-- CTA footer -->
+        <div class="demo-cta-footer">
+          <div>
+            <div class="demo-cta-footer-text">Ready for your next visit?</div>
+            <div class="demo-cta-footer-sub">New patients welcome · Direct billing available · Same-day emergencies</div>
+          </div>
+          <a href="#" class="btn-teal">Book Online →</a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. USAGE NOTES -->
+  <div class="sg-section">
+    <div class="sg-section-label">05 — Usage Notes for Lead Rosetta</div>
+    <div class="notes-grid">
+      <div class="note-card">
+        <div class="note-title">Dynamic fields to populate</div>
+        <div class="note-body">
+          Replace <code>[practice_name]</code>, <code>[years_open]</code>, <code>[patient_count]</code>, <code>[google_rating]</code>, <code>[phone]</code>, and <code>[services_list]</code> from the lead CSV. Hero headline stays fixed across all dental demos.
+        </div>
+      </div>
+      <div class="note-card">
+        <div class="note-title">Stat defaults (if CSV missing)</div>
+        <div class="note-body">
+          Use <code>15+ years</code>, <code>2,000+ patients</code>, <code>4.8★ rating</code>, <code>same-day emergency</code>. All credible defaults for an established Toronto dental practice without overpromising.
+        </div>
+      </div>
+      <div class="note-card">
+        <div class="note-title">Booking widget</div>
+        <div class="note-body">
+          The appointment panel on the right side of the hero is the highest-converting element. Always include it. Link to their existing booking page or a generic <code>contact form</code> — do not remove the panel even if no booking system is connected.
+        </div>
+      </div>
+      <div class="note-card">
+        <div class="note-title">Services — max 6, show 3</div>
+        <div class="note-body">
+          Display exactly 3 service cards in the grid. If CSV has more services, pick the 3 most common: General Dentistry, Cosmetic, and one specialty. Remaining services listed as text below the grid.
+        </div>
+      </div>
+      <div class="note-card">
+        <div class="note-title">Light theme rationale</div>
+        <div class="note-body">
+          Healthcare buyers — both patients and practice owners — respond to clean, light, trustworthy aesthetics. White surfaces and teal signal clinical calm without being cold. Never use dark themes for healthcare demos.
+        </div>
+      </div>
+      <div class="note-card">
+        <div class="note-title">Tone rule</div>
+        <div class="note-body">
+          All copy should feel warm and human, not clinical. Avoid words like "procedure," "treatment plan," "protocol." Prefer "visit," "care," "appointment." The practice owner needs to feel the site speaks to their patients the way they do.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

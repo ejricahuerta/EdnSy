@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lead Rosetta — Component Style Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream: #F5F0E8;
+    --ink: #1A1A14;
+    --sage: #3D5A3E;
+    --sage-light: #5A7F5B;
+    --amber: #C17D2A;
+    --amber-light: #E09B3D;
+    --muted: #7A7566;
+    --border: #D8D0BF;
+    --surface: #EEEAE0;
+    --white: #FFFFFF;
+    --error: #C04040;
+    --success: #3D5A3E;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    padding: 0;
+  }
+
+  /* GUIDE NAV */
+  .guide-nav {
+    background: var(--ink);
+    color: white;
+    padding: 1rem 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 200;
+  }
+
+  .guide-nav-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .guide-nav-title span {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    border-left: 1px solid rgba(255,255,255,0.2);
+    padding-left: 0.75rem;
+  }
+
+  .guide-nav-links {
+    display: flex;
+    gap: 1.5rem;
+    list-style: none;
+  }
+
+  .guide-nav-links a {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.5);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .guide-nav-links a:hover { color: white; }
+
+  /* GUIDE LAYOUT */
+  .guide-wrap {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: 100vh;
+  }
+
+  .guide-sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 2rem 0;
+    position: sticky;
+    top: 49px;
+    height: calc(100vh - 49px);
+    overflow-y: auto;
+  }
+
+  .sidebar-section {
+    margin-bottom: 0.25rem;
+  }
+
+  .sidebar-label {
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0.75rem 1.5rem 0.35rem;
+  }
+
+  .sidebar-link {
+    display: block;
+    padding: 0.45rem 1.5rem;
+    font-size: 0.825rem;
+    color: var(--muted);
+    text-decoration: none;
+    transition: all 0.15s;
+    border-left: 2px solid transparent;
+  }
+  .sidebar-link:hover {
+    color: var(--ink);
+    background: rgba(0,0,0,0.04);
+    border-left-color: var(--border);
+  }
+  .sidebar-link.active {
+    color: var(--sage);
+    border-left-color: var(--sage);
+    background: rgba(61,90,62,0.05);
+  }
+
+  /* GUIDE CONTENT */
+  .guide-content {
+    padding: 3rem 3.5rem;
+    max-width: 900px;
+  }
+
+  .section-header {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-header h2 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.75rem;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.35rem;
+  }
+
+  .section-header p {
+    font-size: 0.875rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .guide-section {
+    margin-bottom: 4rem;
+    scroll-margin-top: 80px;
+  }
+
+  .subsection {
+    margin-bottom: 2.5rem;
+  }
+
+  .subsection-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* PREVIEW + CODE BLOCKS */
+  .preview-block {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+  }
+
+  .preview-label-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .preview-label-bar span {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .preview-area {
+    padding: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .preview-area.dark { background: var(--ink); }
+  .preview-area.surface { background: var(--surface); }
+  .preview-area.column { flex-direction: column; }
+  .preview-area.center { justify-content: center; }
+
+  code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.75rem;
+    background: var(--surface);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    color: var(--sage);
+  }
+
+  .code-block {
+    background: #1A1A14;
+    color: #c8c0b0;
+    padding: 1.25rem 1.5rem;
+    border-radius: 8px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.75rem;
+    line-height: 1.7;
+    overflow-x: auto;
+    margin-top: 0.5rem;
+  }
+
+  .code-block .token-key { color: #7fbf7f; }
+  .code-block .token-val { color: #e0a060; }
+  .code-block .token-comment { color: #666; }
+
+  /* ===================== */
+  /* ACTUAL COMPONENTS     */
+  /* ===================== */
+
+  /* COLORS */
+  .color-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+
+  .color-swatch {
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .swatch-box {
+    height: 72px;
+  }
+
+  .swatch-info {
+    padding: 0.75rem;
+    background: white;
+    border-top: 1px solid var(--border);
+  }
+
+  .swatch-name {
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin-bottom: 0.15rem;
+  }
+
+  .swatch-var {
+    font-size: 0.7rem;
+    color: var(--muted);
+    font-family: monospace;
+  }
+
+  .swatch-hex {
+    font-size: 0.7rem;
+    color: var(--muted);
+    font-family: monospace;
+  }
+
+  /* TYPOGRAPHY */
+  .type-display {
+    font-family: 'Instrument Serif', serif;
+    font-size: 3rem;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+  }
+
+  .type-display-italic {
+    font-family: 'Instrument Serif', serif;
+    font-size: 3rem;
+    font-style: italic;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    color: var(--sage);
+  }
+
+  .type-h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 2.5rem;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  .type-h2 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.75rem;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+
+  .type-eyebrow {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--amber);
+  }
+
+  .type-body {
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--ink);
+  }
+
+  .type-body-muted {
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  .type-small {
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .type-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  .type-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+  }
+
+  .type-item {
+    display: flex;
+    align-items: baseline;
+    gap: 2rem;
+    padding: 1.25rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .type-item:last-child { border-bottom: none; }
+
+  .type-meta {
+    width: 160px;
+    flex-shrink: 0;
+  }
+
+  .type-meta-name {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 0.2rem;
+  }
+
+  .type-meta-spec {
+    font-size: 0.7rem;
+    color: var(--muted);
+    font-family: monospace;
+  }
+
+  /* BUTTONS */
+  .btn-primary {
+    background: var(--amber);
+    color: white;
+    padding: 0.875rem 2rem;
+    border-radius: 100px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .btn-primary:hover { background: var(--amber-light); transform: translateY(-1px); }
+
+  .btn-primary-sm {
+    background: var(--amber);
+    color: white;
+    padding: 0.55rem 1.25rem;
+    border-radius: 100px;
+    font-size: 0.825rem;
+    font-weight: 500;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--ink);
+    padding: 0.875rem 2rem;
+    border-radius: 100px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-decoration: none;
+    border: 1.5px solid var(--border);
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color 0.2s;
+  }
+  .btn-outline:hover { border-color: var(--ink); }
+
+  .btn-sage {
+    background: var(--sage);
+    color: #ffffff;
+    padding: 0.875rem 2rem;
+    border-radius: 100px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    padding: 0.875rem 2rem;
+    border-radius: 100px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-ghost:hover { color: var(--ink); }
+
+  .btn-destructive {
+    background: var(--error);
+    color: white;
+    padding: 0.875rem 2rem;
+    border-radius: 100px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .btn-disabled {
+    background: var(--border);
+    color: var(--muted);
+    padding: 0.875rem 2rem;
+    border-radius: 100px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    border: none;
+    cursor: not-allowed;
+    font-family: inherit;
+  }
+
+  /* BADGES */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  .badge-amber {
+    background: rgba(193, 125, 42, 0.12);
+    color: var(--amber);
+    border: 1px solid rgba(193,125,42,0.25);
+  }
+
+  .badge-sage {
+    background: rgba(61, 90, 62, 0.1);
+    color: var(--sage);
+    border: 1px solid rgba(61,90,62,0.2);
+  }
+
+  .badge-error {
+    background: rgba(192, 64, 64, 0.1);
+    color: var(--error);
+    border: 1px solid rgba(192,64,64,0.2);
+  }
+
+  .badge-neutral {
+    background: var(--surface);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  .badge-dark {
+    background: var(--ink);
+    color: white;
+  }
+
+  /* FORMS */
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    width: 100%;
+    max-width: 360px;
+  }
+
+  .form-label {
+    font-size: 0.825rem;
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  .form-input {
+    padding: 0.7rem 1rem;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.875rem;
+    color: var(--ink);
+    background: white;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-input:focus { border-color: var(--sage); }
+  .form-input::placeholder { color: var(--muted); }
+
+  .form-input.error { border-color: var(--error); }
+  .form-input.success { border-color: var(--sage); }
+
+  .form-hint {
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .form-error-text {
+    font-size: 0.75rem;
+    color: var(--error);
+  }
+
+  textarea.form-input { resize: vertical; min-height: 100px; }
+
+  .form-select {
+    padding: 0.7rem 1rem;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.875rem;
+    color: var(--ink);
+    background: white;
+    outline: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237A7566' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    padding-right: 2.5rem;
+  }
+
+  /* CARDS */
+  .card {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    max-width: 300px;
+  }
+
+  .card-surface {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    max-width: 300px;
+  }
+
+  .card-featured {
+    background: var(--sage);
+    border: 1.5px solid var(--sage);
+    border-radius: 16px;
+    padding: 1.5rem;
+    color: white;
+    max-width: 300px;
+    position: relative;
+  }
+
+  .card-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.01em;
+  }
+
+  .card-body {
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+
+  .card-featured .card-body { color: rgba(255,255,255,0.7); }
+
+  /* STATUS INDICATORS */
+  .status-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .status-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.875rem;
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .status-name {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--ink);
+  }
+
+  .status-draft .status-dot { background: var(--border); }
+  .status-approved .status-dot { background: var(--amber); }
+  .status-sent .status-dot { background: #4A90D9; }
+  .status-opened .status-dot { background: var(--sage-light); }
+  .status-replied .status-dot { background: var(--sage); }
+
+  /* EYEBROW */
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--amber);
+    background: rgba(193, 125, 42, 0.1);
+    padding: 0.35rem 0.9rem;
+    border-radius: 100px;
+    border: 1px solid rgba(193,125,42,0.2);
+  }
+
+  /* STEP INDICATOR */
+  .steps-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    width: 100%;
+  }
+
+  .step-pill {
+    flex: 1;
+    text-align: center;
+    padding: 0.75rem 0.5rem;
+    position: relative;
+  }
+
+  .step-pill-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin: 0 auto 0.4rem;
+    color: var(--muted);
+    background: white;
+  }
+
+  .step-pill.active .step-pill-num {
+    background: var(--sage);
+    border-color: var(--sage);
+    color: white;
+  }
+
+  .step-pill.done .step-pill-num {
+    background: var(--surface);
+    border-color: var(--sage);
+    color: var(--sage);
+  }
+
+  .step-pill-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+
+  .step-pill.active .step-pill-label { color: var(--ink); font-weight: 500; }
+
+  .step-connector {
+    height: 2px;
+    background: var(--border);
+    flex: 1;
+    margin-top: -1rem;
+  }
+
+  .step-connector.done { background: var(--sage); }
+
+  /* NOTIFICATION */
+  .notif {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    max-width: 420px;
+    width: 100%;
+  }
+
+  .notif-icon { font-size: 1rem; flex-shrink: 0; margin-top: 0.05rem; }
+  .notif-title { font-weight: 500; margin-bottom: 0.15rem; font-size: 0.875rem; }
+  .notif-desc { font-size: 0.8rem; opacity: 0.85; }
+
+  .notif-success { background: rgba(61,90,62,0.08); border: 1px solid rgba(61,90,62,0.2); color: var(--sage); }
+  .notif-warning { background: rgba(193,125,42,0.08); border: 1px solid rgba(193,125,42,0.2); color: var(--amber); }
+  .notif-error { background: rgba(192,64,64,0.08); border: 1px solid rgba(192,64,64,0.2); color: var(--error); }
+  .notif-neutral { background: var(--surface); border: 1px solid var(--border); color: var(--ink); }
+
+  /* TABLE */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  .data-table th {
+    text-align: left;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .data-table td {
+    padding: 0.875rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--ink);
+    vertical-align: middle;
+  }
+
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: rgba(0,0,0,0.02); }
+
+  /* DIVIDER */
+  .guide-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 2rem 0;
+  }
+
+  /* SPACING REFERENCE */
+  .spacing-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .spacing-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .spacing-bar {
+    background: rgba(61,90,62,0.2);
+    border: 1px solid var(--sage);
+    height: 24px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  .spacing-label {
+    font-size: 0.75rem;
+    color: var(--muted);
+    font-family: monospace;
+    min-width: 80px;
+  }
+
+  .spacing-px {
+    font-size: 0.75rem;
+    color: var(--ink);
+  }
+
+  /* LOGO */
+  .brand-logo {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.5rem;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .brand-logo span { color: var(--sage); }
+
+  .brand-logo-dark {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.5rem;
+    color: white;
+    text-decoration: none;
+  }
+  .brand-logo-dark span { color: #7fbf7f; }
+
+</style>
+</head>
+<body>
+
+<!-- GUIDE TOP BAR -->
+<div class="guide-nav">
+  <div class="guide-nav-title">
+    Lead <span style="font-family: 'Instrument Serif', serif; color: #7fbf7f; font-size: 1rem;">Rosetta</span>
+    <span>Component Style Guide v0.1</span>
+  </div>
+  <ul class="guide-nav-links">
+    <li><a href="#colors">Colors</a></li>
+    <li><a href="#type">Typography</a></li>
+    <li><a href="#buttons">Buttons</a></li>
+    <li><a href="#forms">Forms</a></li>
+    <li><a href="#cards">Cards</a></li>
+    <li><a href="#feedback">Feedback</a></li>
+    <li><a href="#data">Data</a></li>
+    <li><a href="#spacing">Spacing</a></li>
+  </ul>
+</div>
+
+<div class="guide-wrap">
+
+  <!-- SIDEBAR -->
+  <nav class="guide-sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Foundations</div>
+      <a href="#brand" class="sidebar-link">Brand & Logo</a>
+      <a href="#colors" class="sidebar-link">Color Palette</a>
+      <a href="#type" class="sidebar-link">Typography</a>
+      <a href="#spacing" class="sidebar-link">Spacing Scale</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Components</div>
+      <a href="#buttons" class="sidebar-link">Buttons</a>
+      <a href="#badges" class="sidebar-link">Badges & Tags</a>
+      <a href="#forms" class="sidebar-link">Form Elements</a>
+      <a href="#cards" class="sidebar-link">Cards</a>
+      <a href="#feedback" class="sidebar-link">Feedback & Alerts</a>
+      <a href="#status" class="sidebar-link">Status Indicators</a>
+      <a href="#steps" class="sidebar-link">Step Indicators</a>
+      <a href="#data" class="sidebar-link">Data Tables</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Patterns</div>
+      <a href="#eyebrow" class="sidebar-link">Eyebrow Labels</a>
+      <a href="#dividers" class="sidebar-link">Dividers</a>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="guide-content">
+
+    <!-- BRAND -->
+    <div class="guide-section" id="brand">
+      <div class="section-header">
+        <h2>Brand & Logo</h2>
+        <p>The Lead Rosetta wordmark. Always use Instrument Serif. "Lead" in ink, "Rosetta" in sage.</p>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-label">Light Background</div>
+        <div class="preview-block">
+          <div class="preview-area" style="gap: 2rem; align-items: center;">
+            <a class="brand-logo">Lead <span>Rosetta</span></a>
+            <a class="brand-logo" style="font-size: 1.1rem;">Lead <span>Rosetta</span></a>
+            <a class="brand-logo" style="font-size: 2rem;">Lead <span>Rosetta</span></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-label">Dark Background</div>
+        <div class="preview-block">
+          <div class="preview-area dark" style="gap: 2rem; align-items: center;">
+            <a class="brand-logo-dark">Lead <span>Rosetta</span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COLORS -->
+    <div class="guide-section" id="colors">
+      <div class="section-header">
+        <h2>Color Palette</h2>
+        <p>All colors defined as CSS custom properties. Use variables, never hardcoded hex.</p>
+      </div>
+
+      <div class="preview-block">
+        <div class="preview-area column" style="padding: 1.5rem;">
+          <div class="color-grid">
+            <div class="color-swatch">
+              <div class="swatch-box" style="background: #F5F0E8;"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Cream</div>
+                <div class="swatch-var">--cream</div>
+                <div class="swatch-hex">#F5F0E8</div>
+              </div>
+            </div>
+            <div class="color-swatch">
+              <div class="swatch-box" style="background: #1A1A14;"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Ink</div>
+                <div class="swatch-var">--ink</div>
+                <div class="swatch-hex">#1A1A14</div>
+              </div>
+            </div>
+            <div class="color-swatch">
+              <div class="swatch-box" style="background: #3D5A3E;"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Sage</div>
+                <div class="swatch-var">--sage</div>
+                <div class="swatch-hex">#3D5A3E</div>
+              </div>
+            </div>
+            <div class="color-swatch">
+              <div class="swatch-box" style="background: #5A7F5B;"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Sage Light</div>
+                <div class="swatch-var">--sage-light</div>
+                <div class="swatch-hex">#5A7F5B</div>
+              </div>
+            </div>
+            <div class="color-swatch">
+              <div class="swatch-box" style="background: #C17D2A;"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Amber</div>
+                <div class="swatch-var">--amber</div>
+                <div class="swatch-hex">#C17D2A</div>
+              </div>
+            </div>
+            <div class="color-swatch">
+              <div class="swatch-box" style="background: #E09B3D;"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Amber Light</div>
+                <div class="swatch-var">--amber-light</div>
+                <div class="swatch-hex">#E09B3D</div>
+              </div>
+            </div>
+            <div class="color-swatch">
+              <div class="swatch-box" style="background: #7A7566;"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Muted</div>
+                <div class="swatch-var">--muted</div>
+                <div class="swatch-hex">#7A7566</div>
+              </div>
+            </div>
+            <div class="color-swatch">
+              <div class="swatch-box" style="background: #D8D0BF;"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Border</div>
+                <div class="swatch-var">--border</div>
+                <div class="swatch-hex">#D8D0BF</div>
+              </div>
+            </div>
+            <div class="color-swatch">
+              <div class="swatch-box" style="background: #EEEAE0;"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Surface</div>
+                <div class="swatch-var">--surface</div>
+                <div class="swatch-hex">#EEEAE0</div>
+              </div>
+            </div>
+            <div class="color-swatch">
+              <div class="swatch-box" style="background: #C04040;"></div>
+              <div class="swatch-info">
+                <div class="swatch-name">Error</div>
+                <div class="swatch-var">--error</div>
+                <div class="swatch-hex">#C04040</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TYPOGRAPHY -->
+    <div class="guide-section" id="type">
+      <div class="section-header">
+        <h2>Typography</h2>
+        <p><strong>Instrument Serif</strong> for all display/heading text. <strong>DM Sans</strong> for body, UI, and labels. Never use Inter, Roboto, or system fonts.</p>
+      </div>
+
+      <div class="preview-block">
+        <div class="preview-area column" style="padding: 1.5rem 2rem;">
+          <div class="type-row">
+            <div class="type-item">
+              <div class="type-meta">
+                <div class="type-meta-name">Display</div>
+                <div class="type-meta-spec">Instrument Serif<br>48px / -0.02em</div>
+              </div>
+              <div class="type-display">Stop pitching.</div>
+            </div>
+            <div class="type-item">
+              <div class="type-meta">
+                <div class="type-meta-name">Display Italic</div>
+                <div class="type-meta-spec">Instrument Serif Italic<br>48px / sage</div>
+              </div>
+              <div class="type-display-italic">Show up ready.</div>
+            </div>
+            <div class="type-item">
+              <div class="type-meta">
+                <div class="type-meta-name">Heading 1</div>
+                <div class="type-meta-spec">Instrument Serif<br>40px / -0.02em</div>
+              </div>
+              <div class="type-h1">Demo pages for every client.</div>
+            </div>
+            <div class="type-item">
+              <div class="type-meta">
+                <div class="type-meta-name">Heading 2</div>
+                <div class="type-meta-spec">Instrument Serif<br>28px / -0.02em</div>
+              </div>
+              <div class="type-h2">Cold outreach is broken.</div>
+            </div>
+            <div class="type-item">
+              <div class="type-meta">
+                <div class="type-meta-name">Eyebrow</div>
+                <div class="type-meta-spec">DM Sans 500<br>12px / 0.12em / UC</div>
+              </div>
+              <div class="type-eyebrow">Cold outreach, reinvented</div>
+            </div>
+            <div class="type-item">
+              <div class="type-meta">
+                <div class="type-meta-name">Body</div>
+                <div class="type-meta-spec">DM Sans 400<br>16px / 1.65lh</div>
+              </div>
+              <div class="type-body" style="max-width: 420px;">Upload your lead list. Lead Rosetta generates a personalized demo website for each prospect — with their branding, their services, their location.</div>
+            </div>
+            <div class="type-item">
+              <div class="type-meta">
+                <div class="type-meta-name">Body Muted</div>
+                <div class="type-meta-spec">DM Sans 300<br>16px / muted</div>
+              </div>
+              <div class="type-body-muted" style="max-width: 420px;">No account needed to try. No credit card. Your lead data is never stored or used for training.</div>
+            </div>
+            <div class="type-item">
+              <div class="type-meta">
+                <div class="type-meta-name">Label</div>
+                <div class="type-meta-spec">DM Sans 500<br>14px</div>
+              </div>
+              <div class="type-label">Business Name</div>
+            </div>
+            <div class="type-item">
+              <div class="type-meta">
+                <div class="type-meta-name">Small / Caption</div>
+                <div class="type-meta-spec">DM Sans 400<br>12.8px / muted</div>
+              </div>
+              <div class="type-small">Lead Rosetta · Ed & Sy Inc. · Toronto, Ontario · © 2026</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUTTONS -->
+    <div class="guide-section" id="buttons">
+      <div class="section-header">
+        <h2>Buttons</h2>
+        <p>All buttons use 100px border-radius (pill shape). Primary CTA is always amber. Sage for confirmation actions. Never use square buttons. Any green or sage background must use white or light contrasting text for readability.</p>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-label">Primary Actions</div>
+        <div class="preview-block">
+          <div class="preview-area">
+            <button class="btn-primary">Try free — one demo →</button>
+            <button class="btn-primary">Start Pro →</button>
+            <button class="btn-primary-sm">Upload CSV</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-label">Secondary Actions</div>
+        <div class="preview-block">
+          <div class="preview-area">
+            <button class="btn-outline">See how it works</button>
+            <button class="btn-sage">Approve & Send</button>
+            <button class="btn-ghost">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-label">States</div>
+        <div class="preview-block">
+          <div class="preview-area">
+            <button class="btn-disabled" disabled>Generating...</button>
+            <button class="btn-destructive">Delete demo</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BADGES -->
+    <div class="guide-section" id="badges">
+      <div class="section-header">
+        <h2>Badges & Tags</h2>
+        <p>Used for plan labels, status tags, and feature callouts. Always pill shape.</p>
+      </div>
+
+      <div class="preview-block">
+        <div class="preview-area">
+          <span class="badge badge-amber">Most popular</span>
+          <span class="badge badge-sage">✓ Sent</span>
+          <span class="badge badge-error">Bounced</span>
+          <span class="badge badge-neutral">Draft</span>
+          <span class="badge badge-dark">Pro</span>
+          <span class="badge badge-amber">Cold outreach, reinvented</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- EYEBROW -->
+    <div class="guide-section" id="eyebrow">
+      <div class="section-header">
+        <h2>Eyebrow Labels</h2>
+        <p>Used above section headings to add context. Always uppercase, amber color, pill shape with subtle fill.</p>
+      </div>
+
+      <div class="preview-block">
+        <div class="preview-area column">
+          <span class="eyebrow">Cold outreach, reinvented</span>
+          <span class="eyebrow">Step 1 of 4</span>
+          <span class="eyebrow">Pro feature</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORMS -->
+    <div class="guide-section" id="forms">
+      <div class="section-header">
+        <h2>Form Elements</h2>
+        <p>8px border radius on all inputs. Focus state uses sage border. Error state uses red border with error text below.</p>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-label">Text Input States</div>
+        <div class="preview-block">
+          <div class="preview-area column">
+            <div class="form-group">
+              <label class="form-label">Business name</label>
+              <input class="form-input" placeholder="e.g. OhMyGlass Toronto" type="text">
+              <span class="form-hint">Enter the prospect's business name as it appears publicly.</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Website URL</label>
+              <input class="form-input success" value="https://ohmyglass.ca" type="text">
+              <span class="form-hint" style="color: var(--sage);">✓ Website found — pulling branding automatically</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Contact email</label>
+              <input class="form-input error" value="notanemail" type="text">
+              <span class="form-error-text">Please enter a valid email address.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-label">Textarea & Select</div>
+        <div class="preview-block">
+          <div class="preview-area column">
+            <div class="form-group" style="max-width: 420px;">
+              <label class="form-label">Services offered</label>
+              <textarea class="form-input" placeholder="e.g. Emergency glass repair, window replacement, mirror installation"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Send via</label>
+              <select class="form-select">
+                <option>Email</option>
+                <option>Email (SMS when available)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARDS -->
+    <div class="guide-section" id="cards">
+      <div class="section-header">
+        <h2>Cards</h2>
+        <p>Three card variants. White for primary content, surface for secondary/muted content, featured (sage) for highlighted plans or CTAs.</p>
+      </div>
+
+      <div class="preview-block">
+        <div class="preview-area">
+          <div class="card">
+            <div class="card-title">OhMyGlass Toronto</div>
+            <div class="card-body">Glass repair & window replacement. Serving Toronto, Etobicoke, Scarborough.</div>
+          </div>
+          <div class="card-surface">
+            <div class="card-title">GTA Plumbing Co.</div>
+            <div class="card-body">Emergency plumbing, drain cleaning. 24/7 service across the GTA.</div>
+          </div>
+          <div class="card-featured">
+            <div class="card-title">Pro Plan</div>
+            <div class="card-body">Unlimited demos, automated email sending, open tracking.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FEEDBACK -->
+    <div class="guide-section" id="feedback">
+      <div class="section-header">
+        <h2>Feedback & Alerts</h2>
+        <p>Used for system messages, confirmations, errors, and warnings. Always include a title and brief description.</p>
+      </div>
+
+      <div class="preview-block">
+        <div class="preview-area column">
+          <div class="notif notif-success">
+            <span class="notif-icon">✓</span>
+            <div>
+              <div class="notif-title">Demo sent successfully</div>
+              <div class="notif-desc">Your demo for OhMyGlass has been sent via email and SMS.</div>
+            </div>
+          </div>
+          <div class="notif notif-warning">
+            <span class="notif-icon">⚠</span>
+            <div>
+              <div class="notif-title">No website found</div>
+              <div class="notif-desc">We couldn't find a website for this business. Demo will use placeholder branding.</div>
+            </div>
+          </div>
+          <div class="notif notif-error">
+            <span class="notif-icon">✕</span>
+            <div>
+              <div class="notif-title">Email delivery failed</div>
+              <div class="notif-desc">The message could not be delivered. Check the address and try again.</div>
+            </div>
+          </div>
+          <div class="notif notif-neutral">
+            <span class="notif-icon">ℹ</span>
+            <div>
+              <div class="notif-title">Generating your demo</div>
+              <div class="notif-desc">This usually takes under 90 seconds. We'll notify you when it's ready to review.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATUS -->
+    <div class="guide-section" id="status">
+      <div class="section-header">
+        <h2>Status Indicators</h2>
+        <p>Used in the demo review queue and dashboard. Five states: Draft → Approved → Sent → Opened → Replied.</p>
+      </div>
+
+      <div class="preview-block">
+        <div class="preview-area column" style="padding: 1.5rem;">
+          <div class="status-row">
+            <div class="status-item status-draft">
+              <span class="status-name"><span class="status-dot"></span>Draft</span>
+              <span class="badge badge-neutral" style="font-size: 0.7rem; padding: 0.2rem 0.6rem;">Not sent</span>
+            </div>
+            <div class="status-item status-approved">
+              <span class="status-name"><span class="status-dot"></span>Approved</span>
+              <span class="badge badge-amber" style="font-size: 0.7rem; padding: 0.2rem 0.6rem;">Ready to send</span>
+            </div>
+            <div class="status-item status-sent">
+              <span class="status-name"><span class="status-dot"></span>Sent</span>
+              <span style="font-size: 0.75rem; color: var(--muted);">Feb 28, 9:14am</span>
+            </div>
+            <div class="status-item status-opened">
+              <span class="status-name"><span class="status-dot"></span>Opened</span>
+              <span style="font-size: 0.75rem; color: var(--muted);">Clicked demo link</span>
+            </div>
+            <div class="status-item status-replied">
+              <span class="status-name"><span class="status-dot"></span>Replied</span>
+              <span class="badge badge-sage" style="font-size: 0.7rem; padding: 0.2rem 0.6rem;">🎉 Hot lead</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP INDICATOR -->
+    <div class="guide-section" id="steps">
+      <div class="section-header">
+        <h2>Step Indicators</h2>
+        <p>Used in onboarding and the demo generation flow. Active step uses sage fill. Completed steps use sage outline.</p>
+      </div>
+
+      <div class="preview-block">
+        <div class="preview-area column" style="padding: 1.5rem 2rem;">
+          <div class="steps-row">
+            <div class="step-pill done">
+              <div class="step-pill-num">✓</div>
+              <div class="step-pill-label">Upload leads</div>
+            </div>
+            <div class="step-connector done"></div>
+            <div class="step-pill active">
+              <div class="step-pill-num">2</div>
+              <div class="step-pill-label">Generate demos</div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-pill">
+              <div class="step-pill-num">3</div>
+              <div class="step-pill-label">Review & approve</div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-pill">
+              <div class="step-pill-num">4</div>
+              <div class="step-pill-label">Send</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DATA TABLE -->
+    <div class="guide-section" id="data">
+      <div class="section-header">
+        <h2>Data Tables</h2>
+        <p>Used in the demo queue and dashboard. Minimal borders, hover states, badge-based status column.</p>
+      </div>
+
+      <div class="preview-block">
+        <div class="preview-area column" style="padding: 1.25rem;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Business</th>
+                <th>City</th>
+                <th>Sent</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>OhMyGlass</strong></td>
+                <td>Toronto</td>
+                <td>Feb 28</td>
+                <td><span class="badge badge-sage">✓ Replied</span></td>
+              </tr>
+              <tr>
+                <td><strong>GTA Plumbing Co.</strong></td>
+                <td>Mississauga</td>
+                <td>Feb 28</td>
+                <td><span class="badge badge-neutral" style="font-size: 0.7rem;">Opened</span></td>
+              </tr>
+              <tr>
+                <td><strong>North York HVAC</strong></td>
+                <td>North York</td>
+                <td>Feb 27</td>
+                <td><span class="badge badge-amber" style="font-size: 0.7rem;">Sent</span></td>
+              </tr>
+              <tr>
+                <td><strong>Locksmith Pro</strong></td>
+                <td>Etobicoke</td>
+                <td>—</td>
+                <td><span class="badge badge-neutral" style="font-size: 0.7rem;">Draft</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SPACING -->
+    <div class="guide-section" id="spacing">
+      <div class="section-header">
+        <h2>Spacing Scale</h2>
+        <p>Based on a 4px base unit. Use these values for all margin, padding, and gap properties.</p>
+      </div>
+
+      <div class="preview-block">
+        <div class="preview-area column" style="padding: 1.5rem;">
+          <div class="spacing-grid">
+            <div class="spacing-item"><div class="spacing-label">4px / 0.25rem</div><div class="spacing-bar" style="width: 4px;"></div><div class="spacing-px">xs — icon gaps</div></div>
+            <div class="spacing-item"><div class="spacing-label">8px / 0.5rem</div><div class="spacing-bar" style="width: 8px;"></div><div class="spacing-px">sm — tight inline</div></div>
+            <div class="spacing-item"><div class="spacing-label">12px / 0.75rem</div><div class="spacing-bar" style="width: 12px;"></div><div class="spacing-px">sm+ — badge padding</div></div>
+            <div class="spacing-item"><div class="spacing-label">16px / 1rem</div><div class="spacing-bar" style="width: 16px;"></div><div class="spacing-px">md — standard gap</div></div>
+            <div class="spacing-item"><div class="spacing-label">20px / 1.25rem</div><div class="spacing-bar" style="width: 20px;"></div><div class="spacing-px">md+ — form group gaps</div></div>
+            <div class="spacing-item"><div class="spacing-label">24px / 1.5rem</div><div class="spacing-bar" style="width: 24px;"></div><div class="spacing-px">lg — card padding</div></div>
+            <div class="spacing-item"><div class="spacing-label">32px / 2rem</div><div class="spacing-bar" style="width: 32px;"></div><div class="spacing-px">xl — section sub-gaps</div></div>
+            <div class="spacing-item"><div class="spacing-label">48px / 3rem</div><div class="spacing-bar" style="width: 48px;"></div><div class="spacing-px">2xl — nav padding</div></div>
+            <div class="spacing-item"><div class="spacing-label">64px / 4rem</div><div class="spacing-bar" style="width: 64px;"></div><div class="spacing-px">3xl — section padding (mobile)</div></div>
+            <div class="spacing-item"><div class="spacing-label">96px / 6rem</div><div class="spacing-bar" style="width: 96px;"></div><div class="spacing-px">4xl — section padding (desktop)</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DIVIDERS -->
+    <div class="guide-section" id="dividers">
+      <div class="section-header">
+        <h2>Dividers</h2>
+        <p>Always 1px, always <code>--border</code> color. Never use decorative dividers.</p>
+      </div>
+
+      <div class="preview-block">
+        <div class="preview-area column" style="gap: 1.5rem;">
+          <span class="type-small">Section above</span>
+          <hr class="guide-divider" style="margin: 0; width: 100%;">
+          <span class="type-small">Section below</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="height: 4rem;"></div>
+
+  </main>
+</div>
+
+</body>
+</html>
