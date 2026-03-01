@@ -152,7 +152,7 @@
 					{@const isValid = row.validationErrors.length === 0}
 					<tr
 						class="lr-row-card"
-						style="background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); {#if !isValid}border-left: 3px solid var(--color-error, #b91c1c);{/if}"
+						style="background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); {!isValid ? 'border-left: 3px solid var(--color-error, #b91c1c);' : ''}"
 					>
 						<td class="lr-table-body" style="padding: var(--space-4) var(--space-5);">{row.companyName || '—'}</td>
 						<td class="lr-table-body" style="padding: var(--space-4) var(--space-5);">{row.email || '—'}</td>
