@@ -64,7 +64,7 @@
         href="#services"
         variant="outline"
         size="lg"
-        class="border-primary text-primary hover:bg-primary/10"
+        class="border-primary text-primary hover:!bg-primary hover:!text-white hover:!border-primary"
       >
         {hero.ctaSecondary}
       </Button>
