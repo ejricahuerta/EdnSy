@@ -1,15 +1,5 @@
 {
 	"framework": "sveltekit",
 	"buildCommand": "npm run build",
-	"installCommand": "npm install",
-	"crons": [
-		{
-			"path": "/api/cron/jobs/demo",
-			"schedule": "*/1 * * * *"
-		},
-		{
-			"path": "/api/cron/jobs/gbp",
-			"schedule": "*/2 * * * *"
-		}
-	]
+	"installCommand": "npm install"
 }

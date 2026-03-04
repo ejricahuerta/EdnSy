@@ -19,6 +19,7 @@ Thumbs.db
 .env
 .env.*
 .env copy
+.dev.vars
 
 # Marketing app script output (DataForSEO test results)
 apps/marketing/scripts/output/
