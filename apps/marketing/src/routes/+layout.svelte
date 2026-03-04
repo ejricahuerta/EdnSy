@@ -2,8 +2,11 @@
 	import '../app.css';
 	import { onMount } from 'svelte';
 	import { page, navigating } from '$app/stores';
+	import { injectAnalytics } from '@vercel/analytics/sveltekit';
 	import { ModeWatcher } from 'mode-watcher';
 	import { toggleMode } from 'mode-watcher';
+
+	injectAnalytics();
 	import { PLAN_LABELS } from '$lib/plans';
 	import { Toaster } from '$lib/components/ui/sonner';
 	import { Button } from '$lib/components/ui/button';
