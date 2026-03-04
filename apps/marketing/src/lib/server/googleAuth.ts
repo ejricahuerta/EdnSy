@@ -11,14 +11,14 @@ const LOGIN_SCOPES = [
 ].join(' ');
 
 function getClientId(): string {
-	const id = env.GOOGLE_CLIENT_ID;
-	if (!id) throw new Error('GOOGLE_CLIENT_ID is not set');
+	const id = env.AUTH_GOOGLE_CLIENT_ID;
+	if (!id) throw new Error('AUTH_GOOGLE_CLIENT_ID is not set');
 	return id;
 }
 
 function getClientSecret(): string {
-	const secret = env.GOOGLE_CLIENT_SECRET;
-	if (!secret) throw new Error('GOOGLE_CLIENT_SECRET is not set');
+	const secret = env.AUTH_GOOGLE_CLIENT_SECRET;
+	if (!secret) throw new Error('AUTH_GOOGLE_CLIENT_SECRET is not set');
 	return secret;
 }
 

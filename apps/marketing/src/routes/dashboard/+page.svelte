@@ -1,18 +1,21 @@
 <script lang="ts">
-	import { invalidateAll } from '$app/navigation';
+	import { refreshRouteData } from '$lib/refreshRouteData';
 	import type { PageData } from './$types';
 	import { RefreshCw } from 'lucide-svelte';
 	import * as Card from '$lib/components/ui/card';
 	import * as Item from '$lib/components/ui/item';
 	import { Button } from '$lib/components/ui/button';
+	import { Badge } from '$lib/components/ui/badge';
+	import * as Table from '$lib/components/ui/table';
 	import { cn } from '$lib/utils';
-	import { toast } from '$lib/toast';
 	import { OVERVIEW_REFRESH_COOLDOWN_MINUTES } from '$lib/constants';
 
 	let { data } = $props<{ data: PageData }>();
 	const prospects = $derived(data.prospects);
-	const prospectsPreview = $derived(data.prospectsPreview ?? []);
 	const prospectsCount = $derived(data.prospectsCount ?? prospects.length);
+	const clientsNew = $derived(data.clientsNew ?? []);
+	const clientsStagnant = $derived(data.clientsStagnant ?? []);
+	const clientsOngoing = $derived(data.clientsOngoing ?? []);
 	const trackingCounts = $derived.by(() => {
 		const map = data.demoTrackingByProspectId ?? {};
 		let sent = 0, opened = 0, clicked = 0, replied = 0;
@@ -29,18 +32,23 @@
 			? [trackingCounts.sent && `${trackingCounts.sent} sent`, trackingCounts.opened && `${trackingCounts.opened} opened`, trackingCounts.clicked && `${trackingCounts.clicked} clicked`, trackingCounts.replied && `${trackingCounts.replied} replied`].filter(Boolean).join(' · ')
 			: ''
 	);
-	let approvedCount = 0, draftCount = 0;
-	for (const t of Object.values(data.demoTrackingByProspectId ?? {})) {
-		if (t.status === 'approved') approvedCount++;
-		else if (t.status === 'draft') draftCount++;
-	}
+	const { approvedCount, draftCount } = $derived.by(() => {
+		const map = data.demoTrackingByProspectId ?? {};
+		let approved = 0, draft = 0;
+		for (const t of Object.values(map)) {
+			if (t.status === 'approved') approved++;
+			else if (t.status === 'draft') draft++;
+		}
+		return { approvedCount: approved, draftCount: draft };
+	});
 	const noDemoButEmail = $derived(prospects.filter((p) => (p.email ?? '').trim().length > 0 && !(p.demoLink ?? '').trim()).length);
 	const engagedCount = $derived(trackingCounts.opened + trackingCounts.clicked);
+	const readyToSendCount = $derived(approvedCount + draftCount);
 
 	const overviewWhat = $derived.by(() => {
 		const n = prospects.length;
 		const { sent, opened, clicked, replied } = trackingCounts;
-		if (n === 0) return 'Your CRM has no clients yet. Connect an integration (HubSpot, Pipedrive, etc.) or add clients to start generating and sending demos.';
+		if (n === 0) return 'Your CRM has no prospects yet. Connect an integration (HubSpot, Pipedrive, etc.) or add prospects to start generating and sending demos.';
 		const parts: string[] = [];
 		parts.push(`You have ${n} client${n === 1 ? '' : 's'} in your CRM.`);
 		if (sent + opened + clicked + replied > 0) {
@@ -54,29 +62,29 @@
 		const { sent, opened, clicked, replied } = trackingCounts;
 		const parts: string[] = [];
 		parts.push(`Sent: ${sent}. Opened: ${opened}. Clicked: ${clicked}. Replied: ${replied}.`);
-		if (approvedCount > 0) parts.push(`${approvedCount} approved and ready to send.`);
-		if (draftCount > 0) parts.push(`${draftCount} draft${draftCount === 1 ? '' : 's'} in review.`);
+		const readyToSend = approvedCount + draftCount;
+		if (readyToSend > 0) parts.push(`${readyToSend} demo${readyToSend === 1 ? '' : 's'} ready to send.`);
 		if (noDemoButEmail > 0) parts.push(`${noDemoButEmail} with email but no demo yet.`);
 		return parts.join(' ');
 	});
 	const overviewNext = $derived.by(() => {
-		const hasActions = approvedCount > 0 || noDemoButEmail > 0 || draftCount > 0 || engagedCount > 0;
+		const readyToSend = approvedCount + draftCount;
+		const hasActions = readyToSend > 0 || noDemoButEmail > 0 || engagedCount > 0;
 		if (!hasActions) return 'No urgent actions. Use the Clients page to send demos, create new ones, or follow up with prospects who engaged.';
 		const bullets: string[] = [];
-		if (approvedCount > 0) bullets.push(`Send the ${approvedCount} approved demo${approvedCount === 1 ? '' : 's'}.`);
+		if (readyToSend > 0) bullets.push(`Send the ${readyToSend} demo${readyToSend === 1 ? '' : 's'}.`);
 		if (noDemoButEmail > 0) bullets.push(`Create demos for ${noDemoButEmail} prospect${noDemoButEmail === 1 ? '' : 's'}.`);
-		if (draftCount > 0) bullets.push(`Review ${draftCount} draft${draftCount === 1 ? '' : 's'}.`);
 		if (engagedCount > 0) bullets.push(`Follow up with ${engagedCount} who opened or clicked.`);
 		return bullets.join(' ');
 	});
 	const overviewStagnation = $derived.by(() => {
 		const { sent, opened, clicked, replied } = trackingCounts;
-		if (prospects.length === 0) return 'Add or sync clients to see where your pipeline might be stuck.';
-		if (sent === 0 && (draftCount > 0 || approvedCount > 0)) return 'Demos are ready but none sent yet. Use the Clients page to send approved demos.';
-		if (sent === 0 && noDemoButEmail > 0) return 'No demos created or sent yet. Create demos for prospects with email, then approve and send.';
+		if (prospects.length === 0) return 'Add or sync prospects to see where your pipeline might be stuck.';
+		if (sent === 0 && (draftCount > 0 || approvedCount > 0)) return 'Demos are ready but none sent yet. Use the Clients page to send.';
+		if (sent === 0 && noDemoButEmail > 0) return 'No demos created or sent yet. Create demos for prospects with email, then send.';
 		if (sent > 0 && replied === 0 && engagedCount === 0) return 'Demos were sent but no opens or clicks yet. Give it time or check that links and subject lines are clear.';
 		if (sent > 0 && opened + clicked > 0 && replied === 0) return 'Opens and clicks but no replies yet. Consider a follow-up or give recipients more time.';
-		if (draftCount >= 3 && approvedCount === 0) return 'Several drafts are waiting. Review and approve them to unlock sending.';
+		if (readyToSendCount >= 3) return 'Several demos are ready. Use the Clients page to send.';
 		return 'Pipeline is moving. Keep sending and following up with those who engaged.';
 	});
 
@@ -85,7 +93,7 @@
 	const displayNext = $derived((data.overviewNext ?? '').trim() || overviewNext);
 	const displayStagnation = $derived((data.overviewStagnation ?? '').trim() || overviewStagnation);
 
-	const actionCardsCount = $derived((approvedCount > 0 ? 1 : 0) + (noDemoButEmail > 0 ? 1 : 0) + (draftCount > 0 ? 1 : 0) + (engagedCount > 0 ? 1 : 0));
+	const actionCardsCount = $derived((readyToSendCount > 0 ? 1 : 0) + (noDemoButEmail > 0 ? 1 : 0) + (engagedCount > 0 ? 1 : 0));
 
 	let overviewRefreshing = $state(false);
 	let overviewInitialGenerated = $state(false);
@@ -103,15 +111,12 @@
 		if (overviewRefreshing || inOverviewCooldown) return;
 		overviewRefreshing = true;
 		try {
-			const res = await fetch('/api/dashboard/overview/refresh', { method: 'POST' });
+			const res = await fetch('/api/dashboard/overview', { method: 'POST' });
 			const body = await res.json();
 			if (!res.ok) {
-				if (res.status === 429 && body.nextAllowedAt) toast.error(`Regenerate in ${overviewMinutesLeft || OVERVIEW_REFRESH_COOLDOWN_MINUTES} min`);
-				else toast.error(body.error ?? 'Failed to regenerate overview');
 				return;
 			}
-			toast.success('Overview updated');
-			await invalidateAll();
+			await refreshRouteData();
 		} finally {
 			overviewRefreshing = false;
 		}
@@ -169,7 +174,7 @@
 				</Item.Content>
 				{#if actionCardsCount > 0}
 					<Item.Actions>
-						<Button variant="outline" size="sm" href="/dashboard/clients">View clients</Button>
+						<Button variant="outline" size="sm" href="/dashboard/prospects">View prospects</Button>
 					</Item.Actions>
 				{/if}
 			</Item.Root>
@@ -191,17 +196,19 @@
 			</Card.Header>
 			<Card.Content class="pt-0">
 				{#if (data.connectedApps ?? []).length > 0}
-					<ul class="flex flex-wrap gap-2">
+					<ul class="flex flex-wrap gap-2 list-none p-0 m-0">
 						{#each data.connectedApps as app (app)}
 							<li>
-								<span class="inline-flex items-center rounded-md bg-muted px-2.5 py-1 text-xs font-medium text-foreground">{app}</span>
+								<Badge variant="secondary" class="font-medium">{app}</Badge>
 							</li>
 						{/each}
 					</ul>
 				{:else}
 					<p class="text-sm text-muted-foreground">None connected.</p>
 				{/if}
-				<a href="/dashboard/integrations" class="text-sm text-[var(--sage)] hover:underline mt-2 inline-block">Manage integrations</a>
+				<Button variant="link" href="/dashboard/integrations" class="mt-2 h-auto p-0">
+					Manage integrations
+				</Button>
 			</Card.Content>
 		</Card.Root>
 		<Card.Root class="border-0 bg-card shadow-none">
@@ -221,7 +228,9 @@
 				{:else}
 					<p class="text-sm text-muted-foreground">No upcoming charge.</p>
 				{/if}
-				<a href="/dashboard/billing" class="text-sm text-[var(--sage)] hover:underline mt-2 inline-block">Billing</a>
+				<Button variant="link" href="/dashboard/billing" class="mt-2 h-auto p-0">
+					Billing
+				</Button>
 			</Card.Content>
 		</Card.Root>
 	</div>
@@ -231,31 +240,71 @@
 			<div>
 				<Card.Title class="font-semibold text-foreground text-lg">Clients</Card.Title>
 				<Card.Description class="mt-1">
-					Your clients from Connect CRM. Generate demos, send via email, or copy the link.
+					Your prospects from Connect CRM. Generate demos, send via email, or copy the link.
 				</Card.Description>
 				{#if trackingSummaryLabel}
 					<p class="mt-0.5 text-xs text-muted-foreground">{trackingSummaryLabel}</p>
 				{/if}
 			</div>
-			<Button variant="outline" size="sm" href="/dashboard/clients" class="shrink-0 border-[var(--sage)] text-[var(--sage)] hover:bg-[var(--sage)]/10 hover:text-[var(--sage-light)]">
+			<Button variant="outline" size="sm" href="/dashboard/prospects" class="shrink-0">
 				View all ({prospectsCount}) clients
 			</Button>
 		</Card.Header>
-		<Card.Content class="px-4 pb-4 sm:px-6">
-			{#if prospectsPreview.length > 0}
-				<ul class="divide-y divide-border rounded-md border border-border">
-					{#each prospectsPreview as p (p.id)}
-						<li class="flex items-center justify-between gap-2 px-3 py-2.5 text-sm">
-							<span class="font-medium truncate">{p.companyName || 'Unnamed'}</span>
-							<span class="text-muted-foreground shrink-0">
-								{data.demoTrackingByProspectId?.[p.id]?.status ?? (p.demoLink ? 'has demo' : '—')}
-							</span>
-							<a href="/dashboard/clients" class="text-[var(--sage)] hover:underline shrink-0">View</a>
-						</li>
-					{/each}
-				</ul>
+		<Card.Content class="px-4 pb-4 sm:px-6 space-y-6">
+			{#if prospectsCount > 0}
+				<div>
+					<h3 class="text-sm font-medium text-muted-foreground mb-2">Top 5 new</h3>
+					<Table.Root class="rounded-md border border-border">
+						<Table.Body>
+							{#each clientsNew as p (p.id)}
+								<Table.Row>
+									<Table.Cell class="px-3 py-2.5">
+										<span class="font-medium truncate">{p.companyName || 'Unnamed'}</span>
+									</Table.Cell>
+								</Table.Row>
+							{/each}
+						</Table.Body>
+					</Table.Root>
+					{#if clientsNew.length === 0}
+						<p class="text-sm text-muted-foreground py-2">None. All have demos or no clients yet.</p>
+					{/if}
+				</div>
+				<div>
+					<h3 class="text-sm font-medium text-muted-foreground mb-2">Top 5 in progress</h3>
+					<Table.Root class="rounded-md border border-border">
+						<Table.Body>
+							{#each clientsOngoing as p (p.id)}
+								<Table.Row>
+									<Table.Cell class="px-3 py-2.5">
+										<span class="font-medium truncate">{p.companyName || 'Unnamed'}</span>
+									</Table.Cell>
+								</Table.Row>
+							{/each}
+						</Table.Body>
+					</Table.Root>
+					{#if clientsOngoing.length === 0}
+						<p class="text-sm text-muted-foreground py-2">None.</p>
+					{/if}
+				</div>
+				<div>
+					<h3 class="text-sm font-medium text-muted-foreground mb-2">Top 5 stagnant</h3>
+					<Table.Root class="rounded-md border border-border">
+						<Table.Body>
+							{#each clientsStagnant as p (p.id)}
+								<Table.Row>
+									<Table.Cell class="px-3 py-2.5">
+										<span class="font-medium truncate">{p.companyName || 'Unnamed'}</span>
+									</Table.Cell>
+								</Table.Row>
+							{/each}
+						</Table.Body>
+					</Table.Root>
+					{#if clientsStagnant.length === 0}
+						<p class="text-sm text-muted-foreground py-2">None.</p>
+					{/if}
+				</div>
 			{:else}
-				<p class="text-sm text-muted-foreground py-2">No clients yet. Connect an integration in Integrations to sync.</p>
+				<p class="text-sm text-muted-foreground py-2">No prospects yet. Connect an integration in Integrations to sync.</p>
 			{/if}
 		</Card.Content>
 	</Card.Root>
@@ -264,17 +313,3 @@
 		<p class="py-8 text-sm text-muted-foreground">No prospects yet. Connect an integration in Integrations to sync, or add from your CRM.</p>
 	{/if}
 </div>
-
-<style>
-	.sr-only {
-		position: absolute;
-		width: 1px;
-		height: 1px;
-		padding: 0;
-		margin: -1px;
-		overflow: hidden;
-		clip: rect(0, 0, 0, 0);
-		white-space: nowrap;
-		border: 0;
-	}
-</style>

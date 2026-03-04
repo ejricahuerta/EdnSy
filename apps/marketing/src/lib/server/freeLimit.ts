@@ -1,6 +1,6 @@
-import { FREE_BRIEFINGS_PER_MONTH } from '$lib/plans';
+import { FREE_DEMOS_PER_MONTH } from '$lib/plans';
 
-const COOKIE_NAME = 'lr_free_briefings';
+const COOKIE_NAME = 'lr_free_demos';
 const COOKIE_MAX_AGE_DAYS = 31;
 
 /** Format YYYY-MM for current month (used to reset count each month). */
@@ -18,13 +18,13 @@ export type FreeLimitState = {
 };
 
 /**
- * Read free briefings count from cookie. Cookie value: "monthKey:count" (e.g. "2026-02:3").
+ * Read free demos count from cookie. Cookie value: "monthKey:count" (e.g. "2026-02:1").
  * Resets if month has changed.
  */
-export function getFreeBriefingsState(cookies: { get: (name: string) => string | undefined }): FreeLimitState {
+export function getFreeDemosState(cookies: { get: (name: string) => string | undefined }): FreeLimitState {
 	const raw = cookies.get(COOKIE_NAME);
 	const monthKey = currentMonthKey();
-	const limit = FREE_BRIEFINGS_PER_MONTH;
+	const limit = FREE_DEMOS_PER_MONTH;
 
 	if (!raw || !raw.includes(':')) {
 		return { count: 0, limit, monthKey, remaining: limit, atLimit: false };
@@ -51,10 +51,10 @@ export function getFreeBriefingsState(cookies: { get: (name: string) => string |
 type ServerCookies = { get: (name: string) => string | undefined; set: (name: string, value: string, opts?: any) => void };
 
 /**
- * Increment free briefings count and persist via cookies.set.
+ * Increment free demos count and persist via cookies.set.
  */
-export function incrementFreeBriefings(cookies: ServerCookies): FreeLimitState {
-	const state = getFreeBriefingsState(cookies);
+export function incrementFreeDemos(cookies: ServerCookies): FreeLimitState {
+	const state = getFreeDemosState(cookies);
 	const newCount = Math.min(state.count + 1, state.limit);
 	const value = `${state.monthKey}:${newCount}`;
 	cookies.set(COOKIE_NAME, value, {

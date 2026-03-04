@@ -1,537 +1,13 @@
-@import "tailwindcss";
+@import "./globals.css";
+/* Demo styles live in `src/styles/demo.css` and are loaded only on `/demo/*` routes. */
 
 /* ==========================================================================
-   Demo route theme (industry landing pages) – theme tokens and component classes.
+   Color scheme: shadcn from globals.css is the default everywhere.
+   Lead Rosetta token overrides (--muted, --cream, etc.) apply ONLY under
+   .leadrosetta-app: landing page, auth shell, and any demo widget that
+   uses that class. Dashboard (.leadrosetta-app-dashboard) never gets
+   these overrides and always uses globals.css (shadcn) only.
    ========================================================================== */
-@theme {
-  /* Dark theme for demo pages (single theme; industry-specific theming can be added later) */
-  --color-base-100: #1c1917;
-  --color-base-200: #292524;
-  --color-base-300: #44403c;
-  --color-base-content: #e7e5e4;
-  --color-primary: #2D6A4F;
-  --color-primary-content: #fafaf9;
-  --color-primary-foreground: #ffffff;
-  --color-neutral: #3f3f46;
-  --color-neutral-content: #d4d4d8;
-  --color-success: #16a34a;
-  --color-warning: #d97706;
-  --color-error: #dc2626;
-  --radius-selector: 0.75rem;
-  --radius-box: 0.75rem;
-
-  /* shadcn-svelte (dropdown, dialog, select, etc.) – defaults so bg-popover/text-popover-foreground resolve everywhere, including portaled content */
-  --color-background: #F5F0E8;
-  --color-foreground: #1A1A14;
-  --color-card: #FFFFFF;
-  --color-card-foreground: #1A1A14;
-  --color-popover: #FFFFFF;
-  --color-popover-foreground: #1A1A14;
-  --color-muted: #EEEAE0;
-  --color-muted-foreground: #7A7566;
-  --color-accent: #EEEAE0;
-  --color-accent-foreground: #1A1A14;
-  --color-border: #D8D0BF;
-  --color-input: #D8D0BF;
-  --color-ring: #3D5A3E;
-}
-
-/* Demo route: component classes used by industry landing templates.
-   Industry themes (fonts + full palette) come from docs/style-guides/industries/*.html and
-   are applied via data-demo-theme (construction, real-estate, healthcare, dental, salons,
-   solo-professionals, legal, fitness). Default below is fallback; each industry overrides. */
-.demo-route {
-  --font-display: 'Fraunces', serif;
-  --font-body: 'Epilogue', sans-serif;
-  /* Landing content width: change these to adjust overall content/container width (72rem = 1152px, 56rem = 896px) */
-  --landing-content-max: 72rem;
-  --landing-hero-max: 56rem;
-  color-scheme: dark;
-  min-height: 100vh;
-  padding-top: 2.75rem;
-  background-color: var(--color-base-100);
-  color: var(--color-base-content);
-  font-family: var(--font-body);
-}
-/* Shared container for landing sections: max-width and padding controlled from .demo-route variables */
-.demo-route .landing-container {
-  max-width: var(--landing-content-max);
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 1rem;
-  padding-right: 1rem;
-}
-@media (min-width: 640px) {
-  .demo-route .landing-container { padding-left: 1.5rem; padding-right: 1.5rem; }
-}
-@media (min-width: 1024px) {
-  .demo-route .landing-container { padding-left: 2rem; padding-right: 2rem; }
-}
-.demo-route .landing-hero-inner {
-  max-width: var(--landing-hero-max);
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 1rem;
-  padding-right: 1rem;
-}
-@media (min-width: 640px) {
-  .demo-route .landing-hero-inner { padding-left: 1.5rem; padding-right: 1.5rem; }
-}
-@media (min-width: 1024px) {
-  .demo-route .landing-hero-inner { padding-left: 2rem; padding-right: 2rem; }
-}
-.demo-route h1,
-.demo-route h2,
-.demo-route h3,
-.demo-route h4,
-.demo-route .demo-card-title,
-.demo-route .section-heading,
-.demo-route .font-display {
-  font-family: var(--font-display);
-}
-.demo-route .section-lead,
-.demo-route .font-body {
-  font-family: var(--font-body);
-}
-.demo-route .demo-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-.demo-route .demo-nav .demo-nav-start a,
-.demo-route header nav .demo-nav-start a {
-  font-family: var(--font-display);
-}
-.demo-route .demo-btn {
-  font-family: var(--font-body);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  line-height: 1.25rem;
-  border-radius: var(--radius-selector, 0.5rem);
-  border: none;
-  cursor: pointer;
-  transition: box-shadow 0.2s, transform 0.2s;
-}
-.demo-route .demo-btn-primary {
-  background-color: var(--color-primary);
-  color: var(--color-primary-content);
-}
-.demo-route .demo-btn-primary:hover {
-  filter: brightness(1.1);
-}
-.demo-route .demo-btn-outline {
-  background-color: transparent;
-  border: 2px solid currentColor;
-}
-.demo-route .demo-btn-neutral {
-  background-color: var(--color-neutral);
-  color: var(--color-neutral-content);
-}
-.demo-route .demo-btn-sm { padding: 0.25rem 0.75rem; font-size: 0.8125rem; }
-.demo-route .demo-btn-md { padding: 0.5rem 1rem; }
-.demo-route .demo-btn-lg { padding: 0.75rem 1.5rem; font-size: 1rem; }
-.demo-route .demo-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.25rem 0.75rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  border-radius: 9999px;
-}
-.demo-route .demo-badge-primary {
-  background-color: var(--color-primary);
-  color: var(--color-primary-content);
-  border: 0;
-}
-.demo-route .demo-badge-lg { padding: 0.35rem 0.85rem; font-size: 0.8125rem; }
-.demo-route .demo-card { background-color: var(--color-base-100); border-radius: var(--radius-box); }
-.demo-route .demo-card-body { padding: 1.5rem; }
-.demo-route .demo-card-title { font-weight: 600; }
-.demo-route .link { color: inherit; text-decoration: none; }
-.demo-route .link:hover { text-decoration: underline; }
-.demo-route .link-primary { color: var(--color-primary); }
-.demo-route .link-hover:hover { opacity: 0.9; }
-
-/* User-edited custom demo HTML (from dashboard Templates) */
-.demo-route .demo-custom-html {
-  max-width: var(--landing-content-max);
-  margin-left: auto;
-  margin-right: auto;
-  padding: 1rem;
-}
-@media (min-width: 1024px) {
-  .demo-route .demo-custom-html { padding: 2rem; }
-}
-
-/* Section headings/leads use theme base-content so industry themes apply (overrides template oklch) */
-.demo-route .section-heading {
-  color: var(--color-base-content) !important;
-}
-.demo-route .section-lead {
-  color: var(--color-base-content) !important;
-  opacity: 0.85;
-}
-
-/* Floating Lead Rosetta banner on all demo pages – distinct from dark UI (e.g. Crisp) */
-.demo-lr-banner {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 0.5rem 0.75rem;
-  padding: 0.5rem 1rem 0.5rem 1.25rem;
-  background: var(--color-base-200);
-  border-bottom: 1px solid var(--color-base-300);
-  color: var(--color-base-content);
-  font-size: 0.8125rem;
-  font-weight: 500;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-}
-.demo-lr-banner-home {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: inherit;
-  text-decoration: none;
-  transition: opacity 0.2s;
-}
-.demo-lr-banner-home:hover {
-  opacity: 0.9;
-}
-.demo-lr-banner-logo {
-  flex-shrink: 0;
-  width: 1.75rem;
-  height: 1.75rem;
-  object-fit: contain;
-}
-.demo-lr-banner-brand {
-  font-weight: 600;
-  letter-spacing: -0.01em;
-}
-.demo-lr-banner-brand span {
-  color: var(--color-primary);
-  font-weight: 600;
-}
-.demo-lr-banner-urgency {
-  font-weight: 600;
-  font-size: 0.8125rem;
-  white-space: nowrap;
-}
-.demo-lr-banner-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-shrink: 0;
-}
-.demo-lr-banner-link {
-  color: var(--color-base-content);
-  text-decoration: none;
-  font-size: 0.75rem;
-  padding: 0.25rem 0.6rem;
-  border-radius: 9999px;
-  border: 1px solid var(--color-base-300);
-  transition: background 0.2s, border-color 0.2s;
-}
-.demo-lr-banner-link:hover {
-  background: var(--color-base-300);
-  border-color: var(--color-base-content);
-}
-.demo-lr-banner-cta {
-  color: var(--color-primary-content);
-  font-size: 0.75rem;
-  padding: 0.25rem 0.6rem;
-  border-radius: 9999px;
-  background: var(--color-primary);
-  font-weight: 600;
-  text-decoration: none;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15);
-  transition: filter 0.2s;
-}
-.demo-lr-banner-cta:hover {
-  filter: brightness(1.1);
-}
-
-/* Lead Rosetta vs demo: clearly mark platform (LR) sections so they’re distinct from the business demo content */
-.demo-route .lr-from-platform {
-  position: relative;
-  border-left: 3px solid var(--color-primary);
-}
-.demo-route .lr-platform-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--color-primary);
-  opacity: 0.95;
-}
-.demo-route .lr-platform-label::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--color-primary);
-  opacity: 0.8;
-}
-.demo-route .lr-footer-platform.lr-from-platform {
-  border-left-width: 2px;
-}
-
-/* ==========================================================================
-   Demo route: industry-specific themes from docs/style-guides/industries/*.html
-   All tokens (colors, fonts, radius) must match the style guides. Light vs dark
-   follows each guide: construction = dark; real-estate, healthcare, salon,
-   generic = light.
-   ========================================================================== */
-/* construction.html — Dark. Steel/iron/concrete, safety yellow accent. */
-.demo-route[data-demo-theme="construction"] {
-  color-scheme: dark;
-  --font-display: 'Barlow Condensed', sans-serif;
-  --font-body: 'Barlow', sans-serif;
-  --color-primary: #f5c518;
-  --color-primary-content: #0f1113;
-  --color-primary-foreground: #0f1113;
-  --color-base-100: #0f1113;
-  --color-base-200: #1c1f22;
-  --color-base-300: #2a2f34;
-  --color-base-content: #f0ede8;
-  --color-neutral: #6b7280;
-  --color-neutral-content: #9ca3af;
-  --radius-selector: 0.5rem;
-  --radius-box: 0.5rem;
-}
-/* real-estate.html — Light. Off-white bg, obsidian text, champagne accent. */
-.demo-route[data-demo-theme="real-estate"] {
-  color-scheme: light;
-  --font-display: 'Libre Baskerville', serif;
-  --font-body: 'Outfit', sans-serif;
-  --color-primary: #d4b896;
-  --color-primary-content: #0d0f0f;
-  --color-primary-foreground: #0d0f0f;
-  --color-base-100: #f2f4f4;
-  --color-base-200: #e8ebeb;
-  --color-base-300: #c8d4d4;
-  --color-base-content: #0d0f0f;
-  --color-neutral: #6b7575;
-  --color-neutral-content: #252a2a;
-}
-/* healthcare-and-dental.html — Light. Porcelain/ivory bg, navy text, teal accent. */
-.demo-route[data-demo-theme="healthcare"] {
-  color-scheme: light;
-  --font-display: 'Playfair Display', serif;
-  --font-body: 'Mulish', sans-serif;
-  --color-primary: #256b7a;
-  --color-primary-content: #ffffff;
-  --color-primary-foreground: #ffffff;
-  --color-base-100: #fafaf8;
-  --color-base-200: #f4f1ec;
-  --color-base-300: #eae5dc;
-  --color-base-content: #1e2d3d;
-  --color-neutral: #6b7a8d;
-  --color-neutral-content: #2e4057;
-}
-.demo-route[data-demo-theme="dental"] {
-  color-scheme: light;
-  --font-display: 'Playfair Display', serif;
-  --font-body: 'Mulish', sans-serif;
-  --color-primary: #256b7a;
-  --color-primary-content: #ffffff;
-  --color-primary-foreground: #ffffff;
-  --color-base-100: #fafaf8;
-  --color-base-200: #f4f1ec;
-  --color-base-300: #eae5dc;
-  --color-base-content: #1e2d3d;
-  --color-neutral: #6b7a8d;
-  --color-neutral-content: #2e4057;
-}
-/* salon-and-spa.html — Light. Blush-pale/cream bg, espresso text, rose accent. */
-.demo-route[data-demo-theme="salons"] {
-  color-scheme: light;
-  --font-display: 'Cormorant Garamond', serif;
-  --font-body: 'Jost', sans-serif;
-  --color-primary: #b85c6c;
-  --color-primary-content: #faf6f1;
-  --color-primary-foreground: #faf6f1;
-  --color-base-100: #f5ede6;
-  --color-base-200: #faf6f1;
-  --color-base-300: #c5b8b0;
-  --color-base-content: #1e1410;
-  --color-neutral: #9b8c82;
-  --color-neutral-content: #2e2018;
-}
-/* legal.html — Light. Cream/navy, forest green primary, gold accent. */
-.demo-route[data-demo-theme="legal"] {
-  color-scheme: light;
-  --font-display: 'Crimson Pro', serif;
-  --font-body: 'Source Sans 3', sans-serif;
-  --color-primary: #2d4a3e;
-  --color-primary-content: #ffffff;
-  --color-primary-foreground: #ffffff;
-  --color-base-100: #f5f3ef;
-  --color-base-200: #faf9f7;
-  --color-base-300: #e0ddd8;
-  --color-base-content: #1a2332;
-  --color-neutral: #5c6873;
-  --color-neutral-content: #2c3a4d;
-  --radius-selector: 0.25rem;
-  --radius-box: 0.375rem;
-}
-/* fitness.html — Light. Surface green tint, vital teal primary. */
-.demo-route[data-demo-theme="fitness"] {
-  color-scheme: light;
-  --font-display: 'Archivo', sans-serif;
-  --font-body: 'Nunito Sans', sans-serif;
-  --color-primary: #0d9488;
-  --color-primary-content: #ffffff;
-  --color-primary-foreground: #ffffff;
-  --color-base-100: #f0fdf4;
-  --color-base-200: #ffffff;
-  --color-base-300: #e2e8f0;
-  --color-base-content: #1a1d21;
-  --color-neutral: #64748b;
-  --color-neutral-content: #2d3238;
-  --radius-selector: 0.75rem;
-  --radius-box: 0.75rem;
-}
-/* solo-professionals.html — Light. Cream, dusty blue accent. */
-.demo-route[data-demo-theme="solo-professionals"] {
-  color-scheme: light;
-  --font-display: 'DM Serif Display', serif;
-  --font-body: 'Karla', sans-serif;
-  --color-primary: #4b6b8a;
-  --color-primary-content: #ffffff;
-  --color-primary-foreground: #ffffff;
-  --color-base-100: #faf8f5;
-  --color-base-200: #f5f2ed;
-  --color-base-300: #e7e5e4;
-  --color-base-content: #292524;
-  --color-neutral: #6b7280;
-  --color-neutral-content: #44403c;
-  --radius-selector: 0.5rem;
-  --radius-box: 0.5rem;
-}
-
-/* Lead Rosetta style guide – MUST come after industry themes. LR platform
-   components (banner, modal, sticky CTA, footer) always use LR branding. */
-.demo-route .lr-brand {
-  --color-primary: #2D6A4F !important;
-  --color-primary-content: #fafaf9 !important;
-  --font-display: 'Fraunces', serif !important;
-  --font-body: 'Epilogue', sans-serif !important;
-  --color-base-100: #1c1917 !important;
-  --color-base-200: #292524 !important;
-  --color-base-300: #44403c !important;
-  --color-base-content: #e7e5e4 !important;
-  --color-neutral: #3f3f46 !important;
-  --color-neutral-content: #d4d4d8 !important;
-  --color-success: #16a34a !important;
-  --color-warning: #d97706 !important;
-  --color-error: #dc2626 !important;
-  font-family: var(--font-body) !important;
-}
-.demo-route .lr-brand h1,
-.demo-route .lr-brand h2,
-.demo-route .lr-brand h3,
-.demo-route .lr-brand h4,
-.demo-route .lr-brand .font-display {
-  font-family: var(--font-display) !important;
-}
-/* Ensure buttons inside .lr-brand use LR theme (variables may not apply to pseudo-classes) */
-.demo-route .lr-brand .btn-primary {
-  background-color: #2D6A4F !important;
-  color: #fafaf9 !important;
-}
-.demo-route .lr-brand .btn-primary:hover {
-  filter: brightness(1.1);
-}
-.demo-route .lr-brand .btn-ghost:hover {
-  background-color: #292524 !important;
-  color: #e7e5e4 !important;
-}
-.demo-route .lr-brand .btn-neutral {
-  background-color: #3f3f46 !important;
-  color: #d4d4d8 !important;
-}
-/* Force LR background/text on .lr-brand and descendants (Tailwind utilities use vars) */
-.demo-route .lr-brand.bg-base-100,
-.demo-route .lr-brand .bg-base-100 {
-  background-color: #1c1917 !important;
-}
-.demo-route .lr-brand.bg-base-100\/98 {
-  background-color: rgb(28 25 23 / 0.98) !important;
-}
-.demo-route .lr-brand .bg-base-200\/60 {
-  background-color: rgb(41 37 36 / 0.6) !important;
-}
-.demo-route .lr-brand .border-base-300\/80 {
-  border-color: rgb(68 64 60 / 0.8) !important;
-}
-.demo-route .lr-brand .text-base-content,
-.demo-route .lr-brand .text-base-content\/70,
-.demo-route .lr-brand .text-base-content\/80 {
-  color: #e7e5e4 !important;
-}
-.demo-route .lr-brand .text-base-content\/70 { color: rgb(231 229 228 / 0.7) !important; }
-.demo-route .lr-brand .text-base-content\/80 { color: rgb(231 229 228 / 0.8) !important; }
-.demo-route .lr-brand .text-primary { color: #2D6A4F !important; }
-.demo-route .lr-brand .bg-primary\/10 { background-color: rgb(45 106 79 / 0.1) !important; }
-/* Top banner (fixed) always Lead Rosetta brand */
-.demo-route .demo-lr-banner.lr-brand {
-  background: #292524 !important;
-  border-bottom-color: #44403c !important;
-  color: #e7e5e4 !important;
-}
-.demo-route .demo-lr-banner.lr-brand .demo-lr-banner-brand span {
-  color: #2D6A4F !important;
-}
-.demo-route .demo-lr-banner.lr-brand .demo-lr-banner-link {
-  color: #e7e5e4 !important;
-  border-color: #44403c !important;
-}
-.demo-route .demo-lr-banner.lr-brand .demo-lr-banner-link:hover {
-  background: #44403c !important;
-  border-color: #e7e5e4 !important;
-}
-.demo-route .demo-lr-banner.lr-brand .demo-lr-banner-cta {
-  background: #2D6A4F !important;
-  color: #fafaf9 !important;
-}
-.demo-route .demo-lr-banner.lr-brand .demo-lr-banner-cta:hover {
-  filter: brightness(1.1);
-}
-
-/* Demo banner and audit modal: use the same fonts as the landing page (theme), not LR brand fonts. */
-.demo-route .demo-lr-banner {
-  --font-display: inherit;
-  --font-body: inherit;
-  font-family: var(--font-body) !important;
-}
-.demo-route .demo-lr-banner .demo-lr-banner-brand {
-  font-family: var(--font-display) !important;
-}
-.demo-route .audit-modal,
-.demo-route .audit-modal-wrapper {
-  font-family: var(--font-body);
-}
-.demo-route .audit-modal .audit-modal-eyebrow,
-.demo-route .audit-modal .audit-modal-title,
-.demo-route .audit-modal .audit-modal-card-title {
-  font-family: var(--font-display);
-}
 
 /* Focus and selection for better accessibility */
 :root {
@@ -556,32 +32,18 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Portaled shadcn content (dialogs, dropdowns, select, sheet, etc.) renders outside the app
-   tree (e.g. under body), so it does not inherit .leadrosetta-app-dashboard variables.
-   Define fallbacks on body so popovers have opaque backgrounds and correct text color. */
-body {
-  --background: #F5F0E8;
-  --foreground: #1A1A14;
-  --card: #FFFFFF;
-  --card-foreground: #1A1A14;
-  --popover: #FFFFFF;
-  --popover-foreground: #1A1A14;
-  --color-background: #F5F0E8;
-  --color-foreground: #1A1A14;
-  --color-card: #FFFFFF;
-  --color-card-foreground: #1A1A14;
-  --color-popover: #FFFFFF;
-  --color-popover-foreground: #1A1A14;
-  --color-input-placeholder: #5a5347;
-}
-
 /* ==========================================================================
-   Lead Rosetta app shell – Component Style Guide (docs/styl-guides/style-guide.html)
-   Instrument Serif (display/headings), DM Sans (body/UI). Cream/ink/sage/amber palette.
+   Lead Rosetta app shell – MERGED FROM docs/style-guides/style-guide.html
+   SCOPE: Only .leadrosetta-app (landing, auth, Lead Rosetta–branded demo
+   widgets). Dashboard uses globals.css (shadcn) only; do not add token
+   overrides here that affect .leadrosetta-app-dashboard.
+   Tokens: --cream, --ink, --sage, --amber, --muted (text #7A7566),
+   --border, --surface, --white, --error, --success.
+   Typography: Instrument Serif (display/headings), DM Sans (body/UI).
    ========================================================================== */
 .leadrosetta-app {
   font-size: 15px;
-  /* Style guide palette (Lead Rosetta – docs/style-guides/leadrosetta.html). Landing only – no shadcn vars here. */
+  /* Style guide palette (Lead Rosetta – docs/style-guides/style-guide.html). */
   --cream: #F5F0E8;
   --ink: #1A1A14;
   --sage: #3D5A3E;
@@ -594,6 +56,10 @@ body {
   --white: #FFFFFF;
   --error: #C04040;
   --success: #3D5A3E;
+
+  /* Ensure Tailwind text utilities on landing/legal pages use style-guide ink for contrast */
+  --color-base-content: var(--ink);
+  --nav-text: var(--muted);
 
   /* Backward-compat aliases for existing lr-* and inline styles (landing + dashboard) */
   --color-bg: var(--cream);
@@ -635,122 +101,62 @@ body {
   --ease-default: cubic-bezier(0.16, 1, 0.3, 1);
 
   min-height: 100vh;
-  background: var(--cream);
-  color: var(--ink);
+  background: var(--background);
+  color: var(--foreground);
   font-family: 'DM Sans', system-ui, sans-serif;
   line-height: 1.5;
+  overflow-x: hidden;
+}
+
+/* Landing: no dark mode – always use light theme (dashboard keeps dark via .dark .leadrosetta-app-dashboard) */
+.dark .leadrosetta-app {
+  --cream: #F5F0E8;
+  --ink: #1A1A14;
+  --sage: #3D5A3E;
+  --sage-light: #5A7F5B;
+  --amber: #C17D2A;
+  --amber-light: #E09B3D;
+  --muted: #7A7566;
+  --border: #D8D0BF;
+  --surface: #EEEAE0;
+  --white: #FFFFFF;
+  --color-bg: var(--cream);
+  --color-surface: var(--white);
+  --color-text-primary: var(--ink);
+  --color-text-secondary: var(--muted);
+  --color-text-muted: var(--muted);
+  --color-brand-green: var(--sage);
+  --color-accent-green: var(--sage-light);
+  --nav-text: var(--muted);
+  background: var(--cream);
+  color: var(--ink);
+}
+
+/* Dashboard dark mode: map shell vars from globals (shadcn) only. No Lead Rosetta
+   token overrides; --muted stays shadcn background so bg-muted is correct. */
+.dark .leadrosetta-app-dashboard {
+  --cream: var(--background);
+  --ink: var(--foreground);
+  --sage: var(--primary);
+  --sage-light: var(--primary);
+  --amber: var(--primary);
+  --amber-light: var(--primary);
+  --border: var(--border);
+  --surface: var(--muted);
+  --white: var(--card);
+  --color-text-secondary: var(--muted-foreground);
+  --lr-dashboard-bg: var(--background);
+  --lr-dashboard-border: var(--border);
+  --lr-dashboard-sidebar-bg: var(--sidebar);
+  --lr-dashboard-sidebar-hover: var(--accent);
+  --lr-dashboard-th-bg: var(--muted);
+  --lr-dashboard-row-hover: var(--muted);
 }
 
 /* ==========================================================================
-   shadcn-svelte theming for dashboard (Lead Rosetta palette)
-   https://www.shadcn-svelte.com/docs/theming
-   All variables so components (card, popover, dropdown, select, sidebar, chart)
-   use the same cream/ink/sage/amber/surface palette as the landing.
+   Dashboard: shadcn from globals.css only. No Lead Rosetta overrides in this file.
+   Shell mapping (--ink, --sage, etc.) in styles/dashboard.css (dashboard layout).
    ========================================================================== */
-.leadrosetta-app-dashboard {
-  /* Dashboard shell (custom sidebar/topnav) */
-  --lr-dashboard-bg: var(--cream);
-  --lr-dashboard-sidebar-bg: var(--surface);
-  --lr-dashboard-border: var(--border);
-  --lr-dashboard-sidebar-hover: rgba(61, 90, 62, 0.08);
-
-  /* Muted text: use hex so it does not resolve to --muted (overridden to surface below) */
-  --color-text-secondary: #7A7566;
-  --color-text-muted: #7A7566;
-
-  /* Core theme (background/foreground convention) */
-  --radius: 0.5rem;
-  --background: var(--cream);
-  --foreground: var(--ink);
-  --card: var(--white);
-  --card-foreground: var(--ink);
-  --popover: var(--white);
-  --popover-foreground: var(--ink);
-  --primary: var(--sage);
-  --primary-foreground: #ffffff;
-  --secondary: var(--surface);
-  --secondary-foreground: var(--ink);
-  --muted: var(--surface);
-  --muted-foreground: var(--color-text-secondary);
-  --accent: var(--surface);
-  --accent-foreground: var(--ink);
-  --destructive: var(--error);
-  --border: var(--border);
-  --input: var(--border);
-  --ring: var(--sage);
-
-  /* Charts (Lead Rosetta–aligned) */
-  --chart-1: var(--sage);
-  --chart-2: var(--amber);
-  --chart-3: var(--sage-light);
-  --chart-4: var(--amber-light);
-  --chart-5: var(--muted);
-
-  /* Sidebar component (shadcn Sidebar when used in dashboard) */
-  --sidebar: var(--surface);
-  --sidebar-foreground: var(--ink);
-  --sidebar-primary: var(--sage);
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: rgba(61, 90, 62, 0.08);
-  --sidebar-accent-foreground: var(--ink);
-  --sidebar-border: var(--border);
-  --sidebar-ring: var(--sage);
-
-  /* Tailwind v4 @theme color utilities (bg-background, text-foreground, etc.) */
-  --color-background: var(--cream);
-  --color-foreground: var(--ink);
-  --color-card: var(--white);
-  --color-card-foreground: var(--ink);
-  --color-popover: var(--white);
-  --color-popover-foreground: var(--ink);
-  --color-primary: var(--sage);
-  --color-primary-foreground: #ffffff;
-  --color-secondary: var(--surface);
-  --color-secondary-foreground: var(--ink);
-  --color-muted: var(--surface);
-  --color-muted-foreground: #7A7566;
-  --color-accent: var(--surface);
-  --color-accent-foreground: var(--ink);
-  --color-destructive: var(--error);
-  --color-border: var(--border);
-  --color-input: var(--border);
-  --color-ring: var(--sage);
-  --color-chart-1: var(--sage);
-  --color-chart-2: var(--amber);
-  --color-chart-3: var(--sage-light);
-  --color-chart-4: var(--amber-light);
-  --color-chart-5: var(--muted);
-  --color-sidebar: var(--surface);
-  --color-sidebar-foreground: var(--ink);
-  --color-sidebar-primary: var(--sage);
-  --color-sidebar-primary-foreground: #ffffff;
-  --color-sidebar-accent: rgba(61, 90, 62, 0.08);
-  --color-sidebar-accent-foreground: var(--ink);
-  --color-sidebar-border: var(--border);
-  --color-sidebar-ring: var(--sage);
-
-  /* Inputs: white background (card) for contrast on cream; matches shadcn convention for form fields */
-  --input-bg: var(--card);
-  /* Placeholder: darker than muted-foreground for readability on white/cream */
-  --color-input-placeholder: #5a5347;
-}
-
-/* Input background: white (card) everywhere so inputs are consistent; dashboard shadcn uses --input-bg */
-.leadrosetta-app-dashboard [data-slot="input"],
-.leadrosetta-app-dashboard [data-slot="input-group-control"],
-.leadrosetta-app-dashboard [data-slot="sidebar-input"] {
-  background-color: var(--input-bg, var(--card)) !important;
-}
-
-/* Placeholder text: darker for readability (dashboard and portaled content e.g. modals) */
-.leadrosetta-app-dashboard [data-slot="input"]::placeholder,
-.leadrosetta-app-dashboard [data-slot="textarea"]::placeholder,
-.leadrosetta-app-dashboard input::placeholder,
-.leadrosetta-app-dashboard textarea::placeholder,
-body [data-slot="input"]::placeholder,
-body [data-slot="textarea"]::placeholder {
-  color: var(--color-input-placeholder, #5a5347) !important;
-}
 
 /* Typography: Instrument Serif for display/headings, DM Sans for body (style guide) */
 .leadrosetta-app .lr-heading-hero {
@@ -963,55 +369,28 @@ body [data-slot="textarea"]::placeholder {
   flex-direction: column;
   background: var(--cream);
 }
-.leadrosetta-app-auth .lr-auth-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.5rem;
-  background: var(--cream);
-  border-bottom: 1px solid var(--color-border);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-}
-.leadrosetta-app-auth .lr-auth-header-logo {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: 'Instrument Serif', serif;
-  font-size: 1.3rem;
-  color: var(--ink);
-  text-decoration: none;
-  transition: opacity 0.2s;
-}
-.leadrosetta-app-auth .lr-auth-header-logo:hover {
-  opacity: 0.85;
-}
-.leadrosetta-app-auth .lr-auth-header-logo-img {
-  flex-shrink: 0;
-  height: 2rem;
-  width: auto;
-  object-fit: contain;
-}
-.leadrosetta-app-auth .lr-auth-header-logo-text span {
-  color: var(--sage);
-}
-.leadrosetta-app-auth .lr-auth-header-back {
-  font-size: 0.875rem;
-  color: var(--muted);
-  text-decoration: none;
-  transition: color 0.2s;
-}
-.leadrosetta-app-auth .lr-auth-header-back:hover {
-  color: var(--ink);
-}
 .leadrosetta-app-auth .lr-auth-main {
   flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: var(--space-6) var(--space-4);
 }
+.leadrosetta-app .lr-auth-card-return {
+  display: block;
+  font-size: 0.8125rem;
+  color: var(--muted);
+  text-decoration: none;
+  margin-top: var(--space-4);
+  transition: color 0.2s;
+}
+.leadrosetta-app .lr-auth-card-return:hover {
+  color: var(--ink);
+}
 .leadrosetta-app .lr-auth-page {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   width: 100%;
@@ -1033,7 +412,7 @@ body [data-slot="textarea"]::placeholder {
   gap: 0.5rem;
   text-decoration: none;
   color: var(--ink);
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-5);
 }
 .leadrosetta-app .lr-auth-card-logo img {
   width: 3rem;
@@ -1053,20 +432,34 @@ body [data-slot="textarea"]::placeholder {
   line-height: 1.2;
   letter-spacing: -0.02em;
   color: var(--ink);
-  margin: 0;
+  margin: 0 0 var(--space-2);
 }
 .leadrosetta-app .lr-auth-card-sub {
   font-size: 0.9375rem;
   color: var(--muted);
-  margin: var(--space-2) 0 var(--space-6);
+  margin: 0 0 var(--space-6);
 }
+/* Style guide .btn-primary: amber, pill, 0.875rem 2rem, 100px radius (see leadrosetta.html) */
 .leadrosetta-app .lr-auth-google-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.625rem;
   width: 100%;
-  padding: 0.875rem 1.5rem;
+  padding: 0.875rem 2rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  color: #ffffff;
+  background: var(--amber);
+  border: none;
+  border-radius: 100px;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.15s;
+}
+.leadrosetta-app .lr-auth-google-btn:hover {
+  background: var(--amber-light);
+  transform: translateY(-1px);
 }
 .leadrosetta-app .lr-auth-google-icon {
   width: 1.25rem;
@@ -1079,14 +472,20 @@ body [data-slot="textarea"]::placeholder {
   margin: var(--space-5) 0 0;
   max-width: none;
 }
+.leadrosetta-app .lr-auth-legal {
+  width: 100%;
+  max-width: 420px;
+}
 
 /* Max paragraph width per style guide (~68 characters) */
 .leadrosetta-app p {
   max-width: 68ch;
 }
 
-/* Form elements (style guide .form-group, .form-label, .form-input) */
-.leadrosetta-app .form-group {
+/* Form elements (style guide .form-group, .form-label, .form-input).
+   Scoped to landing/auth only so dashboard shadcn components keep consistent
+   borders (border-input, rounded-md) and are not overridden. */
+.leadrosetta-app:not(.leadrosetta-app-dashboard) .form-group {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
@@ -1094,18 +493,18 @@ body [data-slot="textarea"]::placeholder {
   max-width: 360px;
 }
 
-.leadrosetta-app .form-label {
+.leadrosetta-app:not(.leadrosetta-app-dashboard) .form-label {
   font-size: 0.825rem;
   font-weight: 500;
   color: var(--ink);
   font-family: 'DM Sans', system-ui, sans-serif;
 }
 
-.leadrosetta-app .form-input,
-.leadrosetta-app input[type="text"],
-.leadrosetta-app input[type="email"],
-.leadrosetta-app input[type="url"],
-.leadrosetta-app input[type="password"] {
+.leadrosetta-app:not(.leadrosetta-app-dashboard) .form-input,
+.leadrosetta-app:not(.leadrosetta-app-dashboard) input[type="text"],
+.leadrosetta-app:not(.leadrosetta-app-dashboard) input[type="email"],
+.leadrosetta-app:not(.leadrosetta-app-dashboard) input[type="url"],
+.leadrosetta-app:not(.leadrosetta-app-dashboard) input[type="password"] {
   padding: 0.7rem 1rem;
   border: 1.5px solid var(--border);
   border-radius: 8px;
@@ -1117,8 +516,8 @@ body [data-slot="textarea"]::placeholder {
   transition: border-color 0.2s;
 }
 
-.leadrosetta-app select.form-input,
-.leadrosetta-app select {
+.leadrosetta-app:not(.leadrosetta-app-dashboard) select.form-input,
+.leadrosetta-app:not(.leadrosetta-app-dashboard) select {
   padding: 0.7rem 2.5rem 0.7rem 1rem;
   border: 1.5px solid var(--border);
   border-radius: 8px;
@@ -1134,14 +533,14 @@ body [data-slot="textarea"]::placeholder {
   transition: border-color 0.2s;
 }
 
-.leadrosetta-app .form-input:focus,
-.leadrosetta-app input:focus,
-.leadrosetta-app select:focus {
+.leadrosetta-app:not(.leadrosetta-app-dashboard) .form-input:focus,
+.leadrosetta-app:not(.leadrosetta-app-dashboard) input:focus,
+.leadrosetta-app:not(.leadrosetta-app-dashboard) select:focus {
   border-color: var(--sage);
 }
 
-.leadrosetta-app .form-input::placeholder,
-.leadrosetta-app input::placeholder {
+.leadrosetta-app:not(.leadrosetta-app-dashboard) .form-input::placeholder,
+.leadrosetta-app:not(.leadrosetta-app-dashboard) input::placeholder {
   color: #5a5347;
 }
 
@@ -1149,6 +548,23 @@ body [data-slot="textarea"]::placeholder {
   font-size: 0.75rem;
   color: var(--muted);
 }
+
+/* Compliance/legal label: full contrast on cream (style guide ink) */
+.leadrosetta-app .form-compliance-label {
+  font-size: 0.875rem;
+  color: var(--ink);
+  line-height: 1.5;
+}
+
+/* Legal pages (privacy, terms, etc.): prose and text use style-guide ink for contrast on cream */
+.leadrosetta-app .prose,
+.leadrosetta-app .prose p,
+.leadrosetta-app .prose li {
+  color: var(--ink);
+}
+.leadrosetta-app .prose strong { color: var(--ink); }
+.leadrosetta-app .prose a { color: var(--sage); }
+.leadrosetta-app .prose a:hover { color: var(--sage-light); }
 
 .leadrosetta-app .form-error-text {
   font-size: 0.75rem;
@@ -1203,21 +619,21 @@ body [data-slot="textarea"]::placeholder {
 }
 .leadrosetta-app .nav-links a:hover { color: var(--ink); }
 /* Try free: amber CTA so it doesn’t blend with dark UI (e.g. Crisp recording bar) */
+/* Nav CTA: style guide .btn-nav (leadrosetta.html) — sage pill */
 .leadrosetta-app .btn-nav {
-  background: var(--amber);
-  color: #ffffff;
+  background: var(--sage);
+  color: #ffffff !important;
   padding: 0.5rem 1.25rem;
   border-radius: 100px;
   font-weight: 500;
   font-size: 0.875rem;
   text-decoration: none;
   transition: background 0.2s, transform 0.15s;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 }
 .leadrosetta-app .btn-nav:hover {
-  background: var(--amber-light);
+  background: var(--sage-light);
+  color: #ffffff !important;
   transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 .leadrosetta-app .btn-outline {
   background: transparent;
@@ -1236,12 +652,14 @@ body [data-slot="textarea"]::placeholder {
 }
 
 .leadrosetta-app .hero {
+  max-width: 860px;
+  margin: 0 auto;
   padding: 7rem 2.5rem 5rem;
   text-align: center;
 }
 .leadrosetta-app .hero-inner {
-  max-width: 860px;
-  margin: 0 auto;
+  max-width: 100%;
+  margin: 0;
 }
 .leadrosetta-app .hero .eyebrow {
   display: inline-block;
@@ -1269,7 +687,7 @@ body [data-slot="textarea"]::placeholder {
   font-size: 1.125rem;
   line-height: 1.65;
   color: var(--muted);
-  max-width: 560px;
+  max-width: 680px;
   margin: 0 auto 2.5rem;
   font-weight: 300;
 }
@@ -1368,6 +786,35 @@ body [data-slot="textarea"]::placeholder {
   text-transform: uppercase;
   color: var(--muted);
   margin-bottom: 1rem;
+}
+.leadrosetta-app .section-sub {
+  max-width: 32rem;
+  margin: 0.75rem auto 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+.leadrosetta-app .section-head-center {
+  text-align: center;
+  margin-bottom: 3.5rem;
+}
+.leadrosetta-app .section-head-center-tight {
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+.leadrosetta-app .section-head-center-tight .section-sub {
+  margin-top: 0.5rem;
+}
+.leadrosetta-app .section-cta {
+  text-align: center;
+  padding-top: 2rem;
+  padding-bottom: 5rem;
+}
+.leadrosetta-app .section-cta h2 {
+  margin-bottom: 0.75rem;
+}
+.leadrosetta-app .section-cta .section-sub {
+  margin-bottom: 1.5rem;
 }
 .leadrosetta-app .section h2 {
   font-family: 'Instrument Serif', serif;
@@ -1538,13 +985,14 @@ body [data-slot="textarea"]::placeholder {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  margin-top: 1.25rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--border);
-  background: none;
-  color: var(--muted);
-  font-size: 0.8125rem;
+  margin-top: 1rem;
+  background: rgba(61, 90, 62, 0.1);
+  color: var(--sage);
+  font-size: 0.75rem;
   font-weight: 500;
+  padding: 0.3rem 0.75rem;
+  border-radius: 100px;
+  border: 1px solid rgba(61, 90, 62, 0.2);
 }
 
 .leadrosetta-app .pricing-grid {
@@ -1730,7 +1178,7 @@ body [data-slot="textarea"]::placeholder {
 
 /* Inner pages (try, upload, dashboard, etc.) — consistent width and padding */
 .leadrosetta-app .page-content {
-  max-width: 960px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 4rem 2.5rem;
 }
@@ -1744,7 +1192,8 @@ body [data-slot="textarea"]::placeholder {
   height: 100vh;
   min-height: 100vh;
   overflow: hidden;
-  background: var(--lr-dashboard-bg, #fafafa);
+  background: var(--background);
+  color: var(--foreground);
   transition: --sidebar-width 0.2s ease;
 }
 .leadrosetta-app-dashboard .lr-dashboard-sidebar {
@@ -1754,23 +1203,23 @@ body [data-slot="textarea"]::placeholder {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  background: var(--lr-dashboard-sidebar-bg, #fff);
-  border-right: 1px solid var(--lr-dashboard-border, #e5e7eb);
+  background: var(--sidebar);
+  border-right: 1px solid var(--border);
   transition: width 0.2s ease;
   overflow: hidden;
 }
 .leadrosetta-app-dashboard .lr-dashboard-sidebar-header {
   padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--lr-dashboard-border, #e5e7eb);
+  border-bottom: 1px solid var(--border);
 }
 .leadrosetta-app-dashboard .lr-dashboard-sidebar-logo {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  font-family: 'Instrument Serif', serif;
+  font-family: inherit;
   font-size: 1.25rem;
-  font-weight: 400;
-  color: var(--ink);
+  font-weight: 600;
+  color: var(--foreground);
   text-decoration: none;
   letter-spacing: -0.02em;
 }
@@ -1798,7 +1247,7 @@ body [data-slot="textarea"]::placeholder {
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--ink);
+  color: var(--foreground);
   text-decoration: none;
   border-radius: 0.375rem;
   transition: color 0.15s, background 0.15s;
@@ -1808,26 +1257,26 @@ body [data-slot="textarea"]::placeholder {
   width: 1.125rem;
   height: 1.125rem;
   opacity: 0.9;
-  color: var(--sage);
+  color: var(--primary);
 }
 .leadrosetta-app-dashboard .lr-dashboard-sidebar-link:hover {
-  color: var(--sage);
-  background: var(--lr-dashboard-sidebar-hover, #f3f4f6);
+  color: var(--primary);
+  background: var(--accent);
 }
 .leadrosetta-app-dashboard .lr-dashboard-sidebar-link:hover .lr-dashboard-sidebar-link-icon {
-  color: var(--sage-light);
+  color: var(--primary);
 }
 .leadrosetta-app-dashboard .lr-dashboard-sidebar-link-active {
-  color: var(--sage);
+  color: var(--primary);
   font-weight: 600;
-  background: rgba(61, 90, 62, 0.08);
+  background: var(--accent);
 }
 .leadrosetta-app-dashboard .lr-dashboard-sidebar-link-active .lr-dashboard-sidebar-link-icon {
-  color: var(--sage);
+  color: var(--primary);
 }
 .leadrosetta-app-dashboard .lr-dashboard-sidebar-footer {
   padding: 1rem 1.5rem;
-  border-top: 1px solid var(--lr-dashboard-border, #e5e7eb);
+  border-top: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -1856,24 +1305,24 @@ body [data-slot="textarea"]::placeholder {
   transition: color 0.15s;
 }
 .leadrosetta-app-dashboard .lr-dashboard-sidebar-upgrade:hover {
-  color: var(--sage-light);
+  color: var(--primary);
   text-decoration: underline;
 }
 .leadrosetta-app-dashboard .lr-dashboard-sidebar-powered {
   font-size: 0.75rem;
-  color: var(--color-text-secondary, #6b7280);
+  color: var(--muted-foreground);
   text-decoration: none;
   transition: color 0.15s;
   margin-top: 0.5rem;
   padding-top: 0.5rem;
-  border-top: 1px solid var(--lr-dashboard-border, #e5e7eb);
+  border-top: 1px solid var(--border);
 }
 .leadrosetta-app-dashboard .lr-dashboard-sidebar-powered:hover {
-  color: var(--ink);
+  color: var(--foreground);
 }
 .leadrosetta-app-dashboard .lr-dashboard-sidebar-email {
   font-size: 0.75rem;
-  color: var(--color-text-secondary);
+  color: var(--muted-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1890,23 +1339,141 @@ body [data-slot="textarea"]::placeholder {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--lr-dashboard-sidebar-bg, #fff);
-  border: 1px solid var(--lr-dashboard-border, #e5e7eb);
+  background: var(--sidebar);
+  border: 1px solid var(--border);
   border-left: none;
   border-radius: 0 0.375rem 0.375rem 0;
   cursor: pointer;
-  color: var(--color-text-secondary);
+  color: var(--muted-foreground);
   transition: color 0.15s, background 0.15s;
 }
 .leadrosetta-app-dashboard .lr-dashboard-sidebar-rail:hover {
-  color: var(--ink);
-  background: var(--lr-dashboard-sidebar-hover, #f3f4f6);
+  color: var(--foreground);
+  background: var(--accent);
 }
 .leadrosetta-app-dashboard .lr-dashboard-sidebar-rail-icon {
   width: 1rem;
   height: 1rem;
   opacity: 0.9;
 }
+
+/* Settings sub-nav: same style as main sidebar menu */
+.leadrosetta-app-dashboard .lr-dashboard-settings-layout {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 0;
+}
+@media (min-width: 768px) {
+  .leadrosetta-app-dashboard .lr-dashboard-settings-layout {
+    flex-direction: row;
+  }
+}
+.leadrosetta-app-dashboard .lr-dashboard-settings-nav {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding: 0.75rem;
+}
+@media (min-width: 768px) {
+  .leadrosetta-app-dashboard .lr-dashboard-settings-nav {
+    width: 14rem;
+  }
+}
+.leadrosetta-app-dashboard .lr-dashboard-settings-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--foreground);
+  text-decoration: none;
+  border-radius: 0.375rem;
+  transition: color 0.15s, background 0.15s;
+}
+.leadrosetta-app-dashboard .lr-dashboard-settings-link-icon {
+  flex-shrink: 0;
+  width: 1.125rem;
+  height: 1.125rem;
+  opacity: 0.9;
+  color: var(--primary);
+}
+.leadrosetta-app-dashboard .lr-dashboard-settings-link:hover {
+  color: var(--primary);
+  background: var(--accent);
+}
+.leadrosetta-app-dashboard .lr-dashboard-settings-link:hover .lr-dashboard-settings-link-icon {
+  color: var(--primary);
+}
+.leadrosetta-app-dashboard .lr-dashboard-settings-link-active {
+  color: var(--primary);
+  font-weight: 600;
+  background: var(--accent);
+}
+.leadrosetta-app-dashboard .lr-dashboard-settings-link-active .lr-dashboard-settings-link-icon {
+  color: var(--primary);
+}
+.leadrosetta-app-dashboard .lr-dashboard-settings-link-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.leadrosetta-app-dashboard .lr-dashboard-settings-main {
+  min-width: 0;
+  flex: 1;
+  overflow: auto;
+  padding: 1rem 1rem 1.5rem;
+}
+@media (min-width: 768px) {
+  .leadrosetta-app-dashboard .lr-dashboard-settings-main {
+    padding: 1.5rem 1.5rem 2rem 1.5rem;
+  }
+}
+
+/* Integrations nav: same as settings but with logo + optional status icon */
+.leadrosetta-app-dashboard .lr-dashboard-integrations-link {
+  border: none;
+  background: none;
+  cursor: pointer;
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  text-align: start;
+}
+.leadrosetta-app-dashboard .lr-dashboard-integrations-link .lr-dashboard-settings-link-label {
+  flex: 1;
+  min-width: 0;
+}
+.leadrosetta-app-dashboard .lr-dashboard-integrations-link-logo {
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.375rem;
+  overflow: hidden;
+  background: var(--background);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.leadrosetta-app-dashboard .lr-dashboard-integrations-link-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.leadrosetta-app-dashboard .lr-dashboard-integrations-link-status {
+  flex-shrink: 0;
+  width: 1.125rem;
+  height: 1.125rem;
+  opacity: 0.9;
+  color: var(--muted-foreground);
+}
+.leadrosetta-app-dashboard .lr-dashboard-integrations-link-status-connected {
+  color: var(--primary);
+}
+
 .leadrosetta-app-dashboard .lr-dashboard-main {
   flex: 1;
   min-height: 0;
@@ -1923,8 +1490,8 @@ body [data-slot="textarea"]::placeholder {
   gap: 1rem;
   padding: 0 1rem 0 0.75rem;
   height: 3rem;
-  border-bottom: 1px solid var(--lr-dashboard-border, #e5e7eb);
-  background: var(--lr-dashboard-bg, #fafafa);
+  border-bottom: 1px solid var(--border);
+  background: var(--background);
 }
 .leadrosetta-app-dashboard .lr-dashboard-topnav-left {
   display: flex;
@@ -1941,7 +1508,7 @@ body [data-slot="textarea"]::placeholder {
   height: 2.25rem;
   margin: 0 0.25rem 0 0;
   padding: 0;
-  color: var(--color-text-secondary);
+  color: var(--muted-foreground);
   background: transparent;
   border: none;
   border-radius: 0.375rem;
@@ -1949,32 +1516,32 @@ body [data-slot="textarea"]::placeholder {
   transition: color 0.15s, background 0.15s;
 }
 .leadrosetta-app-dashboard .lr-dashboard-sidebar-trigger:hover {
-  color: var(--ink);
-  background: var(--lr-dashboard-sidebar-hover, #f3f4f6);
+  color: var(--foreground);
+  background: var(--accent);
 }
 .leadrosetta-app-dashboard .lr-dashboard-breadcrumb {
   font-size: 0.8125rem;
-  color: var(--color-text-secondary);
+  color: var(--muted-foreground);
   display: flex;
   align-items: center;
   gap: 0.35rem;
   flex-wrap: wrap;
 }
 .leadrosetta-app-dashboard .lr-dashboard-breadcrumb a {
-  color: var(--sage);
+  color: var(--primary);
   font-weight: 500;
   text-decoration: none;
   transition: color 0.15s;
 }
 .leadrosetta-app-dashboard .lr-dashboard-breadcrumb a:hover {
-  color: var(--sage-light);
+  color: var(--primary);
 }
 .leadrosetta-app-dashboard .lr-dashboard-breadcrumb-sep {
-  color: var(--lr-dashboard-border, #e5e7eb);
+  color: var(--border);
   user-select: none;
 }
 .leadrosetta-app-dashboard .lr-dashboard-breadcrumb-current {
-  color: var(--ink);
+  color: var(--foreground);
   font-weight: 500;
 }
 .leadrosetta-app-dashboard .lr-dashboard-topnav-right {
@@ -1985,7 +1552,7 @@ body [data-slot="textarea"]::placeholder {
 }
 .leadrosetta-app-dashboard .lr-dashboard-topnav-user {
   font-size: 0.8125rem;
-  color: var(--ink);
+  color: var(--foreground);
   max-width: 12rem;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1994,13 +1561,27 @@ body [data-slot="textarea"]::placeholder {
 .leadrosetta-app-dashboard .lr-dashboard-topnav-logout {
   font-size: 0.8125rem;
   font-weight: 500;
-  color: var(--sage);
+  color: var(--primary);
   text-decoration: none;
   transition: color 0.15s;
 }
 .leadrosetta-app-dashboard .lr-dashboard-topnav-logout:hover {
-  color: var(--sage-light);
+  color: var(--primary);
 }
+.leadrosetta-app-dashboard .lr-dashboard-theme-toggle {
+  position: relative;
+}
+.leadrosetta-app-dashboard .lr-dashboard-theme-toggle .absolute {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+}
+/* Toasts (svelte-sonner) must appear above dropdowns (z-50) and modals */
+.leadrosetta-app-dashboard .toaster,
+.toaster {
+  z-index: 9999;
+}
+
 .leadrosetta-app-dashboard .lr-dashboard-main-content {
   flex: 1;
   min-height: 0;
@@ -2008,87 +1589,37 @@ body [data-slot="textarea"]::placeholder {
   padding: 1.5rem 2rem;
 }
 
-/* Dashboard content: scheme colors so links and buttons pop (sage/amber vs cream/surface) */
-.leadrosetta-app-dashboard .lr-dash-page a:not([data-slot="button"]) {
-  color: var(--sage);
-  font-weight: 500;
-  text-decoration: none;
-  transition: color 0.15s;
+/* Dashboard page-loading bar (shown during internal route transitions) */
+.lr-dashboard-loading-bar {
+  flex-shrink: 0;
+  height: 4px;
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--primary) 18%,
+    var(--primary) 50%,
+    var(--primary) 82%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: lr-dashboard-loading-shimmer 0.9s ease-in-out infinite;
+  opacity: 0.8;
 }
-.leadrosetta-app-dashboard .lr-dash-page a:not([data-slot="button"]):hover {
-  color: var(--sage-light);
-  text-decoration: underline;
-}
-/* Ghost and outline buttons in dashboard use sage so they don't blend with bg.
-   Do not override solid CTA buttons (e.g. Create demo) that use white/light text. */
-.leadrosetta-app-dashboard .lr-dash-page [data-slot="button"]:not(.bg-primary):not(.text-white):not(.lr-dash-cta-create-demo):not([class*="text-primary-foreground"]) {
-  color: var(--sage);
-}
-.leadrosetta-app-dashboard .lr-dash-page [data-slot="button"]:not(.bg-primary):not(.text-white):not(.lr-dash-cta-create-demo):not([class*="text-primary-foreground"]):hover {
-  color: var(--sage-light);
-}
-
-/* Create demo CTA: always visible (amber + dark text + shadow). Global selector so it works
-   in portaled dialogs (content is outside .leadrosetta-app-dashboard). */
-.lr-dash-cta-create-demo {
-  background: var(--amber) !important;
-  color: #1c1917 !important;
-  border: 1px solid rgba(120, 80, 30, 0.6) !important;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
-}
-.lr-dash-cta-create-demo:hover {
-  background: var(--amber-light) !important;
-  color: #1c1917 !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12) !important;
-}
-/* Table header sort buttons: ink by default, sage on hover */
-.leadrosetta-app-dashboard .lr-dash-page [data-slot="table"] th button {
-  color: var(--ink);
-  font-weight: 600;
-}
-.leadrosetta-app-dashboard .lr-dash-page [data-slot="table"] th button:hover {
-  color: var(--sage);
+@keyframes lr-dashboard-loading-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
-/* Dashboard: cards are borderless and shadowless by default */
-.leadrosetta-app-dashboard [data-slot="card"] {
-  border: 0;
-  box-shadow: none;
-}
-
-/* Dashboard page: content and table spacing */
+/* Dashboard page: layout only (no shadcn overrides; use shadcn Card, Table, Button as-is) */
 .leadrosetta-app-dashboard .lr-dash-page {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-}
-.leadrosetta-app-dashboard .lr-dash-page .lr-dash-card-content {
-  padding: 0 1.5rem 1.25rem 1.5rem;
-  background: var(--white, #fff);
-}
-.leadrosetta-app-dashboard .lr-dash-page [data-slot="table-container"] {
-  border-radius: 0.375rem;
-  margin: 1rem 0 1.5rem;
-  background: var(--white, #fff);
-}
-.leadrosetta-app-dashboard .lr-dash-page [data-slot="table"] th {
-  height: auto;
-  padding: 0.75rem 1rem;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--ink);
-  text-transform: none;
-  letter-spacing: 0;
-  border-bottom: 1px solid var(--border);
-}
-.leadrosetta-app-dashboard .lr-dash-page [data-slot="table"] td {
-  padding: 0.875rem 1rem;
-  font-size: 0.875rem;
-  vertical-align: middle;
-  border-bottom: 1px solid var(--border);
-}
-.leadrosetta-app-dashboard .lr-dash-page [data-slot="table"] tbody tr:last-child td {
-  border-bottom: 0;
 }
 
 /* Collapsed state: icon-only sidebar (shadcn-style) */
@@ -2139,16 +1670,16 @@ body [data-slot="textarea"]::placeholder {
   margin: 0;
 }
 
-/* Dashboard page: shadcn-style card and table */
+/* Dashboard page: legacy custom card/table (shadcn vars only) */
 .lr-dashboard-main .lr-dash-card {
-  background: #fff;
-  border: 1px solid var(--lr-dashboard-border, #e5e7eb);
+  background: var(--card);
+  border: 1px solid var(--border);
   border-radius: 0.5rem;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 .lr-dashboard-main .lr-dash-card-header {
   padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--lr-dashboard-border, #e5e7eb);
+  border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2156,14 +1687,16 @@ body [data-slot="textarea"]::placeholder {
   gap: 1rem;
 }
 .lr-dashboard-main .lr-dash-card-title {
-  font-size: 1.125rem;
+  font-family: inherit;
+  font-size: 1.25rem;
   font-weight: 600;
-  color: var(--ink);
+  letter-spacing: -0.01em;
+  color: var(--foreground);
   margin: 0;
 }
 .lr-dashboard-main .lr-dash-card-description {
   font-size: 0.875rem;
-  color: var(--color-text-secondary);
+  color: var(--muted-foreground);
   margin: 0.25rem 0 0;
 }
 .lr-dashboard-main .lr-dash-table-wrap {
@@ -2177,18 +1710,18 @@ body [data-slot="textarea"]::placeholder {
 .lr-dashboard-main .lr-dash-table th {
   text-align: left;
   font-weight: 500;
-  color: var(--color-text-secondary);
-  background: var(--lr-dashboard-th-bg, #f9fafb);
+  color: var(--muted-foreground);
+  background: var(--muted);
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--lr-dashboard-border, #e5e7eb);
+  border-bottom: 1px solid var(--border);
 }
 .lr-dashboard-main .lr-dash-table td {
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--lr-dashboard-border, #e5e7eb);
+  border-bottom: 1px solid var(--border);
   vertical-align: middle;
 }
 .lr-dashboard-main .lr-dash-table tbody tr:hover {
-  background: var(--lr-dashboard-row-hover, #f9fafb);
+  background: var(--muted);
 }
 .lr-dashboard-main .lr-dash-table tbody tr:last-child td {
   border-bottom: none;
@@ -2214,20 +1747,20 @@ body [data-slot="textarea"]::placeholder {
   border-radius: 9999px;
 }
 .lr-dashboard-main .lr-dash-badge-default {
-  background: var(--lr-dashboard-sidebar-hover, #f3f4f6);
-  color: var(--ink);
+  background: var(--accent);
+  color: var(--foreground);
 }
 .lr-dashboard-main .lr-dash-badge-success {
-  background: rgba(61, 90, 62, 0.12);
-  color: var(--sage);
+  background: var(--accent);
+  color: var(--primary);
 }
 .lr-dashboard-main .lr-dash-badge-warning {
-  background: rgba(193, 125, 42, 0.12);
-  color: var(--amber);
+  background: var(--accent);
+  color: var(--primary);
 }
 .lr-dashboard-main .lr-dash-badge-muted {
-  background: var(--lr-dashboard-sidebar-hover, #f3f4f6);
-  color: var(--color-text-secondary);
+  background: var(--accent);
+  color: var(--muted-foreground);
 }
 .lr-dashboard-main .lr-dash-btn-ghost {
   display: inline-flex;
@@ -2235,7 +1768,7 @@ body [data-slot="textarea"]::placeholder {
   padding: 0.375rem 0.75rem;
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--ink);
+  color: var(--foreground);
   background: transparent;
   border: none;
   border-radius: 0.375rem;
@@ -2244,7 +1777,7 @@ body [data-slot="textarea"]::placeholder {
   transition: background 0.15s;
 }
 .lr-dashboard-main .lr-dash-btn-ghost:hover {
-  background: var(--lr-dashboard-sidebar-hover, #f3f4f6);
+  background: var(--accent);
 }
 .lr-dashboard-main .lr-dash-btn-primary {
   display: inline-flex;
@@ -2252,15 +1785,16 @@ body [data-slot="textarea"]::placeholder {
   padding: 0.375rem 0.75rem;
   font-size: 0.875rem;
   font-weight: 500;
-  color: white;
-  background: var(--amber);
+  color: var(--primary-foreground);
+  background: var(--primary);
   border: none;
   border-radius: 0.375rem;
   cursor: pointer;
   transition: background 0.15s;
 }
 .lr-dashboard-main .lr-dash-btn-primary:hover {
-  background: var(--amber-light);
+  background: var(--primary);
+  opacity: 0.9;
 }
 .lr-dashboard-main .lr-dash-alert {
   padding: 0.75rem 1rem;
@@ -2269,22 +1803,22 @@ body [data-slot="textarea"]::placeholder {
   margin-bottom: 1rem;
 }
 .lr-dashboard-main .lr-dash-alert-success {
-  background: rgba(61, 90, 62, 0.08);
-  border: 1px solid rgba(61, 90, 62, 0.2);
-  color: var(--sage);
+  background: var(--accent);
+  border: 1px solid var(--border);
+  color: var(--primary);
 }
 .lr-dashboard-main .lr-dash-alert-error {
-  background: rgba(192, 64, 64, 0.08);
-  border: 1px solid rgba(192, 64, 64, 0.2);
-  color: var(--error);
+  background: var(--accent);
+  border: 1px solid var(--destructive);
+  color: var(--destructive);
 }
 .lr-dashboard-main .lr-dash-alert-warning {
-  background: rgba(193, 125, 42, 0.08);
-  border: 1px solid rgba(193, 125, 42, 0.2);
-  color: var(--amber);
+  background: var(--accent);
+  border: 1px solid var(--border);
+  color: var(--primary);
 }
 .lr-dashboard-main .lr-dash-link {
-  color: var(--sage);
+  color: var(--primary);
   text-decoration: none;
 }
 .lr-dashboard-main .lr-dash-link:hover {
@@ -2305,7 +1839,7 @@ body [data-slot="textarea"]::placeholder {
     flex-direction: row;
     flex-wrap: wrap;
     border-right: none;
-    border-bottom: 1px solid var(--lr-dashboard-border, #e5e7eb);
+    border-bottom: 1px solid var(--border);
     overflow: visible;
   }
   .leadrosetta-app-dashboard .lr-dashboard-sidebar-header {

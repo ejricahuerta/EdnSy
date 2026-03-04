@@ -28,6 +28,7 @@ create index if not exists idx_prospects_provider on public.prospects (provider,
 
 alter table public.prospects enable row level security;
 
+drop policy if exists "Allow service access to prospects" on public.prospects;
 create policy "Allow service access to prospects"
   on public.prospects for all using (true) with check (true);
 

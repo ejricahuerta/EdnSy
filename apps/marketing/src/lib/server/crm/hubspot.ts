@@ -8,11 +8,10 @@ export type HubSpotContact = {
 	email: string;
 	website: string;
 	phone: string;
-	industry?: string;
 };
 
 export async function listHubSpotContacts(accessToken: string): Promise<{ contacts: HubSpotContact[]; error?: string }> {
-	const props = 'firstname,lastname,email,company,website,phone,industry';
+	const props = 'firstname,lastname,email,company,website,phone';
 	try {
 		const all: HubSpotContact[] = [];
 		let after: string | undefined;
@@ -48,8 +47,7 @@ export async function listHubSpotContacts(accessToken: string): Promise<{ contac
 						companyName,
 						email,
 						website,
-						phone,
-						industry: (p.industry ?? '').trim() || undefined
+						phone
 					});
 				}
 			}

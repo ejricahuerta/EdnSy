@@ -2,21 +2,27 @@
 	import { tick } from 'svelte';
 	import { CAL_COM_LINK, CHAT_DAILY_LIMIT } from '$lib/constants';
 	import { formatChatMessage } from '$lib/formatChatMessage';
-	import { trackDemoEvent } from '$lib/demoTracking';
-	import CallbackDialog from '$lib/components/demo/CallbackDialog.svelte';
+	import { trackDemoEvent } from '$lib/demo';
+	import RetellCallbackDialog from '$lib/components/RetellCallbackDialog.svelte';
 	import { MessageCircle, X, Send, Calendar, Phone } from 'lucide-svelte';
 
 	let {
 		industrySlug = 'healthcare',
 		displayName = '',
-		prospectId = ''
+		prospectId = '',
+		onOpenCallback = undefined as (() => void) | undefined,
+		/** When set (e.g. 5000), chat opens automatically after this many ms with a subtle ding. */
+		autoOpenAfterMs = undefined as number | undefined
 	}: {
 		industrySlug: string;
 		displayName?: string;
 		prospectId?: string;
+		onOpenCallback?: () => void;
+		autoOpenAfterMs?: number;
 	} = $props();
 
 	let open = $state(false);
+	let callbackDialogOpen = $state(false);
 	let messages = $state<{ role: 'user' | 'assistant'; content: string }[]>([]);
 	let input = $state('');
 	let loading = $state(false);
@@ -24,9 +30,39 @@
 	let lockedMessage = $state('');
 	let messagesEnd: HTMLDivElement | null = $state(null);
 	let scrollArea: HTMLDivElement | null = $state(null);
-	let callbackDialogOpen = $state(false);
 	let chatOpenedTracked = $state(false);
 	let callbackOpenedTracked = $state(false);
+	let autoOpened = $state(false);
+
+	function playDing() {
+		try {
+			const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+			if (ctx.state === 'suspended') ctx.resume();
+			const osc = ctx.createOscillator();
+			const gain = ctx.createGain();
+			osc.connect(gain);
+			gain.connect(ctx.destination);
+			osc.frequency.value = 640;
+			osc.type = 'sine';
+			gain.gain.setValueAtTime(0.12, ctx.currentTime);
+			gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
+			osc.start(ctx.currentTime);
+			osc.stop(ctx.currentTime + 0.18);
+		} catch (_) {
+			/* ignore if audio not allowed */
+		}
+	}
+
+	$effect(() => {
+		const delay = autoOpenAfterMs;
+		if (delay == null || delay < 0 || autoOpened) return;
+		const id = setTimeout(() => {
+			autoOpened = true;
+			playDing();
+			open = true;
+		}, delay);
+		return () => clearTimeout(id);
+	});
 
 	$effect(() => {
 		if (!open) return;
@@ -43,13 +79,23 @@
 		}
 	});
 
-	$effect(() => {
-		if (callbackDialogOpen && prospectId && !callbackOpenedTracked) {
+	function openCallbackAndTrack() {
+		if (prospectId && !callbackOpenedTracked) {
 			callbackOpenedTracked = true;
 			trackDemoEvent(prospectId, 'callback_opened');
 		}
-		if (!callbackDialogOpen) callbackOpenedTracked = false;
-	});
+		if (onOpenCallback) {
+			onOpenCallback();
+		} else {
+			callbackDialogOpen = true;
+		}
+	}
+
+	function onCallbackError(event: CustomEvent<{ notConfigured?: boolean }>) {
+		if (event.detail?.notConfigured) {
+			window.open(CAL_COM_LINK, '_blank', 'noopener,noreferrer');
+		}
+	}
 
 	async function send() {
 		const text = input.trim();
@@ -73,11 +119,9 @@
 
 			const data = await res.json();
 
-			if ((res.status === 429 || res.status === 503) && data.locked) {
+			if (res.status === 429 || res.status === 503) {
 				locked = true;
-				lockedMessage =
-					data.message ??
-					`You've reached the daily limit of ${CHAT_DAILY_LIMIT} messages.`;
+				lockedMessage = data.error ?? `You've reached the daily limit of ${CHAT_DAILY_LIMIT} messages.`;
 				loading = false;
 				return;
 			}
@@ -107,48 +151,41 @@
 	}
 </script>
 
-<div class="chat-widget fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2">
+<div class="chat-widget fixed bottom-4 right-8 z-50 flex flex-col items-end gap-2">
 	{#if open}
 		<div
-			class="bg-base-100 border border-base-300 rounded-2xl shadow-xl flex flex-col w-[min(100vw-2rem,22rem)] h-[min(80vh,28rem)] max-h-[min(80vh,28rem)] overflow-hidden"
+			class="chat-widget-panel"
 			aria-label="Chat"
 		>
-			<div class="flex shrink-0 items-center justify-between px-4 py-3 border-b border-base-300 bg-base-200/50">
-				<div class="flex flex-col gap-0.5">
-					<span class="font-semibold text-base-content">Ask Ed & Sy</span>
-					<span class="text-xs text-base-content/60">AI powered by Ed and Sy Inc.</span>
-				</div>
+			<div class="chat-widget-header">
+				<span class="chat-widget-title">Chat</span>
 				<button
 					type="button"
-					class="btn btn-ghost btn-sm btn-square"
+					class="chat-widget-close"
 					onclick={() => (open = false)}
 					aria-label="Close chat"
 				>
-					<X class="w-5 h-5" />
+					<X class="chat-widget-close-icon" />
 				</button>
 			</div>
 
 			<div
 				bind:this={scrollArea}
-				class="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-4 space-y-3"
+				class="chat-widget-messages"
 				role="log"
 				aria-live="polite"
 				aria-label="Chat messages"
 			>
 				{#if messages.length === 0}
-					<div class="space-y-2 text-sm text-base-content/70">
-						<p>Ask about services, hours, or how we can help. Answers are tailored to this page.</p>
-						<p class="text-xs text-base-content/50">Powered by Ed and Sy Inc.</p>
+					<div class="chat-widget-empty">
+						<p>Ask about services, hours, or how we can help.</p>
+						<p class="chat-widget-powered">Powered by Ed & Sy Inc.</p>
 					</div>
 				{:else}
 					{#each messages as msg}
 						<div
-							class="flex flex-col gap-1 {msg.role === 'user' ? 'items-end' : 'items-start'}">
-							<span class="text-xs font-medium text-base-content/60">{msg.role === 'user' ? 'You' : 'Assistant'}</span>
-							<div
-								class="rounded-2xl px-4 py-2 max-w-[90%] text-sm break-words {msg.role === 'user'
-									? 'bg-primary text-primary-content'
-									: 'bg-base-200 text-base-content'}">
+							class="chat-widget-bubble-wrap {msg.role === 'user' ? 'chat-widget-bubble-user' : 'chat-widget-bubble-assistant'}">
+							<div class="chat-widget-bubble {msg.role === 'user' ? 'chat-widget-bubble-user' : 'chat-widget-bubble-assistant'}">
 								{#if msg.role === 'assistant'}
 									{@html formatChatMessage(msg.content)}
 								{:else}
@@ -159,8 +196,8 @@
 					{/each}
 				{/if}
 				{#if loading}
-					<div class="flex items-center gap-2 text-sm text-base-content/70">
-						<span class="loading loading-dots loading-sm"></span>
+					<div class="chat-widget-loading">
+						<span class="chat-widget-dots"></span>
 						Thinking…
 					</div>
 				{/if}
@@ -168,16 +205,16 @@
 			</div>
 
 			{#if locked}
-				<div class="p-4 border-t border-base-300 bg-base-200/50 space-y-3">
-					<p class="text-sm text-base-content">{lockedMessage}</p>
+				<div class="chat-widget-locked">
+					<p class="chat-widget-locked-text">{lockedMessage}</p>
 					<a
 						href={CAL_COM_LINK}
 						target="_blank"
 						rel="noopener noreferrer"
-						class="btn btn-primary w-full gap-2"
+						class="chat-widget-cta-primary"
 					>
 						<Calendar class="w-4 h-4" aria-hidden="true" />
-						Book a call with Ed & Sy
+						Book a call
 					</a>
 				</div>
 			{:else}
@@ -200,76 +237,230 @@
 							aria-label="Send message"
 						>
 							<Send class="w-4 h-4" />
-							Send
 						</button>
 					</div>
 					<button
 						type="button"
 						class="chat-widget-callback-btn"
-						onclick={() => (callbackDialogOpen = true)}
-						aria-label="Request a callback"
+						onclick={openCallbackAndTrack}
+						aria-label="Request AI callback"
 					>
 						<Phone class="w-4 h-4" aria-hidden="true" />
-						Request a callback
+						Request AI callback
 					</button>
+					<p class="chat-widget-powered-footer">Powered by Ed & Sy Inc.</p>
 				</div>
 			{/if}
 		</div>
 	{/if}
 
+	{#if !onOpenCallback}
+		<RetellCallbackDialog
+			bind:open={callbackDialogOpen}
+			prospectId={prospectId}
+			onerror={onCallbackError}
+		/>
+	{/if}
+
 	<button
 		type="button"
-		class="btn btn-primary btn-circle shadow-lg size-14"
+		class="chat-widget-fab"
 		onclick={() => (open = !open)}
 		aria-label={open ? 'Close chat' : 'Open chat'}
 	>
-		<MessageCircle class="w-7 h-7" aria-hidden="true" />
+		<MessageCircle class="w-6 h-6" aria-hidden="true" />
 	</button>
 </div>
 
-<CallbackDialog
-	open={callbackDialogOpen}
-	prospectId={prospectId}
-	termsUrl="/terms"
-	onClose={() => (callbackDialogOpen = false)}
-/>
-
 <style>
-	.chat-widget-footer {
-		padding: 0.75rem;
-		border-top: 1px solid var(--color-base-300, #44403c);
+	/* Lead Rosetta brand: #2D6A4F primary, #1A1A14 text, #FFFFFF card, #D8D0BF border, #F5F0E8 muted */
+	.chat-widget-panel {
 		display: flex;
 		flex-direction: column;
-		gap: 0.5rem;
-		background: var(--color-base-100, #1c1917);
+		width: min(100vw - 2rem, 22rem);
+		height: min(80vh, 28rem);
+		max-height: min(80vh, 28rem);
+		overflow: hidden;
+		background: #ffffff;
+		border: 1px solid #d8d0bf;
+		border-radius: 12px;
+		box-shadow: 0 4px 24px rgba(26, 26, 20, 0.08);
+	}
+	.chat-widget-header {
+		flex-shrink: 0;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 12px 14px;
+		border-bottom: 1px solid #d8d0bf;
+		background: #f5f0e8;
+	}
+	.chat-widget-title {
+		font-size: 0.9375rem;
+		font-weight: 600;
+		color: #1a1a14;
+	}
+	.chat-widget-close {
+		width: 32px;
+		height: 32px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border: 1px solid #d8d0bf;
+		border-radius: 8px;
+		background: #ffffff;
+		color: #1a1a14;
+		cursor: pointer;
+		transition: background 0.15s, border-color 0.15s;
+	}
+	.chat-widget-close:hover {
+		background: #eeebe0;
+		border-color: #7a7566;
+	}
+	.chat-widget-close-icon {
+		width: 18px;
+		height: 18px;
+	}
+	.chat-widget-messages {
+		flex: 1;
+		min-height: 0;
+		overflow-y: auto;
+		overflow-x: hidden;
+		padding: 12px 14px;
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+		background: #ffffff;
+	}
+	.chat-widget-empty {
+		font-size: 0.875rem;
+		color: #7a7566;
+		padding: 4px 0;
+	}
+	.chat-widget-powered {
+		font-size: 0.75rem;
+		color: #7a7566;
+		opacity: 0.85;
+		margin: 8px 0 0 0;
+	}
+	.chat-widget-powered-footer {
+		font-size: 0.6875rem;
+		color: #7a7566;
+		opacity: 0.8;
+		margin: 4px 0 0 0;
+		text-align: center;
+	}
+	.chat-widget-bubble-wrap {
+		display: flex;
+		flex-direction: column;
+		max-width: 90%;
+	}
+	.chat-widget-bubble-wrap.chat-widget-bubble-user {
+		align-self: flex-end;
+	}
+	.chat-widget-bubble-wrap.chat-widget-bubble-assistant {
+		align-self: flex-start;
+	}
+	.chat-widget-bubble {
+		padding: 10px 14px;
+		font-size: 0.875rem;
+		line-height: 1.4;
+		border-radius: 12px;
+		word-break: break-word;
+	}
+	.chat-widget-bubble-user {
+		background: #2d6a4f;
+		color: #fafaf9;
+		border-bottom-right-radius: 4px;
+	}
+	.chat-widget-bubble-assistant {
+		background: #f5f0e8;
+		color: #1a1a14;
+		border-bottom-left-radius: 4px;
+	}
+	.chat-widget-loading {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		font-size: 0.875rem;
+		color: #7a7566;
+	}
+	.chat-widget-dots {
+		display: inline-block;
+		width: 20px;
+		height: 8px;
+		background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 8'%3E%3Ccircle cx='4' cy='4' r='2.5' fill='%237a7566' opacity='0.4'/%3E%3Ccircle cx='12' cy='4' r='2.5' fill='%237a7566' opacity='0.7'/%3E%3Ccircle cx='20' cy='4' r='2.5' fill='%237a7566'/%3E%3C/svg%3E") no-repeat center;
+		animation: chat-widget-dots 0.8s ease-in-out infinite;
+	}
+	@keyframes chat-widget-dots {
+		50% { opacity: 0.5; }
+	}
+	.chat-widget-locked {
+		padding: 12px 14px;
+		border-top: 1px solid #d8d0bf;
+		background: #f5f0e8;
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+	}
+	.chat-widget-locked-text {
+		font-size: 0.875rem;
+		color: #1a1a14;
+		margin: 0;
+	}
+	.chat-widget-cta-primary {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 8px;
+		padding: 10px 14px;
+		font-size: 0.875rem;
+		font-weight: 500;
+		border-radius: 8px;
+		border: none;
+		background: #2d6a4f;
+		color: #fafaf9;
+		text-decoration: none;
+		cursor: pointer;
+		transition: filter 0.15s;
+	}
+	.chat-widget-cta-primary:hover {
+		filter: brightness(1.08);
+	}
+	.chat-widget-footer {
+		padding: 10px 14px;
+		border-top: 1px solid #d8d0bf;
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		background: #ffffff;
 	}
 	.chat-widget-input-row {
 		display: flex;
-		gap: 0.5rem;
+		gap: 8px;
 		align-items: flex-end;
 	}
 	.chat-widget-textarea {
 		flex: 1;
-		min-height: 2.5rem;
+		min-height: 40px;
 		max-height: 8rem;
 		resize: none;
-		padding: 0.5rem 0.75rem;
+		padding: 10px 12px;
 		font-size: 0.875rem;
-		line-height: 1.25rem;
-		border-radius: 0.5rem;
-		border: 1px solid var(--color-base-300, #44403c);
-		background: var(--color-base-200, #292524);
-		color: var(--color-base-content, #e7e5e4);
+		line-height: 1.35;
+		border-radius: 8px;
+		border: 1px solid #d8d0bf;
+		background: #ffffff;
+		color: #1a1a14;
 		transition: border-color 0.15s, box-shadow 0.15s;
 	}
 	.chat-widget-textarea::placeholder {
-		color: var(--color-base-content);
-		opacity: 0.5;
+		color: #7a7566;
 	}
 	.chat-widget-textarea:focus {
 		outline: none;
-		border-color: var(--color-primary, #2D6A4F);
-		box-shadow: 0 0 0 2px rgba(45, 106, 79, 0.25);
+		border-color: #2d6a4f;
+		box-shadow: 0 0 0 2px rgba(45, 106, 79, 0.2);
 	}
 	.chat-widget-textarea:disabled {
 		opacity: 0.6;
@@ -277,23 +468,20 @@
 	}
 	.chat-widget-send {
 		flex-shrink: 0;
+		width: 40px;
+		height: 40px;
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		gap: 0.25rem;
-		height: 2.5rem;
-		padding: 0 0.75rem;
-		font-size: 0.875rem;
-		font-weight: 500;
-		border-radius: 0.5rem;
+		border-radius: 8px;
 		border: none;
-		background: var(--color-primary, #2D6A4F);
-		color: var(--color-primary-content, #fafaf9);
+		background: #2d6a4f;
+		color: #fafaf9;
 		cursor: pointer;
 		transition: filter 0.15s;
 	}
 	.chat-widget-send:hover:not(:disabled) {
-		filter: brightness(1.1);
+		filter: brightness(1.08);
 	}
 	.chat-widget-send:disabled {
 		opacity: 0.5;
@@ -304,19 +492,36 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		gap: 0.5rem;
-		padding: 0.5rem 0.75rem;
+		gap: 8px;
+		padding: 8px 12px;
 		font-size: 0.8125rem;
-		border-radius: 0.5rem;
-		border: 1px solid var(--color-base-300, #44403c);
-		background: transparent;
-		color: var(--color-base-content, #e7e5e4);
-		opacity: 0.9;
+		border-radius: 8px;
+		border: 1px solid #d8d0bf;
+		background: #f5f0e8;
+		color: #1a1a14;
 		cursor: pointer;
-		transition: background 0.15s, opacity 0.15s;
+		transition: background 0.15s, border-color 0.15s;
 	}
 	.chat-widget-callback-btn:hover {
-		background: var(--color-base-200, #292524);
-		opacity: 1;
+		background: #eeebe0;
+		border-color: #7a7566;
+	}
+	.chat-widget-fab {
+		width: 56px;
+		height: 56px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 50%;
+		border: none;
+		background: #2d6a4f;
+		color: #fafaf9;
+		box-shadow: 0 4px 14px rgba(45, 106, 79, 0.35);
+		cursor: pointer;
+		transition: filter 0.15s, box-shadow 0.15s;
+	}
+	.chat-widget-fab:hover {
+		filter: brightness(1.08);
+		box-shadow: 0 6px 18px rgba(45, 106, 79, 0.4);
 	}
 </style>

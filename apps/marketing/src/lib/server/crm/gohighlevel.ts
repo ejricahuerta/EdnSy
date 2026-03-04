@@ -8,7 +8,6 @@ export type GHLContact = {
 	email: string;
 	website: string;
 	phone: string;
-	industry?: string;
 };
 
 export async function listGoHighLevelContacts(accessToken: string): Promise<{ contacts: GHLContact[]; error?: string }> {
@@ -39,8 +38,7 @@ export async function listGoHighLevelContacts(accessToken: string): Promise<{ co
 					companyName,
 					email,
 					website,
-					phone,
-					industry: ((c.industry ?? (c.tags as string[])?.[0]) as string)?.toString?.()?.trim() || undefined
+					phone
 				});
 			}
 		}

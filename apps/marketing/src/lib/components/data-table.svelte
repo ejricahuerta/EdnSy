@@ -116,7 +116,6 @@
 	import CircleCheckFilledIcon from "@tabler/icons-svelte/icons/circle-check-filled";
 	import LoaderIcon from "@tabler/icons-svelte/icons/loader";
 	import DotsVerticalIcon from "@tabler/icons-svelte/icons/dots-vertical";
-	import { toast } from "$lib/toast";
 	import DataTableCheckbox from "./data-table-checkbox.svelte";
 	import DataTableCellViewer from "./data-table-cell-viewer.svelte";
 	import { createRawSnippet } from "svelte";
@@ -415,11 +414,6 @@
 	<form
 		onsubmit={(e) => {
 			e.preventDefault();
-			toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
-				loading: `Saving ${row.original.header}`,
-				success: "Done",
-				error: "Error",
-			});
 		}}
 	>
 		<Label for="{row.original.id}-limit" class="sr-only">Limit</Label>
@@ -435,11 +429,6 @@
 	<form
 		onsubmit={(e) => {
 			e.preventDefault();
-			toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
-				loading: `Saving ${row.original.header}`,
-				success: "Done",
-				error: "Error",
-			});
 		}}
 	>
 		<Label for="{row.original.id}-target" class="sr-only">Target</Label>

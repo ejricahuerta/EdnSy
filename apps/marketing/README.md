@@ -11,6 +11,10 @@ SvelteKit app for the marketing CRM: Pro/Agency dashboard (prospects from connec
 - **shadcn-svelte** for all dashboard-related pages (not used on the landing page or on industry demo pages)
 - CRM integrations (HubSpot, GoHighLevel, Pipedrive, Notion); Resend (email). Env required for production.
 
+## Architecture
+
+Core engines (Demo, Insights, GBP, Prospects, Send, Auth, CRM, Billing, Supabase, User settings) and lib layout are documented in **[docs/architecture.md](docs/architecture.md)**. Use `$lib/demo`, `$lib/insights`, `$lib/server/demo`, and `$lib/server/insights` as the main entry points for demo and insight features.
+
 ## Setup
 
 1. **Install dependencies**
@@ -34,16 +38,24 @@ SvelteKit app for the marketing CRM: Pro/Agency dashboard (prospects from connec
 
    - **CRM / Integrations:** Connect one or more sources in Dashboard → Integrations (HubSpot, GoHighLevel, Pipedrive, or Notion). For Notion you need `NOTION_API_KEY` and `NOTION_DATABASE_ID` (create at [notion.so/my-integrations](https://www.notion.so/my-integrations); share the database with your integration). Prospects are synced into the dashboard keyed by **provider** and **provider_row_id**; status and tracking are stored on our side and synced back by id where supported.
    - **Resend (F4 email):** `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `RESEND_FROM_NAME`. Default (dev) is `onboarding@resend.dev`; for production set `RESEND_FROM_EMAIL=leadrosetta@ednsy.com` and `RESEND_FROM_NAME=Lead Rosetta`, then verify the domain in Resend. Required for the Send button.
+   - **SITE_ORIGIN (production):** Set to your public app URL (e.g. `https://app.ednsy.com`) when deploying. Used for links in outgoing emails and stored demo URLs so recipients get a clickable link instead of localhost. If unset, the request origin is used (fine for local dev).
+   - **Cron (optional):** To process demo jobs when no one is on the dashboard, Vercel Cron calls `GET /api/cron/jobs/demo` every 1 minute. **GBP queue:** Vercel Cron also calls `GET /api/cron/jobs/gbp` every 2 minutes. In Vercel, set **CRON_SECRET** (random string, 16+ chars); both cron routes reject requests without `Authorization: Bearer <CRON_SECRET>`. Demo cron requires **SITE_ORIGIN** so demo links are correct. See [docs/v0-demo-strategy.md](docs/v0-demo-strategy.md). **Local:** Run `pnpm run cron:mock-gbp` (with dev server and `CRON_SECRET` in `.env`) to mimic the cron locally; see [scripts/README.md](scripts/README.md).
    - **Twilio (F4 SMS):** Optional / backlogged (no budget, low traction). If you enable it: `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER` (E.164). When set, Send will also send SMS to prospects with a phone number.
    - `MARKETING_API_KEY` - optional, for protecting API routes
    - **Google login** (for `/dashboard` and auth):
-     - `GOOGLE_CLIENT_ID` - Google OAuth client ID (Cloud Console)
-     - `GOOGLE_CLIENT_SECRET` - Google OAuth client secret
+     - `AUTH_GOOGLE_CLIENT_ID` - Google OAuth client ID (Cloud Console)
+     - `AUTH_GOOGLE_CLIENT_SECRET` - Google OAuth client secret
      - `SESSION_SECRET` - at least 16 characters; used to sign session cookies
    - **Supabase (demo tracking,** optional): when set, the app records each created demo in Supabase for tracking (CRM id, demo link, status, send time, scraped data).
      - `SUPABASE_URL` - your Supabase project URL
      - `SUPABASE_SERVICE_ROLE_KEY` - service role key (server-only; do not expose to the client)
-   - **Gemini (AI audit,** optional): when set, creating a demo generates an AI audit from the prospect's name, industry, and website (stored in Supabase, shown on the demo page). Use `GEMINI_API_KEY` (same as chat widget).
+   - **Demos (scraped data required):** Creating a demo only works when scraped data is available. You must configure **at least one** of DataForSEO or Gemini in `.env`. If you see *"Scraped data is required to run the demo. Configure DataForSEO (DATAFORSEO_LOGIN, DATAFORSEO_PASSWORD) or Gemini (GEMINI_API_KEY) in .env and try again."*, add the missing credentials below.
+   - **DataForSEO (GBP scraping):** when set, creating a demo fetches real Google Business Profile data (name, address, phone, website, rating) via DataForSEO and builds the audit from it; otherwise the app falls back to Gemini. Set `DATAFORSEO_LOGIN` and `DATAFORSEO_PASSWORD` (from [app.dataforseo.com](https://app.dataforseo.com/api-access)). Optional: `DATAFORSEO_DEFAULT_LOCATION` (e.g. `Toronto,Ontario,Canada`), `DATAFORSEO_DEFAULT_LANGUAGE_CODE` (default `en`).
+   - **Gemini (AI audit fallback):** when DataForSEO is not configured or GBP fetch fails, creating a demo uses Gemini to generate a synthetic audit from the prospect's name, industry, and website. Set `GEMINI_API_KEY` (same as chat widget). With `GEMINI_API_KEY` set, creating a demo also generates personalized landing content (hero, CTA, services) for the industry demo page.
+   - **Claude (demo generator):** creating a demo uses Claude to generate a single-file HTML landing page (same structure as the v0 prompt: style, sections, Tailwind CDN). The HTML is saved to Supabase storage in the **demo-html** bucket as text and served at `/demo/[id]/page.html`; the demo page iframes it. Set `ANTHROPIC_API_KEY` in `.env` (from [Anthropic Console](https://console.anthropic.com/)). If no demo-html content exists, the app falls back to v0-hosted URL (when `V0_API_KEY` is set) or the legacy Gemini + pageJson flow.
+   - **v0 (demo generator fallback,** optional): when set, existing demos that used v0 are iframed from v0’s hosted URL. New demos are generated with Claude and stored in demo-html. Set `V0_API_KEY` in `.env` for the fallback path; optional `V0_DEMOS_FOLDER_ID` for v0 folder. See [docs/v0-demo-strategy.md](docs/v0-demo-strategy.md).
+   - **Pexels (demo images,** recommended): when `PEXELS_API_KEY` is set (from [Pexels API](https://www.pexels.com/api)), demo pages use Pexels search for hero and about images. Request a key at [pexels.com/api](https://www.pexels.com/api).
+   - **Unsplash (demo images fallback,** optional): when Pexels is not configured, `UNSPLASH_ACCESS_KEY` (from [Unsplash Developers](https://unsplash.com/developers)) is used for search-based hero and about images. Otherwise, industry default image URLs are used.
    - **Retell AI (callback,** optional): when set, the demo chat widget shows a "Request a callback" button that opens a dialog; submitting triggers an outbound call via the Retell API. Set `RETELL_API_KEY` (server-only, from [Retell Dashboard](https://docs.retellai.com/accounts/api-keys-overview)), and either `RETELL_PHONE_NUMBER` + `RETELL_AGENT_ID` or the public equivalents `PUBLIC_RETELL_PHONE_NUMBER` and `PUBLIC_RETELL_AGENT_ID` (E.164 for phone; voice agent ID).
    - **Stripe (billing):** for Pro subscription and checkout: `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_PRICE_STARTER`, `STRIPE_PRICE_PRO` (Stripe Price IDs), and after adding the webhook in Stripe Dashboard: `STRIPE_WEBHOOK_SECRET`. Run the `subscriptions` Supabase migration so the `subscriptions` table exists.
 
@@ -71,18 +83,28 @@ SvelteKit app for the marketing CRM: Pro/Agency dashboard (prospects from connec
    - `supabase/migrations/20260301120000_dashboard_overview.sql`
    - `supabase/migrations/20260301140000_user_templates.sql`
    - `supabase/migrations/20260301160000_prospects_allow_manual.sql`
+   - `supabase/migrations/20260302120000_demo_events.sql`
+   - `supabase/migrations/20260303100000_consolidated_prospects_user_settings_crm_flagged.sql`
+   - `supabase/migrations/20260303120000_prospects_add_address.sql`
+   - `supabase/migrations/20260304120000_demo_jobs.sql`
 
    Copy each file’s contents into the editor and run it.
 
    **Option B – Supabase CLI**  
    The app includes `supabase/config.toml` and the Supabase CLI (via the `supabase` dependency). From `apps/marketing`:
 
-   ```bash
-   npm run db:link   # enter project ref and database password when prompted
-   npm run db:push
-   ```
+   1. Log in (once): `npx supabase login`
+   2. Link using your project ref (from the Supabase dashboard URL or from `.env`: `node scripts/get-supabase-ref.mjs`):
+      ```bash
+      npx supabase link --project-ref YOUR_PROJECT_REF
+      ```
+      Enter your database password when prompted.
+   3. Push migrations:
+      ```bash
+      npm run db:push
+      ```
 
-   Or with npx: `npx supabase link` then `npx supabase db push`. If you still see “The system cannot find the path specified” on Windows, use Option A.
+   If you see “The system cannot find the path specified” on Windows, use Option A.
 
 4. **Run**
 
@@ -104,7 +126,7 @@ SvelteKit app for the marketing CRM: Pro/Agency dashboard (prospects from connec
 
 3. **Environment variables** (Project → **Settings** → **Environment Variables**):
    - Add CRM/integration env vars if using Notion: `NOTION_API_KEY`, `NOTION_DATABASE_ID`. Other CRMs are configured in Dashboard → Integrations.
-   - Add Google OAuth and session vars if you use `/dashboard`: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `SESSION_SECRET`.
+   - Add Google OAuth and session vars if you use `/dashboard`: `AUTH_GOOGLE_CLIENT_ID`, `AUTH_GOOGLE_CLIENT_SECRET`, `SESSION_SECRET`.
    - Use the **exact** names above (case-sensitive). Assign to **Production** (and **Preview** if you use preview deployments).
 
 4. **Redeploy** after adding or changing env vars (Deployments → ⋯ → Redeploy).

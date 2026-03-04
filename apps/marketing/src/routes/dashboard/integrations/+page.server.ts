@@ -1,5 +1,8 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+import { markdownToHtml } from '$lib/markdown';
 import { getSessionFromCookie, getSessionCookieName } from '$lib/server/session';
 import { getPlanForUser } from '$lib/server/stripe';
 import { canConnectCrm } from '$lib/plans';
@@ -12,8 +15,25 @@ import {
 	listGoHighLevelContacts,
 	listPipedriveContacts
 } from '$lib/server/crm';
-import { getNotionConnection, saveNotionConnection, listProspects as listNotionProspects } from '$lib/server/notion';
+import { getGmailTokens, deleteGmailTokens } from '$lib/server/gmail';
+import { listProspects as listNotionProspects } from '$lib/server/notion';
 import { upsertProspect } from '$lib/server/prospects';
+
+const INTEGRATION_IDS = ['notion', 'hubspot', 'gohighlevel', 'pipedrive'] as const;
+
+function loadHelpDocs(): Record<string, string> {
+	const base = process.cwd();
+	const out: Record<string, string> = {};
+	for (const id of INTEGRATION_IDS) {
+		try {
+			const raw = readFileSync(join(base, 'docs', 'integrations', `${id}.md`), 'utf-8');
+			out[id] = markdownToHtml(raw);
+		} catch {
+			out[id] = '';
+		}
+	}
+	return out;
+}
 
 export const load: PageServerLoad = async ({ cookies }) => {
 	const cookie = cookies.get(getSessionCookieName());
@@ -21,8 +41,11 @@ export const load: PageServerLoad = async ({ cookies }) => {
 	if (!user) throw redirect(303, '/auth/login');
 	const plan = await getPlanForUser(user);
 	const connections = await listCrmConnections(user.id);
-	const notionConnection = await getNotionConnection(user.id);
-	return { plan, connections, notionConnection, canConnect: canConnectCrm(plan) };
+	const helpDocs = loadHelpDocs();
+	const gmailTokens = await getGmailTokens(user.id);
+	const gmailConnected = !!(gmailTokens?.refresh_token);
+	const gmailEmail = gmailTokens?.email ?? null;
+	return { plan, connections, canConnect: canConnectCrm(plan), helpDocs, gmailConnected, gmailEmail };
 };
 
 export const actions: Actions = {
@@ -85,7 +108,6 @@ export const actions: Actions = {
 				email: c.email,
 				website: c.website || undefined,
 				phone: c.phone || undefined,
-				industry: c.industry,
 				status: 'Prospect'
 			});
 			if (id && !err) synced++;
@@ -109,7 +131,6 @@ export const actions: Actions = {
 				email: c.email,
 				website: c.website || undefined,
 				phone: c.phone || undefined,
-				industry: c.industry,
 				status: 'Prospect'
 			});
 			if (id && !err) synced++;
@@ -124,9 +145,17 @@ export const actions: Actions = {
 		const apiKey = (formData.get('apiKey') as string)?.trim();
 		const databaseId = (formData.get('databaseId') as string)?.trim();
 		if (!apiKey || !databaseId) return fail(400, { message: 'API key and Database ID required' });
-		const result = await saveNotionConnection(user.id, apiKey, databaseId);
+		const result = await saveCrmConnection(user.id, 'notion', apiKey, { databaseId });
 		if (!result.ok) return fail(502, { message: result.error ?? 'Failed to save' });
 		return { success: true, message: 'Notion connected.' };
+	},
+	disconnectNotion: async ({ cookies }) => {
+		const cookie = cookies.get(getSessionCookieName());
+		const user = await getSessionFromCookie(cookie);
+		if (!user) return fail(401, { message: 'Sign in required' });
+		const result = await deleteCrmConnection(user.id, 'notion');
+		if (!result.ok) return fail(502, { message: result.error ?? 'Failed to disconnect' });
+		return { success: true, message: 'Notion disconnected.' };
 	},
 	connectPipedrive: async ({ request, cookies }) => {
 		const cookie = cookies.get(getSessionCookieName());
@@ -168,7 +197,6 @@ export const actions: Actions = {
 				email: c.email,
 				website: c.website || undefined,
 				phone: c.phone || undefined,
-				industry: c.industry,
 				status: 'Prospect'
 			});
 			if (id && !err) synced++;
@@ -179,8 +207,8 @@ export const actions: Actions = {
 		const cookie = cookies.get(getSessionCookieName());
 		const user = await getSessionFromCookie(cookie);
 		if (!user) return fail(401, { message: 'Sign in required' });
-		const notionConn = await getNotionConnection(user.id);
-		if (!notionConn.connected) return fail(400, { message: 'Notion not connected' });
+		const conn = await getCrmConnection(user.id, 'notion');
+		if (!conn?.databaseId) return fail(400, { message: 'Notion not connected' });
 		const result = await listNotionProspects(user.id);
 		if (result.error) return fail(502, { message: result.message ?? 'Failed to load from Notion' });
 		let synced = 0;
@@ -190,11 +218,18 @@ export const actions: Actions = {
 				email: p.email,
 				website: p.website || undefined,
 				phone: p.phone || undefined,
-				industry: p.industry,
 				status: p.status || 'Prospect'
 			});
 			if (id && !err) synced++;
 		}
 		return { success: true, message: `Synced ${synced} of ${result.prospects.length} rows from Notion to your dashboard.` };
+	},
+	disconnectGmail: async ({ cookies }) => {
+		const cookie = cookies.get(getSessionCookieName());
+		const user = await getSessionFromCookie(cookie);
+		if (!user) return fail(401, { message: 'Sign in required' });
+		const result = await deleteGmailTokens(user.id);
+		if (!result.ok) return fail(502, { message: result.error ?? 'Failed to disconnect' });
+		return { success: true, message: 'Gmail disconnected.' };
 	}
 };

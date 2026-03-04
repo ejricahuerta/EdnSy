@@ -16,7 +16,7 @@ export const fitnessDemoContent = {
 		subheadline: 'Classes • Personal training • Open gym. First class free for new members.',
 		trustBadges: [] as string[],
 		urgencyText: '',
-		image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1200&q=80',
+		image: '/images/demo/fitness/hero.jpg',
 		imageAlt: 'Fitness class in progress',
 		ctaPrimary: 'Book a class',
 		ctaSecondary: 'View schedule'
@@ -77,7 +77,7 @@ export const fitnessDemoContent = {
 			'Clean facility and well-maintained equipment.',
 			'No long-term contract required. Month-to-month available.'
 		],
-		image: 'https://images.unsplash.com/photo-1581009146145-b5ef050c149e?w=800&q=80',
+		image: '/images/demo/fitness/about.jpg',
 		imageAlt: 'Gym interior and equipment'
 	},
 	newPatients: {

@@ -10,13 +10,13 @@ export type EmailCopy = { subject: string; bodyIntro: string };
 const EMAIL_COPY_JSON_SCHEMA = `
 Return ONLY a single JSON object (no markdown, no explanation) with these exact keys:
 {
-  "subject": "string (one short line, cheeky/fun subject line for the email)",
-  "bodyIntro": "string (2-4 short paragraphs, plain text, newlines between paragraphs. Tone: friendly, cheeky, confident. Like 'Hey [Name], We built you a real site. Have a look when you get a sec. No catch.' Do not include the demo link or signature; we add those separately. Use the business/company name naturally.)"
+  "subject": "string (one short line, friendly subject line for the email)",
+  "bodyIntro": "string (exactly 3 parts, plain text, separated by double newlines. Part 1: Greeting only, e.g. 'Hey [Name],' or 'Hey there,' (use company name if no first name). Part 2: One short paragraph: we built a free demo site for [company] using their Google listing — their services, their location, their reviews. Part 3: One short paragraph: we also added an AI agent that handles inquiries and books consultations automatically. Do NOT include the demo link, 'Take a look...', or signature; we add those. Use the business/company name naturally.)"
 }`.trim();
 
 /**
- * Generate a cheeky subject line and email body intro for a prospect, in the style of the
- * landing page "What your prospect receives" (e.g. "I rebuilt your site. (You're welcome.)").
+ * Generate subject line and email body intro for a prospect. Structure: greeting, demo-from-Google
+ * message, AI-agent message. CTA link, closing line, and signature are added in send.ts.
  * Returns null if Gemini is not configured or the request fails.
  */
 export async function generateEmailCopy(
@@ -28,20 +28,26 @@ export async function generateEmailCopy(
 	const company = prospect.companyName || 'the business';
 	const industry = prospect.industry || 'general';
 
-	const prompt = `You are writing a short cold outreach email for Lead Rosetta. The sender has already built a personalized demo website for this prospect. Your job is to write a subject line and the opening body text only. Tone: cheeky, fun, confident, not corporate. Nothing too serious.
+	const prompt = `You are writing a short cold outreach email for Lead Rosetta. The sender has already built a personalized demo website for this prospect using their Google Business Profile. Your job is to write a subject line and the body intro only. Tone: friendly, clear, confident. Not corporate.
 
-Reference style (from our landing page):
-- Subject example: "I rebuilt your site. (You're welcome.)"
-- Body example: "Hey Jann, Your old site had gambling, porn, and random pages from other builders. So we built you a real one: your services, your GTA coverage, 24/7 AI phone answering. The works. ... Have a look when you get a sec. No catch. (We might send a follow-up.)"
+Required structure for bodyIntro (3 parts, separate with double newlines):
+1. Greeting: "Hey [Name]," or "Hey there," — use the company name if you don't have a first name (e.g. "Hey," or "Hi,").
+2. One short paragraph: We built a free demo site for [company] using their Google listing — their services, their location, their reviews. Keep it natural and specific to the business.
+3. One short paragraph: We also added an AI agent that handles inquiries and books consultations automatically.
+
+Example flow (adapt to company/industry):
+Hey [Name],
+We built a free demo site for [Company] using your Google listing — your services, your location, your reviews.
+Also added an AI agent that handles inquiries and books consultations automatically.
 
 Context:
 - Business/company name: ${company}
 - Industry: ${industry}
-- Sender name (sign-off): ${senderName}
+- Sender name (used in signature by us): ${senderName}
 
 Rules:
-- subject: One short line only. Punchy, memorable, can be a bit cheeky or playful.
-- bodyIntro: 2-4 short paragraphs. Address the prospect (use company name if no first name). Say we built something for them and invite them to look. No link, no "click here", no signature—we add those. Keep it light and human.
+- subject: One short line. Friendly, clear, can mention demo or free site.
+- bodyIntro: Exactly the 3 parts above. No demo link, no "Take a look...", no signature — we add those. Use the business/company name naturally.
 
 ${EMAIL_COPY_JSON_SCHEMA}`;
 

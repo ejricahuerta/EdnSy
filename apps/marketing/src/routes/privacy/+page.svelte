@@ -4,7 +4,7 @@
 
 <svelte:head>
 	<title>Privacy Policy – Lead Rosetta</title>
-	<meta name="description" content="Privacy Policy for Lead Rosetta. How we collect, use, and protect your information." />
+	<meta name="description" content="Privacy Policy for Lead Rosetta. How we collect, use, and protect your data." />
 	<meta name="robots" content="index, follow" />
 </svelte:head>
 
@@ -15,41 +15,39 @@
 
 		<div class="prose prose-base text-base-content/90 max-w-none">
 			<p>
-				At <strong>Ed & Sy Inc.</strong> ("Company," "we," "us," or "our"), we take your privacy seriously. This Privacy Policy explains how we collect, use, and protect information when you use the <strong>Lead Rosetta</strong> platform.
+				<strong>Ed & Sy Inc.</strong> ("we", "our") operates Lead Rosetta. This policy describes how we collect, use, and protect your information.
 			</p>
 
-			<h2 class="text-xl font-semibold mt-8 mb-3">1. Data Collection</h2>
+			<h2 class="text-xl font-semibold mt-8 mb-3">1. Information We Collect</h2>
 			<ul class="list-disc pl-6 space-y-1">
-				<li><strong>Account Data:</strong> Name, business email, and company name.</li>
-				<li><strong>Google Business Profile (GBP) Data:</strong> Publicly available business data (names, addresses, reviews) retrieved via Google APIs.</li>
-				<li><strong>AI-Generated Data:</strong> Quality scores and reports generated via OpenAI API.</li>
-				<li><strong>Payment Data:</strong> Handled securely by <strong>Stripe</strong>. We do not store credit card details.</li>
-				<li><strong>Usage &amp; Analytics:</strong> Tracking via <strong>Google Analytics</strong> and <strong>Mixpanel</strong>.</li>
+				<li><strong>Account data:</strong> Email, name, and profile details when you sign up or use the dashboard.</li>
+				<li><strong>Usage data:</strong> How you use the product (e.g. demos created, integrations connected) to improve the service.</li>
+				<li><strong>Payment data:</strong> Processed by <strong>Stripe</strong>; we do not store full card numbers.</li>
 			</ul>
 
-			<h2 class="text-xl font-semibold mt-8 mb-3">2. Third-Party Data (Prospects)</h2>
+			<h2 class="text-xl font-semibold mt-8 mb-3">2. How We Use It</h2>
 			<p>
-				Lead Rosetta processes data about businesses sourced from public Google profiles. We rely on the "conspicuous publication" exception under <strong>CASL</strong> for B2B outreach, ensuring messages are relevant to the recipient's business capacity.
+				We use your information to provide and improve Lead Rosetta, process payments, send service-related communications, and comply with law.
 			</p>
 
-			<h2 class="text-xl font-semibold mt-8 mb-3">3. Sub-processors</h2>
-			<p>We share data with:</p>
-			<ul class="list-disc pl-6 space-y-1">
-				<li><strong>Google</strong> (Data sourcing / Analytics)</li>
-				<li><strong>OpenAI</strong> (AI Analysis)</li>
-				<li><strong>Stripe</strong> (Payments)</li>
-				<li><strong>SendGrid / Mailgun</strong> (Email delivery)</li>
-			</ul>
-
-			<h2 class="text-xl font-semibold mt-8 mb-3">4. Your Rights</h2>
+			<h2 class="text-xl font-semibold mt-8 mb-3">3. Data Sharing</h2>
 			<p>
-				Under <strong>PIPEDA</strong> and <strong>GDPR</strong>, you may access, correct, or delete your data. Contact us at <a href="mailto:privacy@leadrosetta.com" class="link link-primary">privacy@leadrosetta.com</a>.
+				We do not sell your data. We may share data with service providers (e.g. hosting, analytics, payment processors) that support the product, under strict agreements.
 			</p>
 
-			<hr class="my-8 border-base-300" />
-			<p class="text-sm text-base-content/70">
-				<strong>Corporate Entity:</strong> Ed & Sy Inc.<br />
-				<strong>Jurisdiction:</strong> Ontario, Canada
+			<h2 class="text-xl font-semibold mt-8 mb-3">4. Security &amp; Retention</h2>
+			<p>
+				We use industry-standard measures to protect your data. We retain data as needed to provide the service and as required by law.
+			</p>
+
+			<h2 class="text-xl font-semibold mt-8 mb-3">5. Your Rights</h2>
+			<p>
+				Depending on your location, you may have rights to access, correct, or delete your data. Contact us to exercise these rights.
+			</p>
+
+			<h2 class="text-xl font-semibold mt-8 mb-3">6. Contact</h2>
+			<p>
+				For privacy questions, contact Ed & Sy Inc. at the details provided on the main site or in your account.
 			</p>
 		</div>
 

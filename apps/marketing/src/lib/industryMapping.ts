@@ -16,7 +16,32 @@ export const NOTION_INDUSTRY_TO_SLUG: Record<IndustrySlug, readonly string[]> = 
 		'family medicine',
 		'physician',
 		'doctor',
-		'health services'
+		'health services',
+		'hospital',
+		'nursing',
+		'nurse',
+		'urgent care',
+		'walk-in',
+		'medical center',
+		'primary care',
+		'pediatrics',
+		'physiotherapy',
+		'physical therapy',
+		'chiropractic',
+		'chiropractor',
+		'optometry',
+		'optometrist',
+		'eye care',
+		'mental health',
+		'therapy',
+		'therapist',
+		'counseling',
+		'psychologist',
+		'psychiatrist',
+		'allergy',
+		'cardiology',
+		'dermatology',
+		'general practice'
 	],
 	dental: [
 		'dental',
@@ -25,7 +50,16 @@ export const NOTION_INDUSTRY_TO_SLUG: Record<IndustrySlug, readonly string[]> = 
 		'dental care',
 		'dental clinic',
 		'orthodontics',
-		'oral health'
+		'orthodontist',
+		'oral health',
+		'periodontist',
+		'endodontist',
+		'oral surgeon',
+		'dental hygienist',
+		'cosmetic dentistry',
+		'teeth whitening',
+		'implants',
+		'pediatric dentist'
 	],
 	construction: [
 		'construction',
@@ -35,7 +69,49 @@ export const NOTION_INDUSTRY_TO_SLUG: Record<IndustrySlug, readonly string[]> = 
 		'renovation',
 		'remodeling',
 		'home improvement',
-		'contracting'
+		'contracting',
+		// Trades & home services (same theme/images as construction: rugged, industrial)
+		'plumbing',
+		'plumber',
+		'plumbers',
+		'hvac',
+		'heating',
+		'cooling',
+		'electrical',
+		'electrician',
+		'electricians',
+		'roofing',
+		'roofer',
+		'landscaping',
+		'landscaper',
+		'painting',
+		'painter',
+		'flooring',
+		'carpentry',
+		'carpenter',
+		'masonry',
+		'drywall',
+		'handyman',
+		'home services',
+		'trade',
+		'trades',
+		'locksmith',
+		'locksmiths',
+		'hardware store',
+		'hardware_store',
+		'auto repair',
+		'auto mechanic',
+		'mechanic',
+		'garage',
+		'appliance repair',
+		'pest control',
+		'exterminator',
+		'moving company',
+		'movers',
+		'security systems',
+		'garage door',
+		'fire protection',
+		'sprinkler systems'
 	],
 	salons: [
 		'salons',
@@ -45,12 +121,37 @@ export const NOTION_INDUSTRY_TO_SLUG: Record<IndustrySlug, readonly string[]> = 
 		'beauty',
 		'beauty salon',
 		'barber',
+		'barbershop',
 		'spa',
+		'spa & sauna',
+		'sauna',
+		'infrared sauna',
+		'day spa',
+		'wellness spa',
 		'stylist',
 		'hairstylist',
-		'cosmetology'
+		'cosmetology',
+		'nail salon',
+		'nails',
+		'nail tech',
+		'nail technician',
+		'esthetician',
+		'esthetics',
+		'skincare',
+		'makeup',
+		'makeup artist',
+		'beauty services',
+		'hair care',
+		'massage',
+		'massage therapy',
+		'waxing',
+		'brow',
+		'eyelash',
+		'lash'
 	],
-	'solo-professionals': [
+	professional: [
+		'professional',
+		'professionals',
 		'solo-professionals',
 		'solo professionals',
 		'solo professional',
@@ -65,6 +166,8 @@ export const NOTION_INDUSTRY_TO_SLUG: Record<IndustrySlug, readonly string[]> = 
 		'professional services',
 		'coach',
 		'coaching',
+		'business coach',
+		'life coach',
 		'accounting',
 		'accountant',
 		'financial advisor',
@@ -72,6 +175,24 @@ export const NOTION_INDUSTRY_TO_SLUG: Record<IndustrySlug, readonly string[]> = 
 		'virtual assistant',
 		'freelance',
 		'freelancer',
+		'design',
+		'designer',
+		'graphic design',
+		'web design',
+		'developer',
+		'software',
+		'photography',
+		'photographer',
+		'videography',
+		'writer',
+		'copywriter',
+		'editing',
+		'transcription',
+		'translation',
+		'translator',
+		'insurance',
+		'insurance agent',
+		'general',
 		'other'
 	],
 	'real-estate': [
@@ -82,7 +203,15 @@ export const NOTION_INDUSTRY_TO_SLUG: Record<IndustrySlug, readonly string[]> = 
 		'real estate agent',
 		'property',
 		'broker',
-		'mortgage'
+		'mortgage',
+		'real estate broker',
+		'real estate agency',
+		'property management',
+		'property manager',
+		'home staging',
+		'title company',
+		'landlord',
+		'property development'
 	],
 	legal: [
 		'legal',
@@ -94,7 +223,17 @@ export const NOTION_INDUSTRY_TO_SLUG: Record<IndustrySlug, readonly string[]> = 
 		'paralegal',
 		'estate planning',
 		'family law',
-		'immigration'
+		'immigration',
+		'litigation',
+		'corporate law',
+		'criminal defense',
+		'legal aid',
+		'notary',
+		'notary public',
+		'divorce',
+		'bankruptcy',
+		'personal injury',
+		'immigration lawyer'
 	],
 	fitness: [
 		'fitness',
@@ -107,7 +246,20 @@ export const NOTION_INDUSTRY_TO_SLUG: Record<IndustrySlug, readonly string[]> = 
 		'pilates',
 		'crossfit',
 		'studio',
-		'sports'
+		'sports',
+		'fitness center',
+		'fitness club',
+		'martial arts',
+		'boxing',
+		'dance studio',
+		'dance',
+		'cycling',
+		'spinning',
+		'weightlifting',
+		'nutrition',
+		'boot camp',
+		'aerobics',
+		'personal fitness'
 	]
 };
 
@@ -130,10 +282,10 @@ function buildLookup(): Map<string, IndustrySlug> {
 
 /**
  * Map a Notion Industry select value (any casing/spacing) to the demo URL slug.
- * Unknown values default to 'solo-professionals' (broad catch‑all) so demos still work.
+ * Unknown values default to 'professional' (broad catch‑all) so demos still work.
  */
 export function notionIndustryToSlug(notionValue: string): IndustrySlug {
-	if (!notionValue?.trim()) return 'solo-professionals';
+	if (!notionValue?.trim()) return 'professional';
 	const key = normalize(notionValue);
-	return buildLookup().get(key) ?? 'solo-professionals';
+	return buildLookup().get(key) ?? 'professional';
 }

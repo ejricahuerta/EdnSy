@@ -59,7 +59,7 @@
 			const phone = phoneIdx >= 0 ? (parts[phoneIdx] ?? '').trim() : '';
 			const website = websiteIdx >= 0 ? (parts[websiteIdx] ?? '') : '';
 			const industryRaw = industryIdx >= 0 ? (parts[industryIdx] ?? '') : '';
-			const industrySlug = notionIndustryToSlug(industryRaw || 'solo-professionals');
+			const industrySlug = notionIndustryToSlug(industryRaw || 'professional');
 			const industryLabel = INDUSTRY_LABELS[industrySlug as IndustrySlug] ?? industrySlug;
 			const row = { companyName, email, phone, website, industry: industryLabel, industrySlug, validationErrors: [] as string[] };
 			row.validationErrors = validateRow(row);

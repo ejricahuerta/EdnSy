@@ -2,16 +2,25 @@ import { Resend } from 'resend';
 import twilio from 'twilio';
 import { env } from '$env/dynamic/private';
 import type { Prospect } from '$lib/server/prospects';
-import { LEGAL_COMPANY_NAME, LEGAL_COMPANY_ADDRESS } from '$lib/constants';
+
+/** Use for links in emails and stored demo URLs. Prefer SITE_ORIGIN when set (e.g. in prod), else request origin. */
+export function getOriginForOutgoingLinks(requestOrigin: string): string {
+	const site = env.SITE_ORIGIN?.trim();
+	return site || requestOrigin;
+}
+import { LEGAL_COMPANY_NAME, LEGAL_COMPANY_ADDRESS, SIGNATURE_DOMAIN } from '$lib/constants';
+import { getEffectiveEmailSenderName } from '$lib/server/userSettings';
+import { getGmailTokens, sendEmailViaGmail } from '$lib/server/gmail';
+import { serverInfo, serverError } from '$lib/server/logger';
 
 /** Default (dev): Resend sandbox. Prod: set RESEND_FROM_EMAIL=leadrosetta@ednsy.com, RESEND_FROM_NAME=Lead Rosetta. */
 const RESEND_DEFAULT_FROM_EMAIL = 'onboarding@resend.dev';
 const RESEND_DEFAULT_FROM_NAME = 'Lead Rosetta';
 
-function getResendConfig() {
+function getResendConfig(fromNameOverride?: string | null) {
 	const apiKey = env.RESEND_API_KEY;
 	const fromEmail = env.RESEND_FROM_EMAIL ?? RESEND_DEFAULT_FROM_EMAIL;
-	const fromName = env.RESEND_FROM_NAME ?? RESEND_DEFAULT_FROM_NAME;
+	const fromName = fromNameOverride ?? env.RESEND_FROM_NAME ?? RESEND_DEFAULT_FROM_NAME;
 	return { apiKey, from: `${fromName} <${fromEmail}>` };
 }
 
@@ -27,16 +36,66 @@ export function getDefaultEmailSubject(companyName: string): string {
 	return `I built something for ${companyName}`;
 }
 
+/** Subject for alternate-offer email (AI agent, voice AI, SEO — no demo). */
+export function getAlternateOfferSubject(companyName: string): string {
+	return `Quick idea for ${companyName}`;
+}
+
 /**
- * Build email HTML from AI-generated body intro (plain text paragraphs). Appends trackable link,
- * signature, legal footer, and open pixel. Tracking is active: link goes to /api/demo/click, pixel to /api/demo/open.
+ * Build email HTML for alternate offer (AI agent, voice AI, SEO) when we're not sending a website demo.
+ * No demo link; pitch is about 24/7 voice AI, local SEO, and getting more calls.
+ */
+export function buildEmailBodyAlternateOffer(
+	prospect: Prospect,
+	senderName: string,
+	_origin: string
+): string {
+	const company = escapeHtml(prospect.companyName || 'your business');
+	const safeSender = escapeHtml(senderName);
+	const html = `
+<p>Hi,</p>
+<p>I took a quick look at ${company}'s online presence and had a couple of ideas that could help you get more calls and better visibility.</p>
+<p>Many local businesses we work with see the biggest wins from:</p>
+<ul>
+<li><strong>24/7 voice AI</strong> — so you never miss a call (we can handle after-hours and overflow).</li>
+<li><strong>Local SEO &amp; Google Business Profile</strong> — so you show up when people search for what you do.</li>
+</ul>
+<p>If you'd like a short conversation about what would make sense for ${company}, reply to this email or give me a quick call.</p>
+<p>— ${safeSender}</p>
+<hr style="margin-top:1.5em; border:none; border-top:1px solid #eee;" />
+<p style="font-size:0.85em; color:#666;">${LEGAL_COMPANY_NAME} | ${LEGAL_COMPANY_ADDRESS}</p>
+`.trim();
+	return html;
+}
+
+/**
+ * Build the signature line for AI-generated emails. Uses signatureOverride when set (with
+ * {{senderName}} replaced), otherwise default "- {senderName} | {SIGNATURE_DOMAIN}".
+ */
+export function getEmailSignatureLine(
+	senderName: string,
+	signatureOverride: string | null
+): string {
+	if (signatureOverride?.trim()) {
+		return signatureOverride
+			.replace(/\{\{senderName\}\}/g, senderName)
+			.trim();
+	}
+	return `- ${senderName} | ${SIGNATURE_DOMAIN}`;
+}
+
+/**
+ * Build email HTML from AI-generated body intro (plain text paragraphs). Appends CTA link
+ * (👉 VIEW YOUR DEMO), closing line, signature (user override or default - Name | ednsy.com), legal footer, and open pixel.
+ * Tracking is active: link = /api/demo/click, pixel = /api/demo/open.
  */
 export function buildEmailBodyFromAiIntro(
 	prospect: Prospect,
 	demoLink: string,
 	senderName: string,
 	origin: string,
-	bodyIntro: string
+	bodyIntro: string,
+	signatureOverride?: string | null
 ): string {
 	const trackableLink = `${origin}/api/demo/click?p=${encodeURIComponent(prospect.id)}`;
 	const pixelUrl = `${origin}/api/demo/open?p=${encodeURIComponent(prospect.id)}`;
@@ -46,11 +105,12 @@ export function buildEmailBodyFromAiIntro(
 		.filter(Boolean)
 		.map((p) => `<p>${escapeHtml(p)}</p>`)
 		.join('\n');
+	const signatureLine = getEmailSignatureLine(senderName, signatureOverride ?? null);
 	const html = `
 ${paragraphs}
-<p><a href="${trackableLink}">View your demo</a></p>
-<p>${trackableLink}</p>
-<p>— ${escapeHtml(senderName)}</p>
+<p><a href="${trackableLink}">👉 VIEW YOUR DEMO</a></p>
+<p>Take a look and let us know what you think.</p>
+<p>${escapeHtml(signatureLine)}</p>
 <hr style="margin-top:1.5em; border:none; border-top:1px solid #eee;" />
 <p style="font-size:0.85em; color:#666;">You received this message because someone used Lead Rosetta to send you a personalized demo. To unsubscribe from future messages from this sender, reply with "Unsubscribe" or "STOP".</p>
 <p style="font-size:0.85em; color:#666;">${LEGAL_COMPANY_NAME} | ${LEGAL_COMPANY_ADDRESS}</p>
@@ -73,7 +133,7 @@ export function buildEmailBody(
 	const trackableLink = `${origin}/api/demo/click?p=${encodeURIComponent(prospect.id)}`;
 	const pixelUrl = `${origin}/api/demo/open?p=${encodeURIComponent(prospect.id)}`;
 	const html = `
-<p>Hi${prospect.companyName ? ` from ${company}` : ''},</p>
+<p>Hi,</p>
 <p>I built a free website demo for ${company}. Take 30 seconds to see it:</p>
 <p><a href="${trackableLink}">View your demo</a></p>
 <p>${trackableLink}</p>
@@ -158,13 +218,51 @@ export function buildSmsBody(prospect: Prospect, demoLink: string, senderName: s
 export type SendEmailResult = { ok: true; id?: string } | { ok: false; error: string };
 export type SendSmsResult = { ok: true; sid?: string } | { ok: false; error: string };
 
+export type SendEmailOptions = {
+	/** When set, use user's Gmail if connected, else Resend with user's sender name as From name. */
+	userId?: string;
+	/** App user email (e.g. from session). Used to resolve effective sender name when no override and no Gmail. */
+	appUserEmail?: string | null;
+};
+
+/** Whether the user or app can send email (Gmail connected or Resend configured). */
+export async function getSendConfigured(userId: string | null): Promise<boolean> {
+	if (isResendConfigured()) return true;
+	if (userId == null) return false;
+	const tokens = await getGmailTokens(userId);
+	return tokens != null && !!tokens.refresh_token;
+}
+
 export async function sendEmail(
 	to: string,
 	subject: string,
-	html: string
+	html: string,
+	options?: SendEmailOptions
 ): Promise<SendEmailResult> {
-	const { apiKey, from } = getResendConfig();
-	if (!apiKey) return { ok: false, error: 'Resend not configured (RESEND_API_KEY)' };
+	const userId = options?.userId;
+	let fromNameOverride: string | null = null;
+	if (userId) {
+		fromNameOverride = await getEffectiveEmailSenderName(userId, options?.appUserEmail);
+	}
+
+	// Prefer user's Gmail when connected
+	if (userId) {
+		const result = await sendEmailViaGmail(userId, to, subject, html, fromNameOverride);
+		if (result.ok) {
+			serverInfo('email-send', 'Sent via Gmail', { to, id: result.id });
+			return result;
+		}
+		serverError('email-send', result.error, { to, provider: 'gmail' });
+		// On failure (e.g. token revoked), fall through to Resend
+	}
+
+	// Resend (app default), with optional user sender name as From name
+	const { apiKey, from } = getResendConfig(fromNameOverride);
+	if (!apiKey) {
+		const err = 'Email not configured. Connect Gmail in Integrations or set RESEND_API_KEY.';
+		serverError('email-send', err, { to });
+		return { ok: false, error: err };
+	}
 	try {
 		const resend = new Resend(apiKey);
 		const { data, error } = await resend.emails.send({
@@ -173,10 +271,15 @@ export async function sendEmail(
 			subject,
 			html
 		});
-		if (error) return { ok: false, error: error.message };
+		if (error) {
+			serverError('email-send', error.message, { to, provider: 'resend' });
+			return { ok: false, error: error.message };
+		}
+		serverInfo('email-send', 'Sent via Resend', { to, id: data?.id });
 		return { ok: true, id: data?.id };
 	} catch (e) {
 		const message = e instanceof Error ? e.message : 'Unknown error';
+		serverError('email-send', message, { to, provider: 'resend' });
 		return { ok: false, error: message };
 	}
 }
@@ -202,6 +305,13 @@ export async function sendSms(to: string, body: string): Promise<SendSmsResult> 
 
 export function isResendConfigured(): boolean {
 	return !!getResendConfig().apiKey;
+}
+
+/** For UI only: whether Resend is configured and the current From line (no API key). */
+export function getResendFromDisplay(): { configured: true; from: string } | { configured: false } {
+	const { apiKey, from } = getResendConfig(undefined);
+	if (!apiKey) return { configured: false };
+	return { configured: true, from };
 }
 
 export function isTwilioConfigured(): boolean {

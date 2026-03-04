@@ -10,7 +10,7 @@
 
 <Button
 	variant="ghost"
-	class="-ms-3 font-semibold text-[var(--ink)] hover:text-[var(--sage)]"
+	class="-ms-3 font-semibold"
 	onclick={(e) => column.getToggleSortingHandler()?.(e)}
 >
 	{label}

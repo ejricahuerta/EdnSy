@@ -7,7 +7,6 @@
 	import { Badge } from '$lib/components/ui/badge';
 	import { PLAN_LABELS } from '$lib/plans';
 	import { LoaderCircle, CreditCard } from 'lucide-svelte';
-	import { toast } from '$lib/toast';
 
 	let { data } = $props<{ data: PageData }>();
 	const plan = $derived(data.plan ?? 'free');
@@ -21,7 +20,6 @@
 
 	$effect(() => {
 		if (checkoutCanceled) {
-			toast.info('Checkout was canceled.');
 			goto('/dashboard/billing', { replaceState: true });
 		}
 	});
@@ -37,7 +35,6 @@
 			});
 			const json = await res.json();
 			if (!res.ok) {
-				toast.error(json.error ?? 'Checkout failed');
 				return;
 			}
 			if (json.url) window.location.href = json.url;
@@ -56,7 +53,6 @@
 			});
 			const json = await res.json();
 			if (!res.ok) {
-				toast.error(json.error ?? 'Could not open billing portal');
 				return;
 			}
 			if (json.url) window.location.href = json.url;

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OhMyGlass | Premium Glass Repair & Window Replacement Toronto</title>
+    <meta name="description"
+        content="Replacement windows in Toronto & GTA. Expert glass repair saves you 60-80% compared to full replacement. Free quote & 24/7 emergency service.">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="styles.css">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- Background Decorators for Glassmorphism Context -->
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+    <div class="bg-shape shape-3"></div>
+
+    <!-- Navigation -->
+    <header class="glass-nav transition-all">
+        <div class="container nav-content">
+            <a href="#" class="logo">
+                <i class="fa-solid fa-gem text-accent"></i>
+                <span>OhMy<span class="font-light">Glass</span></span>
+            </a>
+
+            <nav class="desktop-menu">
+                <ul>
+                    <li><a href="#services">Services</a></li>
+                    <li><a href="#why-us">Why Us</a></li>
+                    <li><a href="#reviews">Reviews</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </nav>
+
+            <div class="nav-actions">
+                <a href="#quote" class="btn btn-primary">Free Quote</a>
+                <button class="mobile-menu-btn" aria-label="Toggle menu">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero min-h-screen flex-center" id="home">
+        <div class="container hero-grid">
+            <div class="hero-text fade-in-up">
+                <div class="badge glass-badge mb-4">
+                    <span class="pulse-dot"></span> 24/7 Emergency Service Available
+                </div>
+                <h1 class="heading-xl mb-6">
+                    Redefining <br />
+                    <span class="text-gradient">Glass Repair</span> <br />
+                    in Toronto & GTA.
+                </h1>
+                <p class="body-lg mb-8 text-neutral-200">
+                    We repair cracked, broken, and foggy glass with an expert touch.
+                    Our repair-first approach saves you <strong>60-80%</strong> compared to full window replacement.
+                </p>
+                <div class="hero-cta">
+                    <a href="#quote" class="btn btn-primary btn-lg">
+                        Get Free Quote <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </a>
+                    <a href="#services" class="btn btn-glass btn-lg group">
+                        View Services <i class="fa-solid fa-chevron-down ml-2 group-hover:translate-y"></i>
+                    </a>
+                </div>
+
+                <div class="trust-indicators mt-10 flex-gap">
+                    <div class="trust-item">
+                        <div class="stars text-accent">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+                                class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+                                class="fa-solid fa-star"></i>
+                        </div>
+                        <span class="text-sm">5-Star on Google & Facebook</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-visual fade-in-right">
+                <div class="glass-card premium-card floating">
+                    <div class="card-header border-b border-light pb-4 mb-4">
+                        <h3 class="heading-sm">Quick Estimate</h3>
+                        <p class="text-xs text-neutral-300">Response within 15 mins</p>
+                    </div>
+                    <form id="hero-quote-form" class="quote-form">
+                        <div class="input-group">
+                            <i class="fa-regular fa-user"></i>
+                            <input type="text" placeholder="Your Name" required>
+                        </div>
+                        <div class="input-group">
+                            <i class="fa-solid fa-phone"></i>
+                            <input type="tel" placeholder="Phone Number" required>
+                        </div>
+                        <div class="input-group">
+                            <i class="fa-solid fa-screwdriver-wrench"></i>
+                            <select required>
+                                <option value="" disabled selected>Service Needed</option>
+                                <option value="emergency">Emergency Glass Repair</option>
+                                <option value="window">Broken Window Repair</option>
+                                <option value="foggy">Foggy Window Repair</option>
+                                <option value="commercial">Commercial Glass</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-full mt-4 btn-submit">
+                            <span>Request Quote</span>
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Grid -->
+    <section class="section py-20" id="services">
+        <div class="container">
+            <div class="section-header text-center mb-16 fade-in-up">
+                <h2 class="heading-lg mb-4">Our <span class="text-gradient">Services</span></h2>
+                <p class="body-md text-neutral-300 max-w-2xl mx-auto">From residential fixes to commercial overhauls, we
+                    deliver pristine clarity.</p>
+            </div>
+
+            <div class="services-grid stagger-fade-in">
+                <!-- Service 1 -->
+                <a href="#" class="service-card glass-card hover-glow">
+                    <div class="service-icon glass-icon">
+                        <i class="fa-solid fa-house-crack text-accent"></i>
+                    </div>
+                    <h3 class="heading-sm mb-2">Emergency Repair</h3>
+                    <p class="text-sm text-neutral-300 mb-4">Immediate securement and fast glass replacement when
+                        disasters strike.</p>
+                    <span class="learn-more text-xs font-semibold text-accent">Learn More <i
+                            class="fa-solid fa-arrow-right"></i></span>
+                </a>
+
+                <!-- Service 2 -->
+                <a href="#" class="service-card glass-card hover-glow">
+                    <div class="service-icon glass-icon">
+                        <i class="fa-solid fa-window-restore text-accent"></i>
+                    </div>
+                    <h3 class="heading-sm mb-2">Foggy Windows</h3>
+                    <p class="text-sm text-neutral-300 mb-4">Restore clarity to your double-pane windows without
+                        replacing the entire frame.</p>
+                    <span class="learn-more text-xs font-semibold text-accent">Learn More <i
+                            class="fa-solid fa-arrow-right"></i></span>
+                </a>
+
+                <!-- Service 3 -->
+                <a href="#" class="service-card glass-card hover-glow">
+                    <div class="service-icon glass-icon">
+                        <i class="fa-solid fa-building text-accent"></i>
+                    </div>
+                    <h3 class="heading-sm mb-2">Commercial Glass</h3>
+                    <p class="text-sm text-neutral-300 mb-4">Storefront repairs and architectural glass solutions for
+                        your business.</p>
+                    <span class="learn-more text-xs font-semibold text-accent">Learn More <i
+                            class="fa-solid fa-arrow-right"></i></span>
+                </a>
+
+                <!-- Service 4 -->
+                <a href="#" class="service-card glass-card hover-glow">
+                    <div class="service-icon glass-icon">
+                        <i class="fa-solid fa-hammer text-accent"></i>
+                    </div>
+                    <h3 class="heading-sm mb-2">Hardware Repair</h3>
+                    <p class="text-sm text-neutral-300 mb-4">Fixing handles, locks, hinges, and balances for smooth
+                        operation.</p>
+                    <span class="learn-more text-xs font-semibold text-accent">Learn More <i
+                            class="fa-solid fa-arrow-right"></i></span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Us Section -->
+    <section class="section py-20 relative" id="why-us">
+        <div class="container grid md:grid-cols-2 gap-12 items-center">
+            <div class="fade-in-left">
+                <img src="https://images.unsplash.com/photo-1544025162-8e1e7f91ebcc?q=80&w=2000&auto=format&fit=crop"
+                    alt="Premium Glass Installation" class="rounded-3xl shadow-xl img-fluid border border-light">
+                <!-- Floating stat badge -->
+                <div class="glass-card absolute bottom-10 -right-10 md:right-10 p-6 rounded-2xl floating fade-in-up"
+                    style="animation-delay: 0.5s;">
+                    <h4 class="heading-md text-accent mb-1">80%</h4>
+                    <p class="text-sm font-medium">Savings vs Replacement</p>
+                </div>
+            </div>
+
+            <div class="fade-in-right">
+                <h2 class="heading-lg mb-6">Repair First, <br /><span class="text-gradient">Replace Second</span></h2>
+                <p class="body-md text-neutral-300 mb-8">
+                    With over 10 years of experience serving the GTA, our philosophy is simple: if we can safely and
+                    beautifully repair it, we will. We recommend full replacements only when absolutely necessary,
+                    saving you time, hassle, and money.
+                </p>
+
+                <ul class="feature-list space-y-4">
+                    <li class="flex items-center gap-4">
+                        <div class="icon-circle bg-accent/20 text-accent"><i class="fa-solid fa-check"></i></div>
+                        <span class="font-medium text-lg">10+ Years Expertise</span>
+                    </li>
+                    <li class="flex items-center gap-4">
+                        <div class="icon-circle bg-accent/20 text-accent"><i class="fa-solid fa-check"></i></div>
+                        <span class="font-medium text-lg">Available 24/7 for Emergencies</span>
+                    </li>
+                    <li class="flex items-center gap-4">
+                        <div class="icon-circle bg-accent/20 text-accent"><i class="fa-solid fa-check"></i></div>
+                        <span class="font-medium text-lg">Serving Toronto & Complete GTA</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action Banner -->
+    <section class="section py-16">
+        <div class="container fade-in-up">
+            <div class="cta-banner glass-card cta-gradient p-12 text-center rounded-3xl relative overflow-hidden">
+                <div class="relative z-10">
+                    <h2 class="heading-lg mb-4 text-white">Shattered Glass? Don't Panic.</h2>
+                    <p class="body-md mb-8 text-white/90 max-w-2xl mx-auto">Our rapid response team is ready to secure
+                        your property and provide lasting solutions.</p>
+                    <div class="flex-center gap-4 flex-wrap">
+                        <a href="tel:+16478032730" class="btn btn-white btn-lg">
+                            <i class="fa-solid fa-phone mr-2 text-accent"></i> 647-803-2730
+                        </a>
+                        <a href="#quote" class="btn btn-outline-white btn-lg">
+                            Request Assessment
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="glass-footer border-t border-light pt-16 pb-8" id="contact">
+        <div class="container">
+            <div class="grid md:grid-cols-4 gap-8 mb-12">
+                <div class="col-span-1 md:col-span-1">
+                    <a href="#" class="logo mb-6 inline-block">
+                        <i class="fa-solid fa-gem text-accent"></i>
+                        <span class="text-xl font-bold">OhMy<span class="font-light">Glass</span></span>
+                    </a>
+                    <p class="text-sm text-neutral-400 mb-6">Premium glass repair and replacement services. Rebuilding
+                        clarity, safely and efficiently.</p>
+                    <div class="social-links flex gap-4">
+                        <a href="#" class="social-icon" aria-label="Instagram"><i
+                                class="fa-brands fa-instagram"></i></a>
+                        <a href="#" class="social-icon" aria-label="Facebook"><i
+                                class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#" class="social-icon" aria-label="Google"><i class="fa-brands fa-google"></i></a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold text-lg mb-4 text-white">Services</h4>
+                    <ul class="footer-links space-y-2 text-sm text-neutral-400">
+                        <li><a href="#" class="hover:text-accent transition-colors">Emergency Glass Repair</a></li>
+                        <li><a href="#" class="hover:text-accent transition-colors">Broken Window Repair</a></li>
+                        <li><a href="#" class="hover:text-accent transition-colors">Foggy Window Repair</a></li>
+                        <li><a href="#" class="hover:text-accent transition-colors">Commercial Glass</a></li>
+                        <li><a href="#" class="hover:text-accent transition-colors">Hardware Repair</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold text-lg mb-4 text-white">Company</h4>
+                    <ul class="footer-links space-y-2 text-sm text-neutral-400">
+                        <li><a href="#" class="hover:text-accent transition-colors">About Us</a></li>
+                        <li><a href="#" class="hover:text-accent transition-colors">Service Areas</a></li>
+                        <li><a href="#" class="hover:text-accent transition-colors">Reviews</a></li>
+                        <li><a href="#" class="hover:text-accent transition-colors">Resources</a></li>
+                        <li><a href="#" class="hover:text-accent transition-colors">Our Work</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold text-lg mb-4 text-white">Contact</h4>
+                    <ul class="footer-links space-y-3 text-sm text-neutral-400">
+                        <li class="flex items-start gap-3">
+                            <i class="fa-solid fa-phone mt-1 text-accent"></i>
+                            <a href="tel:+16478032730" class="hover:text-accent transition-colors">647-803-2730</a>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fa-solid fa-envelope mt-1 text-accent"></i>
+                            <a href="mailto:info@ohmyglass.ca"
+                                class="hover:text-accent transition-colors">info@ohmyglass.ca</a>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fa-solid fa-location-dot mt-1 text-accent"></i>
+                            <span>Serving Toronto<br>& Greater Toronto Area</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div
+                class="footer-bottom pt-8 border-t border-light/50 flex flex-col md:flex-row justify-between items-center text-xs text-neutral-500 gap-4">
+                <p>&copy; 2026 OhMyGlass. All rights reserved.</p>
+                <div class="flex gap-4">
+                    <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+                    <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+</body>
+
+</html>

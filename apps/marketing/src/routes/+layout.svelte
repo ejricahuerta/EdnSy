@@ -1,24 +1,38 @@
 <script lang="ts">
 	import '../app.css';
 	import { onMount } from 'svelte';
-	import { Toaster } from 'svelte-sonner';
-	import { page } from '$app/stores';
-	import { INDUSTRY_SLUGS } from '$lib/industries';
+	import { page, navigating } from '$app/stores';
+	import { ModeWatcher } from 'mode-watcher';
+	import { toggleMode } from 'mode-watcher';
 	import { PLAN_LABELS } from '$lib/plans';
-	import { LayoutGrid, User, Users, Plug, CreditCard, Settings, PanelLeftClose, ChevronRight, FileCode } from 'lucide-svelte';
+	import { Toaster } from '$lib/components/ui/sonner';
+	import { Button } from '$lib/components/ui/button';
+	import { LayoutGrid, User, Users, Plug, CreditCard, Settings, PanelLeftClose, ChevronRight, Sun, Moon, Presentation, Bot } from 'lucide-svelte';
+import { isEdnsyUser } from '$lib/plans';
 
 	let { data, children } = $props();
 	const siteOrigin = $derived(data?.siteOrigin ?? '');
 	const ogImage = $derived(siteOrigin ? `${siteOrigin}/images/og-default.png` : '');
 	const pathSegments = $derived($page.url.pathname.split('/').filter(Boolean));
-	const isDemoRoute = $derived(
-		pathSegments.length >= 1 && (INDUSTRY_SLUGS as readonly string[]).includes(pathSegments[0])
-	);
+	const demoBanner = $derived(data?.demoBanner ?? null);
+	const bannerText = $derived(demoBanner?.text ?? 'Want this live in 48 hours?');
+	const bannerCtaLabel = $derived(demoBanner?.ctaLabel ?? 'Try free →');
+	const bannerCtaHref = $derived(demoBanner?.ctaHref ?? '/try');
+	// Demo: /demo/[slug] — slug is prospect id; theme is determined by industry (v1.3 themes).
+	const isDemoRoute = $derived(pathSegments[0] === 'demo' && pathSegments.length >= 2);
+	const demoTheme = $derived(isDemoRoute ? (pathSegments[1] ?? '') : '');
 	const isAuthRoute = $derived($page.url.pathname.startsWith('/auth'));
 	const isDashboardRoute = $derived(
 		$page.url.pathname === '/dashboard' || $page.url.pathname.startsWith('/dashboard/')
 	);
 	const user = $derived(data?.user ?? null);
+	const showAgentsLink = $derived(isEdnsyUser(user));
+	/** Show loading bar only when navigating to a different dashboard page (internal navigation). Same-page goto (e.g. billing replaceState) does not show the bar. */
+	const isInternalDashboardNav = $derived(
+		$navigating?.to &&
+			($navigating.to.url.pathname === '/dashboard' || $navigating.to.url.pathname.startsWith('/dashboard/')) &&
+			$navigating.to.url.pathname !== $page.url.pathname
+	);
 
 	let sidebarCollapsed = $state(false);
 	function toggleSidebar() {
@@ -32,6 +46,7 @@
 			const stored = localStorage.getItem('lr-sidebar-collapsed');
 			if (stored === 'true') sidebarCollapsed = true;
 		} catch (_) {}
+
 		const onKey = (e: KeyboardEvent) => {
 			if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
 				if (document.body.querySelector('.leadrosetta-app-dashboard')) {
@@ -41,9 +56,14 @@
 			}
 		};
 		window.addEventListener('keydown', onKey);
-		return () => window.removeEventListener('keydown', onKey);
+		return () => {
+			window.removeEventListener('keydown', onKey);
+		};
 	});
 </script>
+
+<ModeWatcher />
+<svelte:body class:lr-scope-dashboard={isDashboardRoute} class:lr-scope-demo={isDemoRoute} />
 
 <svelte:head>
 	<title>Lead Rosetta – Personalized demo sites for cold outreach</title>
@@ -63,33 +83,26 @@
 </svelte:head>
 
 {#if isDemoRoute}
-	<div class="demo-route" data-demo-theme={pathSegments[0] ?? ''}>
+	<div class="demo-route" data-demo-theme={demoTheme}>
 		<div class="demo-lr-banner lr-brand" role="banner">
 			<a href="/" class="demo-lr-banner-home" aria-label="Lead Rosetta – create your demo">
 				<img src="/images/logo.png" alt="" class="demo-lr-banner-logo" width="28" height="28" />
 				<span class="demo-lr-banner-brand">Lead <span>Rosetta</span></span>
 			</a>
-			<span class="demo-lr-banner-urgency">Want this live in 48 hours?</span>
+			<span class="demo-lr-banner-urgency">{bannerText}</span>
 			<div class="demo-lr-banner-actions">
-				<a href="/try" class="demo-lr-banner-cta">Try free →</a>
+				<a href={bannerCtaHref} class="demo-lr-banner-cta">{bannerCtaLabel}</a>
 			</div>
 		</div>
 		{@render children()}
 	</div>
 {:else if isAuthRoute}
 	<div class="leadrosetta-app leadrosetta-app-auth">
-		<header class="lr-auth-header" role="banner">
-			<a href="/" class="lr-auth-header-logo" aria-label="Lead Rosetta – Home">
-				<img src="/images/logo.png" alt="" class="lr-auth-header-logo-img" width="32" height="32" />
-				<span class="lr-auth-header-logo-text">Lead <span>Rosetta</span></span>
-			</a>
-			<a href="/" class="lr-auth-header-back">← Back to home</a>
-		</header>
 		<main class="lr-auth-main">{@render children()}</main>
 	</div>
 {:else if isDashboardRoute && user}
 	<div
-		class="leadrosetta-app leadrosetta-app-dashboard"
+		class="leadrosetta-app-dashboard"
 		data-sidebar-collapsed={sidebarCollapsed}
 		style="--sidebar-width: {sidebarCollapsed ? '3.5rem' : '16rem'};"
 	>
@@ -111,22 +124,22 @@
 					<span class="lr-dashboard-sidebar-link-label">Dashboard</span>
 				</a>
 				<a
-					href="/dashboard/clients"
+					href="/dashboard/prospects"
 					class="lr-dashboard-sidebar-link"
-					class:lr-dashboard-sidebar-link-active={$page.url.pathname === '/dashboard/clients'}
-					title="Clients"
+					class:lr-dashboard-sidebar-link-active={$page.url.pathname === '/dashboard/prospects' || $page.url.pathname.startsWith('/dashboard/prospects/')}
+					title="Prospects"
 				>
 					<Users class="lr-dashboard-sidebar-link-icon" aria-hidden="true" strokeWidth={1.5} />
-					<span class="lr-dashboard-sidebar-link-label">Clients</span>
+					<span class="lr-dashboard-sidebar-link-label">Prospects</span>
 				</a>
 				<a
-					href="/dashboard/profile"
+					href="/dashboard/demos"
 					class="lr-dashboard-sidebar-link"
-					class:lr-dashboard-sidebar-link-active={$page.url.pathname === '/dashboard/profile'}
-					title="Profile"
+					class:lr-dashboard-sidebar-link-active={$page.url.pathname === '/dashboard/demos'}
+					title="Demos"
 				>
-					<User class="lr-dashboard-sidebar-link-icon" aria-hidden="true" strokeWidth={1.5} />
-					<span class="lr-dashboard-sidebar-link-label">Profile</span>
+					<Presentation class="lr-dashboard-sidebar-link-icon" aria-hidden="true" strokeWidth={1.5} />
+					<span class="lr-dashboard-sidebar-link-label">Demos</span>
 				</a>
 				<a
 					href="/dashboard/integrations"
@@ -146,19 +159,21 @@
 					<CreditCard class="lr-dashboard-sidebar-link-icon" aria-hidden="true" strokeWidth={1.5} />
 					<span class="lr-dashboard-sidebar-link-label">Billing</span>
 				</a>
-				<a
-					href="/dashboard/templates"
-					class="lr-dashboard-sidebar-link"
-					class:lr-dashboard-sidebar-link-active={$page.url.pathname === '/dashboard/templates'}
-					title="Templates"
-				>
-					<FileCode class="lr-dashboard-sidebar-link-icon" aria-hidden="true" strokeWidth={1.5} />
-					<span class="lr-dashboard-sidebar-link-label">Templates</span>
-				</a>
+				{#if showAgentsLink}
+					<a
+						href="/dashboard/agents"
+						class="lr-dashboard-sidebar-link"
+						class:lr-dashboard-sidebar-link-active={$page.url.pathname === '/dashboard/agents'}
+						title="AI Agents"
+					>
+						<Bot class="lr-dashboard-sidebar-link-icon" aria-hidden="true" strokeWidth={1.5} />
+						<span class="lr-dashboard-sidebar-link-label">AI Agents</span>
+					</a>
+				{/if}
 				<a
 					href="/dashboard/settings"
 					class="lr-dashboard-sidebar-link"
-					class:lr-dashboard-sidebar-link-active={$page.url.pathname === '/dashboard/settings'}
+					class:lr-dashboard-sidebar-link-active={$page.url.pathname === '/dashboard/settings' || $page.url.pathname.startsWith('/dashboard/settings/')}
 					title="Settings"
 				>
 					<Settings class="lr-dashboard-sidebar-link-icon" aria-hidden="true" strokeWidth={1.5} />
@@ -217,7 +232,7 @@
 							<span class="lr-dashboard-breadcrumb-current">
 								{(() => {
 									const segment = $page.url.pathname.split('/').filter(Boolean)[1] ?? '';
-									const labels = { profile: 'Profile', integrations: 'Integrations', billing: 'Billing', settings: 'Settings', upload: 'Upload' };
+									const labels: Record<string, string> = { profile: 'Profile', integrations: 'Integrations', billing: 'Billing', agents: 'AI Agents', settings: 'Settings', upload: 'Upload' };
 									return labels[segment] ?? (segment ? segment.charAt(0).toUpperCase() + segment.slice(1) : 'Dashboard');
 								})()}
 							</span>
@@ -225,14 +240,22 @@
 					</nav>
 				</div>
 				<div class="lr-dashboard-topnav-right">
+					<Button variant="ghost" size="icon" onclick={toggleMode} aria-label="Toggle theme" title="Toggle theme" class="lr-dashboard-theme-toggle">
+						<Sun class="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-transform dark:scale-0 dark:-rotate-90" />
+						<Moon class="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-transform dark:scale-100 dark:rotate-0" aria-hidden="true" />
+					</Button>
 					<span class="lr-dashboard-topnav-user" title={user.email}>{user.email}</span>
 					<a href="/auth/logout" class="lr-dashboard-topnav-logout">Sign out</a>
 				</div>
 			</header>
+			{#if isInternalDashboardNav}
+				<div class="lr-dashboard-loading-bar" role="progressbar" aria-label="Loading page" aria-busy="true"></div>
+			{/if}
 			<div class="lr-dashboard-main-content">
 				{@render children()}
 			</div>
 		</main>
+		<Toaster />
 	</div>
 {:else if isDashboardRoute}
 	<div class="leadrosetta-app leadrosetta-app-auth">
@@ -249,7 +272,7 @@
 				{#if user}
 					<li><a href="/dashboard">Dashboard</a></li>
 					<li>
-						<span class="nav-email" style="font-size: 0.875rem; color: #a39e92;" title={user.email}>
+						<span class="nav-email" style="font-size: 0.875rem; color: var(--muted);" title={user.email}>
 							{user.email}
 						</span>
 					</li>
@@ -282,4 +305,3 @@
 		</footer>
 	</div>
 {/if}
-<Toaster richColors position="top-center" />

@@ -240,7 +240,7 @@
         "id": 19,
         "title": "F1a — Data confidence scoring",
         "description": "Before generating a demo, score prospect data quality: GBP verified 30, 5+ reviews 25, website exists 20, photos 15, social 10. 80–100: full demo; 50–79: partial, flag for review; below 50: do not generate, notify user with reason. Show score to user (e.g. 85% complete — high confidence).",
-        "status": "pending",
+        "status": "done",
         "priority": "high",
         "dependencies": [
           11
@@ -253,7 +253,7 @@
         "id": 20,
         "title": "F1b — Pain modal and sticky CTA on demo pages",
         "description": "Every demo page: (1) Pain modal on load — 1s delay, force-read 4s, red/amber/green for website, reviews, GBP, service pages; CTA See what it looks like fixed; session cookie so no re-trigger on refresh. (2) Sticky CTA bar: Want this live in 48 hours? Reply to [sender name] / Book a call; mobile-first. (3) Footer: Lead Rosetta subtle branding.",
-        "status": "pending",
+        "status": "done",
         "priority": "high",
         "dependencies": [
           4
@@ -321,7 +321,7 @@
         "id": 25,
         "title": "Agency tier: Contact us CTA (no self-serve)",
         "description": "Agency ($299) requires contacting us; no self-serve signup. Replace any waitlist with Contact us CTA: mailto with subject Lead Rosetta Agency plan. Always available.",
-        "status": "pending",
+        "status": "done",
         "priority": "medium",
         "dependencies": [
           1,

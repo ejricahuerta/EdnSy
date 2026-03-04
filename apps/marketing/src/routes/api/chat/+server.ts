@@ -1,7 +1,8 @@
-import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { env } from '$env/dynamic/private';
-import { getPageContextForIndustry } from '$lib/server/chatContext';
+import { getPageContextForIndustry, DEFAULT_CHAT_SYSTEM_INSTRUCTION } from '$lib/server/chatContext';
+import { getResolvedContent } from '$lib/server/agentContent';
+import { apiError, apiSuccess } from '$lib/server/apiResponse';
 import { CHAT_DAILY_LIMIT } from '$lib/constants';
 import type { IndustrySlug } from '$lib/industries';
 
@@ -40,21 +41,15 @@ function toGeminiContents(messages: { role: string; content: string }[]): { role
 
 export const POST: RequestHandler = async ({ request, cookies }) => {
 	if (!GEMINI_API_KEY) {
-		// On Vercel: set GEMINI_API_KEY in Project → Settings → Environment Variables
-		return json(
-			{ error: 'Chat is not configured', code: 'MISSING_API_KEY' },
-			{ status: 503 }
-		);
+		return apiError(503, 'Chat is not configured', 'MISSING_API_KEY');
 	}
 
 	const { count, date } = getCountAndDate(cookies);
 	if (count >= CHAT_DAILY_LIMIT) {
-		return json(
-			{
-				locked: true,
-				message: `You've reached the daily limit of ${CHAT_DAILY_LIMIT} messages. Book a call to continue the conversation.`
-			},
-			{ status: 429 }
+		return apiError(
+			429,
+			`You've reached the daily limit of ${CHAT_DAILY_LIMIT} messages. Book a call to continue the conversation.`,
+			'RATE_LIMIT'
 		);
 	}
 
@@ -62,16 +57,22 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 	try {
 		body = await request.json();
 	} catch {
-		return json({ error: 'Invalid JSON body' }, { status: 400 });
+		return apiError(400, 'Invalid JSON body');
 	}
 
 	const { messages, industrySlug, displayName } = body;
 	if (!Array.isArray(messages) || messages.length === 0) {
-		return json({ error: 'messages array required' }, { status: 400 });
+		return apiError(400, 'messages array required');
 	}
 
 	const slug = (industrySlug ?? 'healthcare') as IndustrySlug;
-	const pageContext = getPageContextForIndustry(slug, displayName);
+	const resolved = await getResolvedContent(
+		'demo-chat',
+		'prompt',
+		'system_instruction',
+		DEFAULT_CHAT_SYSTEM_INSTRUCTION
+	);
+	const pageContext = getPageContextForIndustry(slug, displayName, resolved.body);
 
 	const systemMessage = { role: 'system', content: pageContext };
 	const geminiContents = toGeminiContents([systemMessage, ...messages]);
@@ -92,16 +93,13 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 		const err = await res.text();
 		console.error('Gemini error:', res.status, err);
 		if (res.status === 429) {
-			return json(
-				{
-					locked: true,
-					message:
-						'Chat is busy right now. Please try again in a moment or book a call with us below.'
-				},
-				{ status: 503 }
+			return apiError(
+				503,
+				'Chat is busy right now. Please try again in a moment or book a call with us below.',
+				'RATE_LIMIT'
 			);
 		}
-		return json({ error: 'Assistant is temporarily unavailable' }, { status: 502 });
+		return apiError(502, 'Assistant is temporarily unavailable');
 	}
 
 	const data = (await res.json()) as {
@@ -114,5 +112,5 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 	cookies.set(COOKIE_DATE, date, { path: '/', maxAge: 60 * 60 * 24 * 2, sameSite: 'lax' });
 	cookies.set(COOKIE_COUNT, String(newCount), { path: '/', maxAge: 60 * 60 * 24 * 2, sameSite: 'lax' });
 
-	return json({ content });
+	return apiSuccess({ content });
 };

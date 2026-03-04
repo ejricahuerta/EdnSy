@@ -9,7 +9,6 @@ export type PipedriveContact = {
 	email: string;
 	website: string;
 	phone: string;
-	industry?: string;
 };
 
 export async function listPipedriveContacts(
@@ -60,8 +59,7 @@ export async function listPipedriveContacts(
 						companyName,
 						email,
 						website: '',
-						phone,
-						industry: undefined
+						phone
 					});
 				}
 			}

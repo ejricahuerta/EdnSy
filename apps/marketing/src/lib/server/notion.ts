@@ -1,39 +1,26 @@
-import { getSupabaseAdmin } from '$lib/server/supabase';
+import { getCrmConnection, saveCrmConnection } from '$lib/server/crm';
 
-/** Load Notion config from DB. userId = current user for dashboard; '' for app default (e.g. demo pages). */
+/** Load Notion config from crm_connections. userId = current user for dashboard; '' for app default (e.g. demo pages). */
 async function getNotionConfig(userId?: string): Promise<{ apiKey: string; databaseId: string } | null> {
-	const supabase = getSupabaseAdmin();
-	if (!supabase) return null;
 	const key = userId ?? '';
-	const { data, error } = await supabase
-		.from('notion_connections')
-		.select('api_key, database_id')
-		.eq('user_id', key)
-		.maybeSingle();
-	if (error || !data?.api_key || !data?.database_id) return null;
-	return { apiKey: data.api_key, databaseId: data.database_id };
+	const conn = await getCrmConnection(key, 'notion');
+	if (!conn?.access_token || !conn.databaseId) return null;
+	return { apiKey: conn.access_token, databaseId: conn.databaseId };
 }
 
-/** Get current user's Notion connection (for Integrations UI). */
+/** Get current user's Notion connection (for Integrations UI). Reads from crm_connections. */
 export async function getNotionConnection(userId: string): Promise<{ connected: boolean }> {
 	const config = await getNotionConfig(userId);
 	return { connected: !!config };
 }
 
-/** Save Notion API key + database ID for a user. Use userId = '' to set app default. */
+/** Save Notion API key + database ID for a user (stored in crm_connections as provider 'notion'). Use userId = '' to set app default. */
 export async function saveNotionConnection(
 	userId: string,
 	apiKey: string,
 	databaseId: string
 ): Promise<{ ok: boolean; error?: string }> {
-	const supabase = getSupabaseAdmin();
-	if (!supabase) return { ok: false, error: 'Database not configured' };
-	const { error } = await supabase.from('notion_connections').upsert(
-		{ user_id: userId, api_key: apiKey.trim(), database_id: databaseId.trim(), updated_at: new Date().toISOString() },
-		{ onConflict: 'user_id' }
-	);
-	if (error) return { ok: false, error: error.message };
-	return { ok: true };
+	return saveCrmConnection(userId, 'notion', apiKey.trim(), { databaseId: databaseId.trim() });
 }
 
 /**
@@ -146,7 +133,7 @@ export async function createProspectPage(prospect: {
 		Email: { email: prospect.email || null },
 		Website: { url: prospect.website || null },
 		Phone: { phone_number: prospect.phone || null },
-		Industry: { select: { name: (prospect.industry || 'Solo professionals').slice(0, 100) } },
+		Industry: { select: { name: (prospect.industry || 'Professional').slice(0, 100) } },
 		'Client Status': { status: { name: statusName } }
 	};
 
@@ -278,7 +265,7 @@ function mapNotionPageToProspect(page: { id: string; properties: Record<string, 
 		phone: phoneVal || undefined,
 		address: firstRich('Address') || undefined,
 		city: firstRich('City') || undefined,
-		industry: firstSelect('Industry', 'Vertical') || 'Solo professionals',
+		industry: firstSelect('Industry', 'Vertical') || 'Professional',
 		status: firstStatus('Client Status', 'Demo Status') || firstSelect('Status', 'Stage') || 'Prospect',
 		demoLink: firstRich('Demo link', 'Demo Link', 'Demo URL') || undefined
 	};

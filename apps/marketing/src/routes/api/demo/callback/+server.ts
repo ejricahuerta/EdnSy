@@ -1,6 +1,6 @@
-import { json } from '@sveltejs/kit';
 import { env as envPrivate } from '$env/dynamic/private';
 import { env as envPublic } from '$env/dynamic/public';
+import { apiError, apiSuccess } from '$lib/server/apiResponse';
 import type { RequestHandler } from './$types';
 
 const RETELL_API_URL = 'https://api.retellai.com/v2/create-phone-call';
@@ -28,12 +28,10 @@ export const POST: RequestHandler = async ({ request }) => {
 		const missing = [!apiKey && 'RETELL_API_KEY', !fromNumber && '(RETELL_PHONE_NUMBER or PUBLIC_RETELL_PHONE_NUMBER)']
 			.filter(Boolean)
 			.join(', ');
-		return json(
-			{
-				error: `Callback is not configured. Add ${missing} to .env (RETELL_API_KEY from Retell Dashboard → API keys).`,
-				code: 'NOT_CONFIGURED'
-			},
-			{ status: 503 }
+		return apiError(
+			503,
+			`Callback is not configured. Add ${missing} to .env (RETELL_API_KEY from Retell Dashboard → API keys).`,
+			'NOT_CONFIGURED'
 		);
 	}
 
@@ -41,29 +39,20 @@ export const POST: RequestHandler = async ({ request }) => {
 	try {
 		body = (await request.json()) as typeof body;
 	} catch {
-		return json({ error: 'Invalid JSON' }, { status: 400 });
+		return apiError(400, 'Invalid JSON');
 	}
 
 	const { firstName, lastName, phone: rawPhone, agreeToTerms } = body;
 	if (!firstName?.trim() || !rawPhone?.trim()) {
-		return json(
-			{ error: 'First name and phone number are required' },
-			{ status: 400 }
-		);
+		return apiError(400, 'First name and phone number are required');
 	}
 	if (!agreeToTerms) {
-		return json(
-			{ error: 'Please agree to the terms and conditions' },
-			{ status: 400 }
-		);
+		return apiError(400, 'Please agree to the terms and conditions');
 	}
 
 	const toNumber = normalizePhone(rawPhone.trim());
 	if (!toNumber) {
-		return json(
-			{ error: 'Please enter a valid phone number' },
-			{ status: 400 }
-		);
+		return apiError(400, 'Please enter a valid phone number');
 	}
 
 	const customerName = [firstName.trim(), lastName?.trim()].filter(Boolean).join(' ') || firstName.trim();
@@ -97,11 +86,9 @@ export const POST: RequestHandler = async ({ request }) => {
 			(data?.detail as string) ||
 			(data?.error as string) ||
 			'Could not start callback';
-		return json(
-			{ error: message, code: data?.code ?? 'RETELL_ERROR' },
-			{ status: res.status >= 500 ? 502 : res.status }
-		);
+		const status = res.status >= 500 ? 502 : res.status;
+		return apiError(status, message, (data?.code as string) ?? 'RETELL_ERROR');
 	}
 
-	return json({ ok: true, message: 'We’ll call you shortly.' });
+	return apiSuccess({ ok: true, message: 'We’ll call you shortly.' });
 };

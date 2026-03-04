@@ -16,7 +16,7 @@ export const constructionDemoContent = {
 		subheadline: 'Residential and commercial. Licensed. Free estimates.',
 		trustBadges: [] as string[],
 		urgencyText: '',
-		image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1200&q=80',
+		image: '/images/demo/construction/hero.jpg',
 		imageAlt: 'Construction site and team at work',
 		ctaPrimary: 'Get a free quote',
 		ctaSecondary: 'Call us'
@@ -77,7 +77,7 @@ export const constructionDemoContent = {
 			'Respect for your property and your schedule.',
 			'Licensed, insured, and committed to code.'
 		],
-		image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=800&q=80',
+		image: '/images/demo/construction/about.jpg',
 		imageAlt: 'Construction team and finished work'
 	},
 	newPatients: {
@@ -152,8 +152,9 @@ export const constructionDemoContent = {
 		body: 'We are fully insured and provide written contracts for all projects. Payment terms are outlined in your quote. We accept various payment methods and can work with your timeline.'
 	},
 	stats: [
-		{ value: '15+', label: 'Years in business' },
+		{ value: '15+', label: 'Years experience' },
 		{ value: '500+', label: 'Projects completed' },
+		{ value: '24/7', label: 'Emergency line' },
 		{ value: '100%', label: 'Licensed & insured' }
 	],
 	contact: {

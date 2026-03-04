@@ -18,6 +18,10 @@ Thumbs.db
 # Environment files
 .env
 .env.*
+.env copy
+
+# Marketing app script output (DataForSEO test results)
+apps/marketing/scripts/output/
 
 
 # Vite cache

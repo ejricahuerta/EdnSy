@@ -16,7 +16,7 @@ export const salonsDemoContent = {
 		subheadline: 'Hair • Nails • Skin. Walk-ins welcome when we have availability.',
 		trustBadges: [] as string[],
 		urgencyText: '',
-		image: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1200&q=80',
+		image: '/images/demo/salons/hero.jpg',
 		imageAlt: 'Salon interior with styling station',
 		ctaPrimary: 'Book an appointment',
 		ctaSecondary: 'View services'
@@ -77,7 +77,7 @@ export const salonsDemoContent = {
 			'Clean, modern space with a relaxed atmosphere.',
 			'We use professional products and take pride in our work.'
 		],
-		image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&q=80',
+		image: '/images/demo/salons/about.jpg',
 		imageAlt: 'Salon styling area'
 	},
 	newPatients: {

@@ -22,7 +22,7 @@ export const dentalDemoContent = {
 		subheadline: 'Routine cleanings. Insurance accepted. Same-day emergency appointments when you need them.',
 		trustBadges: [] as string[],
 		urgencyText: '',
-		image: 'https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=1200&q=80',
+		image: '/images/demo/dental/hero.jpg',
 		imageAlt: 'Modern dental practice reception and treatment area',
 		ctaPrimary: 'Book an appointment',
 		ctaSecondary: 'New patient? Book here'
@@ -83,7 +83,7 @@ export const dentalDemoContent = {
 			'Care for all ages, from first checkups to ongoing adult care.',
 			'Direct billing to insurance when possible; we handle the paperwork.'
 		],
-		image: 'https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=800&q=80',
+		image: '/images/demo/dental/about.jpg',
 		imageAlt: 'Dental practice treatment room'
 	},
 	newPatients: {

@@ -22,7 +22,7 @@ export const healthcareDemoContent = {
 		subheadline: 'Same-week appointments. Covered by OHIP. Trusted by 2,000+ families.',
 		trustBadges: ['OHIP covered', 'Board certified', 'Same-day available'],
 		urgencyText: '',
-		image: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=1200&q=80',
+		image: '/images/demo/healthcare/hero.jpg',
 		imageAlt: 'Healthcare professional in a modern clinic setting',
 		ctaPrimary: 'Book an appointment',
 		ctaSecondary: 'New patient? Book here'
@@ -83,7 +83,7 @@ export const healthcareDemoContent = {
 			'Continuity of care: see the same provider when possible.',
 			'Support in multiple languages; we welcome everyone.'
 		],
-		image: 'https://images.unsplash.com/photo-1551076805-e1869033e561?w=800&q=80',
+		image: '/images/demo/healthcare/about.jpg',
 		imageAlt: 'Modern medical care environment'
 	},
 	newPatients: {

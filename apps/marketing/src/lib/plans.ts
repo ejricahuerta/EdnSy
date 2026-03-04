@@ -10,8 +10,13 @@ export function hasAllTierFeatures(plan: PlanTier): boolean {
 	return plan === 'teams';
 }
 
-/** Free tier: demos per month on /try (no account). PRD 4.1 says "1 demo per session"; we use 5/month as a generous limit. */
-export const FREE_BRIEFINGS_PER_MONTH = 5;
+/** True when the user's email domain is @ednsy.com. Used for internal-only features (e.g. AI Agent Page). */
+export function isEdnsyUser(user: { email?: string } | null): boolean {
+	return (user?.email ?? '').toLowerCase().endsWith('@ednsy.com');
+}
+
+/** Free tier: demos per month on /try (no account). One demo when not signed in; sign in for more. */
+export const FREE_DEMOS_PER_MONTH = 1;
 
 /** Display labels for plan (PRD: Free, Starter, Pro, Agency). */
 export const PLAN_LABELS: Record<PlanTier, string> = {

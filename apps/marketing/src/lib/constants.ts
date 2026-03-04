@@ -24,3 +24,6 @@ export const DEMO_PHONE_DISPLAY = '+1 (289) 513-5055';
 /** Legal: company name and physical address for email footers (AUP/CASL). Update with full address. */
 export const LEGAL_COMPANY_NAME = 'Ed & Sy Inc.';
 export const LEGAL_COMPANY_ADDRESS = 'Ontario, Canada';
+
+/** Signature domain shown in AI-generated outreach emails (e.g. "— Ed | ednsy.com"). */
+export const SIGNATURE_DOMAIN = 'ednsy.com';

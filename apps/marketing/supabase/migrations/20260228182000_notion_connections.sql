@@ -18,5 +18,6 @@ create index if not exists idx_notion_connections_user_id on public.notion_conne
 
 alter table public.notion_connections enable row level security;
 
+drop policy if exists "Allow service access" on public.notion_connections;
 create policy "Allow service access"
   on public.notion_connections for all using (true) with check (true);

@@ -1,6 +1,6 @@
 /**
  * Single source of truth for demo industries. Used by:
- * - Demo routes (/{slug}/[id]), try/upload forms, dashboard demo generation
+ * - Demo routes (/demo/[slug]), try/upload forms, dashboard demo generation
  * - industryMapping.ts (Notion/CRM industry → slug), chatContext (content by slug)
  * Keep INDUSTRY_SLUGS, INDUSTRY_STYLE_GUIDES, INDUSTRY_LABELS, INDUSTRY_THEMES in sync.
  */
@@ -9,7 +9,7 @@ export const INDUSTRY_SLUGS = [
 	'dental',
 	'construction',
 	'salons',
-	'solo-professionals',
+	'professional',
 	'real-estate',
 	'legal',
 	'fitness'
@@ -22,11 +22,11 @@ export type IndustrySlug = (typeof INDUSTRY_SLUGS)[number];
  * File name without .html; each industry maps to one style guide for demo theming.
  */
 export const INDUSTRY_STYLE_GUIDES: Record<IndustrySlug, string> = {
-	healthcare: 'healthcare-and-dental',
-	dental: 'healthcare-and-dental',
+	healthcare: 'health-and-wellness',
+	dental: 'health-and-wellness',
 	construction: 'construction',
 	salons: 'salon-and-spa',
-	'solo-professionals': 'solo-professionals',
+	professional: 'professional',
 	'real-estate': 'real-estate',
 	legal: 'legal',
 	fitness: 'fitness'
@@ -38,7 +38,7 @@ export const INDUSTRY_LABELS: Record<IndustrySlug, string> = {
 	dental: 'Dental',
 	construction: 'Construction',
 	salons: 'Salons & beauty',
-	'solo-professionals': 'Solo professionals',
+	professional: 'Professional',
 	'real-estate': 'Real estate',
 	legal: 'Legal',
 	fitness: 'Fitness'
@@ -53,7 +53,7 @@ export const INDUSTRY_THEMES: Record<IndustrySlug, string> = {
 	dental: 'aqua',
 	construction: 'construction',
 	salons: 'salons',
-	'solo-professionals': 'forest',
+	professional: 'forest',
 	'real-estate': 'luxury',
 	legal: 'business',
 	fitness: 'sunset'

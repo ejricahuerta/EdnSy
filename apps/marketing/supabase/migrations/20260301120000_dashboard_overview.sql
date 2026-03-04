@@ -13,5 +13,6 @@ comment on table public.dashboard_overview is 'AI-generated overview (What, Key 
 
 alter table public.dashboard_overview enable row level security;
 
+drop policy if exists "Service role full access to dashboard_overview" on public.dashboard_overview;
 create policy "Service role full access to dashboard_overview"
   on public.dashboard_overview for all using (true) with check (true);

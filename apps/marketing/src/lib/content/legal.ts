@@ -12,7 +12,7 @@ export const legalDemoContent = {
 		subheadline: 'Consultation • Representation • Peace of mind. Book a confidential call.',
 		trustBadges: [] as string[],
 		urgencyText: '',
-		image: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1200&q=80',
+		image: '/images/demo/legal/hero.jpg',
 		imageAlt: 'Legal office',
 		ctaPrimary: 'Book a consultation',
 		ctaSecondary: 'View practice areas'
@@ -40,7 +40,7 @@ export const legalDemoContent = {
 		subtext: 'I built my practice on referrals and repeat clients. My job is to give you clear advice and effective representation so you can make informed decisions.',
 		subtext2: 'I work with individuals and families. Every matter is treated with confidentiality and respect.',
 		bullets: ['Clear fee structure. You know what to expect before we start.', 'Responsive communication. You\'ll hear back promptly.', 'Professional standards and strict confidentiality.'],
-		image: 'https://images.unsplash.com/photo-1505664194779-8beaceb93744?w=800&q=80',
+		image: '/images/demo/legal/about.jpg',
 		imageAlt: 'Professional legal environment'
 	},
 	newPatients: {

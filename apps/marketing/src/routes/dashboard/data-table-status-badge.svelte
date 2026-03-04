@@ -1,16 +1,21 @@
 <script lang="ts">
 	import { Badge } from '$lib/components/ui/badge';
-	import { cn } from '$lib/utils';
+	import { LoaderCircle } from 'lucide-svelte';
 
-	let { label, variant }: { label: string; variant: 'default' | 'secondary' | 'outline' } = $props();
+	let {
+		label,
+		variant,
+		showSpinner = false
+	}: { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive'; showSpinner?: boolean } =
+		$props();
 </script>
 
 <Badge
 	{variant}
-	class={cn(
-		variant === 'secondary' && 'bg-[rgba(193,125,42,0.12)] text-[var(--amber)] border-[var(--amber)]/25',
-		variant === 'outline' && 'bg-muted text-muted-foreground border-border'
-	)}
+	class="inline-flex items-center gap-1.5"
 >
-	{label}
+	{#if showSpinner}
+		<LoaderCircle class="size-4 shrink-0 animate-spin text-current" aria-hidden="true" />
+	{/if}
+	<span class="whitespace-nowrap">{label}</span>
 </Badge>

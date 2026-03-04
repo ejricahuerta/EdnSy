@@ -212,6 +212,8 @@ Show score to user: *"This demo is 85% complete — high confidence"*
 
 #### F1b — Demo Page Structure (All Industries)
 
+**Demo generation pipeline:** Demos are generated from GBP data plus Gemini insight. The system uses Claude to generate a single-file HTML landing page (same structure as the v0-style prompt: style, sections, Tailwind CDN). The HTML is saved to the Supabase **demo-html** bucket as text and served at `/demo/[id]/page.html`. The demo page at `/demo/[id]` shows a banner, the generated HTML in an iframe, and the AI chat and voice callback widgets. When no demo-html content exists, the app falls back to a v0-hosted URL (if configured) or the legacy flow (Gemini-generated page JSON + theme-based Svelte template). Legacy demos (pageJson only) remain supported.
+
 Every generated demo page follows this structure:
 
 1. **Pain modal (on load)** — triggers 1 second after page loads, force-read for 4 seconds before dismiss:
@@ -222,7 +224,7 @@ Every generated demo page follows this structure:
 
 2. **Hero section** — business name, branding, key stats
 
-3. **Full demo content** — industry template (see style guides)
+3. **Full demo content** — industry template (see style guides). Includes optional **Work / Projects / Use cases** section when AI generates project-style items (e.g. for contractors, trades, design). Theme design is refined for differentiation and conversion (distinct typography, colour, and card treatment per tone).
 
 4. **Sticky CTA bar** — floating, always visible:
    - Text: *"Want this live in 48 hours?"*
@@ -249,6 +251,16 @@ Every generated demo page follows this structure:
 - **Preview & confirm:** Before generating, show: *"47 valid leads, 3 duplicates removed, 5 missing emails flagged"*
 - **Free (no plan):** First row only processed
 - **Starter and above:** All rows processed within plan limits
+
+#### F2a — Prospects pipeline (3 tables)
+
+The dashboard prospects flow is organized into three logical tables:
+
+1. **Qualify table** — Prospects in queue or being processed for GBP (Google Business Profile). Run GBP; if GBP fails, send to **No Fit** unless the prospect has a **valid website** (i.e. not only a Google Maps link). If GBP fails but they have a real website, they remain qualified and move to Research & Personalize.
+
+2. **Research & Personalize table** — Qualified prospects (GBP found, or GBP failed but valid website). Here we run research and personalization: find booking system, call service, reviews; then Insights (AI grade) and demo creation.
+
+3. **No Fit table** — Disqualified prospects: GBP failed and no valid website (or only a Google Maps URL). These are flagged (e.g. "No Fit – GBP not found; no valid website") and excluded from demo generation and send.
 
 #### F3 — Review & Approve Queue
 
@@ -431,10 +443,20 @@ We'll generate the demo and give you the email template."
 
 ### 6.2 Data Stack
 
+**Required GBP data fields (all needed for demos):**
+- **Name** — business display name
+- **Industry** — business category/industry (for template selection and copy)
+- **Address** — formatted address (for demos and contact block)
+- **Phone** — primary phone number
+- **Website** — business website URL when it exists (for pain section and links)
+- **Reviews** — review text, rating, count, dates (for pain section and personalization)
+- **Posts** — GBP updates/posts (offers, events, CTAs) when present
+
 **Primary source:** DataForSEO GBP API
 - Cost: ~$0.0015/profile (standard queue), ~$0.003 (priority)
 - $1.50 per 1,000 profiles — negligible at current scale
 - Legally safe: pulls only publicly available business data
+- Confirm DataForSEO response includes name, industry/category, address, phone, website (when present), reviews, and posts (GMB updates); use Business Data API + Google Reviews endpoint as needed.
 
 **Supplementary source:** ScrapingBee
 - Website scraping, social media data, review extraction beyond GBP

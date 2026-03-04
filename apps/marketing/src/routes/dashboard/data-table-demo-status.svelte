@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Badge } from '$lib/components/ui/badge';
-	import { ExternalLink } from 'lucide-svelte';
+	import { getDemoTrackingLabel } from '$lib/demo';
 
 	let {
 		status,
@@ -44,7 +44,7 @@
 				return 'Clicked';
 			}
 		}
-		return status.charAt(0).toUpperCase() + status.slice(1);
+		return getDemoTrackingLabel(status);
 	});
 
 	const variant = $derived.by(() => {
@@ -57,22 +57,10 @@
 	});
 
 	const isMuted = $derived(!status && !hasDemoLink);
-	const showExternalLink = $derived(!!demoLink);
 </script>
 
 <div class="flex items-center gap-1.5">
 	<Badge variant={variant} class="font-normal {isMuted ? 'text-muted-foreground border-muted-foreground/30' : ''}">
 		{label}
 	</Badge>
-	{#if showExternalLink && demoLink}
-		<a
-			href={demoLink}
-			target="_blank"
-			rel="noopener noreferrer"
-			class="inline-flex text-muted-foreground hover:text-foreground rounded p-0.5 transition-colors"
-			aria-label="Open demo in new tab"
-		>
-			<ExternalLink class="h-3.5 w-3.5" />
-		</a>
-	{/if}
 </div>

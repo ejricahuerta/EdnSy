@@ -16,7 +16,7 @@ export const realEstateDemoContent = {
 		subheadline: 'Buy • Sell • Rent. Free market evaluations. Schedule a call or viewing.',
 		trustBadges: [] as string[],
 		urgencyText: '',
-		image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200&q=80',
+		image: '/images/demo/real-estate/hero.jpg',
 		imageAlt: 'Modern home exterior',
 		ctaPrimary: 'Schedule a viewing',
 		ctaSecondary: 'Get a home evaluation'
@@ -77,7 +77,7 @@ export const realEstateDemoContent = {
 			'Clear fee structure and no hidden costs.',
 			'Responsive communication and organized follow-through.'
 		],
-		image: 'https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?w=800&q=80',
+		image: '/images/demo/real-estate/about.jpg',
 		imageAlt: 'Real estate professional'
 	},
 	newPatients: {

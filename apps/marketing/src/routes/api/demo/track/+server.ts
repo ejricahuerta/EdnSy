@@ -1,5 +1,6 @@
-import { json } from '@sveltejs/kit';
 import { recordDemoOpened, recordDemoEvent } from '$lib/server/supabase';
+import { apiError, apiSuccess } from '$lib/server/apiResponse';
+import { serverInfo } from '$lib/server/logger';
 import type { RequestHandler } from './$types';
 
 const DEMO_TRACK_EVENTS = [
@@ -30,10 +31,10 @@ export const POST: RequestHandler = async ({ request }) => {
 		};
 		const { prospectId, event, path, payload } = body;
 		if (!prospectId || !event) {
-			return json({ ok: false, error: 'prospectId and event required' }, { status: 400 });
+			return apiError(400, 'prospectId and event required');
 		}
 		if (!DEMO_TRACK_EVENTS.includes(event as DemoTrackEvent)) {
-			return json({ ok: false, error: 'Invalid event' }, { status: 400 });
+			return apiError(400, 'Invalid event');
 		}
 
 		const eventPayload = { path: path ?? undefined, ...payload };
@@ -45,12 +46,11 @@ export const POST: RequestHandler = async ({ request }) => {
 		await recordDemoEvent(prospectId, event, Object.keys(eventPayload).length ? eventPayload : undefined);
 
 		if (process.env.NODE_ENV === 'development' && event === 'time_on_page_2min') {
-			// eslint-disable-next-line no-console
-			console.log('[demo/track]', { prospectId, event, path });
+			serverInfo('demo/track', 'time_on_page_2min', { prospectId, event, path });
 		}
 
-		return json({ ok: true });
+		return apiSuccess({ ok: true });
 	} catch {
-		return json({ ok: false, error: 'Invalid request' }, { status: 400 });
+		return apiError(400, 'Invalid request');
 	}
 };

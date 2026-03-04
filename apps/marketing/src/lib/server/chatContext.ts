@@ -3,7 +3,7 @@ import { healthcareDemoContent } from '$lib/content/healthcare';
 import { dentalDemoContent } from '$lib/content/dental';
 import { constructionDemoContent } from '$lib/content/construction';
 import { salonsDemoContent } from '$lib/content/salons';
-import { soloProfessionalsDemoContent } from '$lib/content/solo-professionals';
+import { professionalDemoContent } from '$lib/content/professional';
 import { realEstateDemoContent } from '$lib/content/realEstate';
 import { legalDemoContent } from '$lib/content/legal';
 import { fitnessDemoContent } from '$lib/content/fitness';
@@ -13,22 +13,29 @@ const CONTENT_BY_SLUG: Record<IndustrySlug, Record<string, unknown>> = {
 	dental: dentalDemoContent as Record<string, unknown>,
 	construction: constructionDemoContent as Record<string, unknown>,
 	salons: salonsDemoContent as Record<string, unknown>,
-	'solo-professionals': soloProfessionalsDemoContent as Record<string, unknown>,
+	professional: professionalDemoContent as Record<string, unknown>,
 	'real-estate': realEstateDemoContent as Record<string, unknown>,
 	legal: legalDemoContent as Record<string, unknown>,
 	fitness: fitnessDemoContent as Record<string, unknown>
 };
 
+/** Default system instruction for demo chat; can be overridden via agent content. */
+export const DEFAULT_CHAT_SYSTEM_INSTRUCTION = `You are a helpful assistant for "{{businessName}}".
+Answer only about this business and the information below. Keep answers concise and friendly.
+If asked about booking or appointments, suggest they use the "Book" button or link on the page.`;
+
 /**
  * Build a text summary of the current page content for the AI chat context.
  * Used as system/context for the assistant so answers stay on-topic.
+ * If instructionOverride is provided (e.g. from agent content DB), it is used as the instruction block; use {{businessName}} in the override.
  */
 export function getPageContextForIndustry(
 	industrySlug: IndustrySlug,
-	displayName?: string
+	displayName?: string,
+	instructionOverride?: string
 ): string {
 	const content = CONTENT_BY_SLUG[industrySlug];
-	if (!content) return 'This is a business demo page. Answer briefly and helpfully about the business.';
+	if (!content) return instructionOverride ?? 'This is a business demo page. Answer briefly and helpfully about the business.';
 
 	const businessName = displayName || (content as { hero?: { tagline?: string } }).hero?.tagline || 'The business';
 	const hero = content.hero as { tagline?: string; subtext?: string } | undefined;
@@ -37,11 +44,8 @@ export function getPageContextForIndustry(
 	const contact = content.contact as { address?: string; phone?: string; email?: string } | undefined;
 	const faq = content.faq as { items?: { q: string; a: string }[] } | undefined;
 
-	const parts: string[] = [
-		`You are a helpful assistant for "${businessName}".`,
-		'Answer only about this business and the information below. Keep answers concise and friendly.',
-		'If asked about booking or appointments, suggest they use the "Book" button or link on the page.'
-	];
+	const instruction = (instructionOverride ?? DEFAULT_CHAT_SYSTEM_INSTRUCTION).replace(/\{\{businessName\}\}/g, businessName);
+	const parts: string[] = [instruction];
 
 	if (hero?.tagline) parts.push(`Tagline: ${hero.tagline}`);
 	if (hero?.subtext) parts.push(`About: ${hero.subtext}`);

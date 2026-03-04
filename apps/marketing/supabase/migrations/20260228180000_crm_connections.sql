@@ -19,6 +19,7 @@ create index if not exists idx_crm_connections_user_id on public.crm_connections
 
 alter table public.crm_connections enable row level security;
 
+drop policy if exists "Users can manage own crm_connections" on public.crm_connections;
 create policy "Users can manage own crm_connections"
   on public.crm_connections
   for all

@@ -1,19 +1,19 @@
-import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import Stripe from 'stripe';
 import { env } from '$env/dynamic/private';
 import { upsertSubscription, priceIdToPlanTier, getUserIdByStripeSubscriptionId } from '$lib/server/stripe';
+import { apiError, apiSuccess } from '$lib/server/apiResponse';
 
 const stripe = env.STRIPE_SECRET_KEY ? new Stripe(env.STRIPE_SECRET_KEY) : null;
 const webhookSecret = env.STRIPE_WEBHOOK_SECRET;
 
 export const POST: RequestHandler = async ({ request }) => {
 	if (!stripe || !webhookSecret) {
-		return json({ error: 'Webhook not configured' }, { status: 503 });
+		return apiError(503, 'Webhook not configured');
 	}
 	const sig = request.headers.get('stripe-signature');
 	if (!sig) {
-		return json({ error: 'No signature' }, { status: 400 });
+		return apiError(400, 'No signature');
 	}
 	let event: Stripe.Event;
 	try {
@@ -21,7 +21,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
 	} catch (err) {
 		const message = err instanceof Error ? err.message : 'Unknown error';
-		return json({ error: `Webhook signature verification failed: ${message}` }, { status: 400 });
+		return apiError(400, `Webhook signature verification failed: ${message}`);
 	}
 
 	switch (event.type) {
@@ -66,5 +66,5 @@ export const POST: RequestHandler = async ({ request }) => {
 			break;
 	}
 
-	return json({ received: true });
+	return apiSuccess({ received: true });
 };

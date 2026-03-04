@@ -15,5 +15,6 @@ comment on column public.user_templates.email_html is 'Custom email body HTML wh
 
 alter table public.user_templates enable row level security;
 
+drop policy if exists "Service role full access to user_templates" on public.user_templates;
 create policy "Service role full access to user_templates"
   on public.user_templates for all using (true) with check (true);

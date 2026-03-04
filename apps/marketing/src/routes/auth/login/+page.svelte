@@ -8,8 +8,8 @@
 			<img src="/images/logo.png" alt="" width="48" height="48" />
 			<span class="lr-auth-card-logo-text">Lead <span>Rosetta</span></span>
 		</a>
-		<h1 class="lr-auth-card-title">Sign in to Lead <span class="lr-wordmark-strong">Rosetta</span></h1>
-		<p class="lr-auth-card-sub">Pro & Agency dashboard</p>
+		<h1 class="lr-auth-card-title">Sign in</h1>
+		<p class="lr-auth-card-sub">Pro & Agency</p>
 		<a href="/auth/google" class="lr-btn-primary lr-auth-google-btn">
 			<svg class="lr-auth-google-icon" viewBox="0 0 24 24" aria-hidden="true">
 				<path
@@ -32,10 +32,11 @@
 			Sign in with Google
 		</a>
 		<p class="lr-auth-card-note">
-			You’ll be redirected to Google. We only request your email and profile.
+			You'll be redirected to Google. We only request your email and profile.
 		</p>
-		<p class="lr-auth-card-legal text-xs text-[var(--muted)] mt-4">
-			By creating an account, you agree to Ed & Sy Inc.'s <a href="/terms" class="underline hover:text-[var(--ink)]">Terms of Service</a> and <a href="/aup" class="underline hover:text-[var(--ink)]">Acceptable Use Policy</a>, and acknowledge our <a href="/privacy" class="underline hover:text-[var(--ink)]">Privacy Policy</a>.
-		</p>
+		<a href="/" class="lr-auth-card-return">← Return to home</a>
 	</div>
+	<p class="lr-auth-legal text-xs text-[var(--muted)] mt-6 text-center">
+		By creating an account, you agree to Ed & Sy Inc.'s <a href="/terms" class="underline hover:text-[var(--ink)]">Terms of Service</a> and <a href="/aup" class="underline hover:text-[var(--ink)]">Acceptable Use Policy</a>, and acknowledge our <a href="/privacy" class="underline hover:text-[var(--ink)]">Privacy Policy</a>.
+	</p>
 </div>
