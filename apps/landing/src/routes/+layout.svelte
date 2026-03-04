@@ -18,8 +18,14 @@
 
   let { children } = $props<{ data: LayoutData }>();
   let scrolled = $state(false);
+  let pastHero = $state(false);
   let isAnimating = $state(false);
   let mobileNavOpen = $state(false);
+
+  const HERO_THRESHOLD = 600;
+  const isHomePage = $derived($page.url.pathname === "/");
+  /** On homepage over hero: logo and nav links are light; past hero or other pages: blue */
+  const navLight = $derived(isHomePage && !pastHero);
 
   const seo = $derived(getSeoForPath($page.url.pathname));
   const organizationSchema = buildOrganizationSchema();
@@ -41,12 +47,13 @@
     });
   }
 
-  // Handle scroll events for navigation background
+  // Handle scroll: nav background, and logo/links (light over hero, blue past hero on homepage)
   if (browser) {
     const handleScroll = () => {
       scrolled = window.scrollY > 10;
+      pastHero = window.scrollY > HERO_THRESHOLD;
     };
-
+    pastHero = window.scrollY > HERO_THRESHOLD;
     window.addEventListener("scroll", handleScroll);
 
     // Cleanup will be handled by the browser when the page unloads
@@ -77,6 +84,13 @@
     }
     prevPathname = pathname;
   });
+
+  // Sync pastHero when navigating to homepage so logo/links match scroll position
+  $effect(() => {
+    if (browser && $page.url.pathname === "/") {
+      pastHero = window.scrollY > HERO_THRESHOLD;
+    }
+  });
 </script>
 
 
@@ -103,7 +117,7 @@
   <link rel="icon" href="/logo/logo icon.png" />
   <link rel="apple-touch-icon" href="/logo/logo icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
   <link href="https://fonts.googleapis.com/css2?family=Marck+Script&display=swap" rel="stylesheet" />
   <link rel="me" href="https://www.instagram.com/ed.n.sy/" />
   <link rel="me" href="https://www.linkedin.com/company/ednsy/" />
@@ -115,24 +129,30 @@
 
 <!-- NAVIGATION BAR - Collapses to hamburger menu on mobile -->
 {#if $page.url.pathname === "/" || (!$page.url.pathname.startsWith("/demos"))}
-  <header class="fixed top-0 z-50 w-full bg-background border-b border-border transition-all duration-300" role="banner">
+  <header class="fixed top-0 z-50 w-full transition-all duration-300 {navLight ? 'bg-transparent border-b border-transparent' : 'bg-gradient-to-b from-white to-gray-50/90 border-b border-border'}">
     <div class="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 sm:py-4 min-h-[56px] sm:min-h-[60px]">
       <a href="/" class="flex items-center shrink-0" aria-label="Ed & Sy home">
-        <img src="/logo/logo.png" alt="Ed & Sy" class="h-10 w-auto sm:h-12" width="120" height="40" />
+        <img
+          src="/logo/logo.png"
+          alt="Ed & Sy"
+          class="h-10 w-auto sm:h-12 transition-[filter] duration-300 {navLight ? 'brightness-0 invert' : ''}"
+          width="120"
+          height="40"
+        />
       </a>
 
-      <!-- Desktop nav: visible from lg up -->
+      <!-- Desktop nav: visible from lg up. Light over hero, blue past hero. -->
       <nav class="hidden lg:flex items-center gap-6 xl:gap-8" aria-label="Main navigation">
-        <Button href="/voice-ai-for-business" variant="link" class="text-primary font-heading p-0 h-auto text-sm xl:text-base">Voice AI</Button>
-        <Button href="/business-automation-services" variant="link" class="text-primary font-heading p-0 h-auto text-sm xl:text-base">Automation</Button>
-        <Button href="/website-design-toronto" variant="link" class="text-primary font-heading p-0 h-auto text-sm xl:text-base">Website & SEO</Button>
-        <Button href="/industries" variant="link" class="text-primary font-heading p-0 h-auto text-sm xl:text-base">Industries</Button>
-        <Button href="/process" variant="link" class="text-primary font-heading p-0 h-auto text-sm xl:text-base">Process</Button>
-        <Button href="/about" variant="link" class="text-primary font-heading p-0 h-auto text-sm xl:text-base">About</Button>
-        <Button href="/contact" variant="link" class="text-primary font-heading p-0 h-auto text-sm xl:text-base">Contact</Button>
+        <Button href="/voice-ai-for-business" variant="link" class="font-heading p-0 h-auto text-sm xl:text-base transition-colors duration-300 {navLight ? 'text-white hover:text-white/90' : 'text-primary'}">Voice AI</Button>
+        <Button href="/business-automation-services" variant="link" class="font-heading p-0 h-auto text-sm xl:text-base transition-colors duration-300 {navLight ? 'text-white hover:text-white/90' : 'text-primary'}">Automation</Button>
+        <Button href="/website-design-toronto" variant="link" class="font-heading p-0 h-auto text-sm xl:text-base transition-colors duration-300 {navLight ? 'text-white hover:text-white/90' : 'text-primary'}">Website & SEO</Button>
+        <Button href="/industries" variant="link" class="font-heading p-0 h-auto text-sm xl:text-base transition-colors duration-300 {navLight ? 'text-white hover:text-white/90' : 'text-primary'}">Industries</Button>
+        <Button href="/process" variant="link" class="font-heading p-0 h-auto text-sm xl:text-base transition-colors duration-300 {navLight ? 'text-white hover:text-white/90' : 'text-primary'}">Process</Button>
+        <Button href="/about" variant="link" class="font-heading p-0 h-auto text-sm xl:text-base transition-colors duration-300 {navLight ? 'text-white hover:text-white/90' : 'text-primary'}">About</Button>
+        <Button href="/contact" variant="link" class="font-heading p-0 h-auto text-sm xl:text-base transition-colors duration-300 {navLight ? 'text-white hover:text-white/90' : 'text-primary'}">Contact</Button>
         <Button
           href="/contact"
-          class="text-sm xl:text-base"
+          class="text-sm xl:text-base transition-colors duration-300 {navLight ? 'border-white text-white hover:bg-white/10 bg-transparent' : 'bg-primary hover:bg-primary/90'}"
           data-cal-link="edmel-ednsy/enable-ai"
           data-cal-namespace="enable-ai"
           data-cal-config={JSON.stringify({ layout: "month_view" })}
@@ -141,11 +161,11 @@
         </Button>
       </nav>
 
-      <!-- Mobile: hamburger button -->
+      <!-- Mobile: hamburger button. Light over hero on home. -->
       <div class="flex lg:hidden items-center">
         <button
           type="button"
-          class="inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-md text-foreground hover:bg-muted active:bg-muted/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          class="inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-md transition-colors duration-300 {navLight ? 'text-white hover:bg-white/10 active:bg-white/20' : 'text-foreground hover:bg-muted active:bg-muted/80'} focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           aria-label="Open menu"
           aria-expanded={mobileNavOpen}
           aria-controls="mobile-nav-sheet"

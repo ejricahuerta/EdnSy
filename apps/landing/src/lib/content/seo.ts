@@ -5,6 +5,7 @@
  */
 
 import { industryDetails } from "$lib/content/industries";
+import { caseStudyList } from "$lib/content/case-studies";
 
 export const SITE_URL = "https://ednsy.com";
 
@@ -27,7 +28,7 @@ export const seoPages: Record<string, PageSeo> = {
   "/": {
     title: "AI Automation & Voice AI Agency in Toronto | Ed & Sy Toronto",
     description:
-      "Missed calls and manual admin killing growth? We help Toronto businesses automate with Voice AI, workflow automation, and high-converting websites. Book a free strategy call.",
+      "Ed & Sy helps Toronto service businesses automate calls, capture more leads, and streamline operations using Voice AI and smart automation.",
     canonicalPath: "/",
   },
   "/voice-ai-for-business": {
@@ -167,10 +168,21 @@ for (const slug of Object.keys(industryDetails)) {
   };
 }
 
+/** Case study pages SEO: /case-studies/:slug */
+const caseStudySeoPages: Record<string, PageSeo> = {};
+for (const study of caseStudyList) {
+  const path = `/case-studies/${study.slug}`;
+  caseStudySeoPages[path] = {
+    title: `${study.title} | Case Study | Ed & Sy Toronto`,
+    description: truncateForMeta(`${study.outcome} ${study.industry}, ${study.location}.`),
+    canonicalPath: path,
+  };
+}
+
 /** Get SEO for a path (e.g. from $page.url.pathname). Falls back to homepage. */
 export function getSeoForPath(pathname: string): PageSeo {
   const normalized = pathname.replace(/\/$/, "") || "/";
-  return seoPages[normalized] ?? industrySeoPages[normalized] ?? seoPages["/"];
+  return seoPages[normalized] ?? industrySeoPages[normalized] ?? caseStudySeoPages[normalized] ?? seoPages["/"];
 }
 
 export function buildCanonical(path: string): string {
@@ -187,7 +199,7 @@ export function buildOrganizationSchema() {
     url: SITE_URL,
     logo: `${SITE_URL}/logo/logo%20with%20bg.png`,
     description:
-      "Ed & Sy Inc. is a Toronto-based tech implementation partner. We help small and mid-sized businesses with Voice AI, business automation, websites & SEO across Ontario and Canada.",
+      "Ed & Sy helps Toronto service businesses automate calls, capture more leads, and streamline operations using Voice AI and smart automation.",
     address: {
       "@type": "PostalAddress",
       addressLocality: "Toronto",
@@ -223,7 +235,7 @@ export function buildLocalBusinessSchema() {
     logo: `${SITE_URL}/logo/logo%20with%20bg.png`,
     image: `${SITE_URL}/logo/logo%20with%20bg.png`,
     description:
-      "Ed & Sy Inc. is a Toronto tech implementation partner. Voice AI, business automation, websites & SEO for businesses in Toronto, Ontario, and Canada.",
+      "Ed & Sy helps Toronto service businesses automate calls, capture more leads, and streamline operations using Voice AI and smart automation.",
     address: {
       "@type": "PostalAddress",
       addressLocality: "Toronto",
@@ -326,7 +338,7 @@ export function buildWebSiteSchema() {
     name: "Ed & Sy",
     url: SITE_URL,
     description:
-      "Ed & Sy is a Toronto-based tech implementation partner. Voice AI, automation, websites & SEO for Toronto and Ontario businesses.",
+      "Ed & Sy helps Toronto service businesses automate calls, capture more leads, and streamline operations using Voice AI and smart automation.",
     inLanguage: "en-CA",
     publisher: {
       "@type": "Organization",

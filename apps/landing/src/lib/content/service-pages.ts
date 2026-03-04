@@ -160,6 +160,14 @@ export const websitePage = {
       body: "Slow sites lose visitors and rank worse. We build lightweight, fast-loading pages and optimize images and code so your Toronto website performs well on mobile and desktop and keeps users and search engines engaged.",
     },
   ],
+  useCases: [
+    {
+      title: "Window & glass repair (Toronto & GTA)",
+      description:
+        "The owner complained his site wasn't ranking. We found the cause: the blog had been compromised with gambling, crypto, and unrelated spam content that dragged his SEO down. We overhauled the website, removed all compromised content, cleaned up and improved SEO, and optimized his Google Business Profile. Result: a clean, trustworthy site and stronger local visibility.",
+      href: "/case-studies/website-seo-toronto-window-glass-repair",
+    },
+  ],
   faq: [
     {
       question: "Why choose a Toronto website and SEO agency?",

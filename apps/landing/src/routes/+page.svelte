@@ -5,7 +5,6 @@
   import { Badge } from "$lib/components/ui/badge";
   import {
     hero,
-    stats,
     services,
     industries,
     industriesIntro,
@@ -13,16 +12,18 @@
     faqItems,
     ctaBlock,
     servicesIntro,
-    valueProposition,
     problemsWeSolve,
+    problemsWeSolveIntro,
     caseStudies,
     voiceAiPhoneNumber,
   } from "$lib/content/site";
   import { industryIcons } from "$lib/content/industry-icons";
   import { buildFAQSchema } from "$lib/content/seo";
+  import { BrushCard } from "$lib/components/landing";
   import { Phone, Workflow, Globe, Sparkles, PhoneOff, ClipboardList, MessageSquarePlus, X, Check } from "lucide-svelte";
 
   const faqSchema = buildFAQSchema(faqItems);
+
   const serviceIcons: Record<string, typeof Phone> = {
     "voice-ai": Phone,
     "workflow-automation": Workflow,
@@ -39,117 +40,90 @@
   {@html `<script type="application/ld+json">${JSON.stringify(faqSchema)}</script>`}
 </svelte:head>
 
-<!-- Hero: H1 benefit-led; value prop has SEO H2 -->
-<section class="min-h-screen bg-background pt-24 md:pt-28 pb-20 md:pb-28 flex flex-col">
-  <div class="max-w-6xl mx-auto px-6 lg:px-8 flex-1 flex flex-col justify-center w-full">
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 items-center">
-      <div class="max-w-3xl">
-        <h1 class="typography-h1 mb-5 text-balance">
-          {hero.headline}
-        </h1>
-        <p class="typography-lead mb-6">
-          {hero.subhead}
-        </p>
-        <div class="flex flex-wrap gap-3 mb-5">
-          <Button
-            href="#contact"
-            size="lg"
-            class="bg-primary hover:bg-primary/90"
-            data-cal-link="edmel-ednsy/enable-ai"
-            data-cal-namespace="enable-ai"
-            data-cal-config={JSON.stringify({ layout: "month_view" })}
-          >
-            {hero.ctaPrimary}
-          </Button>
-          <Button
-            href="#services"
-            variant="outline"
-            size="lg"
-            class="border-primary text-primary hover:bg-primary/10"
-          >
-            {hero.ctaSecondary}
-          </Button>
-        </div>
-        <p class="typography-muted">{hero.tagline}</p>
-      </div>
-      <div class="hidden lg:flex justify-center lg:justify-end">
-        <img
-          src="/images/hero.svg"
-          alt=""
-          class="w-full max-w-sm lg:max-w-md h-auto object-contain"
-          width="741"
-          height="608"
-          fetchpriority="high"
-        />
-      </div>
+<!-- Hero: 1200px height, text + CTA centered -->
+<section class="hero-block">
+  <div class="hero-block-inner">
+    <h1 class="typography-h1 mb-5 text-balance">
+      {hero.headline}
+    </h1>
+    <p class="typography-lead mb-6">
+      {hero.subhead}
+    </p>
+    <div class="flex flex-wrap gap-3 mb-5">
+      <Button
+        href="#contact"
+        size="lg"
+        class="bg-primary hover:bg-primary/90"
+        data-cal-link="edmel-ednsy/enable-ai"
+        data-cal-namespace="enable-ai"
+        data-cal-config={JSON.stringify({ layout: "month_view" })}
+      >
+        {hero.ctaPrimary}
+      </Button>
+      <Button
+        href="#services"
+        variant="outline"
+        size="lg"
+        class="border-primary text-primary hover:bg-primary/10"
+      >
+        {hero.ctaSecondary}
+      </Button>
     </div>
-
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10 mt-14 md:mt-20">
-      {#each stats as s}
-        <div>
-          <p class="text-2xl md:text-3xl font-bold text-foreground">{s.value}</p>
-          <p class="text-sm font-medium text-foreground mt-0.5">{s.label}</p>
-          <p class="text-xs text-muted-foreground mt-0.5">{s.sublabel}</p>
-        </div>
-      {/each}
-    </div>
-  </div>
-</section>
-
-<!-- About Ed & Sy -->
-<section class="py-12 md:py-16 bg-muted/30" aria-labelledby="about-heading">
-  <div class="max-w-6xl mx-auto px-6 lg:px-8">
-    <div class="max-w-2xl">
-      <h2 id="about-heading" class="typography-h2 mb-3">{valueProposition.headline}</h2>
-      <p class="text-muted-foreground text-base leading-relaxed">{valueProposition.body}</p>
-    </div>
+    <p class="typography-muted">{hero.tagline}</p>
   </div>
 </section>
 
 <!-- The Problems We Solve -->
 <section class="py-16 md:py-24 bg-background">
   <div class="max-w-6xl mx-auto px-6 lg:px-8">
-    <h2 class="typography-h2 mb-3">The Problems We Solve</h2>
-    <p class="text-muted-foreground text-base mb-12 max-w-2xl leading-7">
-      Toronto service businesses lose leads and time to these common issues. We fix them with AI and automation.
-    </p>
-    <div class="grid md:grid-cols-3 gap-5 md:gap-6">
-      {#each problemsWeSolve as problem}
-        <Card.Root class="border-border bg-card hover:border-primary/40 hover:bg-muted/30 transition-colors h-full flex flex-col">
-          <Card.Header class="space-y-3 flex-1 pb-2">
-            {#if problemIcons[problem.slug]}
-              <div class="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary shrink-0">
-                <svelte:component this={problemIcons[problem.slug]} class="h-5 w-5" />
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 items-start">
+      <div class="lg:sticky lg:top-24">
+        <h2 class="typography-h2 mb-3">The Problems We Solve</h2>
+        <p class="text-muted-foreground text-base max-w-xl leading-7">
+          {problemsWeSolveIntro}
+        </p>
+      </div>
+      <div class="flex flex-col gap-5 md:gap-6">
+        {#each problemsWeSolve as problem}
+          <BrushCard>
+            <Card.Root class="border-border bg-card hover:border-primary/40 hover:bg-muted/30 transition-colors flex flex-col">
+              <Card.Header class="space-y-3 flex-1 pb-2">
+              {#if problemIcons[problem.slug]}
+                <div class="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary shrink-0">
+                  <svelte:component this={problemIcons[problem.slug]} class="h-5 w-5" />
+                </div>
+              {/if}
+              <Card.Title class="text-xl font-semibold tracking-tight">{problem.title}</Card.Title>
+              <div class="flex items-start gap-2 text-muted-foreground text-sm leading-relaxed">
+                <X class="h-4 w-4 shrink-0 mt-0.5 text-destructive/80" aria-hidden="true" />
+                <span>{problem.description}</span>
               </div>
-            {/if}
-            <Card.Title class="text-xl font-semibold tracking-tight">{problem.title}</Card.Title>
-            <div class="flex items-start gap-2 text-muted-foreground text-sm leading-relaxed">
-              <X class="h-4 w-4 shrink-0 mt-0.5 text-destructive/80" aria-hidden="true" />
-              <span>{problem.description}</span>
-            </div>
-            <div class="flex items-start gap-2 text-sm font-medium text-primary pt-1">
-              <Check class="h-4 w-4 shrink-0 mt-0.5" aria-hidden="true" />
-              <span>{problem.solution}</span>
-            </div>
-          </Card.Header>
-        </Card.Root>
-      {/each}
+              <div class="flex items-start gap-2 text-sm font-medium text-primary pt-1">
+                <Check class="h-4 w-4 shrink-0 mt-0.5" aria-hidden="true" />
+                <span>{problem.solution}</span>
+              </div>
+            </Card.Header>
+            </Card.Root>
+          </BrushCard>
+        {/each}
+      </div>
     </div>
   </div>
 </section>
 
-<!-- Our 3 Core Services (internal links to money pages) -->
+<!-- Operational AI Stack (internal links to money pages) -->
 <section id="services" class="py-16 md:py-24 bg-muted/30">
   <div class="max-w-6xl mx-auto px-6 lg:px-8">
-    <h2 class="typography-h2 mb-3">Our 3 Core Services</h2>
+    <h2 class="typography-h2 mb-3">Operational AI Stack</h2>
     <p class="text-muted-foreground text-base mb-12 max-w-2xl leading-7">{servicesIntro}</p>
 
     <div class="space-y-16 md:space-y-20">
       {#each services as service}
-        <Card.Root
-          id={service.slug}
-          class="scroll-mt-24 grid md:grid-cols-2 gap-0 border-border bg-card overflow-hidden"
-        >
+        <BrushCard>
+          <Card.Root
+            id={service.slug}
+            class="scroll-mt-24 grid md:grid-cols-2 gap-0 border-border bg-card overflow-hidden"
+          >
           <Card.Content class="order-2 md:order-1 flex flex-col justify-center p-8 md:p-10 space-y-4">
             {#if service.popular}
               <Badge variant="secondary" class="w-fit bg-primary/10 text-primary border-0">
@@ -217,10 +191,11 @@
                 height="260"
               />
             {:else}
-              <span class="text-muted-foreground">{service.title}</span>
+              <span class="text-muted-foreground">{(service as { title: string }).title}</span>
             {/if}
           </div>
-        </Card.Root>
+          </Card.Root>
+        </BrushCard>
       {/each}
     </div>
 
@@ -240,8 +215,9 @@
 
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
       {#each industries as ind}
-        <Card.Root class="border-border bg-card hover:border-primary/40 hover:bg-muted/30 transition-colors h-full flex flex-col">
-          <a href={ind.href} class="block contents flex flex-col flex-1 min-h-0">
+        <BrushCard>
+          <Card.Root class="border-border bg-card hover:border-primary/40 hover:bg-muted/30 transition-colors h-full flex flex-col">
+            <a href={ind.href} class="block contents flex flex-col flex-1 min-h-0">
             <Card.Header class="space-y-1.5 pb-2 flex-1">
               {#if industryIcons[ind.slug]}
                 <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -255,7 +231,8 @@
               <span class="text-sm font-medium text-primary hover:underline">Learn more →</span>
             </Card.Content>
           </a>
-        </Card.Root>
+          </Card.Root>
+        </BrushCard>
       {/each}
     </div>
 
@@ -273,37 +250,45 @@
 <!-- Example outcomes (not full case studies; one CTA to contact) -->
 <section class="py-16 md:py-24 bg-background">
   <div class="max-w-6xl mx-auto px-6 lg:px-8">
-    <h2 class="typography-h2 mb-3">Results we help businesses achieve</h2>
-    <p class="text-muted-foreground text-base mb-12 max-w-2xl leading-7">
-      Toronto and GTA businesses use our Voice AI, automation, and website & SEO to get outcomes like these.
-    </p>
-    <div class="grid md:grid-cols-3 gap-5 md:gap-6">
-      {#each caseStudies as study}
-        <Card.Root class="border-border bg-card hover:border-primary/40 hover:bg-muted/30 transition-colors h-full flex flex-col">
-          <a href="/case-studies" class="block contents flex flex-col flex-1 min-h-0">
-            <Card.Header class="space-y-1.5 pb-2 flex-1">
-              <Card.Title class="text-xl font-semibold tracking-tight">{study.title}</Card.Title>
-              <Card.Description class="text-muted-foreground leading-relaxed text-sm">{study.outcome}</Card.Description>
-            </Card.Header>
-            <Card.Content class="pt-4 pb-6">
-              <span class="text-sm font-medium text-primary hover:underline">{study.cta} →</span>
-            </Card.Content>
-          </a>
-        </Card.Root>
-      {/each}
-      <Card.Root class="border-border bg-card hover:border-primary/40 hover:bg-muted/30 transition-colors h-full flex flex-col md:col-span-3">
-        <a href="/process" class="block contents flex flex-col flex-1 min-h-0">
-          <Card.Header class="space-y-1.5 pb-2 flex-1">
-            <Card.Title class="text-xl font-semibold tracking-tight">How It Works</Card.Title>
-            <Card.Description class="text-muted-foreground leading-relaxed text-sm">
-              Free strategy call, custom solution, implementation, then ongoing support. Toronto-based, no surprises.
-            </Card.Description>
-          </Card.Header>
-          <Card.Content class="pt-4 pb-6">
-            <span class="text-sm font-medium text-primary hover:underline">See our process →</span>
-          </Card.Content>
-        </a>
-      </Card.Root>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 items-start">
+      <div class="lg:sticky lg:top-24">
+        <h2 class="typography-h2 mb-3">Results we help businesses achieve</h2>
+        <p class="text-muted-foreground text-base max-w-xl leading-7">
+          Toronto and GTA businesses use our Voice AI, automation, and website & SEO to get outcomes like these.
+        </p>
+      </div>
+      <div class="flex flex-col gap-5 md:gap-6">
+        {#each caseStudies as study}
+          <BrushCard>
+            <Card.Root class="border-border bg-card hover:border-primary/40 hover:bg-muted/30 transition-colors flex flex-col">
+              <a href="/case-studies" class="block contents flex flex-col flex-1 min-h-0">
+                <Card.Header class="space-y-1.5 pb-2 flex-1">
+                  <Card.Title class="text-xl font-semibold tracking-tight">{study.title}</Card.Title>
+                  <Card.Description class="text-muted-foreground leading-relaxed text-sm">{study.outcome}</Card.Description>
+                </Card.Header>
+                <Card.Content class="pt-4 pb-6">
+                  <span class="text-sm font-medium text-primary hover:underline">{study.cta} →</span>
+                </Card.Content>
+              </a>
+            </Card.Root>
+          </BrushCard>
+        {/each}
+        <BrushCard>
+          <Card.Root class="border-border bg-card hover:border-primary/40 hover:bg-muted/30 transition-colors flex flex-col">
+            <a href="/process" class="block contents flex flex-col flex-1 min-h-0">
+              <Card.Header class="space-y-1.5 pb-2 flex-1">
+                <Card.Title class="text-xl font-semibold tracking-tight">How It Works</Card.Title>
+                <Card.Description class="text-muted-foreground leading-relaxed text-sm">
+                  Free strategy call, custom solution, implementation, then ongoing support. Toronto-based, no surprises.
+                </Card.Description>
+              </Card.Header>
+              <Card.Content class="pt-4 pb-6">
+                <span class="text-sm font-medium text-primary hover:underline">See our process →</span>
+              </Card.Content>
+            </a>
+          </Card.Root>
+        </BrushCard>
+      </div>
     </div>
   </div>
 </section>

@@ -45,6 +45,98 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
+/* Hero: 800px height, centered copy, inverted (dark bg, light text). Width matches nav (max-w-6xl + px-4 sm:px-6 lg:px-8). */
+/* Hero bg uses same blue gradient as logo in node graph (primary #3a00ff). */
+/* Glow: soft radial bloom on ::before, heartbeat pulse. */
+@keyframes hero-glow-heartbeat {
+  0%, 100% { opacity: 0.65; }
+  14% { opacity: 1; }   /* first beat */
+  28% { opacity: 0.65; }
+  42% { opacity: 1; }   /* second beat */
+  56%, 100% { opacity: 0.65; }
+}
+
+.hero-block {
+  position: relative;
+  width: 100%;
+  max-width: 72rem; /* same as max-w-6xl */
+  margin-top: .25rem;
+  margin-left: auto;
+  margin-right: auto;
+  background: radial-gradient(
+    ellipse 80% 70% at 50% 100%,
+    #3a00ff 0%,
+    #280066 25%,
+    #1e004d 50%,
+    #150033 75%,
+    #0a0015 100%
+  );
+  min-height: 800px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 1rem 3rem;
+  overflow: hidden;
+  border-radius: 1.5rem;
+}
+
+.hero-block::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 140% 120% at 50% 100%,
+    rgba(58, 0, 255, 0.5) 0%,
+    rgba(58, 0, 255, 0.22) 25%,
+    rgba(40, 0, 102, 0.08) 50%,
+    transparent 70%
+  );
+  animation: hero-glow-heartbeat 1.5s ease-in-out infinite;
+}
+@media (min-width: 640px) {
+  .hero-block {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+@media (min-width: 1024px) {
+  .hero-block {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+.hero-block-inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  text-align: center;
+  color: var(--background);
+}
+.hero-block-inner .typography-h1 {
+  color: var(--background);
+}
+.hero-block-inner .typography-lead {
+  color: rgba(255, 255, 255, 0.9);
+}
+.hero-block-inner .typography-muted {
+  color: rgba(255, 255, 255, 0.65);
+}
+.hero-block-inner .flex {
+  justify-content: center;
+}
+.hero-block-inner :global(.border-primary) {
+  border-color: var(--background);
+  color: var(--background);
+}
+.hero-block-inner :global(.border-primary:hover) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
 /* Custom font classes - Using logo font (Marck Script) only for brand moments */
 .font-display {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;

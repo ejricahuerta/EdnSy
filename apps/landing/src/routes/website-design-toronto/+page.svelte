@@ -11,6 +11,7 @@
     Mail,
     Gauge,
     HelpCircle,
+    Briefcase,
   } from "lucide-svelte";
   import { websitePage } from "$lib/content/service-pages";
   import { buildServiceSchema, buildFAQSchema, buildBreadcrumbSchema } from "$lib/content/seo";
@@ -76,6 +77,34 @@
           </Card.Header>
           <Card.Content class="flex-1">
             <p class="text-muted-foreground leading-7">{section.body}</p>
+          </Card.Content>
+        </Card.Root>
+      {/each}
+    </div>
+  </div>
+</section>
+
+<section class="py-16 md:py-24 bg-background">
+  <div class="max-w-6xl mx-auto px-6 lg:px-8">
+    <div class="mb-8 flex items-center gap-3">
+      <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+        <Briefcase class="h-5 w-5" />
+      </div>
+      <h2 class="typography-h2 font-semibold leading-none">Use cases</h2>
+    </div>
+    <div class="grid grid-cols-1 gap-6 md:gap-8">
+      {#each websitePage.useCases as useCase}
+        <Card.Root class="border-border bg-card">
+          <Card.Header>
+            <Card.Title class="text-lg">{useCase.title}</Card.Title>
+          </Card.Header>
+          <Card.Content>
+            <p class="text-muted-foreground leading-7 mb-4">{useCase.description}</p>
+            {#if useCase.href}
+              <Button href={useCase.href} variant="outline" size="sm">
+                See case study
+              </Button>
+            {/if}
           </Card.Content>
         </Card.Root>
       {/each}

@@ -23,9 +23,9 @@ export const definitionBlocks = {
 
 /** Homepage hero: main headline benefit-led; value prop section carries SEO H2 */
 export const hero = {
-  headline: "We give you time",
+  headline: "We give you time back.",
   subhead:
-    "So you can run your business, be with family, or do what actually matters. We help Toronto service businesses automate operations and capture more leads with Voice AI, business automation, and website & SEO.",
+    "Ed & Sy helps Toronto service businesses automate calls, capture more leads, and streamline operations using Voice AI and smart automation.",
   ctaPrimary: "Book a Free Strategy Call",
   ctaSecondary: "See How It Works",
   tagline: "Free Strategy Call • Toronto-Based • Results-Focused",
@@ -37,23 +37,27 @@ export const valueProposition = {
   body: "We're your Toronto tech implementation partner. We help service businesses in the GTA and across Ontario with Voice AI, business automation, websites & SEO, so you automate operations, capture more leads, and scale.",
 } as const;
 
+/** Intro copy for the problems we solve section (homepage). */
+export const problemsWeSolveIntro =
+  "Toronto service businesses lose leads and time to manual processes and slow follow‑ups. We use AI and automation to capture more leads, respond instantly, and boost bookings.";
+
 /** The problems we solve (homepage); icon = lucide-svelte name for +page.svelte */
 export const problemsWeSolve = [
   {
     slug: "missed-calls",
-    title: "Missed calls",
+    title: "Missed revenue from unanswered calls",
     description: "Every unanswered call is a lost lead.",
     solution: "24/7 AI phone answering",
   },
   {
     slug: "manual-admin",
-    title: "Manual admin",
+    title: "10+ hours per week lost to admin",
     description: "Repetitive tasks eat your time.",
     solution: "Workflow automation so you focus on clients",
   },
   {
     slug: "inefficient-follow-ups",
-    title: "Inefficient follow-ups",
+    title: "Leads that never get followed up",
     description: "Leads go cold without fast follow-up.",
     solution: "Automated nurturing and booking",
   },
