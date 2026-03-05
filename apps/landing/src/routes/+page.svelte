@@ -43,9 +43,12 @@
 <!-- Hero: 1200px height, text + CTA centered -->
 <section class="hero-block">
   <div class="hero-block-inner">
-    <h1 class="typography-h1 mb-5 text-balance">
-      {hero.headline}
+    <h1 class="typography-h1 mb-3 text-balance">
+      {hero.h1}
     </h1>
+    <h2 class="typography-h2 mb-5 text-balance">
+      {hero.headline}
+    </h2>
     <p class="typography-lead mb-6">
       {hero.subhead}
     </p>

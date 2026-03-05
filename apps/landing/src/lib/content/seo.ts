@@ -26,9 +26,9 @@ export type PageSeo = {
 /** All money pages and key routes with SEO metadata */
 export const seoPages: Record<string, PageSeo> = {
   "/": {
-    title: "AI Automation & Voice AI Agency in Toronto | Ed & Sy Toronto",
+    title: "Ed & Sy (Ednsy) — AI Automation & Voice AI Agency in Toronto",
     description:
-      "Ed & Sy helps Toronto service businesses automate calls, capture more leads, and streamline operations using Voice AI and smart automation.",
+      "We give Toronto service businesses their time back — AI phone answering, workflow automation, and SEO. Book a free strategy call.",
     canonicalPath: "/",
   },
   "/voice-ai-for-business": {
@@ -113,9 +113,9 @@ export const seoPages: Record<string, PageSeo> = {
     canonicalPath: "/cookies",
   },
   "/toronto-voice-ai": {
-    title: "Toronto Voice AI Agency | Voice AI Development Ontario | Ed & Sy Inc.",
+    title: "Toronto Voice AI Development | Custom AI Phone Systems | Ed & Sy",
     description:
-      "Toronto Voice AI agency. 24/7 AI phone answering and Voice AI development for Toronto, GTA, and Ontario businesses. Book a free strategy call.",
+      "We build custom Voice AI phone systems for Toronto businesses — 24/7 call answering, lead qualification, and appointment booking. See how it works.",
     canonicalPath: "/toronto-voice-ai",
   },
   "/toronto-automation-agency": {

@@ -21,8 +21,9 @@ export const definitionBlocks = {
     "AI website development uses AI-assisted tools and methods to build fast, high-converting, SEO-ready websites, reducing time to launch compared to traditional drag-and-drop CMS builds while improving performance and local search visibility for Toronto and Ontario businesses.",
 } as const;
 
-/** Homepage hero: main headline benefit-led; value prop section carries SEO H2 */
+/** Homepage hero: H1 for SEO, headline (H2) benefit-led; value prop section carries SEO H2 */
 export const hero = {
+  h1: "Toronto AI Automation & Voice AI Agency",
   headline: "We give you time back.",
   subhead:
     "Ed & Sy helps Toronto service businesses automate calls, capture more leads, and streamline operations using Voice AI and smart automation.",
@@ -340,6 +341,18 @@ export const faqItems = [
     question: "Do you serve the GTA and Ontario?",
     answer:
       "Yes. We're based in Toronto and serve the Greater Toronto Area, Ontario, and Canada. We also work with businesses in Markham, Mississauga, Vaughan, and North York. Remote setup and support are available.",
+  },
+  {
+    id: "13",
+    question: "Do you serve Mississauga, Markham, and the broader GTA?",
+    answer:
+      "Yes — Ed & Sy is a Toronto-based automation agency serving the entire Greater Toronto Area, including Mississauga, Markham, Vaughan, Brampton, and North York. We offer remote setup for all Ontario clients.",
+  },
+  {
+    id: "14",
+    question: "What business automation services do you offer?",
+    answer:
+      "We offer end-to-end business automation services: workflow automation, AI-powered follow-ups, invoice processing, CRM integration, and Voice AI. We serve Toronto and Ontario businesses looking to eliminate repetitive admin and scale without adding headcount.",
   },
 ] as const;
 
