@@ -148,6 +148,10 @@ import { INDUSTRY_LABELS, INDUSTRY_SLUGS, industryDisplayToSlug, type IndustrySl
 			return s === 'opened' || s === 'clicked';
 		})
 	);
+	/** Count of prospects with status "In queue" (may be stuck if no active job). */
+	const prospectsInQueueCount = $derived(
+		prospects.filter((p) => (p.status ?? '').trim() === 'In queue').length
+	);
 
 	let generatingDemo = $state(false);
 	type ScrapedSummary = {
@@ -441,6 +445,7 @@ import { INDUSTRY_LABELS, INDUSTRY_SLUGS, industryDisplayToSlug, type IndustrySl
 	let bulkGbpSubmitting = $state(false);
 	let bulkInsightsSubmitting = $state(false);
 	let bulkRestoreSubmitting = $state(false);
+	let clearStuckSubmitting = $state(false);
 	let gbpJobPollingActive = $state(false);
 	let insightsJobPollingActive = $state(false);
 	/** Prospect IDs we've just submitted for GBP/Insights so status updates immediately before server responds. */
@@ -554,7 +559,7 @@ import { INDUSTRY_LABELS, INDUSTRY_SLUGS, industryDisplayToSlug, type IndustrySl
 			}
 			attempts++;
 			try {
-				const res = await fetch('/api/dashboard/process-gbp-job', {
+				const res = await fetch('/api/jobs/gbp', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({})
@@ -1164,6 +1169,55 @@ import { INDUSTRY_LABELS, INDUSTRY_SLUGS, industryDisplayToSlug, type IndustrySl
 								{/each}
 							</Select.Content>
 						</Select.Root>
+
+						{#if prospectsInQueueCount > 0}
+							<form
+								method="POST"
+								action="?/clearStuckQueueStatus"
+								use:enhance={() => {
+									clearStuckSubmitting = true;
+									return async ({ result }) => {
+										clearStuckSubmitting = false;
+										if (result.type === 'success' && result.data && typeof result.data === 'object') {
+											const d = result.data as { cleared?: number };
+											const cleared = d.cleared ?? 0;
+											if (cleared > 0) {
+												toastSuccess(
+													'Queue status',
+													cleared === 1
+														? 'Cleared 1 prospect from queue'
+														: `Cleared ${cleared} prospects from queue`
+												);
+												await invalidateAll();
+											} else {
+												toastInfo(
+													'Queue status',
+													'No stuck prospects found. All "In queue" have an active job.'
+												);
+												await invalidateAll();
+											}
+										} else if (result.type === 'failure' && result.data?.message) {
+											toastError('Clear queue status', (result.data as { message?: string }).message);
+										}
+									};
+								}}
+								class="flex items-center"
+							>
+								<Button
+									type="submit"
+									variant="outline"
+									size="sm"
+									class="h-9"
+									disabled={clearStuckSubmitting}
+									title="Clear 'In queue' for prospects with no active job (demo, GBP, or insights)"
+								>
+									{#if clearStuckSubmitting}
+										<LoaderCircle class="mr-1.5 size-4 animate-spin" aria-hidden="true" />
+									{/if}
+									{clearStuckSubmitting ? 'Clearing…' : 'Clear stuck queue'}
+								</Button>
+							</form>
+						{/if}
 					</div>
 
 					<!-- Clear filters + Columns -->

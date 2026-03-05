@@ -596,5 +596,34 @@ export const actions: Actions = {
 			if (result.ok) restored++;
 		}
 		return { success: true, restored, total: prospectIds.length };
+	},
+	/**
+	 * Clear "In queue" status for prospects that have no active job (demo, GBP, or insights).
+	 * Use when prospects appear stuck in queue (e.g. cron not running or jobs already finished).
+	 */
+	clearStuckQueueStatus: async ({ cookies }) => {
+		const cookie = cookies.get(getSessionCookieName());
+		const user = await getSessionFromCookie(cookie);
+		if (!user) return fail(401, { message: 'Sign in required' });
+		const result = await listProspects(user.id);
+		const prospects = result.prospects ?? [];
+		const [demoJobsByProspectId, gbpJobsByProspectId, insightsJobsByProspectId] = await Promise.all([
+			getDemoJobsForUser(user.id),
+			getGbpJobsForUser(user.id),
+			getInsightsJobsForUser(user.id)
+		]);
+		let cleared = 0;
+		for (const p of prospects) {
+			if ((p.status ?? '').trim() !== 'In queue') continue;
+			const hasDemoJob =
+				demoJobsByProspectId[p.id]?.status === 'pending' || demoJobsByProspectId[p.id]?.status === 'creating';
+			const hasGbpJob = gbpJobsByProspectId[p.id]?.status === 'pending';
+			const hasInsightsJob = insightsJobsByProspectId[p.id]?.status === 'pending';
+			if (!hasDemoJob && !hasGbpJob && !hasInsightsJob) {
+				await updateProspectStatus(p.id, 'Prospect');
+				cleared++;
+			}
+		}
+		return { success: true, cleared };
 	}
 };
