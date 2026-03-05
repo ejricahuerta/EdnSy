@@ -1,11 +1,9 @@
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { readFileSync } from 'fs';
-import { join } from 'path';
 import { markdownToHtml } from '$lib/markdown';
+import { INTEGRATION_HELP_DOCS, INTEGRATION_IDS } from '$lib/server/integrationHelpDocs';
 
-const ALLOWED_IDS = ['notion', 'hubspot', 'gohighlevel', 'pipedrive'] as const;
-const TITLES: Record<(typeof ALLOWED_IDS)[number], string> = {
+const TITLES: Record<(typeof INTEGRATION_IDS)[number], string> = {
 	notion: 'Notion setup',
 	hubspot: 'HubSpot setup',
 	gohighlevel: 'GoHighLevel setup',
@@ -14,21 +12,17 @@ const TITLES: Record<(typeof ALLOWED_IDS)[number], string> = {
 
 export const load: PageServerLoad = async ({ params }) => {
 	const id = params.id?.toLowerCase();
-	if (!id || !ALLOWED_IDS.includes(id as (typeof ALLOWED_IDS)[number])) {
+	if (!id || !INTEGRATION_IDS.includes(id as (typeof INTEGRATION_IDS)[number])) {
 		throw error(404, 'Help doc not found');
 	}
-	const base = process.cwd();
-	const filePath = join(base, 'docs', 'integrations', `${id}.md`);
-	let content: string;
-	try {
-		const raw = readFileSync(filePath, 'utf-8');
-		content = markdownToHtml(raw);
-	} catch {
+	const raw = INTEGRATION_HELP_DOCS[id];
+	if (!raw) {
 		throw error(404, 'Help doc not found');
 	}
+	const content = markdownToHtml(raw);
 	return {
 		content,
-		title: TITLES[id as (typeof ALLOWED_IDS)[number]],
+		title: TITLES[id as (typeof INTEGRATION_IDS)[number]],
 		id
 	};
 };

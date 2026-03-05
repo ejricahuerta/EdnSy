@@ -1,8 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
-import { readFileSync } from 'fs';
-import { join } from 'path';
 import { markdownToHtml } from '$lib/markdown';
+import { INTEGRATION_HELP_DOCS, INTEGRATION_IDS } from '$lib/server/integrationHelpDocs';
 import { getSessionFromCookie, getSessionCookieName } from '$lib/server/session';
 import { getPlanForUser } from '$lib/server/stripe';
 import { canConnectCrm } from '$lib/plans';
@@ -19,18 +18,11 @@ import { getGmailTokens, deleteGmailTokens } from '$lib/server/gmail';
 import { listProspects as listNotionProspects } from '$lib/server/notion';
 import { upsertProspect } from '$lib/server/prospects';
 
-const INTEGRATION_IDS = ['notion', 'hubspot', 'gohighlevel', 'pipedrive'] as const;
-
 function loadHelpDocs(): Record<string, string> {
-	const base = process.cwd();
 	const out: Record<string, string> = {};
 	for (const id of INTEGRATION_IDS) {
-		try {
-			const raw = readFileSync(join(base, 'docs', 'integrations', `${id}.md`), 'utf-8');
-			out[id] = markdownToHtml(raw);
-		} catch {
-			out[id] = '';
-		}
+		const raw = INTEGRATION_HELP_DOCS[id] ?? '';
+		out[id] = raw ? markdownToHtml(raw) : '';
 	}
 	return out;
 }

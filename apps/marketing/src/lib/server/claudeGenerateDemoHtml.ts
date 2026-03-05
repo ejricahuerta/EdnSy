@@ -4,9 +4,6 @@
  */
 
 import { env } from '$env/dynamic/private';
-import { readFileSync } from 'fs';
-import { join } from 'path';
-import { fileURLToPath } from 'url';
 import type { Prospect } from '$lib/server/prospects';
 import type { GbpData } from '$lib/server/gbp';
 import type { ToneSlug } from '$lib/tones';
@@ -15,22 +12,17 @@ import type { IndustrySlug } from '$lib/industries';
 import { getDemoImageUrls } from '$lib/server/unsplash';
 import { buildLandingPageIndexJson } from '$lib/server/buildLandingPageIndexJson';
 
+// Bundled at build time so it works in production (no runtime readFileSync from process.cwd())
+import landingPagePromptRaw from '../../../prompts/landing-page.md?raw';
+
 const ANTHROPIC_MODEL = 'claude-sonnet-4-20250514';
 
 export type ClaudeGenerateDemoHtmlResult =
 	| { ok: true; html: string }
 	| { ok: false; error: string };
 
-/** Load the full landing-page.md prompt text (from apps/marketing/prompts/landing-page.md). */
 function loadLandingPagePrompt(): string {
-	const fromCwd = join(process.cwd(), 'prompts', 'landing-page.md');
-	try {
-		return readFileSync(fromCwd, 'utf-8');
-	} catch {
-		const dir = join(fileURLToPath(import.meta.url), '..', '..', '..', '..');
-		const fallback = join(dir, 'prompts', 'landing-page.md');
-		return readFileSync(fallback, 'utf-8');
-	}
+	return landingPagePromptRaw;
 }
 
 /** Strip markdown code block wrapper if present. */
