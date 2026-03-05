@@ -1,5 +1,5 @@
 /**
- * Process one demo creation job from the queue (GBP fetch, landing content, demo_tracking).
+ * Process one demo creation job from the queue. Uses scraped data from the qualifying (GBP) step only.
  * Used by POST /api/jobs/demo and GET /api/cron/jobs/demo so demos run in the background.
  */
 
@@ -12,13 +12,12 @@ import {
 	upsertDemoTrackingForProspect,
 	getScrapedDataForProspectForUser
 } from '$lib/server/supabase';
-import { getScrapedDataForDemo, getScrapedDataForDemoFromNameOnly, formatScrapedDataErrorMessage, type GbpData } from '$lib/server/gbp';
+import type { GbpData } from '$lib/server/gbp';
 import { NO_FIT_GBP_REASON } from '$lib/server/qualify';
 import { inferIndustryWithGemini } from '$lib/server/insights';
 import { inferToneWithGemini } from '$lib/server/generateTone';
 import { generateDemoHtmlWithClaude } from '$lib/server/claudeGenerateDemoHtml';
 import { uploadDemoHtml } from '$lib/server/demoJsonStorage';
-import { getGbpDefaultLocation } from '$lib/server/userSettings';
 
 export type ProcessJobResult =
 	| { processed: true; jobId: string; prospectId: string; status: 'done'; demoLink: string; companyName?: string }
@@ -69,7 +68,7 @@ export async function processOneDemoJob(origin: string): Promise<ProcessJobResul
 			};
 		}
 
-		// Prefer existing scraped data (GBP) from "Pull insights" when present; otherwise fetch GBP.
+		// Use scraped data from the qualifying (GBP) step only. No Pull insights / fetch in this step.
 		const existingScraped = await getScrapedDataForProspectForUser(userId, prospectId);
 		const hasUsableGbp =
 			existingScraped &&
@@ -77,33 +76,23 @@ export async function processOneDemoJob(origin: string): Promise<ProcessJobResul
 			existingScraped.gbpRaw != null &&
 			typeof existingScraped.gbpRaw === 'object';
 
-		let scrapedData: Record<string, unknown>;
-		if (hasUsableGbp) {
-			scrapedData = { ...existingScraped } as Record<string, unknown>;
-		} else {
-			const defaultLocation = await getGbpDefaultLocation(userId);
-			let scrapedResult = await getScrapedDataForDemo(prospect, {
-				defaultLocation: defaultLocation ?? undefined
-			});
-			if (!scrapedResult.ok && scrapedResult.errors?.dataforseo) {
-				scrapedResult = await getScrapedDataForDemoFromNameOnly(prospect);
-			}
-			if (!scrapedResult.ok) {
-				const msg = formatScrapedDataErrorMessage(scrapedResult.errors);
-				await updateDemoJob(jobId, { status: 'failed', errorMessage: msg });
-				await updateProspectStatus(prospectId, 'Prospect');
-				console.error('[processDemoJob] failed', { jobId, prospectId, companyName: prospect.companyName, errorMessage: msg, errors: scrapedResult.errors });
-				return {
-					processed: true,
-					jobId,
-					prospectId,
-					status: 'failed',
-					errorMessage: msg,
-					companyName: prospect.companyName ?? undefined
-				};
-			}
-			scrapedData = scrapedResult.data as Record<string, unknown>;
+		if (!hasUsableGbp) {
+			const errorMessage =
+				'Scraped data required. Complete the qualifying (GBP) step first, then generate the demo.';
+			await updateDemoJob(jobId, { status: 'failed', errorMessage });
+			await updateProspectStatus(prospectId, 'Prospect');
+			console.error('[processDemoJob] failed', { jobId, prospectId, companyName: prospect.companyName, errorMessage });
+			return {
+				processed: true,
+				jobId,
+				prospectId,
+				status: 'failed',
+				errorMessage,
+				companyName: prospect.companyName ?? undefined
+			};
 		}
+
+		const scrapedData = { ...existingScraped } as Record<string, unknown>;
 
 		// Industry: prefer GBP category, then Gemini inference, then existing prospect.industry. Only update from real GBP (not name-only stub).
 		const gbpRawForUpdate = scrapedData.gbpRaw as GbpData | undefined;

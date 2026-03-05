@@ -1350,63 +1350,6 @@ import { INDUSTRY_LABELS, INDUSTRY_SLUGS, industryDisplayToSlug, type IndustrySl
 											</Button>
 										</form>
 									{:else if pipelineTab === 'research'}
-										<form method="POST" action="?/bulkEnqueueInsights" use:enhance={(input) => {
-											bulkInsightsSubmitting = true;
-											const formData = input?.formData ?? (input as unknown as FormData);
-											const ids = (formData && typeof (formData as FormData).getAll === 'function'
-												? ((formData as FormData).getAll('prospectId') as string[])
-												: table.getFilteredSelectedRowModel().rows.map((r) => r.original.id)
-											).filter(Boolean);
-											optimisticInsightsProspectIds = new Set([...optimisticInsightsProspectIds, ...ids]);
-											return async ({ result }) => {
-												try {
-													if (result.type === 'success' && result.data && typeof result.data === 'object' && (result.data as { success?: boolean }).success) {
-														const d = result.data as { queued?: number; total?: number };
-														const queued = d.queued ?? 0;
-														const total = d.total ?? 0;
-														const msg = queued ? `${queued} prospect(s) added to insights queue` : (total > 0 ? 'Selected prospect(s) already in queue' : 'Done.');
-														addHttpCallLog({
-															action: 'bulkEnqueueInsights',
-															result: 'success',
-															message: msg,
-															status: 200,
-															context: ids.length > 0 ? `${ids.length} selected` : undefined
-														});
-														toastSuccess('Insights jobs', msg);
-														rowSelection = {};
-														await invalidateAll();
-														startInsightsJobPolling();
-														await applyAction(result);
-													} else if (result.type === 'failure' && result.data?.message) {
-														addHttpCallLog({
-															action: 'bulkEnqueueInsights',
-															result: 'failure',
-															message: (result.data as { message?: string }).message,
-															status: (result as { status?: number }).status,
-															context: ids.length > 0 ? `${ids.length} selected` : undefined,
-															responseData: result.data
-														});
-														toastError('Pull insights', (result.data as { message?: string }).message);
-														await applyAction(result);
-														optimisticInsightsProspectIds = new Set([...optimisticInsightsProspectIds].filter((id) => !ids.includes(id)));
-													} else {
-														await applyAction(result);
-													}
-												} finally {
-													bulkInsightsSubmitting = false;
-												}
-											};
-										}}>
-											{#each table.getFilteredSelectedRowModel().rows as row (row.id)}
-												<input type="hidden" name="prospectId" value={row.original.id} />
-											{/each}
-											<Button type="submit" size="sm" disabled={bulkInsightsSubmitting}>
-												{#if bulkInsightsSubmitting}
-													<LoaderCircle class="mr-2 size-4 animate-spin" aria-hidden="true" />
-												{/if}
-												{bulkInsightsSubmitting ? 'Pulling insights…' : 'Pull insights'}
-											</Button>
-										</form>
 										<Button
 											type="button"
 											variant="outline"

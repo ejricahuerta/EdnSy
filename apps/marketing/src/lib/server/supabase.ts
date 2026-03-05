@@ -780,6 +780,51 @@ export async function updateGbpJob(
 	await supabase.from('gbp_jobs').update(payload).eq('id', jobId);
 }
 
+// --- Places API usage (monthly lock so we don't exceed free tier) ---
+
+/** Current month key for places_api_usage (YYYY-MM UTC). */
+export function getPlacesUsageMonthKey(): string {
+	const now = new Date();
+	const y = now.getUTCFullYear();
+	const m = String(now.getUTCMonth() + 1).padStart(2, '0');
+	return `${y}-${m}`;
+}
+
+/**
+ * Try to consume one Places API lookup slot for this month. Atomic: only one caller gets the slot when at limit.
+ * Returns { allowed: true } if under limit and count was incremented; { allowed: false } if at or over limit.
+ */
+export async function tryIncrementPlacesUsage(): Promise<{ allowed: boolean }> {
+	const supabase = getSupabaseAdmin();
+	if (!supabase) return { allowed: false };
+	const monthKey = getPlacesUsageMonthKey();
+	const limit = Math.min(
+		Math.max(1, parseInt((env.PLACES_API_MONTHLY_LIMIT ?? '10000').trim(), 10) || 10000),
+		100_000
+	);
+	const { data: rpcData, error: rpcError } = await supabase.rpc('increment_places_usage_if_under_limit', {
+		p_month_key: monthKey,
+		p_limit: limit
+	});
+	if (rpcError) {
+		// Fallback when RPC not deployed: non-atomic check + increment
+		const { data: row } = await supabase
+			.from('places_api_usage')
+			.select('lookups_count')
+			.eq('month_key', monthKey)
+			.single();
+		const current = (row as { lookups_count?: number } | null)?.lookups_count ?? 0;
+		if (current >= limit) return { allowed: false };
+		await supabase.from('places_api_usage').upsert(
+			{ month_key: monthKey, lookups_count: current + 1 },
+			{ onConflict: 'month_key' }
+		);
+		return { allowed: true };
+	}
+	const newCount = rpcData as number | null;
+	return { allowed: newCount != null && newCount >= 1 };
+}
+
 // --- Insights jobs (AI insights; requires GBP data) ---
 
 export type InsightsJobStatus = 'pending' | 'running' | 'done' | 'failed';

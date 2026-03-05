@@ -16,6 +16,7 @@ export interface StatusDisplay {
  */
 const APP_STATUS_TO_DISPLAY: Record<string, StatusDisplay> = {
 	Prospect: { label: 'Not contacted', variant: 'default' },
+	New: { label: 'New', variant: 'default' },
 	'In queue': { label: 'In queue', variant: 'warning' },
 	'Generate Demo': { label: 'Needs demo', variant: 'warning' },
 	'Demo Created': { label: 'Ready to send', variant: 'success' },
@@ -35,7 +36,8 @@ export function mapProviderStatusToApp(providerStatus: string): string {
 	if (!raw) return 'Prospect';
 	const lower = raw.toLowerCase();
 	// Not contacted / early stage
-	if (lower === 'prospect' || lower === 'new' || lower === 'lead' || lower === 'not contacted') return 'Prospect';
+	if (lower === 'new') return 'New';
+	if (lower === 'prospect' || lower === 'lead' || lower === 'not contacted') return 'Prospect';
 	if (lower === 'generate demo' || lower === 'follow up needed') return 'Generate Demo';
 	// Ready to send (has demo or similar)
 	if (lower === 'demo created' || lower === 'ready to send') return 'Demo Created';

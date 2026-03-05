@@ -1,7 +1,8 @@
 /**
- * Process one GBP (Google Business Profile) job from the queue. Fetches GBP data only; no AI insights.
+ * Process one GBP (Google Business Profile) job from the queue. Fetches GBP data and runs AI grading when Gemini is configured.
  *
  * Pipeline: Qualify (GBP) → Research & Personalize (Generate Demo).
+ * - Fetches GBP (Places API), builds audit, then calls Gemini to grade the business and attach insight (grade, summary, recommendations).
  * - If GBP fails: when website is only a map link or missing, move to next step (Generate Demo) and do not flag.
  *   We generate a generic AI demo from business name and location. Only flag when explicitly out of scope.
  */
@@ -17,6 +18,7 @@ import {
 import { fetchGbpForProspect, buildAuditFromGbp } from '$lib/server/gbp';
 import { getGbpDefaultLocation } from '$lib/server/userSettings';
 import { isValidDemoTrackingStatus, type DemoTrackingStatus } from '$lib/demo';
+import { generateInsightForProspect } from '$lib/server/insights';
 
 const ANALYSIS_PLACEHOLDER_LINK = 'https://leadrosetta.local/analysis-pending';
 
@@ -73,7 +75,11 @@ export async function processOneGbpJob(): Promise<ProcessGbpJobResult> {
 		await updateProspectFromGbp(prospectId, gbp);
 
 		const baseAudit = buildAuditFromGbp(gbp, prospect);
-		const scrapedData = { ...baseAudit } as Record<string, unknown>;
+		const insightResult = await generateInsightForProspect(prospect, gbp);
+		const scrapedData = {
+			...baseAudit,
+			...(insightResult.ok ? { insight: insightResult.data } : {})
+		} as Record<string, unknown>;
 
 		const existingRow = await getDemoTrackingForProspect(userId, prospectId);
 		const status: DemoTrackingStatus =

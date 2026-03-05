@@ -63,10 +63,10 @@ This keeps a single source of truth and avoids circular dependencies.
 
 ## 3. Key flows
 
-### Pull insights → Generate demo
+### Qualifying (GBP) → Generate demo
 
-1. User clicks **Pull insights** on a client → `getScrapedDataForDemo` (GBP + **Insights**) runs; result is stored in `demo_tracking.scraped_data`.
-2. User clicks **Generate demo** → a job is enqueued; `processOneDemoJob` runs. It **reuses** existing `scraped_data` (including insight) when present; otherwise it fetches GBP and generates insight again.
+1. **Qualifying (GBP)** runs (cron or user action): fetches GBP, grades with AI, stores `scraped_data` in `demo_tracking` and moves prospect to "Generate Demo".
+2. User clicks **Generate demo** → a job is enqueued; `processOneDemoJob` runs. It uses **only** existing `scraped_data` from the qualifying step. If none is present, the job fails with "Complete the qualifying (GBP) step first."
 3. Demo job builds page.json (theme, landing content, images), uploads to storage, updates prospect `demoLink` and `demo_tracking`.
 
 ### Send email

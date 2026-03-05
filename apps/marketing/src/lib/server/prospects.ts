@@ -2,12 +2,11 @@
  * Central prospects store in Supabase.
  * Dashboard list and demo tracking use this; data is synced from any connected integration
  * (Notion, HubSpot, GoHighLevel, Pipedrive). Each row tracks provider + provider_row_id.
- * Status from providers is mapped to app canonical status on sync (see statusDisplay.mapProviderStatusToApp).
+ * New prospects get status "New" on sync; existing prospects keep their current status (see upsertProspect).
  * Flagged prospects (out of scope, e.g. large enterprises) cannot run demos, GBP, or send.
  */
 
 import { getSupabaseAdmin } from '$lib/server/supabase';
-import { mapProviderStatusToApp } from '$lib/statusDisplay';
 import { isOutOfScopeCompany, getDefaultFlaggedReason } from '$lib/server/outOfScope';
 
 export type Prospect = {
@@ -139,6 +138,27 @@ export async function getProspectOwnerId(prospectId: string): Promise<string | n
 }
 
 /**
+ * Get a prospect by provider key (user_id, provider, provider_row_id). Used to detect insert vs update during sync.
+ */
+async function getProspectByProviderKey(
+	userId: string,
+	provider: ProspectProvider,
+	providerRowId: string
+): Promise<{ id: string; status: string } | null> {
+	const supabase = getSupabaseAdmin();
+	if (!supabase) return null;
+	const { data, error } = await supabase
+		.from('prospects')
+		.select('id, status')
+		.eq('user_id', userId)
+		.eq('provider', provider)
+		.eq('provider_row_id', providerRowId)
+		.maybeSingle();
+	if (error || !data) return null;
+	return { id: data.id, status: (data.status ?? 'Prospect').slice(0, 100) };
+}
+
+/**
  * Add a single prospect from the dashboard (no CRM). Use for test clients so you can send one demo without connecting a CRM.
  */
 export async function insertManualProspect(
@@ -179,7 +199,8 @@ export async function upsertProspect(
 	const supabase = getSupabaseAdmin();
 	if (!supabase) return { id: '', error: 'Database not configured' };
 	const now = new Date().toISOString();
-	const status = mapProviderStatusToApp(fields.status ?? 'Prospect');
+	const existing = await getProspectByProviderKey(userId, provider, providerRowId);
+	const status = existing ? existing.status : 'New';
 	const companyName = (fields.companyName ?? '').slice(0, 500);
 	const outOfScope = isOutOfScopeCompany(companyName);
 	const row = {

@@ -2,9 +2,9 @@
 /**
  * Sync secrets from repo-root `.keys.json` into `apps/marketing/.env.local`.
  *
- * Why: the marketing app reads env vars like DATAFORSEO_LOGIN/PASSWORD, while local
- * scripts may use `.keys.json`. This keeps dev config consistent without committing
- * secrets.
+ * GBP data is now via Google Places API. This script syncs GOOGLE_PLACES_API_KEY
+ * from keys.google.placesApiKey or keys.google.apiKey so dev config stays consistent
+ * without committing secrets.
  *
  * - Reads: <repo-root>/.keys.json
  * - Writes/updates: <repo-root>/apps/marketing/.env.local
@@ -79,27 +79,26 @@ try {
 	process.exit(1);
 }
 
-const login = String(keys?.dataforseo?.login ?? '').trim();
-const password = String(keys?.dataforseo?.password ?? '').trim();
+const placesKey =
+	String(keys?.google?.placesApiKey ?? keys?.google?.apiKey ?? '').trim();
 
-if (!login || !password) {
-	console.error('Missing keys.dataforseo.login/password in .keys.json.');
-	process.exit(1);
+const updates = {};
+if (placesKey) updates.GOOGLE_PLACES_API_KEY = placesKey;
+
+if (Object.keys(updates).length === 0) {
+	console.log('No GBP/Places keys to sync (keys.google.placesApiKey or keys.google.apiKey).');
+	process.exit(0);
 }
 
 const existingText = existsSync(targetEnvPath) ? readFileSync(targetEnvPath, 'utf8') : '';
 const existingMap = parseEnvFile(existingText);
 
-const updatedText = upsertEnvKeys(existingText, {
-	DATAFORSEO_LOGIN: login,
-	DATAFORSEO_PASSWORD: password
-});
+const updatedText = upsertEnvKeys(existingText, updates);
 
 writeFileSync(targetEnvPath, updatedText, 'utf8');
 
-const changed =
-	existingMap.DATAFORSEO_LOGIN !== login || existingMap.DATAFORSEO_PASSWORD !== password;
+const changed = Object.keys(updates).some((k) => existingMap[k] !== updates[k]);
 
 console.log(
-	`${changed ? 'Updated' : 'Verified'} ${targetEnvPath} (DATAFORSEO_LOGIN, DATAFORSEO_PASSWORD).`
+	`${changed ? 'Updated' : 'Verified'} ${targetEnvPath} (${Object.keys(updates).join(', ')}).`
 );

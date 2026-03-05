@@ -64,8 +64,8 @@ export async function setCrmIndustryFilter(
 }
 
 /**
- * Get the user's default location for GBP/DataForSEO lookup (e.g. "Toronto,Ontario,Canada").
- * Returns null if not set (caller should use env DATAFORSEO_DEFAULT_LOCATION or app default).
+ * Get the user's default location for GBP/Places lookup (e.g. "Toronto, Ontario, Canada").
+ * Returns null if not set (caller uses app default; Places API falls back to "United States").
  */
 export async function getGbpDefaultLocation(userId: string): Promise<string | null> {
 	const supabase = getSupabaseAdmin();
