@@ -145,7 +145,7 @@
         },
         {
           "id": 13,
-          "title": "Content Marketing Foundation",
+          "title": "Content Lead Rosetta Foundation",
           "description": "Develop blog content strategy and initial articles focused on business time-saving and automation",
           "status": "pending",
           "priority": "medium",
@@ -178,12 +178,12 @@
         },
         {
           "id": 16,
-          "title": "Launch Strategy & Marketing",
+          "title": "Launch Strategy & Lead Rosetta",
           "description": "Execute launch strategy including Google Ads, social media, and local business directories",
           "status": "pending",
           "priority": "medium",
           "dependencies": [11, 13],
-          "details": "Set up Google Ads campaigns targeting Toronto businesses looking for automation solutions, create social media integration, implement email marketing automation, submit to local business directories, and create launch announcement strategy.",
+          "details": "Set up Google Ads campaigns targeting Toronto businesses looking for automation solutions, create social media integration, implement email lead-rosetta automation, submit to local business directories, and create launch announcement strategy.",
           "testStrategy": "Track campaign performance, monitor lead quality from different channels, measure cost per acquisition",
           "subtasks": []
         },

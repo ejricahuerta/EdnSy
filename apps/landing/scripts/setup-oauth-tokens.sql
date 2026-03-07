@@ -1,4 +1,4 @@
--- OAuth Tokens Database Setup Script for EdnSy Platform
+-- OAuth Tokens Database Setup Script for Ed & Sy Platform
 -- This script creates the necessary tables and security policies for OAuth integration
 
 -- Create the user_oauth_tokens table

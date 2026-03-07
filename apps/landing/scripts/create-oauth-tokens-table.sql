@@ -1,4 +1,4 @@
--- OAuth Tokens Migration for EdnSy Platform
+-- OAuth Tokens Migration for Ed & Sy Platform
 -- Creates the user_oauth_tokens table for storing third-party service tokens
 
 -- Create table for storing user OAuth tokens

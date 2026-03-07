@@ -154,6 +154,12 @@ export const seoPages: Record<string, PageSeo> = {
       "Chart Rosetta decodes any chart screenshot into plain English. Paste a screenshot, get an instant explanation, no sign-up. From Ed & Sy.",
     canonicalPath: "/blog/chart-rosetta",
   },
+  "/blog/rosetta-suites-for-smbs": {
+    title: "Rosetta Suites for SMBs | In Development | Ed & Sy Toronto",
+    description:
+      "Ed & Sy is building the Rosetta Suites: practical AI tools for SMBs. Chart Rosetta is live; Lead Rosetta is in development. Learn what's coming and why it matters for small business.",
+    canonicalPath: "/blog/rosetta-suites-for-smbs",
+  },
 };
 
 /** Industry pages SEO: built from industryDetails so /industries/:slug has correct canonical and meta. */

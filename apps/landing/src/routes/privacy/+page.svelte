@@ -126,7 +126,7 @@
           <li><strong>Access:</strong> Request a copy of the personal information we have about you</li>
           <li><strong>Correction:</strong> Request that we correct or update inaccurate information</li>
           <li><strong>Deletion:</strong> Request that we delete your personal information</li>
-          <li><strong>Opt-out:</strong> Unsubscribe from marketing communications at any time</li>
+          <li><strong>Opt-out:</strong> Unsubscribe from lead-rosetta communications at any time</li>
         </ul>
         <p class="text-muted-foreground leading-relaxed">
           To exercise these rights, please contact us at <a href="mailto:hello@ednsy.com" class="text-primary hover:underline">hello@ednsy.com</a>.

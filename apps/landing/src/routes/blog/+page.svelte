@@ -12,6 +12,12 @@
   /** Placeholder for pillar articles. Add slugs and titles as content is published. */
   const blogPosts: { title: string; slug: string; excerpt: string; href?: string }[] = [
     {
+      title: "Rosetta Suites for SMBs: What We're Building",
+      slug: "rosetta-suites-for-smbs",
+      excerpt: "Ed & Sy is building practical AI tools for small and medium businesses. See what's live (Chart Rosetta), what's in development (Lead Rosetta), and why it matters for SMBs.",
+      href: "/blog/rosetta-suites-for-smbs",
+    },
+    {
       title: "Chart Rosetta",
       slug: "chart-rosetta",
       excerpt: "Decode any chart screenshot into plain English. Paste a screenshot, get an instant explanation, no sign-up. From Ed & Sy.",

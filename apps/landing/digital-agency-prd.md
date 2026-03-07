@@ -271,10 +271,10 @@ Home
 - Advanced SEO implementation
 - Performance optimization
 
-### Phase 3: Marketing Integration (Weeks 9-12)
+### Phase 3: Lead Rosetta Integration (Weeks 9-12)
 - Google Ads campaign setup
 - Social media integration
-- Email marketing automation
+- Email lead-rosetta automation
 - Local business directories
 
 ## 11. Success Metrics & KPIs

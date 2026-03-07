@@ -12,7 +12,7 @@
     company: "Rodriguez Plumbing & HVAC",
     image: "/testimonials/maria.jpg",
     fallback: "MR",
-    quote: "EdnSy's AI automation saved us 15+ hours per week on scheduling and customer follow-ups. The n8n-powered workflows are so reliable, I can focus on growing my business instead of paperwork. Our customer satisfaction went up 40% because we respond instantly now!",
+    quote: "Ed & Sy's AI automation saved us 15+ hours per week on scheduling and customer follow-ups. The n8n-powered workflows are so reliable, I can focus on growing my business instead of paperwork. Our customer satisfaction went up 40% because we respond instantly now!",
     rating: 5,
     metrics: [
       { value: "15+", label: "Hours Saved Weekly" },

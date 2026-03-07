@@ -109,7 +109,7 @@ At Ednsy, our mission is to revolutionize local **Home Services businesses** (pl
 #### 5.1 Demo Performance Analytics
 - Completion rates, conversion tracking, engagement patterns, credit analytics, A/B testing
 
-#### 5.2 Sales & Marketing Analytics
+#### 5.2 Sales & Lead Rosetta Analytics
 - Lead source tracking, pipeline visibility, CAC/LTV, campaign ROI
 
 ---

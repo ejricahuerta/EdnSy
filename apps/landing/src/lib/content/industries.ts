@@ -165,7 +165,7 @@ export const industryDetails: Record<string, IndustryDetail> = {
     name: "Salons and Spas",
     headline: "Focus on your craft, not the phone",
     subhead:
-      "Keep your chairs full and clients happy with automated booking, reminders, and marketing. Spend your time doing what you love.",
+      "Keep your chairs full and clients happy with automated booking, reminders, and lead-rosetta. Spend your time doing what you love.",
     resultStats: [
       { value: "50%", label: "Fewer no shows" },
       { value: "25%", label: "More repeat visits" },

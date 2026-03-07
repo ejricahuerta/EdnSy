@@ -446,7 +446,7 @@ We know you are not sitting at a desk all day. Our solutions work around your sc
 
 # Focus on your craft, not the phone
 
-Keep your chairs full and clients happy with automated booking, reminders, and marketing. Spend your time doing what you love.
+Keep your chairs full and clients happy with automated booking, reminders, and lead-rosetta. Spend your time doing what you love.
 
 **CTAs:** Book a Free Consultation | See How It Works
 

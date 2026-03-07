@@ -14,7 +14,7 @@ Our goal is to generate 200 qualified leads, see 80% of demo users engage, conve
 
 We know the struggles you face daily:
 
-* **Time Scarcity:** Working nights and weekends because there's never enough time to handle operations, customer service, marketing, and growth.
+* **Time Scarcity:** Working nights and weekends because there's never enough time to handle operations, customer service, lead-rosetta, and growth.
 * **Manual Processes:** Repetitive tasks like scheduling, follow-ups, data entry, and customer inquiries consume valuable hours.
 * **Lead Management Drift:** Inquiries get lost in email, voicemail, and multiple platforms, meaning missed opportunities for growth.
 * **Communication Bottlenecks:** Constant back-and-forth between team members, customers, and vendors slows everything down.
@@ -30,7 +30,7 @@ Our AI-powered solutions are laser-focused on solving problems for these key pla
     * **Pain:** Sarah's bistro is thriving, but she's buried in reservation management, staff scheduling, inventory tracking, and customer follow-ups. She's working 70+ hour weeks and missing family time.
     * **Goal:** She needs to automate daily operations, reduce admin time, improve customer experience with faster responses, and gain work-life balance while growing her business.
 * **Marcus: The E-commerce Store Manager**
-    * **Pain:** Marcus is constantly swamped with order processing, customer inquiries, inventory updates, and marketing campaigns. Data entry across multiple platforms is repetitive and error-prone.
+    * **Pain:** Marcus is constantly swamped with order processing, customer inquiries, inventory updates, and lead-rosetta campaigns. Data entry across multiple platforms is repetitive and error-prone.
     * **Goal:** He wants to automate routine tasks, consolidate customer data, streamline order fulfillment, and reduce manual errors to scale efficiently.
 * **Dr. Lisa: The Healthcare Practice Owner**
     * **Pain:** Dr. Lisa's dental practice struggles with appointment scheduling, patient follow-ups, insurance verification, and staff coordination. Administrative tasks keep her from focusing on patient care.
@@ -73,7 +73,7 @@ Here's a preview of our four core solution types:
 ### 3. Website Development
 
 * **What it does:** Build time-saving websites with built-in automation and AI features.
-* **Retail Example:** An e-commerce site with automated inventory updates, AI chatbot for customer service, and automated email marketing based on customer behavior.
+* **Retail Example:** An e-commerce site with automated inventory updates, AI chatbot for customer service, and automated email lead-rosetta based on customer behavior.
 * **Service Business Example:** A professional services website with automated lead capture, calendar booking, and AI-powered FAQ responses.
 
 ### 4. Chatbots & AI Support

@@ -64,9 +64,9 @@
           <li>Form auto-fill information</li>
           <li>Chat widget preferences</li>
         </ul>
-        <h3 class="typography-h4 mb-3">Marketing and Advertising Cookies</h3>
+        <h3 class="typography-h4 mb-3">Lead Rosetta and Advertising Cookies</h3>
         <p class="text-muted-foreground leading-relaxed mb-4">
-          These cookies may be used to track visitors across websites to display relevant advertisements and measure the effectiveness of our marketing campaigns.
+          These cookies may be used to track visitors across websites to display relevant advertisements and measure the effectiveness of our lead-rosetta campaigns.
         </p>
         <ul class="list-disc pl-6 mb-6 text-muted-foreground">
           <li>Conversion tracking</li>

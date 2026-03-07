@@ -267,7 +267,7 @@
 **Priority:** P1 (High)
 
 **User Stories:**
-- As a marketing manager, I want to see which demos drive the most consultations
+- As a lead-rosetta manager, I want to see which demos drive the most consultations
 - As a sales leader, I want to understand demo engagement patterns
 - As a product manager, I want to optimize demo experiences based on user behavior
 
@@ -279,20 +279,20 @@
 - ✅ A/B testing framework for demo experiences
 - ✅ Industry-specific performance metrics
 
-#### 5.2 Sales & Marketing Analytics
+#### 5.2 Sales & Lead Rosetta Analytics
 **Priority:** P2 (Medium)
 
 **User Stories:**
 - As a business owner, I want to track lead quality from different sources
 - As a sales team, I want to see pipeline metrics and conversion rates
-- As a marketing team, I want ROI tracking for different campaigns
+- As a lead-rosetta team, I want ROI tracking for different campaigns
 
 **Acceptance Criteria:**
 - ✅ Lead source tracking and quality scoring
 - ✅ Sales pipeline visibility and conversion rates
 - ✅ Customer acquisition cost (CAC) by channel
 - ✅ Lifetime value (LTV) tracking by client industry
-- ⏳ Marketing campaign ROI analysis
+- ⏳ Lead Rosetta campaign ROI analysis
 
 ---
 
@@ -549,7 +549,7 @@ projects (
 
 2. **Sales Capacity Scaling**
    - *Risk:* High demo-to-consultation conversion overwhelming sales capacity
-   - *Mitigation:* Gradual marketing ramp-up, early consultant hiring, automated qualification
+   - *Mitigation:* Gradual lead-rosetta ramp-up, early consultant hiring, automated qualification
 
 3. **Implementation Delivery**
    - *Risk:* Promising automation capabilities in demos that are difficult to deliver
@@ -558,7 +558,7 @@ projects (
 ### Medium-Risk Items
 1. **Market Education Requirements**
    - *Risk:* Local businesses may be slow to adopt AI automation
-   - *Mitigation:* Educational content marketing, success story amplification, gradual complexity introduction
+   - *Mitigation:* Educational content lead-rosetta, success story amplification, gradual complexity introduction
 
 2. **Technology Integration Complexity**
    - *Risk:* Integrating with diverse local business systems
@@ -583,4 +583,4 @@ Success depends on creating realistic, valuable demo experiences that accurately
 
 **Document Status:** ✅ Ready for Development Planning  
 **Next Review:** Weekly during Phase 1 development  
-**Key Stakeholders:** Business Owner, Sales Team, Technical Lead, Marketing Manager
+**Key Stakeholders:** Business Owner, Sales Team, Technical Lead, Lead Rosetta Manager
