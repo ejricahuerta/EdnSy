@@ -1,0 +1,12 @@
+{
+  "name": "ednsy",
+  "private": true,
+  "scripts": {
+    "cron:mock": "node scripts/cron-mock.mjs",
+    "cron:mock-gbp": "node scripts/cron-mock.mjs",
+    "env:sync-keys": "node scripts/sync-keys-to-env.mjs",
+    "demo:download-images": "node scripts/download-demo-images.mjs",
+    "notion:check-properties": "node scripts/check-notion-properties.mjs",
+    "supabase:ref": "node scripts/get-supabase-ref.mjs"
+  }
+}

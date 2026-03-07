@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "scripts": {
+    "cron:mock": "node cron-mock.mjs",
+    "cron:mock-gbp": "node cron-mock.mjs",
+    "env:sync-keys": "node sync-keys-to-env.mjs",
+    "demo:download-images": "node download-demo-images.mjs",
+    "notion:check-properties": "node check-notion-properties.mjs",
+    "supabase:ref": "node get-supabase-ref.mjs"
+  }
+}
