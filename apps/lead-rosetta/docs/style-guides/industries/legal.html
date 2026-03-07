@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lead Rosetta — Style Guide: Legal & Professional Services</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy:       #1a2332;
+    --navy-mid:   #2c3a4d;
+    --navy-light: #3d4f66;
+    --forest:     #2d4a3e;
+    --forest-light: #3d6b52;
+    --forest-pale: #e8f0ec;
+    --gold:       #b8860b;
+    --gold-light: #d4a574;
+    --gold-pale:  #f5efe6;
+    --cream:      #f5f3ef;
+    --ivory:      #faf9f7;
+    --slate:      #5c6873;
+    --mist:       #8b95a0;
+    --border:     #e0ddd8;
+    --white:      #ffffff;
+
+    --font-display: 'Crimson Pro', serif;
+    --font-body:    'Source Sans 3', sans-serif;
+  }
+
+  body {
+    background: var(--cream);
+    color: var(--navy);
+    font-family: var(--font-body);
+    line-height: 1.6;
+  }
+
+  .sg-page { max-width: 1100px; margin: 0 auto; padding: 3rem 2rem 6rem; }
+
+  .sg-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-bottom: 1.75rem;
+    margin-bottom: 3.5rem;
+    border-bottom: 2px solid var(--forest);
+  }
+
+  .sg-eyebrow {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--forest);
+    margin-bottom: 0.5rem;
+  }
+
+  .sg-title {
+    font-family: var(--font-display);
+    font-size: 2.6rem;
+    font-weight: 600;
+    color: var(--navy);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .sg-title span { color: var(--gold); }
+
+  .sg-meta { text-align: right; font-size: 0.72rem; color: var(--slate); letter-spacing: 0.06em; text-transform: uppercase; }
+
+  .sg-section { margin-bottom: 5rem; }
+
+  .sg-section-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--forest);
+    margin-bottom: 1.75rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .sg-section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* SWATCHES */
+  .swatch-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .swatch { display: flex; flex-direction: column; gap: 0.5rem; }
+  .swatch-block { width: 100px; height: 70px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.08); }
+  .swatch-name { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--slate); }
+  .swatch-hex { font-size: 0.7rem; color: var(--mist); font-family: monospace; }
+
+  /* TYPE */
+  .type-specimens { display: flex; flex-direction: column; gap: 1.25rem; }
+  .type-row { display: flex; align-items: baseline; gap: 2rem; padding: 1.75rem; background: var(--white); border-radius: 8px; border: 1px solid var(--border); }
+  .type-label { font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mist); width: 90px; flex-shrink: 0; }
+
+  .t-h1 { font-family: var(--font-display); font-size: 3rem; font-weight: 600; color: var(--navy); line-height: 1.1; letter-spacing: -0.02em; }
+  .t-h1 em { font-style: italic; color: var(--forest); }
+  .t-h2 { font-family: var(--font-display); font-size: 2rem; font-weight: 600; color: var(--navy); letter-spacing: -0.02em; }
+  .t-h3 { font-family: var(--font-display); font-size: 1.2rem; font-weight: 400; font-style: italic; color: var(--slate); }
+  .t-body { font-family: var(--font-body); font-size: 0.9rem; font-weight: 300; color: var(--slate); max-width: 480px; line-height: 1.75; }
+  .t-caption { font-family: var(--font-body); font-size: 0.68rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--forest); }
+
+  /* COMPONENTS */
+  .component-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+  .component-box { background: var(--white); border-radius: 8px; padding: 1.75rem; border: 1px solid var(--border); }
+  .component-box-label { font-size: 0.62rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mist); margin-bottom: 1.25rem; }
+
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: var(--forest); color: white;
+    font-family: var(--font-body); font-size: 0.875rem; font-weight: 600;
+    letter-spacing: 0.04em; padding: 0.85rem 1.75rem;
+    border: none; border-radius: 4px; cursor: pointer;
+    transition: background 0.2s, transform 0.15s; text-decoration: none;
+  }
+  .btn-primary:hover { background: var(--forest-light); transform: translateY(-1px); }
+
+  .btn-secondary {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: transparent; color: var(--navy);
+    font-family: var(--font-body); font-size: 0.875rem; font-weight: 600;
+    letter-spacing: 0.04em; padding: 0.85rem 1.75rem;
+    border: 1.5px solid var(--border); border-radius: 4px; cursor: pointer;
+    transition: border-color 0.2s, background 0.2s; text-decoration: none;
+    margin-left: 0.75rem;
+  }
+  .btn-secondary:hover { border-color: var(--forest); background: var(--forest-pale); }
+
+  .practice-pill {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    background: var(--forest-pale); border: 1px solid rgba(45,74,62,0.2);
+    color: var(--forest); font-size: 0.72rem; font-weight: 600;
+    letter-spacing: 0.04em; padding: 0.35rem 0.875rem; border-radius: 4px;
+  }
+
+  .stat-card-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+  .stat-card {
+    background: var(--ivory); border: 1px solid var(--border);
+    border-radius: 6px; padding: 1.1rem; text-align: center;
+  }
+  .stat-num { font-family: var(--font-display); font-size: 1.75rem; font-weight: 600; color: var(--forest); line-height: 1; margin-bottom: 0.2rem; }
+  .stat-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--slate); }
+
+  .service-card {
+    display: flex; align-items: flex-start; gap: 0.875rem;
+    padding: 1rem; background: var(--ivory); border-radius: 6px;
+    border: 1px solid var(--border); margin-bottom: 0.6rem;
+    border-left: 3px solid var(--forest);
+    transition: border-color 0.2s;
+  }
+  .service-card:hover { border-color: var(--forest-light); }
+  .service-icon {
+    width: 36px; height: 36px; border-radius: 4px;
+    background: var(--forest-pale); display: flex; align-items: center; justify-content: center;
+    font-size: 0.9rem; flex-shrink: 0;
+  }
+  .service-name { font-size: 0.875rem; font-weight: 600; color: var(--navy); margin-bottom: 0.2rem; }
+  .service-desc { font-size: 0.75rem; color: var(--slate); line-height: 1.5; font-weight: 300; }
+
+  /* DEMO PREVIEW */
+  .demo-preview { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; box-shadow: 0 12px 48px rgba(26,35,50,0.08); }
+  .demo-browser-bar { background: var(--ivory); padding: 0.6rem 1rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--border); }
+  .browser-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .bd-r { background: #ff5f56; } .bd-y { background: #ffbd2e; } .bd-g { background: #27c93f; }
+  .browser-url { background: rgba(255,255,255,0.9); border-radius: 4px; padding: 0.25rem 0.75rem; font-size: 0.7rem; color: var(--slate); font-family: monospace; margin-left: 0.5rem; flex: 1; max-width: 280px; }
+
+  .demo-site { background: var(--white); font-family: var(--font-body); }
+  .demo-nav {
+    background: var(--white); border-bottom: 1px solid var(--border);
+    padding: 0 2rem; height: 56px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .demo-logo { font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; color: var(--navy); letter-spacing: -0.01em; }
+  .demo-logo span { color: var(--forest); }
+  .demo-nav-links { display: flex; gap: 1.75rem; }
+  .demo-nav-link { font-size: 0.8rem; font-weight: 400; color: var(--slate); text-decoration: none; }
+  .demo-nav-cta { font-size: 0.8rem; font-weight: 600; color: white; background: var(--forest); padding: 0.5rem 1.25rem; border-radius: 4px; text-decoration: none; }
+
+  .demo-hero {
+    padding: 3rem 2rem 3rem;
+    background: var(--cream);
+    border-bottom: 1px solid var(--border);
+  }
+  .demo-hero-eyebrow { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--forest); margin-bottom: 1rem; }
+  .demo-hero-h1 { font-family: var(--font-display); font-size: clamp(1.75rem, 3vw, 2.25rem); font-weight: 600; color: var(--navy); line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 1rem; }
+  .demo-hero-h1 em { font-style: italic; color: var(--forest); }
+  .demo-hero-p { font-size: 0.9rem; font-weight: 300; color: var(--slate); line-height: 1.75; margin-bottom: 1.5rem; max-width: 520px; }
+  .demo-hero-ctas { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .demo-trust-row { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+
+  .demo-stats-bar {
+    background: var(--navy); padding: 1.25rem 2rem;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+  }
+  .demo-stat-item { text-align: center; }
+  .demo-stat-num { font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; color: white; line-height: 1; margin-bottom: 0.2rem; }
+  .demo-stat-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mist); }
+
+  .demo-services { padding: 2rem 2rem; background: var(--ivory); border-top: 1px solid var(--border); }
+  .demo-services-eyebrow { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--forest); margin-bottom: 0.35rem; }
+  .demo-services-h2 { font-family: var(--font-display); font-size: 1.6rem; font-weight: 600; color: var(--navy); letter-spacing: -0.01em; margin-bottom: 1.25rem; }
+  .demo-services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.875rem; }
+  .demo-service-card {
+    background: var(--white); border: 1px solid var(--border); border-left: 3px solid var(--forest);
+    border-radius: 6px; padding: 1.25rem;
+    transition: border-color 0.2s;
+  }
+  .demo-service-card:hover { border-color: var(--forest-light); }
+  .demo-service-icon { font-size: 1.25rem; margin-bottom: 0.5rem; }
+  .demo-service-name { font-size: 0.9rem; font-weight: 600; color: var(--navy); margin-bottom: 0.3rem; }
+  .demo-service-desc { font-size: 0.76rem; color: var(--slate); line-height: 1.55; font-weight: 300; }
+
+  .demo-cta-footer {
+    background: var(--forest-pale); border-top: 1px solid var(--border);
+    padding: 1.5rem 2rem;
+    display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+  }
+  .demo-cta-h { font-family: var(--font-display); font-size: 1.2rem; font-weight: 600; color: var(--navy); }
+  .demo-cta-sub { font-size: 0.75rem; color: var(--slate); margin-top: 0.2rem; font-weight: 300; }
+
+  .notes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .note-card { background: var(--white); border-radius: 8px; padding: 1.25rem; border: 1px solid var(--border); border-left: 3px solid var(--forest); }
+  .note-title { font-size: 0.8rem; font-weight: 600; color: var(--navy); margin-bottom: 0.5rem; }
+  .note-body { font-size: 0.8rem; color: var(--slate); line-height: 1.65; font-weight: 300; }
+  .note-body code { background: var(--forest-pale); color: var(--forest); font-family: monospace; font-size: 0.78rem; padding: 0.1rem 0.35rem; border-radius: 3px; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  .sg-section { animation: fadeUp 0.5s ease both; }
+  .sg-section:nth-child(2) { animation-delay: 0.06s; }
+  .sg-section:nth-child(3) { animation-delay: 0.12s; }
+  .sg-section:nth-child(4) { animation-delay: 0.18s; }
+  .sg-section:nth-child(5) { animation-delay: 0.24s; }
+  .sg-section:nth-child(6) { animation-delay: 0.30s; }
+</style>
+</head>
+<body>
+<div class="sg-page">
+
+  <div class="sg-header">
+    <div>
+      <div class="sg-eyebrow">Lead Rosetta — Style Guide</div>
+      <div class="sg-title">Legal & <span>Professional Services</span></div>
+    </div>
+    <div class="sg-meta">Legal Template<br>Version 1.0 · 2026</div>
+  </div>
+
+  <!-- 1. COLORS -->
+  <div class="sg-section">
+    <div class="sg-section-label">01 — Color Palette</div>
+    <div class="swatch-row">
+      <div class="swatch"><div class="swatch-block" style="background:#1a2332;"></div><div class="swatch-name">Navy</div><div class="swatch-hex">#1a2332 — Headlines, nav</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#2d4a3e;"></div><div class="swatch-name">Forest</div><div class="swatch-hex">#2d4a3e — Primary, CTAs</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#b8860b;"></div><div class="swatch-name">Gold</div><div class="swatch-hex">#b8860b — Accent, trust</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#f5f3ef; border:1px solid #e0ddd8;"></div><div class="swatch-name">Cream</div><div class="swatch-hex">#f5f3ef — Page BG</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#5c6873;"></div><div class="swatch-name">Slate</div><div class="swatch-hex">#5c6873 — Body text</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#e8f0ec; border:1px solid #c8d9d0;"></div><div class="swatch-name">Forest Pale</div><div class="swatch-hex">#e8f0ec — Highlights</div></div>
+      <div class="swatch"><div class="swatch-block" style="background:#e0ddd8;"></div><div class="swatch-name">Border</div><div class="swatch-hex">#e0ddd8 — Dividers</div></div>
+    </div>
+  </div>
+
+  <!-- 2. TYPOGRAPHY -->
+  <div class="sg-section">
+    <div class="sg-section-label">02 — Typography</div>
+    <div class="type-specimens">
+      <div class="type-row"><div class="type-label">H1 / Hero</div><div class="t-h1">Trusted <em>legal counsel</em> for your business.</div></div>
+      <div class="type-row"><div class="type-label">H2 / Section</div><div class="t-h2">Practice Areas</div></div>
+      <div class="type-row"><div class="type-label">H3 / Sub</div><div class="t-h3">Serving Toronto and the GTA with integrity since 2010</div></div>
+      <div class="type-row"><div class="type-label">Body</div><div class="t-body">We provide clear, strategic legal advice to businesses and individuals. Our team is committed to protecting your interests and achieving outcomes that matter to you.</div></div>
+      <div class="type-row"><div class="type-label">Caption</div><div class="t-caption">Toronto · GTA · Licensed · Confidential Consultation</div></div>
+    </div>
+    <div style="margin-top:1rem; font-size:0.78rem; color:var(--slate);">
+      Display: <strong style="color:var(--navy);">Crimson Pro</strong> (400, 600 — regular & italic) &nbsp;·&nbsp;
+      Body: <strong style="color:var(--navy);">Source Sans 3</strong> (300, 400, 600)
+    </div>
+  </div>
+
+  <!-- 3. COMPONENTS -->
+  <div class="sg-section">
+    <div class="sg-section-label">03 — UI Components</div>
+    <div class="component-grid">
+      <div class="component-box">
+        <div class="component-box-label">Buttons</div>
+        <div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;">
+          <a href="#" class="btn-primary">Schedule Consultation →</a>
+          <a href="#" class="btn-secondary">Practice Areas</a>
+        </div>
+      </div>
+      <div class="component-box">
+        <div class="component-box-label">Practice Pills</div>
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+          <span class="practice-pill">Corporate</span>
+          <span class="practice-pill">Litigation</span>
+          <span class="practice-pill">Real Estate</span>
+        </div>
+      </div>
+      <div class="component-box">
+        <div class="component-box-label">Stats</div>
+        <div class="stat-card-row">
+          <div class="stat-card"><div class="stat-num">25+</div><div class="stat-label">Years Experience</div></div>
+          <div class="stat-card"><div class="stat-num">500+</div><div class="stat-label">Cases Resolved</div></div>
+          <div class="stat-card"><div class="stat-num">GTA</div><div class="stat-label">Service Area</div></div>
+        </div>
+      </div>
+      <div class="component-box">
+        <div class="component-box-label">Service Cards</div>
+        <div class="service-card">
+          <div class="service-icon">⚖️</div>
+          <div>
+            <div class="service-name">Corporate & Commercial</div>
+            <div class="service-desc">Formation, contracts, and ongoing legal support for businesses.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. DEMO PREVIEW -->
+  <div class="sg-section">
+    <div class="sg-section-label">04 — Demo Site Preview</div>
+    <div class="demo-preview">
+      <div class="demo-browser-bar">
+        <div class="browser-dot bd-r"></div><div class="browser-dot bd-y"></div><div class="browser-dot bd-g"></div>
+        <div class="browser-url">demo.leadrosetta.com/smith-legal-toronto</div>
+      </div>
+      <div class="demo-site">
+        <div class="demo-nav">
+          <div class="demo-logo">Smith <span>& Partners</span></div>
+          <div class="demo-nav-links">
+            <a href="#" class="demo-nav-link">Practice Areas</a>
+            <a href="#" class="demo-nav-link">About</a>
+            <a href="#" class="demo-nav-link">Contact</a>
+          </div>
+          <a href="#" class="demo-nav-cta">Consultation</a>
+        </div>
+        <div class="demo-hero">
+          <div class="demo-hero-eyebrow">Toronto & GTA · Est. 2010</div>
+          <h1 class="demo-hero-h1">Trusted <em>legal counsel</em> for your business.</h1>
+          <p class="demo-hero-p">Smith & Partners provides clear, strategic legal advice to businesses and individuals across the GTA. Schedule a confidential consultation to discuss your needs.</p>
+          <div class="demo-hero-ctas">
+            <a href="#" class="btn-primary">Schedule Consultation →</a>
+            <a href="#" class="btn-secondary">Practice Areas</a>
+          </div>
+          <div class="demo-trust-row">
+            <span class="practice-pill">Corporate</span>
+            <span class="practice-pill">Litigation</span>
+            <span class="practice-pill">Real Estate</span>
+          </div>
+        </div>
+        <div class="demo-stats-bar">
+          <div class="demo-stat-item"><div class="demo-stat-num">25+</div><div class="demo-stat-label">Years Experience</div></div>
+          <div class="demo-stat-item"><div class="demo-stat-num">500+</div><div class="demo-stat-label">Cases Resolved</div></div>
+          <div class="demo-stat-item"><div class="demo-stat-num">GTA</div><div class="demo-stat-label">Service Area</div></div>
+          <div class="demo-stat-item"><div class="demo-stat-num">5★</div><div class="demo-stat-label">Client Reviews</div></div>
+        </div>
+        <div class="demo-services">
+          <div class="demo-services-eyebrow">What We Offer</div>
+          <div class="demo-services-h2">Practice Areas</div>
+          <div class="demo-services-grid">
+            <div class="demo-service-card">
+              <div class="demo-service-icon">⚖️</div>
+              <div class="demo-service-name">Corporate & Commercial</div>
+              <div class="demo-service-desc">Formation, contracts, and ongoing legal support.</div>
+            </div>
+            <div class="demo-service-card">
+              <div class="demo-service-icon">🏠</div>
+              <div class="demo-service-name">Real Estate</div>
+              <div class="demo-service-desc">Purchases, sales, and commercial leases.</div>
+            </div>
+            <div class="demo-service-card">
+              <div class="demo-service-icon">📋</div>
+              <div class="demo-service-name">Litigation</div>
+              <div class="demo-service-desc">Dispute resolution and court representation.</div>
+            </div>
+          </div>
+        </div>
+        <div class="demo-cta-footer">
+          <div>
+            <div class="demo-cta-h">Ready to discuss your case?</div>
+            <div class="demo-cta-sub">Smith & Partners · Toronto · Confidential consultation · No obligation</div>
+          </div>
+          <a href="#" class="btn-primary">Book a Call →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. USAGE NOTES -->
+  <div class="sg-section">
+    <div class="sg-section-label">05 — Usage Notes for Lead Rosetta</div>
+    <div class="notes-grid">
+      <div class="note-card">
+        <div class="note-title">When to use this template</div>
+        <div class="note-body">Use for law firms, solo practitioners, and professional services (accounting, consulting) where the prospect list or business category indicates legal/professional. Match tone: authoritative, structured, trustworthy.</div>
+      </div>
+      <div class="note-card">
+        <div class="note-title">Dynamic fields</div>
+        <div class="note-body">Replace <code>[firm_name]</code>, <code>[practice_areas]</code>, <code>[years_exp]</code>, <code>[phone]</code>, <code>[email]</code>. Practice pills and service cards from CSV or default list (Corporate, Litigation, Real Estate).</div>
+      </div>
+      <div class="note-card">
+        <div class="note-title">Forest green rule</div>
+        <div class="note-body">Forest <code>#2d4a3e</code> is the primary CTA and accent. Use for buttons, section eyebrows, left-border on cards. Gold <code>#b8860b</code> only for subtle trust cues (e.g. ratings) — do not overuse.</div>
+      </div>
+      <div class="note-card">
+        <div class="note-title">Voice & tone</div>
+        <div class="note-body">Conservative, clear, confident. Avoid playful or casual copy. CTAs: "Schedule Consultation", "Book a Call", "Practice Areas". Headlines should feel professional and reassuring.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

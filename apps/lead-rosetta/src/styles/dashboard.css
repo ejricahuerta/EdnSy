@@ -1,0 +1,26 @@
+/* Dashboard shell: shadcn color scheme from globals.css only (no Lead Rosetta token overrides).
+   Maps --ink, --sage, etc. from globals for components that reference them. */
+
+.leadrosetta-app-dashboard {
+  background: var(--background);
+  color: var(--foreground);
+  --ink: var(--foreground);
+  --sage: var(--primary);
+  --sage-light: var(--primary);
+  --amber: var(--primary);
+  --amber-light: var(--primary);
+  --cream: var(--background);
+  --border: var(--border);
+  --surface: var(--muted);
+  /* Do not set --muted to muted-foreground: --muted is the bg for bg-muted; muted-foreground is for text. */
+  --white: var(--card);
+  --color-text-secondary: var(--muted-foreground);
+  --lr-dashboard-bg: var(--background);
+  --lr-dashboard-sidebar-bg: var(--sidebar);
+  --lr-dashboard-border: var(--border);
+  --lr-dashboard-sidebar-hover: var(--accent);
+  --lr-dashboard-th-bg: var(--muted);
+  --lr-dashboard-row-hover: var(--muted);
+  --input-bg: var(--card);
+  --color-input-placeholder: var(--muted-foreground);
+}
