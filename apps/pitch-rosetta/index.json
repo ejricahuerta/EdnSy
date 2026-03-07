@@ -1,0 +1,69 @@
+{
+  "business": {
+    "name": "Ember & Oak Bistro",
+    "tagline": "Wood-fired food. Honest ingredients. Good company.",
+    "description": "A neighborhood bistro specializing in wood-fired dishes made from locally sourced ingredients. Open since 2018.",
+    "phone": "(416) 555-0192",
+    "email": "hello@emberandoak.ca",
+    "address": "142 Roncesvalles Ave, Toronto, ON M6R 2L4",
+    "coordinates": { "lat": 43.6479, "lng": -79.4492 },
+    "hours": {
+      "Monday": "Closed",
+      "Tuesday–Thursday": "5pm–10pm",
+      "Friday–Saturday": "5pm–11pm",
+      "Sunday": "11am–3pm"
+    },
+    "social": {
+      "instagram": "https://instagram.com/emberandoak",
+      "facebook": "https://facebook.com/emberandoak"
+    }
+  },
+  "hero": {
+    "headline": "Fire-kissed flavors, rooted in community.",
+    "subheadline": "Seasonal menus. Local farms. A table worth gathering around.",
+    "cta": { "label": "Reserve a Table", "href": "#contact" },
+    "backgroundStyle": "image"
+  },
+  "images": {
+    "unsplashKeywords": ["restaurant", "wood-fired", "dining", "food", "bistro"]
+  },
+  "services": [
+    { "name": "Dinner Service", "description": "Our full à la carte menu featuring wood-fired mains, house-made pastas, and rotating seasonal specials.", "price": "$$" },
+    { "name": "Sunday Brunch", "description": "Leisurely weekend mornings with eggs, baked goods, and mimosas.", "price": "$" },
+    { "name": "Private Events", "description": "Full restaurant buyouts and curated group menus for celebrations and corporate dinners.", "price": "Contact us" }
+  ],
+  "about": {
+    "headline": "Food that starts with the land.",
+    "body": "Ember & Oak was born from a simple belief: great food starts with great ingredients. We work directly with 12 local farms across Ontario to bring the best seasonal produce to your table — then let fire do the rest.",
+    "values": ["Farm-to-Table", "Wood-Fired Only", "Zero Waste Kitchen", "Community First"]
+  },
+  "stats": [
+    { "value": "6", "label": "Years in Business" },
+    { "value": "12", "label": "Local Farm Partners" },
+    { "value": "4.9", "label": "Average Rating ★" },
+    { "value": "3000", "label": "Guests Served Monthly" }
+  ],
+  "gallery": [],
+  "testimonials": [
+    { "author": "Maria C.", "quote": "The best meal I've had in Toronto in years. Every dish felt thoughtful and deeply considered.", "rating": 5 },
+    { "author": "James T.", "quote": "Incredible atmosphere. The wood-fired lamb is an absolute must-order.", "rating": 5 },
+    { "author": "Priya S.", "quote": "We booked Ember & Oak for our rehearsal dinner and it was absolutely perfect.", "rating": 5 }
+  ],
+  "contact": {
+    "headline": "Make a Reservation",
+    "showForm": true,
+    "showMap": true,
+    "mapEmbed": null,
+    "googleMapsApiKey": null
+  },
+  "theme": {
+    "style": "warm editorial",
+    "primaryColor": "#3B2A1A",
+    "accentColor": "#C8872A"
+  },
+  "seo": {
+    "title": "Ember & Oak Bistro | Wood-Fired Dining in Toronto",
+    "description": "Toronto's favorite neighborhood bistro. Wood-fired dishes, local ingredients, Sunday brunch. Reserve your table today.",
+    "keywords": ["Toronto restaurant", "wood-fired dining", "farm to table", "Roncesvalles bistro"]
+  }
+}

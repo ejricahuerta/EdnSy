@@ -14,9 +14,9 @@ AI agent that generates a single **cinematic landing page** (`index.html`) from 
 ## Setup
 
 ```bash
-cd agent
+cd apps/pitch-rosetta
 npm install
-cp .env.example .env
+cp .env.example .env   # or create .env
 # Edit .env and set CLAUDE_API_KEY (or ANTHROPIC_API_KEY); get one at https://console.anthropic.com/
 ```
 
@@ -24,7 +24,7 @@ cp .env.example .env
 
 ### CLI (file-based)
 
-From the `agent` folder:
+From the `apps/pitch-rosetta` folder. A sample **`index.json`** (Ember & Oak Bistro) is included so `npm run generate` works with default paths; replace it or use `--json=path/to/your-data.json` for your own business data.
 
 ```bash
 # Use default paths: prompts/prompt.md, index.json → index.html (and demos/{id}.html)
