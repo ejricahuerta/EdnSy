@@ -2,13 +2,13 @@ name = "lead-rosetta-cron"
 main = "src/index.ts"
 compatibility_date = "2024-01-01"
 
-# Call your Vercel app cron endpoints.
-# Set CRON_TARGET_URL below (or in Dashboard → Settings → Variables).
-# Set CRON_SECRET via: npx wrangler secret put CRON_SECRET
+# Lead Rosetta: set CRON_TARGET_URL and CRON_SECRET (secret).
+# Pitch Rosetta: set PITCH_ROSETTA_URL to ping health (keeps Render awake).
 [vars]
-# Base URL of the lead-rosetta app, no trailing slash (override for production).
 CRON_TARGET_URL = "https://leadrosetta.ednsy.com"
+# Pitch Rosetta base URL (GET /api/health), no trailing slash.
+PITCH_ROSETTA_URL = "https://pitch-rosetta.onrender.com"
 
 [triggers]
-# Demo: every 1 min. GBP: every 2 min. Worker branches on controller.cron.
-crons = ["*/1 * * * *", "*/2 * * * *"]
+# Demo: every 1 min. GBP: every 2 min. Pitch Rosetta: every 14 min (keep Render awake). Worker branches on controller.cron.
+crons = ["*/1 * * * *", "*/2 * * * *", "*/14 * * * *"]

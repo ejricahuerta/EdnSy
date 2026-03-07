@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dental V1 — Noir Luxury | Style Guide + Landing Page</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  /* ═══════════════════════════════════════════
+     DESIGN TOKENS
+  ═══════════════════════════════════════════ */
+  :root {
+    --obsidian:      #0a0a0f;
+    --charcoal:      #141420;
+    --slate:         #1e1e2e;
+    --mid:           #2a2a3d;
+    --gold:          #c9a96e;
+    --gold-light:    #e8d09a;
+    --gold-dim:      #8a7048;
+    --ivory:         #f5f0e8;
+    --cream:         #ede6d6;
+    --silver:        #9999b0;
+    --white:         #ffffff;
+
+    --font-display: 'Cormorant Garamond', serif;
+    --font-body:    'DM Sans', sans-serif;
+
+    --radius-sm: 2px;
+    --radius-md: 6px;
+    --radius-lg: 16px;
+
+    --shadow-gold: 0 0 40px rgba(201,169,110,.18);
+    --shadow-deep: 0 20px 60px rgba(0,0,0,.6);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--obsidian); color: var(--ivory); font-family: var(--font-body); font-weight: 300; line-height: 1.6; }
+
+  /* ─── STYLE GUIDE WRAPPER ─── */
+  .sg { max-width: 1100px; margin: 0 auto; padding: 80px 40px; }
+  .sg-divider { border: none; border-top: 1px solid var(--mid); margin: 60px 0; }
+
+  .sg-label {
+    font-family: var(--font-body);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: .25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 32px;
+  }
+
+  .sg-section-title {
+    font-family: var(--font-display);
+    font-size: 48px;
+    font-weight: 300;
+    color: var(--ivory);
+    margin-bottom: 8px;
+  }
+
+  /* ─── COLOR SWATCHES ─── */
+  .swatches { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 24px; }
+  .swatch { width: 100px; }
+  .swatch-block { width: 100px; height: 80px; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,.06); }
+  .swatch-name { font-size: 11px; color: var(--silver); margin-top: 8px; }
+  .swatch-hex  { font-size: 10px; color: var(--gold-dim); margin-top: 2px; font-family: monospace; }
+
+  /* ─── TYPE SPECIMENS ─── */
+  .type-row { margin-bottom: 28px; border-bottom: 1px solid var(--mid); padding-bottom: 28px; }
+  .type-meta { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 10px; }
+
+  /* ─── COMPONENTS ─── */
+  .comp-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin-top: 24px; }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--font-body); font-size: 12px; font-weight: 500;
+    letter-spacing: .18em; text-transform: uppercase; cursor: pointer;
+    border: none; transition: all .3s ease;
+    padding: 14px 32px; border-radius: var(--radius-sm);
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--gold), var(--gold-dim));
+    color: var(--obsidian);
+  }
+  .btn-primary:hover { filter: brightness(1.15); transform: translateY(-1px); box-shadow: var(--shadow-gold); }
+  .btn-outline {
+    background: transparent; color: var(--gold);
+    border: 1px solid var(--gold);
+  }
+  .btn-outline:hover { background: rgba(201,169,110,.08); }
+  .btn-ghost {
+    background: transparent; color: var(--silver);
+    border: 1px solid var(--mid);
+  }
+  .btn-ghost:hover { border-color: var(--silver); color: var(--ivory); }
+
+  /* CARDS */
+  .card-demo {
+    background: var(--slate);
+    border: 1px solid var(--mid);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    width: 220px;
+  }
+  .card-demo .card-icon {
+    width: 40px; height: 40px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; margin-bottom: 16px;
+  }
+  .card-demo h4 { font-family: var(--font-display); font-size: 18px; font-weight: 400; color: var(--ivory); margin-bottom: 6px; }
+  .card-demo p  { font-size: 13px; color: var(--silver); }
+
+  /* BADGE */
+  .badge {
+    display: inline-block; padding: 4px 12px; border-radius: 100px;
+    font-size: 10px; letter-spacing: .15em; text-transform: uppercase; font-weight: 500;
+  }
+  .badge-gold    { background: rgba(201,169,110,.15); color: var(--gold); border: 1px solid rgba(201,169,110,.3); }
+  .badge-silver  { background: rgba(153,153,176,.1);  color: var(--silver); border: 1px solid rgba(153,153,176,.25); }
+
+  /* INPUT */
+  .input-demo {
+    background: var(--slate); border: 1px solid var(--mid);
+    color: var(--ivory); font-family: var(--font-body); font-size: 14px;
+    padding: 12px 16px; border-radius: var(--radius-sm); width: 240px;
+    outline: none; transition: border-color .2s;
+  }
+  .input-demo::placeholder { color: var(--silver); }
+  .input-demo:focus { border-color: var(--gold); }
+
+  /* DIVIDER ORNAMENT */
+  .ornament { text-align: center; color: var(--gold); font-size: 18px; margin: 8px 0; letter-spacing: .4em; }
+
+  /* ═══════════════════════════════════════════
+     LANDING PAGE
+  ═══════════════════════════════════════════ */
+
+  /* NAV */
+  .lp-nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 24px 60px;
+    background: rgba(10,10,15,.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(201,169,110,.08);
+  }
+  .lp-logo {
+    font-family: var(--font-display); font-size: 22px; font-weight: 600;
+    color: var(--ivory); letter-spacing: .04em;
+  }
+  .lp-logo span { color: var(--gold); }
+  .lp-nav-links { display: flex; gap: 36px; list-style: none; }
+  .lp-nav-links a { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--silver); text-decoration: none; transition: color .2s; }
+  .lp-nav-links a:hover { color: var(--gold); }
+  .lp-nav-cta { padding: 10px 24px; }
+
+  /* HERO */
+  .lp-hero {
+    min-height: 100vh;
+    display: flex; align-items: center;
+    position: relative; overflow: hidden;
+    padding: 120px 60px 80px;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 80% at 70% 50%, rgba(201,169,110,.06) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 20% 80%, rgba(201,169,110,.04) 0%, transparent 50%),
+      var(--obsidian);
+  }
+  .hero-grid-lines {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(201,169,110,.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(201,169,110,.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+  .hero-content { position: relative; max-width: 620px; }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 12px;
+    font-size: 10px; letter-spacing: .3em; text-transform: uppercase; color: var(--gold);
+    margin-bottom: 32px;
+  }
+  .hero-eyebrow::before { content: ''; display: block; width: 40px; height: 1px; background: var(--gold); }
+  .hero-h1 {
+    font-family: var(--font-display);
+    font-size: clamp(52px, 7vw, 96px);
+    font-weight: 300; line-height: 1.0;
+    color: var(--ivory); margin-bottom: 28px;
+  }
+  .hero-h1 em { font-style: italic; color: var(--gold); }
+  .hero-sub {
+    font-size: 15px; color: var(--silver); line-height: 1.8;
+    max-width: 440px; margin-bottom: 48px;
+  }
+  .hero-actions { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+  .hero-stat {
+    margin-top: 80px; display: flex; gap: 60px;
+  }
+  .stat-item {}
+  .stat-num { font-family: var(--font-display); font-size: 44px; font-weight: 300; color: var(--gold); line-height: 1; }
+  .stat-desc { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--silver); margin-top: 4px; }
+
+  /* HERO VISUAL */
+  .hero-visual {
+    position: absolute; right: 60px; top: 50%; transform: translateY(-50%);
+    width: 420px; height: 520px;
+    border: 1px solid rgba(201,169,110,.15);
+    border-radius: 200px 200px 16px 16px;
+    background: linear-gradient(160deg, var(--slate), var(--charcoal));
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+    box-shadow: var(--shadow-deep), var(--shadow-gold);
+  }
+  .hero-visual-inner { text-align: center; }
+  .hero-visual-icon { font-size: 80px; display: block; margin-bottom: 16px; }
+  .hero-visual-caption { font-family: var(--font-display); font-size: 14px; letter-spacing: .2em; color: var(--gold); text-transform: uppercase; }
+  .hero-float-badge {
+    position: absolute; bottom: 40px; right: -20px;
+    background: var(--gold);
+    color: var(--obsidian);
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-size: 11px; font-weight: 500; letter-spacing: .08em;
+    box-shadow: 0 8px 32px rgba(201,169,110,.35);
+  }
+  .hero-float-badge strong { display: block; font-size: 22px; font-family: var(--font-display); }
+
+  /* SERVICES */
+  .lp-section { padding: 100px 60px; }
+  .lp-section-header { text-align: center; margin-bottom: 64px; }
+  .section-eyebrow { font-size: 10px; letter-spacing: .3em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; }
+  .section-title {
+    font-family: var(--font-display); font-size: clamp(36px, 4vw, 60px);
+    font-weight: 300; color: var(--ivory); line-height: 1.1;
+  }
+  .section-title em { font-style: italic; color: var(--gold); }
+  .section-sub { font-size: 14px; color: var(--silver); max-width: 480px; margin: 16px auto 0; line-height: 1.8; }
+
+  .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 2px; max-width: 1100px; margin: 0 auto; }
+  .service-card {
+    background: var(--charcoal);
+    padding: 40px 32px;
+    transition: background .3s;
+    cursor: pointer;
+    border: 1px solid var(--mid);
+  }
+  .service-card:hover { background: var(--slate); }
+  .service-card:hover .sc-arrow { transform: translateX(4px); opacity: 1; }
+  .sc-num { font-family: var(--font-display); font-size: 11px; letter-spacing: .3em; color: var(--gold-dim); margin-bottom: 24px; }
+  .sc-icon { font-size: 28px; margin-bottom: 16px; }
+  .sc-title { font-family: var(--font-display); font-size: 22px; font-weight: 400; color: var(--ivory); margin-bottom: 10px; }
+  .sc-desc { font-size: 13px; color: var(--silver); line-height: 1.7; margin-bottom: 20px; }
+  .sc-arrow { font-size: 18px; color: var(--gold); transition: all .3s; opacity: 0.5; }
+
+  /* PROCESS */
+  .process-section { background: var(--charcoal); padding: 100px 60px; }
+  .process-steps { display: flex; gap: 0; max-width: 1100px; margin: 0 auto; position: relative; }
+  .process-steps::before {
+    content: '';
+    position: absolute; top: 28px; left: 80px; right: 80px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+  }
+  .process-step { flex: 1; text-align: center; padding: 0 20px; }
+  .ps-num {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--mid); border: 1px solid var(--gold-dim);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-size: 20px; color: var(--gold);
+    margin: 0 auto 24px;
+  }
+  .ps-title { font-family: var(--font-display); font-size: 18px; color: var(--ivory); margin-bottom: 8px; }
+  .ps-desc { font-size: 12px; color: var(--silver); line-height: 1.7; }
+
+  /* TESTIMONIAL */
+  .testimonial-section { padding: 100px 60px; background: var(--obsidian); }
+  .testimonial-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; max-width: 1100px; margin: 0 auto; }
+  .tcard {
+    background: var(--charcoal); border: 1px solid var(--mid);
+    border-radius: var(--radius-lg); padding: 36px 28px;
+    transition: border-color .3s;
+  }
+  .tcard:hover { border-color: var(--gold-dim); }
+  .tcard-stars { color: var(--gold); font-size: 14px; letter-spacing: 3px; margin-bottom: 20px; }
+  .tcard-quote { font-family: var(--font-display); font-size: 16px; font-style: italic; color: var(--ivory); line-height: 1.7; margin-bottom: 24px; }
+  .tcard-author { display: flex; align-items: center; gap: 14px; }
+  .tcard-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--gold-dim), var(--gold)); display:flex;align-items:center;justify-content:center; font-size:16px; }
+  .tcard-name { font-size: 13px; color: var(--ivory); font-weight: 500; }
+  .tcard-meta { font-size: 11px; color: var(--gold-dim); margin-top: 2px; }
+
+  /* CTA BANNER */
+  .cta-section {
+    padding: 100px 60px;
+    background: linear-gradient(135deg, var(--charcoal), var(--slate));
+    border-top: 1px solid var(--mid); border-bottom: 1px solid var(--mid);
+    text-align: center; position: relative; overflow: hidden;
+  }
+  .cta-section::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 80% at 50% 50%, rgba(201,169,110,.07), transparent);
+  }
+  .cta-section > * { position: relative; }
+  .cta-title { font-family: var(--font-display); font-size: clamp(36px, 5vw, 64px); font-weight: 300; color: var(--ivory); margin-bottom: 16px; }
+  .cta-sub { font-size: 15px; color: var(--silver); margin-bottom: 40px; }
+  .cta-actions { display: flex; gap: 16px; justify-content: center; }
+
+  /* FOOTER */
+  .lp-footer {
+    background: var(--charcoal); border-top: 1px solid var(--mid);
+    padding: 60px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .footer-logo { font-family: var(--font-display); font-size: 20px; color: var(--ivory); }
+  .footer-logo span { color: var(--gold); }
+  .footer-links { display: flex; gap: 28px; }
+  .footer-links a { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--silver); text-decoration: none; }
+  .footer-copy { font-size: 11px; color: var(--gold-dim); }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes shimmer { 0%,100%{opacity:.7} 50%{opacity:1} }
+  .hero-content > * { animation: fadeUp .8s ease both; }
+  .hero-content > *:nth-child(1){ animation-delay:.1s }
+  .hero-content > *:nth-child(2){ animation-delay:.2s }
+  .hero-content > *:nth-child(3){ animation-delay:.3s }
+  .hero-content > *:nth-child(4){ animation-delay:.4s }
+  .hero-content > *:nth-child(5){ animation-delay:.5s }
+  .stat-num { animation: shimmer 3s ease infinite; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     STYLE GUIDE
+═══════════════════════════════════════════ -->
+<div class="sg">
+  <p class="sg-label">Style Guide — Dental V1</p>
+  <h1 class="sg-section-title">Noir Luxury<br><em style="font-style:italic;color:var(--gold)">Obsidian & Gold</em></h1>
+  <p style="color:var(--silver);font-size:14px;max-width:500px;margin-top:12px;">A high-end dental brand identity for elite private practices. Refined, cinematic, and aspirational — the anti-sterile aesthetic. Obsidian backgrounds, warm gold accents, and editorial serif typography.</p>
+
+  <hr class="sg-divider">
+
+  <!-- COLORS -->
+  <p class="sg-label">Color Palette</p>
+  <div class="swatches">
+    <div class="swatch"><div class="swatch-block" style="background:var(--obsidian)"></div><div class="swatch-name">Obsidian</div><div class="swatch-hex">#0a0a0f</div></div>
+    <div class="swatch"><div class="swatch-block" style="background:var(--charcoal)"></div><div class="swatch-name">Charcoal</div><div class="swatch-hex">#141420</div></div>
+    <div class="swatch"><div class="swatch-block" style="background:var(--slate)"></div><div class="swatch-name">Slate</div><div class="swatch-hex">#1e1e2e</div></div>
+    <div class="swatch"><div class="swatch-block" style="background:var(--gold);"></div><div class="swatch-name">Gold</div><div class="swatch-hex">#c9a96e</div></div>
+    <div class="swatch"><div class="swatch-block" style="background:var(--gold-light)"></div><div class="swatch-name">Gold Light</div><div class="swatch-hex">#e8d09a</div></div>
+    <div class="swatch"><div class="swatch-block" style="background:var(--ivory)"></div><div class="swatch-name">Ivory</div><div class="swatch-hex">#f5f0e8</div></div>
+    <div class="swatch"><div class="swatch-block" style="background:var(--silver)"></div><div class="swatch-name">Silver</div><div class="swatch-hex">#9999b0</div></div>
+  </div>
+
+  <hr class="sg-divider">
+
+  <!-- TYPOGRAPHY -->
+  <p class="sg-label">Typography</p>
+  <div class="type-row">
+    <div class="type-meta">Display — Cormorant Garamond 300 / Italic</div>
+    <div style="font-family:var(--font-display);font-size:64px;font-weight:300;color:var(--ivory);line-height:1">A Radiant <em style="color:var(--gold)">Smile</em></div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta">Heading 2 — Cormorant Garamond 400, 36px</div>
+    <div style="font-family:var(--font-display);font-size:36px;font-weight:400;color:var(--ivory)">Premium Dental Care</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta">Heading 3 — Cormorant Garamond 300, 24px</div>
+    <div style="font-family:var(--font-display);font-size:24px;font-weight:300;color:var(--ivory)">Your Journey to Perfection</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta">Body — DM Sans 300, 15px, silver</div>
+    <div style="font-family:var(--font-body);font-size:15px;font-weight:300;color:var(--silver);max-width:500px">We combine cutting-edge technology with decades of expertise to craft smiles that transcend expectation. Every treatment is a masterpiece.</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta">Label / Eyebrow — DM Sans 500, 10px, +0.25em tracking</div>
+    <div style="font-family:var(--font-body);font-size:10px;font-weight:500;letter-spacing:.25em;text-transform:uppercase;color:var(--gold)">Premium Services · Est. 2008</div>
+  </div>
+
+  <hr class="sg-divider">
+
+  <!-- COMPONENTS -->
+  <p class="sg-label">Buttons</p>
+  <div class="comp-row">
+    <button class="btn btn-primary">Book Consultation</button>
+    <button class="btn btn-outline">View Services</button>
+    <button class="btn btn-ghost">Learn More</button>
+  </div>
+
+  <hr class="sg-divider">
+
+  <p class="sg-label">Badges</p>
+  <div class="comp-row">
+    <span class="badge badge-gold">Premium</span>
+    <span class="badge badge-silver">Available Today</span>
+  </div>
+
+  <hr class="sg-divider">
+
+  <p class="sg-label">Form Input</p>
+  <div class="comp-row">
+    <input class="input-demo" placeholder="Your full name" type="text">
+    <input class="input-demo" placeholder="Email address" type="email">
+  </div>
+
+  <hr class="sg-divider">
+
+  <p class="sg-label">Service Card</p>
+  <div class="comp-row">
+    <div class="card-demo"><div class="card-icon">✦</div><h4>Veneers</h4><p>Hand-crafted porcelain veneers for a flawless finish.</p></div>
+    <div class="card-demo"><div class="card-icon">◈</div><h4>Whitening</h4><p>Professional-grade laser whitening in 60 minutes.</p></div>
+    <div class="card-demo"><div class="card-icon">⟡</div><h4>Implants</h4><p>Titanium implants with lifetime guarantee.</p></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     LANDING PAGE
+═══════════════════════════════════════════ -->
+
+<!-- NAV -->
+<nav class="lp-nav">
+  <div class="lp-logo">Aur<span>or</span>a Dental</div>
+  <ul class="lp-nav-links">
+    <li><a href="#">Services</a></li>
+    <li><a href="#">About</a></li>
+    <li><a href="#">Before & After</a></li>
+    <li><a href="#">Contact</a></li>
+  </ul>
+  <button class="btn btn-primary lp-nav-cta">Book Now</button>
+</nav>
+
+<!-- HERO -->
+<section class="lp-hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid-lines"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">Luxury Dental Studio · Manhattan</div>
+    <h1 class="hero-h1">Your Smile,<br><em>Perfected.</em></h1>
+    <p class="hero-sub">Where artistry meets clinical excellence. We craft bespoke smiles for discerning individuals who expect nothing less than extraordinary.</p>
+    <div class="hero-actions">
+      <button class="btn btn-primary">Book Private Consultation</button>
+      <button class="btn btn-ghost">View Our Work →</button>
+    </div>
+    <div class="hero-stat">
+      <div class="stat-item"><div class="stat-num">2,400+</div><div class="stat-desc">Smiles Transformed</div></div>
+      <div class="stat-item"><div class="stat-num">16yr</div><div class="stat-desc">Of Excellence</div></div>
+      <div class="stat-item"><div class="stat-num">100%</div><div class="stat-desc">Satisfaction Rate</div></div>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="hero-visual-inner">
+      <span class="hero-visual-icon">🦷</span>
+      <div class="hero-visual-caption">Aurora Dental Studio</div>
+    </div>
+    <div class="hero-float-badge"><strong>4.9 ★</strong>Google Reviews</div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="lp-section">
+  <div class="lp-section-header">
+    <div class="section-eyebrow">Our Expertise</div>
+    <h2 class="section-title">Artistry in <em>Every Treatment</em></h2>
+    <p class="section-sub">From subtle refinements to complete smile transformations, our award-winning team delivers unparalleled results.</p>
+  </div>
+  <div class="services-grid">
+    <div class="service-card"><div class="sc-num">01</div><div class="sc-icon">💎</div><h3 class="sc-title">Porcelain Veneers</h3><p class="sc-desc">Ultra-thin, hand-crafted veneers designed to transform the shape, colour, and alignment of your smile permanently.</p><div class="sc-arrow">→</div></div>
+    <div class="service-card"><div class="sc-num">02</div><div class="sc-icon">⬡</div><h3 class="sc-title">Dental Implants</h3><p class="sc-desc">State-of-the-art titanium implants that look, feel, and function like natural teeth with a lifetime guarantee.</p><div class="sc-arrow">→</div></div>
+    <div class="service-card"><div class="sc-num">03</div><div class="sc-icon">✦</div><h3 class="sc-title">Teeth Whitening</h3><p class="sc-desc">Laser-assisted professional whitening delivering up to 12 shades lighter in a single 60-minute session.</p><div class="sc-arrow">→</div></div>
+    <div class="service-card"><div class="sc-num">04</div><div class="sc-icon">◈</div><h3 class="sc-title">Invisalign</h3><p class="sc-desc">Discreet clear aligner therapy with digital precision mapping and bi-weekly progress checks.</p><div class="sc-arrow">→</div></div>
+    <div class="service-card"><div class="sc-num">05</div><div class="sc-icon">⟡</div><h3 class="sc-title">Smile Makeover</h3><p class="sc-desc">A curated combination of treatments, tailored to your facial structure and personal aesthetic vision.</p><div class="sc-arrow">→</div></div>
+    <div class="service-card"><div class="sc-num">06</div><div class="sc-icon">◇</div><h3 class="sc-title">Gum Contouring</h3><p class="sc-desc">Laser gum sculpting to reveal perfect tooth proportions and create the ideal smile frame.</p><div class="sc-arrow">→</div></div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section class="process-section">
+  <div class="lp-section-header">
+    <div class="section-eyebrow">How It Works</div>
+    <h2 class="section-title">Your Journey to<br><em>Perfection</em></h2>
+  </div>
+  <div class="process-steps">
+    <div class="process-step"><div class="ps-num">I</div><h4 class="ps-title">Private Consultation</h4><p class="ps-desc">A 60-minute deep-dive into your goals, concerns, and vision for your smile.</p></div>
+    <div class="process-step"><div class="ps-num">II</div><h4 class="ps-title">3D Smile Design</h4><p class="ps-desc">Digital preview of your result using our advanced smile simulation technology.</p></div>
+    <div class="process-step"><div class="ps-num">III</div><h4 class="ps-title">Bespoke Treatment</h4><p class="ps-desc">Precision-executed treatment in our luxury suite with comfort sedation available.</p></div>
+    <div class="process-step"><div class="ps-num">IV</div><h4 class="ps-title">Lifetime Aftercare</h4><p class="ps-desc">Ongoing support, maintenance, and guarantee on all our premium restorations.</p></div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonial-section">
+  <div class="lp-section-header">
+    <div class="section-eyebrow">Client Stories</div>
+    <h2 class="section-title">Words That <em>Matter</em></h2>
+  </div>
+  <div class="testimonial-grid">
+    <div class="tcard"><div class="tcard-stars">★★★★★</div><p class="tcard-quote">"Aurora transformed not just my smile, but my entire confidence. The team's attention to detail is unmatched."</p><div class="tcard-author"><div class="tcard-avatar">S</div><div><div class="tcard-name">Sophia M.</div><div class="tcard-meta">Porcelain Veneers</div></div></div></div>
+    <div class="tcard"><div class="tcard-stars">★★★★★</div><p class="tcard-quote">"I was nervous about implants but the consultation put me completely at ease. The result is stunning and utterly natural."</p><div class="tcard-author"><div class="tcard-avatar">J</div><div><div class="tcard-name">James R.</div><div class="tcard-meta">Dental Implants</div></div></div></div>
+    <div class="tcard"><div class="tcard-stars">★★★★★</div><p class="tcard-quote">"Worth every penny. My smile makeover exceeded every expectation. I only wish I'd done it sooner."</p><div class="tcard-author"><div class="tcard-avatar">A</div><div><div class="tcard-name">Amara K.</div><div class="tcard-meta">Full Smile Makeover</div></div></div></div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="ornament">✦ ✦ ✦</div>
+  <h2 class="cta-title">Begin Your<br>Transformation Today</h2>
+  <p class="cta-sub">Complimentary consultations available — limited appointments per month.</p>
+  <div class="cta-actions">
+    <button class="btn btn-primary">Reserve My Consultation</button>
+    <button class="btn btn-outline">Call +1 (212) 555-0190</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="lp-footer">
+  <div class="footer-logo">Aur<span>or</span>a Dental</div>
+  <div class="footer-links">
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+    <a href="#">Instagram</a>
+    <a href="#">Google Maps</a>
+  </div>
+  <div class="footer-copy">© 2025 Aurora Dental Studio</div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dental V2 — Fresh Clinical | Style Guide + Landing Page</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@300;400;500;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --white:       #ffffff;
+    --snow:        #f7fbfa;
+    --mist:        #edf5f3;
+    --mint:        #c2e8df;
+    --mint-mid:    #7dcec0;
+    --teal:        #2a9d8f;
+    --teal-dark:   #1a7065;
+    --warm-white:  #fdf8f3;
+    --sand:        #f0e6d4;
+    --coral:       #e8836a;
+    --taupe:       #8a7d72;
+    --ink:         #1a2420;
+    --ink-mid:     #2e3e3a;
+    --text-body:   #4a5c58;
+
+    --font-display: 'Lora', serif;
+    --font-ui:      'Bricolage Grotesque', sans-serif;
+
+    --radius-pill: 100px;
+    --radius-lg: 24px;
+    --radius-md: 12px;
+    --radius-sm: 6px;
+
+    --shadow-teal: 0 12px 48px rgba(42,157,143,.2);
+    --shadow-card: 0 4px 24px rgba(26,36,32,.08);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--white); color: var(--ink); font-family: var(--font-ui); line-height: 1.6; }
+
+  /* STYLE GUIDE */
+  .sg { max-width: 1100px; margin: 0 auto; padding: 80px 40px; }
+  .sg-divider { border: none; border-top: 2px solid var(--mist); margin: 56px 0; }
+  .sg-label { font-family: var(--font-ui); font-size: 10px; font-weight: 500; letter-spacing: .22em; text-transform: uppercase; color: var(--teal); margin-bottom: 28px; display: flex; align-items: center; gap: 10px; }
+  .sg-label::after { content: ''; flex: 0 0 32px; height: 2px; background: var(--teal); border-radius: 2px; }
+
+  .swatches { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 20px; }
+  .swatch { width: 110px; }
+  .swatch-block { width: 110px; height: 80px; border-radius: var(--radius-md); }
+  .swatch-name { font-size: 12px; color: var(--ink-mid); margin-top: 8px; font-weight: 500; }
+  .swatch-hex  { font-size: 10px; color: var(--taupe); font-family: monospace; margin-top: 2px; }
+
+  .type-row { margin-bottom: 28px; border-bottom: 1px solid var(--mist); padding-bottom: 28px; }
+  .type-meta { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--taupe); margin-bottom: 10px; font-weight: 500; }
+
+  .comp-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin-top: 20px; }
+
+  /* BUTTONS */
+  .btn { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-ui); font-size: 14px; font-weight: 500; cursor: pointer; border: none; transition: all .25s ease; padding: 14px 28px; border-radius: var(--radius-pill); }
+  .btn-primary { background: var(--teal); color: var(--white); }
+  .btn-primary:hover { background: var(--teal-dark); transform: translateY(-2px); box-shadow: var(--shadow-teal); }
+  .btn-coral { background: var(--coral); color: var(--white); }
+  .btn-coral:hover { filter: brightness(1.08); transform: translateY(-2px); }
+  .btn-outline { background: transparent; color: var(--teal); border: 2px solid var(--teal); }
+  .btn-outline:hover { background: var(--mist); }
+  .btn-soft { background: var(--mist); color: var(--teal-dark); }
+  .btn-soft:hover { background: var(--mint); }
+
+  .card-demo { background: var(--warm-white); border: 1px solid var(--sand); border-radius: var(--radius-lg); padding: 28px; width: 200px; }
+  .card-demo .card-stripe { width: 36px; height: 4px; border-radius: 2px; background: var(--teal); margin-bottom: 16px; }
+  .card-demo h4 { font-family: var(--font-ui); font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+  .card-demo p { font-size: 13px; color: var(--text-body); }
+
+  .badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: var(--radius-pill); font-size: 11px; font-weight: 500; }
+  .badge-teal { background: var(--mist); color: var(--teal-dark); border: 1px solid var(--mint-mid); }
+  .badge-coral { background: #fef0ec; color: var(--coral); border: 1px solid #f7ccc2; }
+  .badge-dot::before { content: '●'; font-size: 8px; }
+
+  .input-demo { background: var(--snow); border: 2px solid var(--mist); color: var(--ink); font-family: var(--font-ui); font-size: 14px; padding: 13px 18px; border-radius: var(--radius-md); width: 240px; outline: none; transition: border-color .2s; }
+  .input-demo:focus { border-color: var(--teal); background: var(--white); }
+  .input-demo::placeholder { color: var(--taupe); }
+
+  /* ═══ LANDING PAGE ═══ */
+
+  .lp-nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 60px;
+    background: rgba(255,255,255,.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--mist);
+  }
+  .lp-logo { font-family: var(--font-display); font-size: 22px; font-weight: 600; color: var(--ink); }
+  .lp-logo span { color: var(--teal); }
+  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-links a { font-size: 13px; font-weight: 500; color: var(--text-body); text-decoration: none; transition: color .2s; }
+  .nav-links a:hover { color: var(--teal); }
+
+  /* HERO */
+  .lp-hero {
+    padding: 140px 60px 80px;
+    background: linear-gradient(160deg, var(--warm-white) 0%, var(--snow) 50%, var(--mist) 100%);
+    display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
+    min-height: 100vh;
+  }
+  .hero-content {}
+  .hero-pill { display: inline-flex; align-items: center; gap: 8px; background: var(--mist); border: 1px solid var(--mint-mid); color: var(--teal-dark); padding: 8px 16px; border-radius: var(--radius-pill); font-size: 12px; font-weight: 500; margin-bottom: 28px; }
+  .hero-pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); animation: pulse 2s ease infinite; }
+  @keyframes pulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.3);opacity:.7} }
+  .hero-h1 { font-family: var(--font-display); font-size: clamp(44px, 5.5vw, 72px); font-weight: 600; color: var(--ink); line-height: 1.1; margin-bottom: 24px; }
+  .hero-h1 .wave { color: var(--teal); font-style: italic; }
+  .hero-sub { font-size: 16px; color: var(--text-body); line-height: 1.8; max-width: 440px; margin-bottom: 40px; }
+  .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 48px; }
+  .hero-trust { display: flex; align-items: center; gap: 12px; font-size: 12px; color: var(--taupe); }
+  .trust-avatars { display: flex; }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--white); background: var(--mint-mid); display: flex; align-items: center; justify-content: center; font-size: 13px; margin-left: -8px; }
+  .avatar:first-child { margin-left: 0; }
+
+  .hero-visual-panel {
+    background: white;
+    border-radius: 28px;
+    box-shadow: var(--shadow-card), 0 32px 80px rgba(42,157,143,.1);
+    overflow: hidden;
+    position: relative;
+  }
+  .hvp-header { background: linear-gradient(135deg, var(--teal), var(--teal-dark)); padding: 32px; text-align: center; }
+  .hvp-header h3 { font-family: var(--font-display); font-size: 20px; color: var(--white); font-style: italic; }
+  .hvp-header p { font-size: 12px; color: rgba(255,255,255,.7); margin-top: 4px; }
+  .hvp-services { padding: 24px; }
+  .hvp-item { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--mist); }
+  .hvp-item:last-child { border: none; }
+  .hvp-icon { width: 36px; height: 36px; border-radius: 10px; background: var(--mist); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .hvp-name { font-weight: 500; font-size: 14px; color: var(--ink); }
+  .hvp-time { font-size: 11px; color: var(--taupe); }
+  .hvp-price { margin-left: auto; font-size: 13px; font-weight: 600; color: var(--teal); }
+  .hvp-cta { padding: 20px 24px; background: var(--snow); text-align: center; }
+
+  /* SERVICES */
+  .lp-section { padding: 100px 60px; }
+  .lp-section.bg-snow { background: var(--snow); }
+  .lp-section-header { margin-bottom: 56px; }
+  .section-tag { display: inline-block; background: var(--mist); color: var(--teal); padding: 6px 14px; border-radius: var(--radius-pill); font-size: 11px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 16px; }
+  .section-h2 { font-family: var(--font-display); font-size: clamp(32px, 4vw, 52px); font-weight: 600; color: var(--ink); line-height: 1.15; }
+  .section-h2 em { color: var(--teal); font-style: italic; }
+  .section-sub { font-size: 15px; color: var(--text-body); margin-top: 14px; max-width: 500px; line-height: 1.8; }
+
+  .services-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 1100px; }
+  .svc-card {
+    background: var(--white); border: 1.5px solid var(--mist);
+    border-radius: var(--radius-lg); padding: 32px;
+    display: flex; gap: 20px; align-items: flex-start;
+    transition: all .25s; cursor: pointer;
+    box-shadow: var(--shadow-card);
+  }
+  .svc-card:hover { border-color: var(--mint-mid); transform: translateY(-3px); box-shadow: 0 12px 40px rgba(42,157,143,.12); }
+  .svc-icon-wrap { width: 56px; height: 56px; border-radius: 16px; background: var(--mist); display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+  .svc-body {}
+  .svc-title { font-size: 17px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+  .svc-desc { font-size: 13px; color: var(--text-body); line-height: 1.7; }
+  .svc-link { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--teal); margin-top: 12px; }
+
+  /* STATS */
+  .stats-strip { background: var(--teal); padding: 64px; display: flex; gap: 0; }
+  .stat-box { flex: 1; text-align: center; border-right: 1px solid rgba(255,255,255,.2); padding: 0 20px; }
+  .stat-box:last-child { border: none; }
+  .stat-num { font-family: var(--font-display); font-size: 52px; font-weight: 600; color: var(--white); line-height: 1; }
+  .stat-label { font-size: 12px; color: rgba(255,255,255,.7); text-transform: uppercase; letter-spacing: .12em; margin-top: 8px; }
+
+  /* TESTIMONIALS */
+  .testi-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; max-width: 1100px; }
+  .tcard { background: var(--white); border: 1.5px solid var(--mist); border-radius: var(--radius-lg); padding: 28px; transition: all .25s; }
+  .tcard:hover { border-color: var(--mint); box-shadow: var(--shadow-card); }
+  .tcard-stars { color: var(--coral); font-size: 15px; letter-spacing: 2px; margin-bottom: 16px; }
+  .tcard-quote { font-family: var(--font-display); font-size: 15px; font-style: italic; color: var(--ink-mid); line-height: 1.8; margin-bottom: 20px; }
+  .tcard-author { display: flex; align-items: center; gap: 12px; }
+  .tcard-av { width: 38px; height: 38px; border-radius: 50%; background: var(--mint); display:flex;align-items:center;justify-content:center; font-size:15px; }
+  .tcard-name { font-size: 14px; font-weight: 600; color: var(--ink); }
+  .tcard-service { font-size: 11px; color: var(--taupe); margin-top: 2px; }
+
+  /* CTA */
+  .lp-cta { background: linear-gradient(135deg, var(--teal), var(--teal-dark)); padding: 100px 60px; text-align: center; }
+  .lp-cta h2 { font-family: var(--font-display); font-size: clamp(36px, 5vw, 56px); font-weight: 600; color: var(--white); margin-bottom: 16px; }
+  .lp-cta p { font-size: 16px; color: rgba(255,255,255,.8); margin-bottom: 40px; }
+  .lp-cta .btn-white { background: var(--white); color: var(--teal-dark); font-weight: 600; }
+  .lp-cta .btn-white:hover { background: var(--snow); transform: translateY(-2px); }
+  .lp-cta .btn-trans { background: transparent; color: var(--white); border: 2px solid rgba(255,255,255,.5); }
+  .lp-cta .btn-trans:hover { background: rgba(255,255,255,.1); }
+
+  /* FOOTER */
+  .lp-footer { background: var(--ink); padding: 60px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 24px; }
+  .footer-logo { font-family: var(--font-display); font-size: 20px; font-style: italic; color: var(--white); }
+  .footer-logo span { color: var(--mint-mid); }
+  .footer-links { display: flex; gap: 24px; }
+  .footer-links a { font-size: 12px; color: rgba(255,255,255,.5); text-decoration: none; transition: color .2s; }
+  .footer-links a:hover { color: var(--mint-mid); }
+  .footer-copy { font-size: 11px; color: rgba(255,255,255,.3); }
+
+  @keyframes slideUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+  .hero-content > * { animation: slideUp .7s ease both; }
+  .hero-content > *:nth-child(1){animation-delay:.05s}
+  .hero-content > *:nth-child(2){animation-delay:.15s}
+  .hero-content > *:nth-child(3){animation-delay:.25s}
+  .hero-content > *:nth-child(4){animation-delay:.35s}
+</style>
+</head>
+<body>
+
+<!-- ═══ STYLE GUIDE ═══ -->
+<div class="sg">
+  <p class="sg-label">Style Guide — Dental V2</p>
+  <h1 style="font-family:var(--font-display);font-size:52px;font-weight:600;color:var(--ink);line-height:1.1">Fresh <em style="color:var(--teal);font-style:italic">Clinical</em><br><span style="font-size:32px;font-weight:400">Mint & Warmth</span></h1>
+  <p style="color:var(--text-body);font-size:15px;max-width:520px;margin-top:14px;line-height:1.8">Bright, approachable, and trustworthy. A dental brand that feels human — warm clinical whites, energising teal, and friendly coral accents. Perfect for family and general dental practices.</p>
+
+  <hr class="sg-divider">
+
+  <p class="sg-label">Color Palette</p>
+  <div class="swatches">
+    <div class="swatch"><div class="swatch-block" style="background:var(--teal)"></div><div class="swatch-name">Teal</div><div class="swatch-hex">#2a9d8f</div></div>
+    <div class="swatch"><div class="swatch-block" style="background:var(--teal-dark)"></div><div class="swatch-name">Teal Dark</div><div class="swatch-hex">#1a7065</div></div>
+    <div class="swatch"><div class="swatch-block" style="background:var(--mint-mid)"></div><div class="swatch-name">Mint Mid</div><div class="swatch-hex">#7dcec0</div></div>
+    <div class="swatch"><div class="swatch-block" style="background:var(--mint);border:1px solid var(--mist)"></div><div class="swatch-name">Mint Light</div><div class="swatch-hex">#c2e8df</div></div>
+    <div class="swatch"><div class="swatch-block" style="background:var(--coral)"></div><div class="swatch-name">Coral</div><div class="swatch-hex">#e8836a</div></div>
+    <div class="swatch"><div class="swatch-block" style="background:var(--warm-white);border:1px solid var(--mist)"></div><div class="swatch-name">Warm White</div><div class="swatch-hex">#fdf8f3</div></div>
+    <div class="swatch"><div class="swatch-block" style="background:var(--ink)"></div><div class="swatch-name">Ink</div><div class="swatch-hex">#1a2420</div></div>
+  </div>
+
+  <hr class="sg-divider">
+
+  <p class="sg-label">Typography</p>
+  <div class="type-row">
+    <div class="type-meta">Display — Lora 600 / Italic</div>
+    <div style="font-family:var(--font-display);font-size:60px;font-weight:600;color:var(--ink);line-height:1">Healthy <em style="color:var(--teal)">Smiles</em></div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta">Heading 2 — Lora 600, 36px</div>
+    <div style="font-family:var(--font-display);font-size:36px;font-weight:600;color:var(--ink)">Your Family Dental Care</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta">Body — Bricolage Grotesque 400, 15px</div>
+    <div style="font-family:var(--font-ui);font-size:15px;color:var(--text-body);max-width:480px;line-height:1.8">We believe everyone deserves a smile they love. Our caring team uses the latest techniques to keep you and your family comfortable and confident.</div>
+  </div>
+  <div class="type-row">
+    <div class="type-meta">UI Label — Bricolage Grotesque 500, 11px uppercase</div>
+    <div style="font-family:var(--font-ui);font-size:11px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--teal)">New Patients Welcome</div>
+  </div>
+
+  <hr class="sg-divider">
+
+  <p class="sg-label">Buttons</p>
+  <div class="comp-row">
+    <button class="btn btn-primary">Book Appointment</button>
+    <button class="btn btn-coral">Emergency Visit</button>
+    <button class="btn btn-outline">View Services</button>
+    <button class="btn btn-soft">Learn More</button>
+  </div>
+
+  <hr class="sg-divider">
+
+  <p class="sg-label">Badges</p>
+  <div class="comp-row">
+    <span class="badge badge-teal badge-dot">Accepting New Patients</span>
+    <span class="badge badge-coral">Same-Day Available</span>
+  </div>
+
+  <hr class="sg-divider">
+
+  <p class="sg-label">Form Inputs</p>
+  <div class="comp-row">
+    <input class="input-demo" placeholder="Your full name" type="text">
+    <input class="input-demo" placeholder="Phone number" type="tel">
+  </div>
+
+  <hr class="sg-divider">
+
+  <p class="sg-label">Service Cards</p>
+  <div class="comp-row">
+    <div class="card-demo"><div class="card-stripe"></div><h4>Checkup & Clean</h4><p>Regular preventive care for the whole family.</p></div>
+    <div class="card-demo"><div class="card-stripe" style="background:var(--coral)"></div><h4>Emergency Care</h4><p>Same-day appointments for urgent dental pain.</p></div>
+    <div class="card-demo"><div class="card-stripe" style="background:var(--mint-mid)"></div><h4>Children's Dentistry</h4><p>Gentle, fun visits for our youngest patients.</p></div>
+  </div>
+</div>
+
+<!-- ═══ LANDING PAGE ═══ -->
+
+<nav class="lp-nav">
+  <div class="lp-logo">Bright<span>Smile</span> Dental</div>
+  <ul class="nav-links">
+    <li><a href="#">Services</a></li>
+    <li><a href="#">About Us</a></li>
+    <li><a href="#">Patient Info</a></li>
+    <li><a href="#">Contact</a></li>
+  </ul>
+  <button class="btn btn-primary" style="padding:10px 22px;font-size:13px">Book Today</button>
+</nav>
+
+<!-- HERO -->
+<section class="lp-hero">
+  <div class="hero-content">
+    <div class="hero-pill"><span class="dot"></span> Now accepting new patients</div>
+    <h1 class="hero-h1">Caring for<br><span class="wave">Every Smile</span><br>in the Family</h1>
+    <p class="hero-sub">Gentle, modern dentistry for all ages. From routine checkups to complete smile transformations — we make every visit comfortable and stress-free.</p>
+    <div class="hero-actions">
+      <button class="btn btn-primary">Book an Appointment</button>
+      <button class="btn btn-soft">Call (416) 555-0182</button>
+    </div>
+    <div class="hero-trust">
+      <div class="trust-avatars">
+        <div class="avatar">😊</div>
+        <div class="avatar">😄</div>
+        <div class="avatar">🦷</div>
+        <div class="avatar">+</div>
+      </div>
+      <span>Join <strong style="color:var(--ink)">3,200+</strong> happy patients</span>
+    </div>
+  </div>
+
+  <div class="hero-visual-panel">
+    <div class="hvp-header">
+      <h3>Book Your Visit</h3>
+      <p>Select a service to get started</p>
+    </div>
+    <div class="hvp-services">
+      <div class="hvp-item"><div class="hvp-icon">🔬</div><div><div class="hvp-name">Checkup & Clean</div><div class="hvp-time">45 mins</div></div><div class="hvp-price">$120</div></div>
+      <div class="hvp-item"><div class="hvp-icon">✨</div><div><div class="hvp-name">Teeth Whitening</div><div class="hvp-time">60 mins</div></div><div class="hvp-price">$280</div></div>
+      <div class="hvp-item"><div class="hvp-icon">😁</div><div><div class="hvp-name">Braces Consult</div><div class="hvp-time">30 mins</div></div><div class="hvp-price">Free</div></div>
+      <div class="hvp-item"><div class="hvp-icon">🚨</div><div><div class="hvp-name">Emergency Visit</div><div class="hvp-time">Same day</div></div><div class="hvp-price">$95</div></div>
+      <div class="hvp-item"><div class="hvp-icon">👶</div><div><div class="hvp-name">Child's First Visit</div><div class="hvp-time">30 mins</div></div><div class="hvp-price">$60</div></div>
+    </div>
+    <div class="hvp-cta"><button class="btn btn-primary" style="width:100%;justify-content:center">Continue Booking →</button></div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-strip">
+  <div class="stat-box"><div class="stat-num">3,200+</div><div class="stat-label">Happy Patients</div></div>
+  <div class="stat-box"><div class="stat-num">18yr</div><div class="stat-label">Serving the Community</div></div>
+  <div class="stat-box"><div class="stat-num">4.9★</div><div class="stat-label">Google Rating</div></div>
+  <div class="stat-box"><div class="stat-num">98%</div><div class="stat-label">Would Recommend</div></div>
+</div>
+
+<!-- SERVICES -->
+<section class="lp-section bg-snow">
+  <div style="max-width:1100px;margin:0 auto;">
+    <div class="lp-section-header">
+      <div class="section-tag">Our Services</div>
+      <h2 class="section-h2">Everything Your<br>Smile Needs, <em>Under One Roof</em></h2>
+      <p class="section-sub">Comprehensive dental care for every stage of life — from your child's first tooth to your perfect smile makeover.</p>
+    </div>
+    <div class="services-2col">
+      <div class="svc-card"><div class="svc-icon-wrap">🔬</div><div class="svc-body"><div class="svc-title">Preventive Dentistry</div><p class="svc-desc">Regular exams, cleanings, X-rays, and fluoride treatments to keep teeth healthy and catch problems early.</p><div class="svc-link">Learn more →</div></div></div>
+      <div class="svc-card"><div class="svc-icon-wrap">✨</div><div class="svc-body"><div class="svc-title">Cosmetic Dentistry</div><p class="svc-desc">Whitening, veneers, bonding, and smile makeovers to help you feel proud of your smile every single day.</p><div class="svc-link">Learn more →</div></div></div>
+      <div class="svc-card"><div class="svc-icon-wrap">🦷</div><div class="svc-body"><div class="svc-title">Restorative Dentistry</div><p class="svc-desc">Fillings, crowns, bridges, and implants to restore function and aesthetics when teeth are damaged or missing.</p><div class="svc-link">Learn more →</div></div></div>
+      <div class="svc-card"><div class="svc-icon-wrap">😁</div><div class="svc-body"><div class="svc-title">Orthodontics</div><p class="svc-desc">Traditional braces and clear aligners (Invisalign) for teens and adults — straight teeth at any age.</p><div class="svc-link">Learn more →</div></div></div>
+      <div class="svc-card"><div class="svc-icon-wrap">👶</div><div class="svc-body"><div class="svc-title">Children's Dentistry</div><p class="svc-desc">Gentle, friendly care designed specifically for kids from their very first tooth through their teenage years.</p><div class="svc-link">Learn more →</div></div></div>
+      <div class="svc-card"><div class="svc-icon-wrap">🚨</div><div class="svc-body"><div class="svc-title">Emergency Dental Care</div><p class="svc-desc">Same-day emergency appointments for toothaches, broken teeth, lost fillings, and dental trauma.</p><div class="svc-link">Learn more →</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="lp-section">
+  <div style="max-width:1100px;margin:0 auto;">
+    <div class="lp-section-header">
+      <div class="section-tag">Patient Stories</div>
+      <h2 class="section-h2">What Our Patients <em>Say</em></h2>
+    </div>
+    <div class="testi-grid">
+      <div class="tcard"><div class="tcard-stars">★★★★★</div><p class="tcard-quote">"The most relaxed I've ever felt at the dentist! The team is so welcoming, my kids actually look forward to their visits."</p><div class="tcard-author"><div class="tcard-av">👩</div><div><div class="tcard-name">Rachel T.</div><div class="tcard-service">Family Checkups</div></div></div></div>
+      <div class="tcard"><div class="tcard-stars">★★★★★</div><p class="tcard-quote">"I had severe dental anxiety and was terrified, but BrightSmile changed everything. Gentle, patient, and professional."</p><div class="tcard-author"><div class="tcard-av">👨</div><div><div class="tcard-name">David O.</div><div class="tcard-service">Restorative Treatment</div></div></div></div>
+      <div class="tcard"><div class="tcard-stars">★★★★★</div><p class="tcard-quote">"My whitening results are incredible — 8 shades lighter in one session. Couldn't stop smiling for days!"</p><div class="tcard-author"><div class="tcard-av">👩</div><div><div class="tcard-name">Lisa C.</div><div class="tcard-service">Professional Whitening</div></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="lp-cta">
+  <h2>Ready for Your Healthiest Smile?</h2>
+  <p>Book online in 60 seconds. New patients welcome — all insurances accepted.</p>
+  <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+    <button class="btn btn-white">Book Appointment Online</button>
+    <button class="btn btn-trans">Call (416) 555-0182</button>
+  </div>
+</section>
+
+<footer class="lp-footer">
+  <div class="footer-logo">Bright<span>Smile</span></div>
+  <div class="footer-links"><a href="#">Privacy</a><a href="#">Accessibility</a><a href="#">Patient Portal</a><a href="#">Instagram</a></div>
+  <div class="footer-copy">© 2025 BrightSmile Dental</div>
+</footer>
+
+</body>
+</html>
