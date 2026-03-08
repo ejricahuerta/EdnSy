@@ -19,6 +19,7 @@ import {
 	listProspects as listNotionProspects,
 	listNotionDatabases,
 	getNotionDatabaseSchema,
+	getNotionDatabaseTitle,
 	NOTION_FIELD_KEYS
 } from '$lib/server/notion';
 import { upsertProspect } from '$lib/server/prospects';
@@ -43,7 +44,27 @@ export const load: PageServerLoad = async ({ cookies }) => {
 	const gmailConnected = !!(gmailTokens?.refresh_token);
 	const gmailEmail = gmailTokens?.email ?? null;
 	const notionFieldKeys = NOTION_FIELD_KEYS;
-	return { plan, connections, canConnect: canConnectCrm(plan), helpDocs, gmailConnected, gmailEmail, notionFieldKeys };
+
+	let notionDatabaseId: string | null = null;
+	let notionDatabaseTitle: string | null = null;
+	const notionConn = await getCrmConnection(user.id, 'notion');
+	if (notionConn?.databaseId) {
+		notionDatabaseId = notionConn.databaseId;
+		const titleResult = await getNotionDatabaseTitle(user.id);
+		if (titleResult) notionDatabaseTitle = titleResult.title;
+	}
+
+	return {
+		plan,
+		connections,
+		canConnect: canConnectCrm(plan),
+		helpDocs,
+		gmailConnected,
+		gmailEmail,
+		notionFieldKeys,
+		notionDatabaseId,
+		notionDatabaseTitle
+	};
 };
 
 export const actions: Actions = {

@@ -38,7 +38,8 @@ Without this step, the integration cannot read or sync the database.
 ## 5. Connect in Lead Rosetta
 
 1. In **Dashboard → Integrations**, select **Notion**.
-2. Paste your **API key** and **Database ID**.
-3. Click **Connect Notion**.
+2. Paste your **API key**.
+3. Click **Load databases** to fetch your Notion databases, then select the database to sync from the dropdown. If your database is not in the list, paste its **Database ID** in the field below (see step 3 for how to get it).
+4. Click **Connect Notion**.
 
 After connecting, use **Sync to dashboard** to pull rows from the database into your dashboard clients list.

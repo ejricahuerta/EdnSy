@@ -48,6 +48,37 @@ export type NotionDatabaseOption = { id: string; title: string };
 export type NotionPropertySchema = { name: string; type: string };
 
 /**
+ * Get the title of the connected Notion database for display (e.g. Integrations page).
+ * Returns null if not connected or API fails (e.g. token revoked).
+ */
+export async function getNotionDatabaseTitle(
+	userId: string
+): Promise<{ title: string; databaseId: string } | null> {
+	const config = await getNotionConfig(userId);
+	if (!config) return null;
+	const { apiKey, databaseId } = config;
+	try {
+		const res = await fetch(`https://api.notion.com/v1/databases/${databaseId}`, {
+			headers: {
+				Authorization: `Bearer ${apiKey}`,
+				'Notion-Version': '2022-06-28',
+				'Content-Type': 'application/json'
+			}
+		});
+		if (!res.ok) return null;
+		const data = (await res.json()) as { title?: Array<{ plain_text?: string }> };
+		const titleArr = data.title;
+		const title =
+			titleArr?.length && titleArr[0]?.plain_text !== undefined
+				? titleArr[0].plain_text
+				: 'Untitled';
+		return { title: title || 'Untitled', databaseId };
+	} catch {
+		return null;
+	}
+}
+
+/**
  * Fetch Notion database schema (property names and types) for the connected database.
  * Used by the Integrations "Map headers" popup.
  */
