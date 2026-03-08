@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Serenity Dental — Gentle Care, Beautiful Smiles</title>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --lavender: #7B68B8;
+  --lavender-mid: #9B8BD0;
+  --lavender-light: #C8B8E8;
+  --whisper: #F5F2FF;
+  --pink: #FFCCE0;
+  --pink-mid: #FFB3CC;
+  --plum: #2D2440;
+  --text: #453A5A;
+}
+body { font-family: 'DM Sans', sans-serif; background: white; color: var(--text); overflow-x: hidden; }
+
+/* NAV */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 64px;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(200,184,232,0.3);
+}
+.nav-logo { font-family: 'Bitter', serif; font-size: 22px; font-weight: 700; color: var(--lavender); display: flex; align-items: center; gap: 8px; }
+.nav-links { display: flex; gap: 36px; list-style: none; }
+.nav-links a { color: var(--text); text-decoration: none; font-size: 14px; font-weight: 400; transition: color 0.2s; }
+.nav-links a:hover { color: var(--lavender); }
+.nav-cta { background: var(--lavender); color: white; padding: 12px 28px; border-radius: 50px; font-size: 14px; font-weight: 500; text-decoration: none; transition: all 0.2s; }
+.nav-cta:hover { background: var(--lavender-mid); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(123,104,184,0.3); }
+
+/* HERO */
+.hero {
+  padding-top: 90px;
+  min-height: 100vh;
+  background: var(--whisper);
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero-orb-1 { position: absolute; top: -120px; right: -120px; width: 500px; height: 500px; border-radius: 50%; background: radial-gradient(circle, var(--lavender-light) 0%, transparent 65%); opacity: 0.4; }
+.hero-orb-2 { position: absolute; bottom: -80px; left: 100px; width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(circle, var(--pink) 0%, transparent 65%); opacity: 0.5; }
+.hero-inner { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 60px; padding: 80px 64px; max-width: 1280px; margin: 0 auto; width: 100%; position: relative; z-index: 2; }
+.hero-pill { display: inline-flex; align-items: center; gap: 8px; background: var(--pink); color: var(--plum); padding: 8px 18px; border-radius: 50px; font-size: 13px; font-weight: 500; margin-bottom: 28px; }
+.hero h1 { font-family: 'Bitter', serif; font-size: 64px; font-weight: 700; color: var(--plum); line-height: 1.1; margin-bottom: 20px; }
+.hero h1 em { color: var(--lavender); font-style: italic; font-weight: 300; }
+.hero-desc { font-size: 17px; color: var(--text); line-height: 1.85; max-width: 440px; margin-bottom: 40px; font-weight: 300; }
+.hero-actions { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 48px; }
+.btn-lav { background: var(--lavender); color: white; padding: 15px 36px; border-radius: 50px; font-size: 15px; font-weight: 500; text-decoration: none; box-shadow: 0 8px 28px rgba(123,104,184,0.3); transition: all 0.2s; }
+.btn-lav:hover { transform: translateY(-3px); box-shadow: 0 14px 40px rgba(123,104,184,0.4); }
+.btn-out { color: var(--lavender); font-size: 15px; text-decoration: none; font-weight: 500; padding: 15px 28px; border: 2px solid var(--lavender-light); border-radius: 50px; transition: all 0.2s; }
+.btn-out:hover { background: var(--whisper); }
+.trust-row { display: flex; gap: 20px; flex-wrap: wrap; }
+.trust-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #888; }
+.trust-icon { color: var(--lavender); }
+
+/* HERO VISUAL */
+.hero-visual { position: relative; height: 500px; }
+.vis-main {
+  background: white;
+  border-radius: 32px;
+  padding: 44px;
+  box-shadow: 0 24px 80px rgba(123,104,184,0.15);
+  position: absolute;
+  top: 30px; left: 0; right: 0;
+}
+.vis-main h3 { font-family: 'Bitter', serif; font-size: 22px; color: var(--plum); margin-bottom: 8px; }
+.vis-main p { font-size: 13px; color: #888; line-height: 1.7; margin-bottom: 24px; }
+.vis-emoji { font-size: 56px; margin-bottom: 16px; display: block; }
+.review-badge {
+  position: absolute;
+  top: 0; right: -20px;
+  background: var(--pink);
+  border-radius: 20px;
+  padding: 14px 18px;
+  box-shadow: 0 8px 24px rgba(255,204,224,0.6);
+  font-size: 14px; font-weight: 600; color: var(--plum);
+  animation: glow 3s ease-in-out infinite;
+}
+@keyframes glow { 0%,100%{box-shadow:0 8px 24px rgba(255,204,224,0.6);} 50%{box-shadow:0 16px 40px rgba(255,204,224,0.9);} }
+.calm-badge {
+  position: absolute;
+  bottom: 0; left: -20px;
+  background: var(--lavender);
+  border-radius: 16px;
+  padding: 14px 18px;
+  color: white;
+  font-size: 13px; font-weight: 500;
+  line-height: 1.5;
+}
+
+/* SERVICES */
+.services { padding: 100px 64px; background: white; }
+.lbl { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--lavender); font-weight: 600; margin-bottom: 14px; }
+.sec-title { font-family: 'Bitter', serif; font-size: 48px; font-weight: 700; color: var(--plum); line-height: 1.1; margin-bottom: 16px; }
+.sec-title em { color: var(--lavender); font-weight: 300; }
+.sec-sub { font-size: 16px; color: var(--text); max-width: 500px; line-height: 1.8; margin-bottom: 56px; font-weight: 300; }
+
+.services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.svc-card {
+  background: var(--whisper);
+  border-radius: 24px;
+  padding: 36px;
+  transition: all 0.3s;
+  border: 2px solid transparent;
+}
+.svc-card:hover { background: white; border-color: var(--lavender-light); box-shadow: 0 12px 40px rgba(123,104,184,0.12); transform: translateY(-4px); }
+.svc-icon-wrap { width: 56px; height: 56px; background: white; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 20px; box-shadow: 0 4px 16px rgba(123,104,184,0.15); }
+.svc-card h3 { font-family: 'Bitter', serif; font-size: 20px; font-weight: 600; color: var(--plum); margin-bottom: 10px; }
+.svc-card p { font-size: 14px; color: var(--text); line-height: 1.7; margin-bottom: 16px; font-weight: 300; }
+.svc-card .price { font-size: 16px; font-weight: 600; color: var(--lavender); }
+
+/* EXPERIENCE */
+.experience { padding: 100px 64px; background: var(--whisper); }
+.exp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+.exp-steps { display: flex; flex-direction: column; gap: 28px; margin-top: 40px; }
+.exp-step { display: flex; gap: 20px; align-items: flex-start; }
+.exp-dot { width: 44px; height: 44px; border-radius: 50%; background: var(--lavender); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 16px; flex-shrink: 0; box-shadow: 0 4px 16px rgba(123,104,184,0.3); }
+.exp-step h4 { font-family: 'Bitter', serif; font-size: 18px; font-weight: 600; color: var(--plum); margin-bottom: 6px; }
+.exp-step p { font-size: 14px; color: var(--text); line-height: 1.7; font-weight: 300; }
+.exp-visual { background: white; border-radius: 32px; padding: 48px; box-shadow: 0 16px 60px rgba(123,104,184,0.1); text-align: center; }
+.exp-visual .big { font-size: 100px; margin-bottom: 20px; }
+.exp-visual h3 { font-family: 'Bitter', serif; font-size: 26px; color: var(--plum); margin-bottom: 12px; }
+.exp-visual p { font-size: 15px; color: #888; line-height: 1.7; font-weight: 300; }
+
+/* TESTIMONIALS */
+.testimonials { padding: 100px 64px; background: white; }
+.test-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 52px; }
+.test-card { background: var(--whisper); border-radius: 24px; padding: 36px; }
+.test-stars { color: var(--lavender-mid); font-size: 18px; margin-bottom: 16px; }
+.test-text { font-size: 15px; color: var(--text); line-height: 1.8; margin-bottom: 24px; font-weight: 300; font-style: italic; }
+.test-author { display: flex; align-items: center; gap: 12px; }
+.test-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--lavender-light), var(--pink)); display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--plum); font-size: 15px; }
+.test-name { font-weight: 600; font-size: 14px; color: var(--plum); }
+.test-role { font-size: 12px; color: #aaa; }
+
+/* CTA */
+.cta { padding: 100px 64px; background: linear-gradient(135deg, var(--lavender) 0%, #9B7BC8 60%, var(--lavender-mid) 100%); text-align: center; position: relative; overflow: hidden; }
+.cta::before { content: '✿'; font-size: 300px; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); opacity: 0.05; line-height: 1; }
+.cta h2 { font-family: 'Bitter', serif; font-size: 52px; font-weight: 700; color: white; margin-bottom: 16px; position: relative; }
+.cta p { font-size: 18px; color: rgba(255,255,255,0.8); margin-bottom: 48px; max-width: 480px; margin-left: auto; margin-right: auto; position: relative; font-weight: 300; }
+.cta-form { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; position: relative; }
+.cta-input { padding: 16px 24px; border-radius: 50px; border: none; font-size: 15px; font-family: 'DM Sans', sans-serif; min-width: 220px; background: rgba(255,255,255,0.2); color: white; outline: none; border: 1px solid rgba(255,255,255,0.3); }
+.cta-input::placeholder { color: rgba(255,255,255,0.6); }
+.cta-btn { background: white; color: var(--lavender); padding: 16px 36px; border-radius: 50px; border: none; font-size: 15px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; box-shadow: 0 8px 32px rgba(0,0,0,0.15); }
+.cta-btn:hover { transform: translateY(-2px); box-shadow: 0 14px 44px rgba(0,0,0,0.2); }
+
+footer { background: var(--plum); color: rgba(255,255,255,0.5); padding: 44px 64px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+.f-logo { font-family: 'Bitter', serif; font-size: 20px; color: white; font-weight: 700; }
+.f-logo span { color: var(--lavender-light); font-style: italic; font-weight: 300; }
+
+@media (max-width: 1024px) {
+  .hero-inner, .services-grid, .exp-grid, .test-grid { grid-template-columns: 1fr; }
+  .hero-visual { display: none; }
+  nav, .services, .experience, .testimonials, .cta { padding-left: 24px; padding-right: 24px; }
+  nav { padding: 16px 24px; }
+  .nav-links { display: none; }
+  .hero-inner { padding: 60px 24px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Serenity Dental</div>
+  <ul class="nav-links">
+    <li><a href="#">Services</a></li>
+    <li><a href="#">Our Team</a></li>
+    <li><a href="#">Comfort Care</a></li>
+    <li><a href="#">Contact</a></li>
+  </ul>
+  <a href="#" class="nav-cta">Book Appointment</a>
+</nav>
+
+<section class="hero">
+  <div class="hero-orb-1"></div>
+  <div class="hero-orb-2"></div>
+  <div class="hero-inner">
+    <div>
+      <div class="hero-pill">Anxiety-free dental care</div>
+      <h1>Gentle Care,<br><em>Every Single</em><br>Visit.</h1>
+      <p class="hero-desc">We believe dental care should feel calm, comforting, and kind. Our serene environment and gentle approach make every appointment a truly pleasant experience.</p>
+      <div class="hero-actions">
+        <a href="#" class="btn-lav">Book My Appointment</a>
+        <a href="#" class="btn-out">Learn About Us</a>
+      </div>
+      <div class="trust-row">
+        <div class="trust-item"><span class="trust-icon">✦</span> Sedation available</div>
+        <div class="trust-item"><span class="trust-icon">✦</span> Anxiety-friendly</div>
+        <div class="trust-item"><span class="trust-icon">✦</span> 4.9★ from 400+ reviews</div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="vis-main">
+        <span class="vis-emoji" aria-hidden="true"></span>
+        <h3>Your Comfort Comes First</h3>
+        <p>Heated chairs, noise-cancelling headphones, lavender aromatherapy, and a team that truly listens.</p>
+      </div>
+      <div class="review-badge">4.9 stars · "Best dentist ever!"</div>
+      <div class="calm-badge">Anxiety-free<br>guaranteed</div>
+    </div>
+  </div>
+</section>
+
+<section class="services">
+  <div class="lbl">What We Offer</div>
+  <div class="sec-title">Beautiful Smiles<br><em>Delivered Gently</em></div>
+  <p class="sec-sub">From your very first appointment to your final reveal, every step is designed around your comfort and confidence.</p>
+  <div class="services-grid">
+    <div class="svc-card">
+      <div class="svc-icon-wrap"><i data-lucide="smile"></i></div>
+      <h3>Gentle Cleaning</h3>
+      <p>A thorough, relaxing professional clean using ultra-sonic tools that are effective yet completely pain-free.</p>
+      <div class="price">From $89</div>
+    </div>
+    <div class="svc-card">
+      <div class="svc-icon-wrap"><i data-lucide="sparkles"></i></div>
+      <h3>Teeth Whitening</h3>
+      <p>Our gentle whitening system delivers beautiful results without the sensitivity associated with other methods.</p>
+      <div class="price">From $279</div>
+    </div>
+    <div class="svc-card">
+      <div class="svc-icon-wrap"><i data-lucide="gem"></i></div>
+      <h3>Porcelain Veneers</h3>
+      <p>Custom-crafted ultra-thin veneers designed to complement your natural features and express your true smile.</p>
+      <div class="price">From $1,150/tooth</div>
+    </div>
+    <div class="svc-card">
+      <div class="svc-icon-wrap"><i data-lucide="star"></i></div>
+      <h3>Invisalign®</h3>
+      <p>Comfortable, discreet clear aligners with monthly progress checks in our calming practice environment.</p>
+      <div class="price">From $3,400</div>
+    </div>
+    <div class="svc-card">
+      <div class="svc-icon-wrap"><i data-lucide="wrench"></i></div>
+      <h3>Dental Implants</h3>
+      <p>Permanent tooth restoration with optional sedation and a step-by-step guided process at a comfortable pace.</p>
+      <div class="price">From $1,850</div>
+    </div>
+    <div class="svc-card">
+      <div class="svc-icon-wrap"><i data-lucide="heart"></i></div>
+      <h3>Sedation Dentistry</h3>
+      <p>Oral and IV sedation options for nervous patients or complex procedures. Wake up with your treatment done.</p>
+      <div class="price">From $299</div>
+    </div>
+  </div>
+</section>
+
+<section class="experience">
+  <div class="exp-grid">
+    <div>
+      <div class="lbl">The Serenity Experience</div>
+      <div class="sec-title">Your Journey<br>to a <em>Calm</em> Smile</div>
+      <div class="exp-steps">
+        <div class="exp-step"><div class="exp-dot">1</div><div><h4>Warm Welcome</h4><p>A calming waiting room with herbal teas, soft music, and a team that knows your name before you arrive.</p></div></div>
+        <div class="exp-step"><div class="exp-dot">2</div><div><h4>Gentle Assessment</h4><p>We take time to understand your concerns, history, and goals — no rushing, no pressure, just listening.</p></div></div>
+        <div class="exp-step"><div class="exp-dot">3</div><div><h4>Personalised Treatment</h4><p>Every plan is customised to your comfort level and lifestyle, with flexible pacing that works for you.</p></div></div>
+        <div class="exp-step"><div class="exp-dot">4</div><div><h4>Beautiful Results</h4><p>Walk away with a smile you love — and the confidence that comes from knowing you're in expert hands.</p></div></div>
+      </div>
+    </div>
+    <div class="exp-visual">
+      <div class="big"><i data-lucide="leaf"></i></div>
+      <h3>A Spa-Like Environment</h3>
+      <p>We've reimagined what a dental office should feel like. Soft lighting, aromatherapy, cosy blankets, and a team dedicated to making you feel at ease.</p>
+    </div>
+  </div>
+</section>
+
+<section class="testimonials">
+  <div class="lbl">Patient Stories</div>
+  <div class="sec-title">They Were Nervous<br>Too — <em>Once.</em></div>
+  <div class="test-grid">
+    <div class="test-card">
+      <div class="test-stars">★★★★★</div>
+      <p class="test-text">"I haven't been to a dentist in 8 years because of my anxiety. Serenity changed everything. The team was so patient and kind — I didn't feel scared once."</p>
+      <div class="test-author"><div class="test-avatar">E</div><div><div class="test-name">Emma W.</div><div class="test-role">Former dental-phobic patient</div></div></div>
+    </div>
+    <div class="test-card">
+      <div class="test-stars">★★★★★</div>
+      <p class="test-text">"The heated chair and lavender scent alone make this the best dentist I've ever visited. My veneers are stunning and the process was completely stress-free."</p>
+      <div class="test-author"><div class="test-avatar">L</div><div><div class="test-name">Lily C.</div><div class="test-role">Patient since 2022</div></div></div>
+    </div>
+    <div class="test-card">
+      <div class="test-stars">★★★★★</div>
+      <p class="test-text">"Had a root canal here under sedation and honestly it was the most relaxed I've ever been in a dental chair. Woke up to a perfect result. Unbelievable."</p>
+      <div class="test-author"><div class="test-avatar">M</div><div><div class="test-name">Michael R.</div><div class="test-role">Patient since 2023</div></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <h2>Begin Your Calm Dental Journey</h2>
+  <p>Book your complimentary comfort consultation and discover a better way to care for your smile.</p>
+  <div class="cta-form">
+    <input class="cta-input" type="text" placeholder="Your name">
+    <input class="cta-input" type="tel" placeholder="Phone number">
+    <button class="cta-btn">Book Free Consult →</button>
+  </div>
+</section>
+
+<footer>
+  <div class="f-logo">Serenity <span>Dental</span></div>
+  <div>© 2025 Serenity Dental · All Rights Reserved</div>
+  <div>(555) 700-CALM</div>
+</footer>
+
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>if(typeof lucide!=='undefined')lucide.createIcons();</script>
+</body>
+</html>

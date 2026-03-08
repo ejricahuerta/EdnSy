@@ -25,6 +25,7 @@ type EnrichmentFromAi = {
 	hero?: { headline?: string; subheadline?: string };
 	about?: { headline?: string; body?: string; values?: string[] };
 	services?: Array<{ name?: string; description?: string; price?: string }>;
+	seo?: { title?: string; description?: string; keywords?: string[] };
 };
 
 function isEnrichmentShape(value: unknown): value is EnrichmentFromAi {
@@ -34,6 +35,7 @@ function isEnrichmentShape(value: unknown): value is EnrichmentFromAi {
 	if (o.hero != null && (typeof o.hero !== 'object' || Array.isArray(o.hero))) return false;
 	if (o.about != null && (typeof o.about !== 'object' || Array.isArray(o.about))) return false;
 	if (o.services != null && !Array.isArray(o.services)) return false;
+	if (o.seo != null && (typeof o.seo !== 'object' || Array.isArray(o.seo))) return false;
 	return true;
 }
 
@@ -55,12 +57,27 @@ function mergeEnrichment(base: LandingPageIndexJson, enrichment: EnrichmentFromA
 		if (Array.isArray(enrichment.about.values) && enrichment.about.values.length > 0)
 			out.about.values = enrichment.about.values;
 	}
-	if (Array.isArray(enrichment.services) && enrichment.services.length > 0 && out.services?.length === enrichment.services.length) {
-		out.services = enrichment.services.map((s, i) => ({
-			name: s.name ?? out.services![i]!.name,
-			description: s.description ?? out.services![i]!.description,
-			price: s.price ?? out.services![i]!.price
-		}));
+	if (Array.isArray(enrichment.services) && enrichment.services.length > 0) {
+		if (out.services?.length === enrichment.services.length) {
+			out.services = enrichment.services.map((s, i) => ({
+				name: s.name ?? out.services![i]!.name,
+				description: s.description ?? out.services![i]!.description,
+				price: s.price ?? out.services![i]!.price
+			}));
+		} else {
+			out.services = enrichment.services.map((s) => ({
+				name: s.name ?? 'Service',
+				description: s.description ?? '',
+				price: s.price ?? '—'
+			}));
+		}
+	}
+	if (enrichment.seo) {
+		out.seo = out.seo ?? {};
+		if (enrichment.seo.title != null) out.seo.title = enrichment.seo.title;
+		if (enrichment.seo.description != null) out.seo.description = enrichment.seo.description;
+		if (Array.isArray(enrichment.seo.keywords) && enrichment.seo.keywords.length > 0)
+			out.seo.keywords = enrichment.seo.keywords;
 	}
 	return out;
 }
@@ -82,9 +99,10 @@ export async function enrichPitchRosettaCopy(
 	}
 
 	const name = (gbpRaw.name || prospect.companyName) ?? 'Business';
-	const industry = (gbpRaw.industry || prospect.industry) ?? 'General';
+	const industry = (gbpRaw.industry || prospect.industry) ?? 'Professional';
 	const address = (gbpRaw.address || prospect.address) ?? '';
 	const area = ((address.match(/,?\s*([A-Za-z\s]+),\s*[A-Z]{2}\s*(?:\d|$)/)?.[1] ?? '').trim() || prospect.city) ?? '';
+	const city = area || 'Toronto';
 	const reviewCount = gbpRaw.ratingCount ?? 0;
 	const rating = gbpRaw.ratingValue ?? null;
 	const reviewSnippets = (gbpRaw.reviews ?? []).slice(0, 3).map((r) => (r.text ?? '').trim()).filter(Boolean);
@@ -109,11 +127,13 @@ export async function enrichPitchRosettaCopy(
 		(baseIndexJson.services ?? []).map((s) => ({ name: s.name, description: s.description ?? '', price: s.price ?? '—' }))
 	);
 
-	const prompt = `You are writing concise, credible landing page copy for a real small business. We have their Google Business Profile data and optional AI insight (grade, summary, website grading). Your job is to produce a JSON object that will be merged into their landing page data. Use their real name, location, and industry; weave in the insight so the copy feels tailored. Avoid generic filler.
+	const prompt = `You are writing concise, credible landing page copy for a real small business. We have their Google Business Profile data and optional AI insight (grade, summary, website grading). Your job is to produce a JSON object that will be merged into their landing page data. Use their real name, location, and industry; weave in the insight so the copy feels tailored. Avoid generic filler. Optimize for local search in ${city} where relevant.
+
+**Demo display note:** The rendered demo uses generic hero and CTA section headings (no business name in the main H1/H2). Your hero.headline and hero.subheadline are used for body copy and fallbacks only — so keep them strong and professional, but never include the business name in hero or tagline.
 
 Business: ${name}
 Industry: ${industry}
-Location/area: ${area || 'local area'}
+Location/area: ${city}
 ${rating != null ? `Google rating: ${rating} (${reviewCount} reviews)` : ''}
 ${reviewSnippets.length ? `Review snippets:\n${reviewSnippets.map((t) => `- ${t.slice(0, 200)}`).join('\n')}` : ''}
 ${insightLines ? `\nInsight:\n${insightLines}` : ''}
@@ -123,13 +143,16 @@ ${servicesJson}
 
 Return ONLY a JSON object with exactly these keys (no markdown, no explanation):
 {
-  "business": { "tagline": "one short line for the business" },
-  "hero": { "headline": "main headline", "subheadline": "supporting line" },
+  "business": { "tagline": "one short line for the business, no business name in the tagline" },
+  "hero": { "headline": "short punchy headline (under 8 words), no business name", "subheadline": "one short supporting line, no business name" },
   "about": { "headline": "About section headline", "body": "2-4 sentences about the business", "values": ["value1", "value2", "value3", "value4"] },
-  "services": [ { "name": "same as input", "description": "1-2 sentences", "price": "— or Quote or Contact us" }, ... ]
+  "services": [ { "name": "same as input", "description": "1-2 sentences", "price": "— or Quote or Contact us" }, ... ],
+  "seo": { "title": "50-60 char meta title with business name and location", "description": "150-160 char meta description for local search", "keywords": ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5"] }
 }
 
-Keep "services" array the same length as the input. Use the exact "name" from input for each service; you may change description and price.`;
+**Hero and tagline rules:** Do NOT include the business name in "business.tagline", "hero.headline", or "hero.subheadline". Headline must be short and punchy (e.g. "Exceptional Care for Your Smile" or "Your Smile Deserves the Best") — no long SEO sentences. Subheadline: one short line (e.g. "Book your consultation today." or "Modern dentistry with a gentle touch."). Tagline: one short line about the practice, not the name.
+Keep "services" array the same length as the input. Use the exact "name" from input for each service; you may change description and price.
+For "seo": title and description must include business name and location for local search; keywords should include location, industry, and service terms.`;
 
 	const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
 

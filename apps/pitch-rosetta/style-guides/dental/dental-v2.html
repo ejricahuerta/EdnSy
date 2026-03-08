@@ -66,19 +66,19 @@
   .btn-soft { background: var(--mist); color: var(--teal-dark); }
   .btn-soft:hover { background: var(--mint); }
 
-  .card-demo { background: var(--warm-white); border: 1px solid var(--sand); border-radius: var(--radius-lg); padding: 28px; width: 200px; }
-  .card-demo .card-stripe { width: 36px; height: 4px; border-radius: 2px; background: var(--teal); margin-bottom: 16px; }
-  .card-demo h4 { font-family: var(--font-ui); font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
-  .card-demo p { font-size: 13px; color: var(--text-body); }
+  .card { background: var(--warm-white); border: 1px solid var(--sand); border-radius: var(--radius-lg); padding: 28px; width: 200px; }
+  .card .card-stripe { width: 36px; height: 4px; border-radius: 2px; background: var(--teal); margin-bottom: 16px; }
+  .card h4 { font-family: var(--font-ui); font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+  .card p { font-size: 13px; color: var(--text-body); }
 
   .badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: var(--radius-pill); font-size: 11px; font-weight: 500; }
   .badge-teal { background: var(--mist); color: var(--teal-dark); border: 1px solid var(--mint-mid); }
   .badge-coral { background: #fef0ec; color: var(--coral); border: 1px solid #f7ccc2; }
   .badge-dot::before { content: '●'; font-size: 8px; }
 
-  .input-demo { background: var(--snow); border: 2px solid var(--mist); color: var(--ink); font-family: var(--font-ui); font-size: 14px; padding: 13px 18px; border-radius: var(--radius-md); width: 240px; outline: none; transition: border-color .2s; }
-  .input-demo:focus { border-color: var(--teal); background: var(--white); }
-  .input-demo::placeholder { color: var(--taupe); }
+  .input { background: var(--snow); border: 2px solid var(--mist); color: var(--ink); font-family: var(--font-ui); font-size: 14px; padding: 13px 18px; border-radius: var(--radius-md); width: 240px; outline: none; transition: border-color .2s; }
+  .input:focus { border-color: var(--teal); background: var(--white); }
+  .input::placeholder { color: var(--taupe); }
 
   /* ═══ LANDING PAGE ═══ */
 
@@ -266,17 +266,17 @@
 
   <p class="sg-label">Form Inputs</p>
   <div class="comp-row">
-    <input class="input-demo" placeholder="Your full name" type="text">
-    <input class="input-demo" placeholder="Phone number" type="tel">
+    <input class="input" placeholder="Your full name" type="text">
+    <input class="input" placeholder="Phone number" type="tel">
   </div>
 
   <hr class="sg-divider">
 
   <p class="sg-label">Service Cards</p>
   <div class="comp-row">
-    <div class="card-demo"><div class="card-stripe"></div><h4>Checkup & Clean</h4><p>Regular preventive care for the whole family.</p></div>
-    <div class="card-demo"><div class="card-stripe" style="background:var(--coral)"></div><h4>Emergency Care</h4><p>Same-day appointments for urgent dental pain.</p></div>
-    <div class="card-demo"><div class="card-stripe" style="background:var(--mint-mid)"></div><h4>Children's Dentistry</h4><p>Gentle, fun visits for our youngest patients.</p></div>
+    <div class="card"><div class="card-stripe"></div><h4>Checkup & Clean</h4><p>Regular preventive care for the whole family.</p></div>
+    <div class="card"><div class="card-stripe" style="background:var(--coral)"></div><h4>Emergency Care</h4><p>Same-day appointments for urgent dental pain.</p></div>
+    <div class="card"><div class="card-stripe" style="background:var(--mint-mid)"></div><h4>Children's Dentistry</h4><p>Gentle, fun visits for our youngest patients.</p></div>
   </div>
 </div>
 
@@ -305,9 +305,9 @@
     </div>
     <div class="hero-trust">
       <div class="trust-avatars">
-        <div class="avatar">😊</div>
-        <div class="avatar">😄</div>
-        <div class="avatar">🦷</div>
+        <div class="avatar">1</div>
+        <div class="avatar">2</div>
+        <div class="avatar">3</div>
         <div class="avatar">+</div>
       </div>
       <span>Join <strong style="color:var(--ink)">3,200+</strong> happy patients</span>
@@ -320,11 +320,11 @@
       <p>Select a service to get started</p>
     </div>
     <div class="hvp-services">
-      <div class="hvp-item"><div class="hvp-icon">🔬</div><div><div class="hvp-name">Checkup & Clean</div><div class="hvp-time">45 mins</div></div><div class="hvp-price">$120</div></div>
-      <div class="hvp-item"><div class="hvp-icon">✨</div><div><div class="hvp-name">Teeth Whitening</div><div class="hvp-time">60 mins</div></div><div class="hvp-price">$280</div></div>
-      <div class="hvp-item"><div class="hvp-icon">😁</div><div><div class="hvp-name">Braces Consult</div><div class="hvp-time">30 mins</div></div><div class="hvp-price">Free</div></div>
-      <div class="hvp-item"><div class="hvp-icon">🚨</div><div><div class="hvp-name">Emergency Visit</div><div class="hvp-time">Same day</div></div><div class="hvp-price">$95</div></div>
-      <div class="hvp-item"><div class="hvp-icon">👶</div><div><div class="hvp-name">Child's First Visit</div><div class="hvp-time">30 mins</div></div><div class="hvp-price">$60</div></div>
+      <div class="hvp-item"><div class="hvp-icon"><i data-lucide="smile"></i></div><div><div class="hvp-name">Checkup & Clean</div><div class="hvp-time">45 mins</div></div><div class="hvp-price">$120</div></div>
+      <div class="hvp-item"><div class="hvp-icon"><i data-lucide="sparkles"></i></div><div><div class="hvp-name">Teeth Whitening</div><div class="hvp-time">60 mins</div></div><div class="hvp-price">$280</div></div>
+      <div class="hvp-item"><div class="hvp-icon"><i data-lucide="star"></i></div><div><div class="hvp-name">Braces Consult</div><div class="hvp-time">30 mins</div></div><div class="hvp-price">Free</div></div>
+      <div class="hvp-item"><div class="hvp-icon"><i data-lucide="circle-alert"></i></div><div><div class="hvp-name">Emergency Visit</div><div class="hvp-time">Same day</div></div><div class="hvp-price">$95</div></div>
+      <div class="hvp-item"><div class="hvp-icon"><i data-lucide="baby"></i></div><div><div class="hvp-name">Child's First Visit</div><div class="hvp-time">30 mins</div></div><div class="hvp-price">$60</div></div>
     </div>
     <div class="hvp-cta"><button class="btn btn-primary" style="width:100%;justify-content:center">Continue Booking →</button></div>
   </div>
@@ -347,12 +347,12 @@
       <p class="section-sub">Comprehensive dental care for every stage of life — from your child's first tooth to your perfect smile makeover.</p>
     </div>
     <div class="services-2col">
-      <div class="svc-card"><div class="svc-icon-wrap">🔬</div><div class="svc-body"><div class="svc-title">Preventive Dentistry</div><p class="svc-desc">Regular exams, cleanings, X-rays, and fluoride treatments to keep teeth healthy and catch problems early.</p><div class="svc-link">Learn more →</div></div></div>
-      <div class="svc-card"><div class="svc-icon-wrap">✨</div><div class="svc-body"><div class="svc-title">Cosmetic Dentistry</div><p class="svc-desc">Whitening, veneers, bonding, and smile makeovers to help you feel proud of your smile every single day.</p><div class="svc-link">Learn more →</div></div></div>
-      <div class="svc-card"><div class="svc-icon-wrap">🦷</div><div class="svc-body"><div class="svc-title">Restorative Dentistry</div><p class="svc-desc">Fillings, crowns, bridges, and implants to restore function and aesthetics when teeth are damaged or missing.</p><div class="svc-link">Learn more →</div></div></div>
-      <div class="svc-card"><div class="svc-icon-wrap">😁</div><div class="svc-body"><div class="svc-title">Orthodontics</div><p class="svc-desc">Traditional braces and clear aligners (Invisalign) for teens and adults — straight teeth at any age.</p><div class="svc-link">Learn more →</div></div></div>
-      <div class="svc-card"><div class="svc-icon-wrap">👶</div><div class="svc-body"><div class="svc-title">Children's Dentistry</div><p class="svc-desc">Gentle, friendly care designed specifically for kids from their very first tooth through their teenage years.</p><div class="svc-link">Learn more →</div></div></div>
-      <div class="svc-card"><div class="svc-icon-wrap">🚨</div><div class="svc-body"><div class="svc-title">Emergency Dental Care</div><p class="svc-desc">Same-day emergency appointments for toothaches, broken teeth, lost fillings, and dental trauma.</p><div class="svc-link">Learn more →</div></div></div>
+      <div class="svc-card"><div class="svc-icon-wrap"><i data-lucide="smile"></i></div><div class="svc-body"><div class="svc-title">Preventive Dentistry</div><p class="svc-desc">Regular exams, cleanings, X-rays, and fluoride treatments to keep teeth healthy and catch problems early.</p><div class="svc-link">Learn more →</div></div></div>
+      <div class="svc-card"><div class="svc-icon-wrap"><i data-lucide="sparkles"></i></div><div class="svc-body"><div class="svc-title">Cosmetic Dentistry</div><p class="svc-desc">Whitening, veneers, bonding, and smile makeovers to help you feel proud of your smile every single day.</p><div class="svc-link">Learn more →</div></div></div>
+      <div class="svc-card"><div class="svc-icon-wrap"><i data-lucide="wrench"></i></div><div class="svc-body"><div class="svc-title">Restorative Dentistry</div><p class="svc-desc">Fillings, crowns, bridges, and implants to restore function and aesthetics when teeth are damaged or missing.</p><div class="svc-link">Learn more →</div></div></div>
+      <div class="svc-card"><div class="svc-icon-wrap">4</div><div class="svc-body"><div class="svc-title">Orthodontics</div><p class="svc-desc">Traditional braces and clear aligners (Invisalign) for teens and adults — straight teeth at any age.</p><div class="svc-link">Learn more →</div></div></div>
+      <div class="svc-card"><div class="svc-icon-wrap"><i data-lucide="baby"></i></div><div class="svc-body"><div class="svc-title">Children's Dentistry</div><p class="svc-desc">Gentle, friendly care designed specifically for kids from their very first tooth through their teenage years.</p><div class="svc-link">Learn more →</div></div></div>
+      <div class="svc-card"><div class="svc-icon-wrap"><i data-lucide="circle-alert"></i></div><div class="svc-body"><div class="svc-title">Emergency Dental Care</div><p class="svc-desc">Same-day emergency appointments for toothaches, broken teeth, lost fillings, and dental trauma.</p><div class="svc-link">Learn more →</div></div></div>
     </div>
   </div>
 </section>
@@ -365,9 +365,9 @@
       <h2 class="section-h2">What Our Patients <em>Say</em></h2>
     </div>
     <div class="testi-grid">
-      <div class="tcard"><div class="tcard-stars">★★★★★</div><p class="tcard-quote">"The most relaxed I've ever felt at the dentist! The team is so welcoming, my kids actually look forward to their visits."</p><div class="tcard-author"><div class="tcard-av">👩</div><div><div class="tcard-name">Rachel T.</div><div class="tcard-service">Family Checkups</div></div></div></div>
-      <div class="tcard"><div class="tcard-stars">★★★★★</div><p class="tcard-quote">"I had severe dental anxiety and was terrified, but BrightSmile changed everything. Gentle, patient, and professional."</p><div class="tcard-author"><div class="tcard-av">👨</div><div><div class="tcard-name">David O.</div><div class="tcard-service">Restorative Treatment</div></div></div></div>
-      <div class="tcard"><div class="tcard-stars">★★★★★</div><p class="tcard-quote">"My whitening results are incredible — 8 shades lighter in one session. Couldn't stop smiling for days!"</p><div class="tcard-author"><div class="tcard-av">👩</div><div><div class="tcard-name">Lisa C.</div><div class="tcard-service">Professional Whitening</div></div></div></div>
+      <div class="tcard"><div class="tcard-stars">★★★★★</div><p class="tcard-quote">"The most relaxed I've ever felt at the dentist! The team is so welcoming, my kids actually look forward to their visits."</p><div class="tcard-author"><div class="tcard-av">R</div><div><div class="tcard-name">Rachel T.</div><div class="tcard-service">Family Checkups</div></div></div></div>
+      <div class="tcard"><div class="tcard-stars">★★★★★</div><p class="tcard-quote">"I had severe dental anxiety and was terrified, but BrightSmile changed everything. Gentle, patient, and professional."</p><div class="tcard-author"><div class="tcard-av">D</div><div><div class="tcard-name">David O.</div><div class="tcard-service">Restorative Treatment</div></div></div></div>
+      <div class="tcard"><div class="tcard-stars">★★★★★</div><p class="tcard-quote">"My whitening results are incredible — 8 shades lighter in one session. Couldn't stop smiling for days!"</p><div class="tcard-author"><div class="tcard-av">R</div><div><div class="tcard-name">Lisa C.</div><div class="tcard-service">Professional Whitening</div></div></div></div>
     </div>
   </div>
 </section>
@@ -388,5 +388,7 @@
   <div class="footer-copy">© 2025 BrightSmile Dental</div>
 </footer>
 
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>if(typeof lucide!=='undefined')lucide.createIcons();</script>
 </body>
 </html>

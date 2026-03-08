@@ -8,7 +8,7 @@ AI agent that generates a single **cinematic landing page** (`index.html`) from 
 2. **Planning phase:** Reads `prompts/plan-prompt.md` + business JSON + branding (when present) → calls Claude → produces a structured plan (business personality, visual identity, typography, sections to build, map layout, image strategy). Optional: write plan to a file with `--plan-out`. If `plan-prompt.md` is missing, planning is skipped.
 3. **Generate phase:** Reads `prompts/prompt.md` + approved branding + approved plan + business JSON → calls Claude (streaming) → single `index.html`.
 4. **Writes** the result to `index.html` (or `--out` path).
-5. **Writes** a copy to `demos/{id}.html` (id from JSON or a new GUID).
+5. **Writes** a copy to `output/{id}.html` (id from JSON or a new GUID).
 6. **Uploads** the same HTML to Supabase Storage bucket `lead-rosetta-bucket` under `demo-html/{id}.html`.
 
 ## Setup
@@ -27,7 +27,7 @@ cp .env.example .env   # or create .env
 From the `apps/pitch-rosetta` folder. A sample **`index.json`** (Ember & Oak Bistro) is included so `npm run generate` works with default paths; replace it or use `--json=path/to/your-data.json` for your own business data.
 
 ```bash
-# Use default paths: prompts/prompt.md, index.json → index.html (and demos/{id}.html)
+# Use default paths: prompts/prompt.md, index.json → index.html (and output/{id}.html)
 npm run generate
 ```
 
@@ -44,8 +44,15 @@ npm start
 |----------|--------|--------------|
 | `/api/generate` | POST | Body: business data (same shape as `index.json`). Returns `{ id, publicUrl?, plan?, branding? }` (no `html`). Requires API key when env is set. |
 | `/api/generate-async` | POST | Body: business data plus `jobId`, `prospectId`, `userId?`, `callbackUrl`, `callbackToken`. Returns **202 Accepted** immediately; runs generation in background, then POSTs to `callbackUrl` with `{ jobId, prospectId, userId?, publicUrl? }` on success or `{ jobId, prospectId, userId?, error }` on failure. Requires API key when env is set. |
+| `/api/dental` | POST | Body: dental business data (index.json shape). Returns rendered HTML (style randomized). Requires API key when env is set. |
+| `/api/dental-async` | POST | Body: dental data plus `jobId`, `prospectId`, `userId?`, `callbackUrl`, `callbackToken`. Returns **202**; renders in background and POSTs `{ jobId, prospectId, userId?, html }` or `{ ..., error }` to `callbackUrl`. Requires API key when env is set. |
 | `/api/health` | GET | Health check; returns `{ status: "ok" }`. |
+| `/api/render-test` | GET | Render dental HTML from disk JSON; optional `?json=...` and `?style=dental-v1|...|dental-v4`. |
+| `/api-docs` | GET | **OpenAPI (Swagger) UI** — interactive API docs. Disabled if `DISABLE_API_DOCS=1`. |
+| `/api/openapi.json` | GET | Raw OpenAPI 3 spec (when docs are enabled). |
 | `/` | GET | Service info and endpoint list. |
+
+For `/api/generate` and `/api/generate-async`, the request body must be the same **index.json shape** as the reference files (`index.json`, `index-dental-downtown.json`, `index-dental-riverside.json`); the async endpoints also require callback meta (`jobId`, `prospectId`, `callbackUrl`, `callbackToken`).
 
 **Sync example:**
 
@@ -58,7 +65,7 @@ curl -X POST http://localhost:3000/api/generate \
 
 Response (200): JSON with `id`, `publicUrl`, `plan`, `branding` (no `html`). On error: 401 (missing/invalid API key), 400 (invalid body), 500 (generation failed), or 503 (e.g. missing ANTHROPIC_API_KEY).
 
-**Async (callback) contract:** When using `/api/generate-async`, the server returns 202 with `{ id: jobId, status: "accepted" }`. When generation finishes, it POSTs to your `callbackUrl` with header `Authorization: Bearer <callbackToken>`. Success body: `{ jobId, prospectId, userId?, publicUrl?, html? }`. When `html` is included, the callback receiver (e.g. Lead Rosetta app) stores it so the demo page loads. Failure body: `{ jobId, prospectId, userId?, error: string }`. Callback URL must be HTTPS (or HTTP for loopback: `localhost`, `127.0.0.1`). If `ALLOWED_CALLBACK_ORIGINS` is set, the URL origin must match one of the comma-separated origins (e.g. `http://localhost:5173` for local dev).
+**Async (callback) contract:** When using `/api/generate-async`, the server returns 202 with `{ id: jobId, status: "accepted" }`. When generation finishes, it POSTs to your `callbackUrl` with header `Authorization: Bearer <callbackToken>`. Success body: `{ jobId, prospectId, userId?, publicUrl?, html? }`. When `html` is included, the callback receiver (e.g. Lead Rosetta app) stores it so the page loads. Failure body: `{ jobId, prospectId, userId?, error: string }`. Callback URL must be HTTPS (or HTTP for loopback: `localhost`, `127.0.0.1`). If `ALLOWED_CALLBACK_ORIGINS` is set, the URL origin must match one of the comma-separated origins (e.g. `http://localhost:5173` for local dev).
 
 Custom paths:
 
@@ -90,6 +97,7 @@ node generate.js --branding-out=branding.md
 - **API key (optional but recommended for production):** set `DEMO_GENERATOR_API_KEY` or `PITCH_ROSETTA_API_KEY` to require `Authorization: Bearer <key>` on `POST /api/generate` and `POST /api/generate-async`. If unset, those routes accept requests without auth (use only in trusted environments).
 - **Callback allowlist (optional):** set `ALLOWED_CALLBACK_ORIGINS` to a comma-separated list of allowed origins (e.g. `https://your-app.vercel.app`). When set, `/api/generate-async` will only accept `callbackUrl` values whose origin is in this list (reduces SSRF risk).
 - **Debug logging:** set `DEBUG=1` or `DEBUG=pitch-rosetta` to enable request/generation phase logs (server and CLI). Logs are prefixed with `[pitch-rosetta]`.
+- **API docs (OpenAPI):** Interactive docs at **GET /api-docs** (Swagger UI). Raw spec at **GET /api/openapi.json**. Set `DISABLE_API_DOCS=1` to disable both in production. Set `BASE_URL=https://your-api.example.com` so the spec lists the correct server URL for "Try it out".
 
 ## Output
 

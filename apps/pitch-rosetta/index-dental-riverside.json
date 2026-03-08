@@ -1,0 +1,79 @@
+{
+  "business": {
+    "name": "Riverside Family Dental",
+    "tagline": "Where your family's smile comes first. Vancouver's trusted neighbourhood dental clinic.",
+    "description": "Riverside Family Dental provides comprehensive dental care for all ages. From children's first visits to senior care, we offer preventive, restorative, and cosmetic services in a welcoming, modern clinic.",
+    "acceptingNewPatients": true,
+    "phone": "(604) 555-0192",
+    "email": "info@riversidefamilydental.ca",
+    "address": "2450 Marine Dr, North Vancouver, BC V7P 1S2",
+    "coordinates": { "lat": 49.3200, "lng": -123.0742 },
+    "hours": {
+      "Monday": "7:30am–5:30pm",
+      "Tuesday": "7:30am–5:30pm",
+      "Wednesday": "7:30am–6pm",
+      "Thursday": "7:30am–5:30pm",
+      "Friday": "7:30am–4pm",
+      "Saturday": "8am–1pm",
+      "Sunday": "Closed"
+    },
+    "social": {
+      "instagram": "https://instagram.com/riversidefamilydental",
+      "facebook": "https://facebook.com/riversidefamilydental"
+    }
+  },
+  "hero": {
+    "headline": "Dental care that feels like family.",
+    "subheadline": "Preventive, restorative, and cosmetic dentistry for every age. Serving North Vancouver with care and expertise.",
+    "cta": { "label": "Book Your Visit", "href": "#contact" },
+    "backgroundStyle": "image"
+  },
+  "images": {
+    "hero": "/images/hero.jpg",
+    "about": "/images/about.jpg",
+    "unsplashKeywords": ["dental clinic", "family dentist", "dental office", "teeth", "dental care"]
+  },
+  "services": [
+    { "name": "Family Dentistry", "description": "Checkups, cleanings, and preventive care for every member of your family. We make kids feel at ease.", "coverage": "Most plans & CDCP" },
+    { "name": "Restorative & Implants", "description": "Fillings, crowns, bridges, dentures, and dental implants to restore your smile and confidence.", "coverage": "BC fee guide" },
+    { "name": "Cosmetic & Whitening", "description": "Teeth whitening, veneers, and Invisalign. Complimentary cosmetic consultations available.", "coverage": "Flexible payment" }
+  ],
+  "insurance": {
+    "accepted": "We direct-bill most insurance plans. Canadian Dental Care Plan (CDCP) and provincial programs welcome.",
+    "payment": "Payment plans and estimates provided. No surprise fees — we discuss costs before treatment."
+  },
+  "about": {
+    "headline": "Your smile is in good hands.",
+    "body": "Riverside Family Dental has been part of the North Vancouver community for over a decade. We combine advanced technology with a gentle, person-centred approach so every visit is comfortable and effective.",
+    "values": ["Family First", "Gentle Approach", "Clear Communication", "Community Focus"]
+  },
+  "stats": [
+    { "value": "12", "label": "Years in Practice" },
+    { "value": "8000+", "label": "Families Served" },
+    { "value": "4.8", "label": "Average Rating ★" },
+    { "value": "99%", "label": "Would Recommend" }
+  ],
+  "gallery": [],
+  "testimonials": [
+    { "author": "Mike T.", "quote": "Best dental experience I've had. They took time to explain my options and never pushed unnecessary work.", "rating": 5 },
+    { "author": "Priya S.", "quote": "My kids used to dread the dentist. Now they ask when we're going back. That says it all.", "rating": 5 },
+    { "author": "James W.", "quote": "Had implants done here. Professional, painless, and my smile looks better than ever.", "rating": 5 }
+  ],
+  "contact": {
+    "headline": "Book Your Visit",
+    "showForm": true,
+    "showMap": true,
+    "mapEmbed": null,
+    "googleMapsApiKey": null
+  },
+  "theme": {
+    "style": "warm professional",
+    "primaryColor": "#1B4965",
+    "accentColor": "#5FA8D3"
+  },
+  "seo": {
+    "title": "Riverside Family Dental | Family & Cosmetic Dentistry North Vancouver | New Patients Welcome",
+    "description": "Riverside Family Dental in North Vancouver — family dentistry, restorative care, and cosmetic services. CDCP accepted. Book your appointment today.",
+    "keywords": ["North Vancouver dentist", "family dental BC", "dental clinic Vancouver", "accepting new patients", "CDCP dentist"]
+  }
+}

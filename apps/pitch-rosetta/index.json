@@ -1,69 +1,79 @@
 {
   "business": {
-    "name": "Ember & Oak Bistro",
-    "tagline": "Wood-fired food. Honest ingredients. Good company.",
-    "description": "A neighborhood bistro specializing in wood-fired dishes made from locally sourced ingredients. Open since 2018.",
-    "phone": "(416) 555-0192",
-    "email": "hello@emberandoak.ca",
-    "address": "142 Roncesvalles Ave, Toronto, ON M6R 2L4",
-    "coordinates": { "lat": 43.6479, "lng": -79.4492 },
+    "name": "Lakeside Dental",
+    "tagline": "Gentle care. Healthy smiles. Your family dentist in Ontario.",
+    "description": "A full-service dental clinic offering preventive care, restorative treatments, and cosmetic dentistry. Serving Ontario families with modern technology and a caring team since 2015.",
+    "acceptingNewPatients": true,
+    "phone": "(416) 555-0147",
+    "email": "hello@lakesidedental.ca",
+    "address": "89 Lakeshore Blvd E, Toronto, ON M5E 1A2",
+    "coordinates": { "lat": 43.6426, "lng": -79.3871 },
     "hours": {
-      "Monday": "Closed",
-      "Tuesday–Thursday": "5pm–10pm",
-      "Friday–Saturday": "5pm–11pm",
-      "Sunday": "11am–3pm"
+      "Monday": "8am–6pm",
+      "Tuesday": "8am–6pm",
+      "Wednesday": "8am–7pm",
+      "Thursday": "8am–6pm",
+      "Friday": "8am–4pm",
+      "Saturday": "9am–2pm",
+      "Sunday": "Closed"
     },
     "social": {
-      "instagram": "https://instagram.com/emberandoak",
-      "facebook": "https://facebook.com/emberandoak"
+      "instagram": "https://instagram.com/lakesidedental",
+      "facebook": "https://facebook.com/lakesidedental"
     }
   },
   "hero": {
-    "headline": "Fire-kissed flavors, rooted in community.",
-    "subheadline": "Seasonal menus. Local farms. A table worth gathering around.",
-    "cta": { "label": "Reserve a Table", "href": "#contact" },
+    "headline": "Your smile deserves expert care.",
+    "subheadline": "Comprehensive dentistry in a comfortable, modern setting. From checkups to cosmetic and restorative treatments.",
+    "cta": { "label": "Book an Appointment", "href": "#contact" },
     "backgroundStyle": "image"
   },
   "images": {
-    "unsplashKeywords": ["restaurant", "wood-fired", "dining", "food", "bistro"]
+    "hero": "/images/hero.jpg",
+    "about": "/images/about.jpg",
+    "unsplashKeywords": ["dental clinic", "dentist", "dental office", "teeth", "dental care"]
   },
   "services": [
-    { "name": "Dinner Service", "description": "Our full à la carte menu featuring wood-fired mains, house-made pastas, and rotating seasonal specials.", "price": "$$" },
-    { "name": "Sunday Brunch", "description": "Leisurely weekend mornings with eggs, baked goods, and mimosas.", "price": "$" },
-    { "name": "Private Events", "description": "Full restaurant buyouts and curated group menus for celebrations and corporate dinners.", "price": "Contact us" }
+    { "name": "Preventive Care", "description": "Regular cleanings, exams, fluoride treatments, and sealants to keep your smile healthy and catch issues early.", "coverage": "Most insurance & CDCP" },
+    { "name": "Restorative Dentistry", "description": "Fillings, crowns, bridges, and root canal therapy to restore function and comfort.", "coverage": "ODA fee guide" },
+    { "name": "Cosmetic Dentistry", "description": "Teeth whitening, veneers, and Invisalign to help you feel confident in your smile.", "coverage": "Free consultation" }
   ],
+  "insurance": {
+    "accepted": "Most insurance plans accepted. We submit claims directly. Canadian Dental Care Plan (CDCP) welcome.",
+    "payment": "Payment plans available. Free consultation and treatment estimate before you proceed."
+  },
   "about": {
-    "headline": "Food that starts with the land.",
-    "body": "Ember & Oak was born from a simple belief: great food starts with great ingredients. We work directly with 12 local farms across Ontario to bring the best seasonal produce to your table — then let fire do the rest.",
-    "values": ["Farm-to-Table", "Wood-Fired Only", "Zero Waste Kitchen", "Community First"]
+    "headline": "Dental care you can trust.",
+    "body": "Lakeside Dental was founded on the belief that everyone deserves access to high-quality, gentle dentistry. Our Ontario-based team uses modern technology and evidence-based care to keep your family's smiles healthy for life.",
+    "values": ["Patient-Centred Care", "Modern Technology", "Prevention First", "Family Friendly"]
   },
   "stats": [
-    { "value": "6", "label": "Years in Business" },
-    { "value": "12", "label": "Local Farm Partners" },
+    { "value": "9", "label": "Years in Practice" },
+    { "value": "5000+", "label": "Patients Served" },
     { "value": "4.9", "label": "Average Rating ★" },
-    { "value": "3000", "label": "Guests Served Monthly" }
+    { "value": "98%", "label": "Patient Satisfaction" }
   ],
   "gallery": [],
   "testimonials": [
-    { "author": "Maria C.", "quote": "The best meal I've had in Toronto in years. Every dish felt thoughtful and deeply considered.", "rating": 5 },
-    { "author": "James T.", "quote": "Incredible atmosphere. The wood-fired lamb is an absolute must-order.", "rating": 5 },
-    { "author": "Priya S.", "quote": "We booked Ember & Oak for our rehearsal dinner and it was absolutely perfect.", "rating": 5 }
+    { "author": "Sarah M.", "quote": "Finally found a dentist I'm not afraid of. The team is so kind and they explained everything clearly.", "rating": 5 },
+    { "author": "David L.", "quote": "Brought my whole family here. Clean office, on-time appointments, and my kids actually look forward to their checkups.", "rating": 5 },
+    { "author": "Jennifer K.", "quote": "Had my teeth whitening done here and the results were amazing. Professional and affordable.", "rating": 5 }
   ],
   "contact": {
-    "headline": "Make a Reservation",
+    "headline": "Book an Appointment",
     "showForm": true,
     "showMap": true,
     "mapEmbed": null,
     "googleMapsApiKey": null
   },
   "theme": {
-    "style": "warm editorial",
-    "primaryColor": "#3B2A1A",
-    "accentColor": "#C8872A"
+    "style": "clean professional",
+    "primaryColor": "#0D5C63",
+    "accentColor": "#44A1A0"
   },
   "seo": {
-    "title": "Ember & Oak Bistro | Wood-Fired Dining in Toronto",
-    "description": "Toronto's favorite neighborhood bistro. Wood-fired dishes, local ingredients, Sunday brunch. Reserve your table today.",
-    "keywords": ["Toronto restaurant", "wood-fired dining", "farm to table", "Roncesvalles bistro"]
+    "title": "Lakeside Dental | Family & Cosmetic Dentistry in Ontario | Accepting New Patients",
+    "description": "Lakeside Dental is accepting new patients in Ontario. Full-service dental clinic — preventive care, restorative and cosmetic dentistry. Most insurance accepted. Book your appointment today.",
+    "keywords": ["Ontario dental clinic", "family dentist Toronto", "accepting new patients", "cosmetic dentistry Ontario", "dental care Ontario"]
   }
 }

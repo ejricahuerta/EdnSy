@@ -6,7 +6,7 @@
  * 1. BRANDING: Load branding-prompt.md + index.json → call Claude → get structured branding spec (voice, colors, typography, CTAs).
  * 2. PLANNING: Load plan-prompt.md + index.json + branding → call Claude → get structured plan (design, sections, typography, etc.).
  * 3. GENERATE: Load prompt.md + plan + branding + index.json → call Claude (streaming) → full page HTML.
- * 4. Write index.html (or --out), demos/{id}.html, optional plan to --plan-out, optional branding to --branding-out, and Supabase Storage.
+ * 4. Write index.html (or --out), output/{id}.html, optional plan to --plan-out, optional branding to --branding-out, and Supabase Storage.
  *
  * Usage:
  *   npm run generate
@@ -24,6 +24,7 @@ import { readFile, writeFile, mkdir } from "fs/promises";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import { config } from "dotenv";
+import { obfuscateHtml } from "./renderer/obfuscate.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -276,7 +277,8 @@ export async function generate(data, options = {}) {
     throw new Error("Generate phase returned no text.");
   }
 
-  const html = extractHtml(raw);
+  let html = extractHtml(raw);
+  html = obfuscateHtml(html);
   debug("generate: HTML extracted", { rawLength: raw.length, htmlLength: html.length });
   const id = (data?.id && String(data.id).trim()) || randomUUID();
 
@@ -314,10 +316,10 @@ async function main() {
   await writeFile(outPath, result.html, "utf-8");
   console.log("Wrote", outPath);
 
-  await mkdir(DEMOS_DIR, { recursive: true });
-  const demosPath = resolve(DEMOS_DIR, `${result.id}.html`);
-  await writeFile(demosPath, result.html, "utf-8");
-  console.log("Wrote", demosPath);
+  await mkdir(OUTPUT_DIR, { recursive: true });
+  const outputPath = resolve(OUTPUT_DIR, `${result.id}.html`);
+  await writeFile(outputPath, result.html, "utf-8");
+  console.log("Wrote", outputPath);
 
   if (planOutPath && result.plan) {
     await mkdir(dirname(planOutPath), { recursive: true }).catch(() => {});

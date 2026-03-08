@@ -1,0 +1,79 @@
+{
+  "business": {
+    "name": "Downtown Smile Studio",
+    "tagline": "Modern dentistry in the heart of the city. Calgary's choice for cosmetic and general dental care.",
+    "description": "Downtown Smile Studio offers a full range of dental services in a sleek, central location. From routine care to advanced cosmetic and restorative treatments, we help you achieve and maintain a healthy, confident smile.",
+    "acceptingNewPatients": true,
+    "phone": "(403) 555-0173",
+    "email": "hello@downtownsmilestudio.ca",
+    "address": "500 4th Ave SW, Calgary, AB T2P 2V6",
+    "coordinates": { "lat": 51.0447, "lng": -114.0719 },
+    "hours": {
+      "Monday": "8am–6pm",
+      "Tuesday": "8am–6pm",
+      "Wednesday": "8am–7pm",
+      "Thursday": "8am–6pm",
+      "Friday": "8am–5pm",
+      "Saturday": "9am–3pm",
+      "Sunday": "Closed"
+    },
+    "social": {
+      "instagram": "https://instagram.com/downtownsmilestudio",
+      "facebook": "https://facebook.com/downtownsmilestudio"
+    }
+  },
+  "hero": {
+    "headline": "Dental care that fits your life.",
+    "subheadline": "General, cosmetic, and restorative dentistry in downtown Calgary. Convenient hours, transparent pricing, and a team that cares.",
+    "cta": { "label": "Request an Appointment", "href": "#contact" },
+    "backgroundStyle": "image"
+  },
+  "images": {
+    "hero": "/images/hero.jpg",
+    "about": "/images/about.jpg",
+    "unsplashKeywords": ["dental clinic", "cosmetic dentist", "dental office", "teeth", "dental care"]
+  },
+  "services": [
+    { "name": "General Dentistry", "description": "Exams, cleanings, fillings, and preventive care to keep your smile healthy year after year.", "coverage": "Most insurance & CDCP" },
+    { "name": "Cosmetic Dentistry", "description": "Whitening, veneers, bonding, and Invisalign. We tailor treatments to your goals and budget.", "coverage": "Consultation included" },
+    { "name": "Restorative & Emergency", "description": "Crowns, bridges, root canals, and same-day emergency appointments when you need them most.", "coverage": "ADA fee guide" }
+  ],
+  "insurance": {
+    "accepted": "We accept most insurance plans and submit claims on your behalf. Canadian Dental Care Plan (CDCP) welcome.",
+    "payment": "Payment plans and upfront estimates. We believe in no-hidden-fee, stress-free care."
+  },
+  "about": {
+    "headline": "City-centre dentistry done right.",
+    "body": "Downtown Smile Studio brings together experienced clinicians and modern technology in a convenient downtown Calgary location. We focus on clear communication, comfort, and results that last.",
+    "values": ["Transparency", "Modern Care", "Patient Comfort", "Results Driven"]
+  },
+  "stats": [
+    { "value": "7", "label": "Years in Practice" },
+    { "value": "3500+", "label": "Patients" },
+    { "value": "4.9", "label": "Average Rating ★" },
+    { "value": "97%", "label": "Patient Satisfaction" }
+  ],
+  "gallery": [],
+  "testimonials": [
+    { "author": "Amanda R.", "quote": "Convenient location, friendly staff, and my veneers look incredible. Couldn't be happier.", "rating": 5 },
+    { "author": "Chris B.", "quote": "Had a dental emergency and they got me in the same day. Professional and reassuring.", "rating": 5 },
+    { "author": "Nina P.", "quote": "Finally a dentist who explains everything and doesn't rush. My whole family comes here now.", "rating": 5 }
+  ],
+  "contact": {
+    "headline": "Request an Appointment",
+    "showForm": true,
+    "showMap": true,
+    "mapEmbed": null,
+    "googleMapsApiKey": null
+  },
+  "theme": {
+    "style": "modern minimal",
+    "primaryColor": "#2D3142",
+    "accentColor": "#BFC0C0"
+  },
+  "seo": {
+    "title": "Downtown Smile Studio | Cosmetic & General Dentistry Calgary | New Patients Welcome",
+    "description": "Downtown Smile Studio — general and cosmetic dentistry in downtown Calgary. Accepting new patients and CDCP. Book your appointment.",
+    "keywords": ["Calgary dentist", "downtown Calgary dental", "cosmetic dentistry Calgary", "CDCP dentist Alberta", "family dentist Calgary"]
+  }
+}
