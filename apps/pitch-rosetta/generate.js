@@ -45,6 +45,7 @@ const CLAUDE_BRANDING_MAX_TOKENS = 4096;
 const SUPABASE_STORAGE_BUCKET = "lead-rosetta-bucket";
 const SUPABASE_STORAGE_PREFIX = "demo-html";
 const DEMOS_DIR = resolve(__dirname, "demos");
+const OUTPUT_DIR = resolve(__dirname, "output");
 
 const DEBUG = /^(1|true|yes|pitch-rosetta)$/i.test((process.env.DEBUG ?? "").trim());
 function debug(...args) {
