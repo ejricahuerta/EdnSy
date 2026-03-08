@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Sparkles, LoaderCircle } from 'lucide-svelte';
-	import { Button } from '$lib/components/ui/button';
+	import { buttonVariants } from '$lib/components/ui/button';
+	import { cn } from '$lib/utils';
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import DataTableActionsCell from '$lib/components/prospects/data-table-actions-cell.svelte';
 
@@ -37,22 +38,18 @@
 <div class="flex items-center justify-end gap-1">
 	{#if showGenerate}
 		<Tooltip.Root>
-			<Tooltip.Trigger>
-				<Button
-					type="button"
-					variant="ghost"
-					size="icon"
-					class="h-8 w-8 text-muted-foreground hover:text-foreground"
-					disabled={!canGenerate}
-					aria-label="Run next step"
-					onclick={() => onProcessNextStep?.(prospectId)}
-				>
-					{#if generating}
-						<LoaderCircle class="size-4 animate-spin" aria-hidden="true" />
-					{:else}
-						<Sparkles class="size-4" aria-hidden="true" />
-					{/if}
-				</Button>
+			<Tooltip.Trigger
+				type="button"
+				class={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), 'h-8 w-8 text-muted-foreground hover:text-foreground')}
+				disabled={!canGenerate}
+				aria-label="Run next step"
+				onclick={() => onProcessNextStep?.(prospectId)}
+			>
+				{#if generating}
+					<LoaderCircle class="size-4 animate-spin" aria-hidden="true" />
+				{:else}
+					<Sparkles class="size-4" aria-hidden="true" />
+				{/if}
 			</Tooltip.Trigger>
 			<Tooltip.Content side="top" sideOffset={6}>
 				{#if canGenerate}

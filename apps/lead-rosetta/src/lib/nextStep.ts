@@ -30,7 +30,8 @@ export type SimplifiedStatusLabel =
 	| 'Pulling insights'
 	| 'Pull data'
 	| 'No demo'
-	| 'Ready to send'
+	| 'Draft'
+	| 'Approved'
 	| 'Sent'
 	| 'Engaged'
 	| 'Replied'
@@ -102,8 +103,11 @@ export function getSimplifiedStatus(
 	}
 
 	const trackingStatus = row.tracking?.status;
-	if (trackingStatus === 'draft' || trackingStatus === 'approved') {
-		return { label: 'Ready to send', variant: 'success' };
+	if (trackingStatus === 'draft') {
+		return { label: 'Draft', variant: 'default' };
+	}
+	if (trackingStatus === 'approved') {
+		return { label: 'Approved', variant: 'success' };
 	}
 	if (trackingStatus === 'sent') {
 		return { label: 'Sent', variant: 'muted' };
@@ -132,7 +136,8 @@ export type NextStepFilterValue =
 	| 'pull_data'
 	| 'create_demo'
 	| 'retry_demo'
-	| 'review_send'
+	| 'draft'
+	| 'approved'
 	| 'sent'
 	| 'engaged'
 	| 'replied'
@@ -198,8 +203,11 @@ export function getNextStep(
 		return { label: 'Create demo', variant: 'default', filterValue: 'create_demo' };
 	}
 
-	if (trackingStatus === 'draft' || trackingStatus === 'approved') {
-		return { label: 'Review & send', variant: 'default', filterValue: 'review_send' };
+	if (trackingStatus === 'draft') {
+		return { label: 'Review draft', variant: 'default', filterValue: 'draft' };
+	}
+	if (trackingStatus === 'approved') {
+		return { label: 'Review & send', variant: 'default', filterValue: 'approved' };
 	}
 	if (trackingStatus === 'sent') {
 		return { label: 'Sent', variant: 'muted', filterValue: 'sent' };
@@ -229,7 +237,8 @@ export const NEXT_STEP_FILTER_OPTIONS: { value: NextStepFilterValue; label: stri
 	{ value: 'pull_data', label: 'Pull data' },
 	{ value: 'create_demo', label: 'Create demo' },
 	{ value: 'retry_demo', label: 'Retry demo' },
-	{ value: 'review_send', label: 'Review & send' },
+	{ value: 'draft', label: 'Draft' },
+	{ value: 'approved', label: 'Approved' },
 	{ value: 'sent', label: 'Sent' },
 	{ value: 'engaged', label: 'Engaged' },
 	{ value: 'replied', label: 'Replied' },
