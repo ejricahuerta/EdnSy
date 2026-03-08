@@ -216,6 +216,8 @@ export const actions: Actions = {
 		if (!result) {
 			return fail(503, { message: 'Could not queue regeneration. Try again.' });
 		}
+		// Regenerating always resets tracking to draft (was approved or draft); callback also sets draft on completion.
+		await updateDemoTrackingStatus(user.id, prospectId, { status: 'draft' });
 		return { success: true, prospectId, queued: true, jobId: result.jobId, alreadyQueued: !result.created };
 	},
 

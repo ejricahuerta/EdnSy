@@ -33,7 +33,7 @@
 </script>
 
 <span class={cn('inline-flex items-center gap-2 text-sm text-muted-foreground', !display && 'opacity-50')}>
-	<span class={circleClass} title={gradeLabel} aria-label={gradeLabel} />
+	<span class={circleClass} title={gradeLabel} aria-label={gradeLabel}></span>
 	{#if display && href}
 		<a
 			href={href}

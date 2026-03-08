@@ -238,10 +238,11 @@ import { clientError } from '$lib/log';
 			pull_data: '01',
 			create_demo: '02',
 			retry_demo: '03',
-			review_send: '04',
-			sent: '05',
-			engaged: '06',
-			replied: '07',
+			draft: '04',
+			approved: '05',
+			sent: '06',
+			engaged: '07',
+			replied: '08',
 			other: '11'
 		};
 		return `${order[step.filterValue] ?? '08'}_${step.label.toLowerCase().replace(/\s+/g, '_')}`;
@@ -416,7 +417,12 @@ import { clientError } from '$lib/log';
 				await invalidateAll();
 			} else {
 				const msg = message ?? (res.ok ? 'Nothing to do for this prospect.' : 'Request failed.');
-				toastError('Next step', msg);
+				// Already has a demo is informational, not a failure
+				if (msg === 'This prospect already has a demo.') {
+					toastInfo('Next step', msg);
+				} else {
+					toastError('Next step', msg);
+				}
 			}
 		} catch (err) {
 			clientError('processNextStep', err);

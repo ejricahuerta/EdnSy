@@ -243,6 +243,15 @@ export const actions: Actions = {
 			};
 		}
 
+		// No actionable step: explain why so the client can show a clear message
+		if ((prospect.demoLink ?? '').trim()) {
+			return fail(400, { message: 'This prospect already has a demo.' });
+		}
+		if (hasInsight && !hasGbp) {
+			return fail(400, {
+				message: 'GBP data is needed. Run Pull data first, then create a demo.'
+			});
+		}
 		return fail(400, { message: 'Nothing to do for this prospect right now.' });
 	},
 	generateDemo: async ({ request, url, cookies }) => {
@@ -386,6 +395,8 @@ export const actions: Actions = {
 		if (!result) {
 			return fail(503, { message: 'Could not queue regeneration. Try again.' });
 		}
+		// Regenerating always resets tracking to draft (was approved or draft); callback also sets draft on completion.
+		await updateDemoTrackingStatus(user.id, prospectId, { status: 'draft' });
 		return { success: true, prospectId, queued: true, jobId: result.jobId, alreadyQueued: !result.created };
 	},
 	bulkApproveDemos: async ({ request, cookies }) => {

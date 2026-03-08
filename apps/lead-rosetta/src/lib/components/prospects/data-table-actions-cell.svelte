@@ -2,7 +2,8 @@
 	import { applyAction, enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
 	import { ChevronRight, LoaderCircle, RefreshCw, Trash2, RotateCcw } from 'lucide-svelte';
-	import { Button } from '$lib/components/ui/button';
+	import { buttonVariants } from '$lib/components/ui/button';
+	import { cn } from '$lib/utils';
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { toastSuccess, toastError } from '$lib/toast';
 
@@ -80,21 +81,17 @@
 		>
 			<input type="hidden" name="prospectId" value={prospectId} />
 			<Tooltip.Root>
-				<Tooltip.Trigger>
-					<Button
-						type="submit"
-						variant="ghost"
-						size="icon"
-						class="h-8 w-8"
-						disabled={regenerating || demoJobActive || regenerateDisabled}
-						aria-label="Regenerate demo"
-					>
-						{#if regenerating}
-							<LoaderCircle class="size-4 animate-spin" aria-hidden="true" />
-						{:else}
-							<RefreshCw class="size-4" aria-hidden="true" />
-						{/if}
-					</Button>
+				<Tooltip.Trigger
+					type="submit"
+					class={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), 'h-8 w-8')}
+					disabled={regenerating || demoJobActive || regenerateDisabled}
+					aria-label="Regenerate demo"
+				>
+					{#if regenerating}
+						<LoaderCircle class="size-4 animate-spin" aria-hidden="true" />
+					{:else}
+						<RefreshCw class="size-4" aria-hidden="true" />
+					{/if}
 				</Tooltip.Trigger>
 				<Tooltip.Content side="top" sideOffset={6}>
 					{#if demoJobActive}
@@ -151,21 +148,17 @@
 				>
 					<input type="hidden" name="prospectId" value={prospectId} />
 					<Tooltip.Root>
-						<Tooltip.Trigger>
-							<Button
-								type="submit"
-								variant="ghost"
-								size="icon"
-								class="h-8 w-8 text-muted-foreground hover:text-destructive"
-								disabled={flagging}
-								aria-label="Remove from pipeline"
-							>
-								{#if flagging}
-									<LoaderCircle class="size-4 animate-spin" aria-hidden="true" />
-								{:else}
-									<Trash2 class="size-4" aria-hidden="true" />
-								{/if}
-							</Button>
+						<Tooltip.Trigger
+							type="submit"
+							class={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), 'h-8 w-8 text-muted-foreground hover:text-destructive')}
+							disabled={flagging}
+							aria-label="Remove from pipeline"
+						>
+							{#if flagging}
+								<LoaderCircle class="size-4 animate-spin" aria-hidden="true" />
+							{:else}
+								<Trash2 class="size-4" aria-hidden="true" />
+							{/if}
 						</Tooltip.Trigger>
 						<Tooltip.Content side="top" sideOffset={6}>
 							Remove from pipeline (move to Deleted / not fit)
@@ -202,21 +195,17 @@
 				>
 					<input type="hidden" name="prospectId" value={prospectId} />
 					<Tooltip.Root>
-						<Tooltip.Trigger>
-							<Button
-								type="submit"
-								variant="ghost"
-								size="icon"
-								class="h-8 w-8 text-muted-foreground hover:text-foreground"
-								disabled={restoreDisabled}
-								aria-label="Restore to pipeline"
-							>
-								{#if restoring}
-									<LoaderCircle class="size-4 animate-spin" aria-hidden="true" />
-								{:else}
-									<RotateCcw class="size-4" aria-hidden="true" />
-								{/if}
-							</Button>
+						<Tooltip.Trigger
+							type="submit"
+							class={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), 'h-8 w-8 text-muted-foreground hover:text-foreground')}
+							disabled={restoreDisabled}
+							aria-label="Restore to pipeline"
+						>
+							{#if restoring}
+								<LoaderCircle class="size-4 animate-spin" aria-hidden="true" />
+							{:else}
+								<RotateCcw class="size-4" aria-hidden="true" />
+							{/if}
 						</Tooltip.Trigger>
 						<Tooltip.Content side="top" sideOffset={6}>
 							{restoreDisabled && processing
