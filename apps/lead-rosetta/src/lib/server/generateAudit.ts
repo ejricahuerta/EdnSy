@@ -262,55 +262,74 @@ ${INSIGHT_JSON_SCHEMA}`;
 
 	const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
 
-	const maxOutputTokens = 2048;
+	const TRUNCATED_ERROR = 'Response truncated (incomplete JSON); try again';
+	const isTruncationError = (err: string) =>
+		err.includes('truncated') || err === TRUNCATED_ERROR;
+
 	try {
-		const res = await fetch(apiUrl, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				contents: [{ role: 'user', parts: [{ text: prompt }] }],
-				generationConfig: {
-					maxOutputTokens,
-					temperature: 0.3,
-					responseMimeType: 'application/json'
-				}
-			}),
-			signal: AbortSignal.timeout(15000)
-		});
-
-		if (!res.ok) {
-			const err = await res.text();
-			const msg = `API error: ${res.status} ${err.slice(0, 150)}`;
-			serverError('generateInsight', msg, { status: res.status });
-			return { ok: false, error: msg };
-		}
-
-		const data = (await res.json()) as {
-			candidates?: {
-				content?: { parts?: { text?: string }[] };
-				finishReason?: string;
-			}[];
-		};
-		const candidate = data.candidates?.[0];
-		const text = candidate?.content?.parts?.[0]?.text?.trim();
-		if (!text) {
-			serverError('generateInsight', 'Gemini returned no content', candidate);
-			return { ok: false, error: 'Gemini returned no content' };
-		}
-
-		const parsed = parseJsonFromResponse(text);
-		if (!parsed.ok) {
-			serverError('generateInsight', parsed.error, { raw: text.slice(0, 300) });
-			return { ok: false, error: parsed.error };
-		}
-
-		if (!isGeminiInsightShape(parsed.data)) {
-			serverError('generateInsight', 'Response did not match GeminiInsight shape', {
-				raw: text.slice(0, 300)
+		for (const maxOutputTokens of [2048, 4096, 8192]) {
+			const res = await fetch(apiUrl, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					contents: [{ role: 'user', parts: [{ text: prompt }] }],
+					generationConfig: {
+						maxOutputTokens,
+						temperature: 0.3,
+						responseMimeType: 'application/json'
+					}
+				}),
+				signal: AbortSignal.timeout(20000)
 			});
-			return { ok: false, error: 'Invalid insight shape from Gemini' };
+
+			if (!res.ok) {
+				const err = await res.text();
+				const msg = `API error: ${res.status} ${err.slice(0, 150)}`;
+				serverError('generateInsight', msg, { status: res.status });
+				return { ok: false, error: msg };
+			}
+
+			const data = (await res.json()) as {
+				candidates?: {
+					content?: { parts?: { text?: string }[] };
+					finishReason?: string;
+					finishMessage?: string;
+				}[];
+				usageMetadata?: { promptTokenCount?: number; candidatesTokenCount?: number; totalTokenCount?: number };
+			};
+			const candidate = data.candidates?.[0];
+			const text = candidate?.content?.parts?.[0]?.text?.trim();
+			const finishReason = candidate?.finishReason ?? '';
+
+			if (!text) {
+				serverError('generateInsight', 'Gemini returned no content', candidate);
+				return { ok: false, error: 'Gemini returned no content' };
+			}
+
+			const parsed = parseJsonFromResponse(text);
+			if (!parsed.ok) {
+				const shouldRetry =
+					isTruncationError(parsed.error) || finishReason === 'MAX_TOKENS';
+				if (shouldRetry && maxOutputTokens < 8192) {
+					serverInfo('generateInsight', 'Retrying with higher maxOutputTokens after truncation', {
+						finishReason,
+						usage: data.usageMetadata
+					});
+					continue;
+				}
+				serverError('generateInsight', parsed.error, { raw: text.slice(0, 300) });
+				return { ok: false, error: parsed.error };
+			}
+
+			if (!isGeminiInsightShape(parsed.data)) {
+				serverError('generateInsight', 'Response did not match GeminiInsight shape', {
+					raw: text.slice(0, 300)
+				});
+				return { ok: false, error: 'Invalid insight shape from Gemini' };
+			}
+			return { ok: true, data: parsed.data };
 		}
-		return { ok: true, data: parsed.data };
+		return { ok: false, error: TRUNCATED_ERROR };
 	} catch (e) {
 		const err = e instanceof Error ? e.message : String(e);
 		serverError('generateInsight', err, e);

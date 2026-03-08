@@ -43,6 +43,8 @@ import { isEdnsyUser } from '$lib/plans';
 	let mobileSidebarOpen = $state(false);
 	/** True when viewport is ≤767px (used for aria-label and title). */
 	let isMobile = $state(false);
+	/** Landing nav: mobile menu open (hamburger menu). */
+	let mobileNavOpen = $state(false);
 
 	function toggleSidebar() {
 		if (isMobile) {
@@ -88,7 +90,10 @@ import { isEdnsyUser } from '$lib/plans';
 					toggleSidebar();
 				}
 			}
-			if (e.key === 'Escape') closeMobileSidebar();
+			if (e.key === 'Escape') {
+			closeMobileSidebar();
+			mobileNavOpen = false;
+		}
 		};
 		window.addEventListener('keydown', onKey);
 		return () => {
@@ -99,11 +104,16 @@ import { isEdnsyUser } from '$lib/plans';
 
 	afterNavigate(() => {
 		mobileSidebarOpen = false;
+		mobileNavOpen = false;
 	});
 </script>
 
 <ModeWatcher />
-<svelte:body class:lr-scope-dashboard={isDashboardRoute} class:lr-scope-demo={isDemoRoute} />
+<svelte:body
+	class:lr-scope-dashboard={isDashboardRoute}
+	class:lr-scope-demo={isDemoRoute}
+	class:lr-nav-mobile-open={mobileNavOpen}
+/>
 
 <svelte:head>
 	<title>Lead Rosetta – Personalized demo sites for cold outreach</title>
@@ -324,7 +334,7 @@ import { isEdnsyUser } from '$lib/plans';
 	</div>
 {:else}
 	<div class="leadrosetta-app">
-		<nav class="landing-nav">
+		<nav class="landing-nav" aria-label="Main navigation">
 			<a href={user ? '/dashboard' : '/'} class="logo" aria-label="Lead Rosetta">
 				<img src="/images/logo.png" alt="Lead Rosetta" class="logo-img" width="32" height="32" />
 				<span class="logo-text">Lead <span>Rosetta</span></span>
@@ -345,7 +355,48 @@ import { isEdnsyUser } from '$lib/plans';
 					<li><a href="/try" class="btn-nav">Try free →</a></li>
 				{/if}
 			</ul>
+			<button
+				type="button"
+				class="landing-nav-menu-btn"
+				aria-label={mobileNavOpen ? 'Close menu' : 'Open menu'}
+				aria-expanded={mobileNavOpen}
+				onclick={() => (mobileNavOpen = !mobileNavOpen)}
+			>
+				{#if mobileNavOpen}
+					<X size={24} strokeWidth={1.5} aria-hidden="true" />
+				{:else}
+					<Menu size={24} strokeWidth={1.5} aria-hidden="true" />
+				{/if}
+			</button>
 		</nav>
+		{#if mobileNavOpen}
+			<div
+				class="landing-nav-mobile-overlay"
+				role="button"
+				tabindex="-1"
+				aria-label="Close menu"
+				onclick={() => (mobileNavOpen = false)}
+				onkeydown={(e) => e.key === 'Enter' && (mobileNavOpen = false)}
+			></div>
+			<div class="landing-nav-mobile-panel" role="dialog" aria-label="Menu" aria-modal="true">
+				<ul class="landing-nav-mobile-links">
+					{#if user}
+						<li><a href="/dashboard" class="landing-nav-mobile-link">Dashboard</a></li>
+						<li>
+							<span class="nav-email" style="font-size: 0.875rem; color: var(--muted);" title={user.email}>
+								{user.email}
+							</span>
+						</li>
+						<li><a href="/auth/logout" class="landing-nav-mobile-link">Sign out</a></li>
+					{:else}
+						<li><a href="/#how" class="landing-nav-mobile-link">How it works</a></li>
+						<li><a href="/#pricing" class="landing-nav-mobile-link">Pricing</a></li>
+						<li><a href="/auth/login" class="landing-nav-mobile-link">Sign in</a></li>
+						<li><a href="/try" class="landing-nav-mobile-link landing-nav-mobile-cta">Try free →</a></li>
+					{/if}
+				</ul>
+			</div>
+		{/if}
 		<main>
 			{@render children()}
 		</main>

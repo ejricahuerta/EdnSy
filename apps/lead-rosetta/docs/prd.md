@@ -61,6 +61,8 @@ Building a custom demo for each prospect manually takes hours. Lead Rosetta make
 
 Lead Rosetta is built and used internally by Ed & Sy Inc. to close trades and service businesses (plumbers, glass repair, HVAC, locksmiths) in the GTA.
 
+- **Client show page (/show):** In-person tool to look up a business by name and address, display their Google Business Profile, AI website/SEO analysis (section by section), recommendations, and a one-click option to generate a demo and send the link to the client's email.
+
 **Primary validated case study:** OhMyGlass (ohmyglass.ca) — website + local SEO + 24/7 Voice AI for $399/month. Conversion achieved with under 20 cold emails sent. Estimated reply rate: 5–10% (vs. industry average of 1–3%).
 
 ---
