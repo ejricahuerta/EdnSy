@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { DemoAudit } from '$lib/demo';
+	import { Badge } from '$lib/components/ui/badge';
 	import { cn } from '$lib/utils';
 
 	let {
@@ -52,13 +53,13 @@
 		return 'okay'; // 0–39: still "okay" (we have GBP, just low)
 	});
 
-	/** CSS variant for grade text (A/B = green, C = amber, Needs work / low = red). */
+	/** CSS variant for grade text (A/B = green, C = amber, Needs work / low = orange). */
 	const gradeVariant = $derived.by(() => {
 		if (!grade) return 'muted';
 		const g = grade.toLowerCase();
 		if (/^[ab][+-]?$/i.test(g) || g === 'strong' || g === 'excellent' || g === 'good') return 'green';
 		if (/^c[+-]?$/i.test(g) || g === 'fair' || g === 'average') return 'amber';
-		if (/^[df][+-]?$/i.test(g) || g === 'needs work' || g === 'poor' || g === 'weak') return 'red';
+		if (/^[df][+-]?$/i.test(g) || g === 'needs work' || g === 'poor' || g === 'weak') return 'orange';
 		return 'muted';
 	});
 
@@ -95,33 +96,34 @@
 	});
 </script>
 
-<span
-	class={cn(
-		'inline-flex items-center gap-1.5 justify-center text-muted-foreground',
-		noWebsite && 'text-destructive',
-		!noWebsite && !grade && !notGraded && tier === 'empty' && 'opacity-50',
-		!noWebsite && !grade && !notGraded && tier === 'no_gbp' && 'text-destructive',
-		!noWebsite && notGraded && 'text-muted-foreground',
-		!noWebsite && grade && gradeVariant === 'green' && 'text-green-600 dark:text-green-400',
-		!noWebsite && grade && gradeVariant === 'amber' && 'text-amber-600 dark:text-amber-400',
-		!noWebsite && grade && gradeVariant === 'red' && 'text-destructive',
-		!noWebsite && grade && gradeVariant === 'muted' && 'text-muted-foreground'
-	)}
-	title={title}
-	aria-label={title}
->
+<span class="inline-flex items-center gap-1.5 justify-center" title={title} aria-label={title}>
 	{#if noWebsite}
-		<span class="text-sm font-medium">No website</span>
+		<Badge variant="destructive" class="text-sm font-medium">No website</Badge>
 	{:else if grade}
-		<span class="font-medium tabular-nums">{grade}</span>
+		<Badge
+			variant="outline"
+			class={cn(
+				'font-medium tabular-nums',
+				gradeVariant === 'green' && 'border-green-600 text-green-600 dark:border-green-400 dark:text-green-400',
+				gradeVariant === 'amber' && 'border-amber-600 text-amber-600 dark:border-amber-400 dark:text-amber-400',
+				gradeVariant === 'orange' && 'border-orange-600 text-orange-600 dark:border-orange-400 dark:text-orange-400',
+				gradeVariant === 'muted' && 'text-muted-foreground'
+			)}
+		>
+			{grade}
+		</Badge>
 	{:else if notGradedWithGbp}
-		<span class="text-sm tabular-nums">{notGradedScoreLabel ?? 'GBP'}</span>
-		<span class="text-muted-foreground/80">·</span>
-		<span class="text-sm">Not graded</span>
+		<span class="text-muted-foreground text-sm">
+			<Badge variant="secondary" class="tabular-nums">{notGradedScoreLabel ?? 'GBP'}</Badge>
+			<span class="mx-1">·</span>
+			<Badge variant="outline" class="text-muted-foreground">Not graded</Badge>
+		</span>
 	{:else if notGraded}
-		<span class="text-sm">Not graded</span>
+		<Badge variant="outline" class="text-sm text-muted-foreground">Not graded</Badge>
 	{:else if tier === 'no_gbp'}
-		<span class="text-sm">No GBP</span>
+		<Badge variant="destructive" class="text-sm">No GBP</Badge>
+	{:else if tier === 'empty'}
+		<span class="text-sm opacity-50">—</span>
 	{:else}
 		<span class="text-sm opacity-50">—</span>
 	{/if}
