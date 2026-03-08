@@ -27,6 +27,12 @@
 	const gmailConnected = $derived(data.gmailConnected ?? false);
 	const gmailEmail = $derived(data.gmailEmail ?? null);
 	const notionConnected = $derived(connections.find((c) => c.provider === 'notion')?.connected ?? false);
+	const notionDatabaseId = $derived(data.notionDatabaseId ?? null);
+	const notionDatabaseTitle = $derived(data.notionDatabaseTitle ?? null);
+	function truncateNotionId(id: string | null): string {
+		if (!id) return '—';
+		return id.length > 16 ? `${id.slice(0, 8)}…${id.slice(-4)}` : id;
+	}
 	const hubspotConnected = $derived(connections.find((c) => c.provider === 'hubspot')?.connected ?? false);
 	const ghlConnected = $derived(connections.find((c) => c.provider === 'gohighlevel')?.connected ?? false);
 	const pipedriveConnected = $derived(connections.find((c) => c.provider === 'pipedrive')?.connected ?? false);
@@ -57,8 +63,13 @@
 	let selectedNotionDatabaseId = $state('');
 	/** Notion: manual database ID paste (overrides select when non-empty) */
 	let notionManualDatabaseId = $state('');
-	/** Notion: effective database ID for submit (manual paste overrides select when non-empty) */
-	let notionDatabaseIdForSubmit = $derived(notionManualDatabaseId.trim() || selectedNotionDatabaseId);
+	/** Notion: effective database ID for submit (manual paste overrides select when non-empty). Normalize Select value (string or { value }) for form submit. */
+	let notionDatabaseIdForSubmit = $derived(
+		notionManualDatabaseId.trim() ||
+			(typeof selectedNotionDatabaseId === 'string'
+				? selectedNotionDatabaseId
+				: (selectedNotionDatabaseId as { value?: string })?.value ?? '')
+	);
 	/** Notion (edit mode): databases list when editing credentials */
 	let notionEditDatabases = $state<{ id: string; title: string }[]>([]);
 	let notionEditDatabasesLoading = $state(false);
@@ -478,12 +489,12 @@
 										</div>
 									</div>
 									<div class="space-y-2">
-										<Label for="notion-databaseId-connected">Database ID</Label>
+										<Label for="notion-databaseId-connected">Synced database</Label>
 										<div class="flex gap-1">
 											<input
 												id="notion-databaseId-connected"
-												type={showConnectedKeys ? 'text' : 'password'}
-												value="••••••••••••••••••••"
+												type="text"
+												value={showConnectedKeys ? (notionDatabaseId ?? '') : (notionDatabaseTitle || truncateNotionId(notionDatabaseId) || '—')}
 												disabled
 												readonly
 												class="border-input bg-background flex h-9 min-w-0 flex-1 rounded-md border px-3 py-1 font-mono text-sm outline-none disabled:cursor-not-allowed disabled:opacity-50"
@@ -491,7 +502,7 @@
 											<button
 												type="button"
 												onclick={() => (showConnectedKeys = !showConnectedKeys)}
-												aria-label={showConnectedKeys ? 'Hide Database ID' : 'Show Database ID'}
+												aria-label={showConnectedKeys ? 'Show database name' : 'Show database ID'}
 												class="inline-flex size-9 shrink-0 items-center justify-center rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground"
 											>
 												{#if showConnectedKeys}
@@ -501,6 +512,9 @@
 												{/if}
 											</button>
 										</div>
+										{#if !showConnectedKeys && notionDatabaseId}
+											<p class="text-xs text-muted-foreground">ID: {truncateNotionId(notionDatabaseId)}</p>
+										{/if}
 									</div>
 								</div>
 									<Button
@@ -683,7 +697,8 @@
 									/>
 								</div>
 								<div class="space-y-2">
-									<Label for="notion-database-select">Database</Label>
+									<Label for="notion-database-select">Select database to sync</Label>
+									<p class="text-xs text-muted-foreground">Select the Notion database that will power your dashboard clients list. This database will be used for syncing contacts to Dashboard → Prospects.</p>
 									{#if notionDatabases.length > 0}
 										<Select.Root type="single" bind:value={selectedNotionDatabaseId}>
 											<Select.Trigger id="notion-database-select" class="w-full font-mono text-sm">
