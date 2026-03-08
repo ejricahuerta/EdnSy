@@ -1,10 +1,9 @@
 /**
- * Process one GBP (Google Business Profile) job from the queue. Fetches GBP data and runs AI grading when Gemini is configured.
+ * Process one GBP (Google Business Profile) job from the queue.
  *
- * Pipeline: Qualify (GBP) → Research & Personalize (Generate Demo).
- * - Fetches GBP (Places API), builds audit, then calls Gemini to grade the business and attach insight (grade, summary, recommendations).
- * - If GBP fails: when website is only a map link or missing, move to next step (Generate Demo) and do not flag.
- *   We generate a generic AI demo from business name and location. Only flag when explicitly out of scope.
+ * Pipeline: data sync → [ GBP → website → industry → insight ] → demo
+ * This job does the GBP step only: fetch GBP, grade, save to demo_tracking (no insight).
+ * Website, industry, and insight are done by the Insights job.
  */
 
 import { getProspectByIdForUser, updateProspectFromGbp, updateProspectStatus, setProspectFlagged } from '$lib/server/prospects';
@@ -18,7 +17,6 @@ import {
 import { fetchGbpForProspect, buildAuditFromGbp } from '$lib/server/gbp';
 import { getGbpDefaultLocation } from '$lib/server/userSettings';
 import { isValidDemoTrackingStatus, type DemoTrackingStatus } from '$lib/demo';
-import { generateInsightForProspect } from '$lib/server/insights';
 import { gradeGbp } from '$lib/ai-agents';
 import { isOutOfScopeCompany } from '$lib/server/outOfScope';
 import { NO_FIT_BIG_CORP_REASON } from '$lib/server/qualify';
@@ -101,11 +99,10 @@ export async function processOneGbpJob(): Promise<ProcessGbpJobResult> {
 					gbpCompletenessLabel: gbpGradeResult.data.label
 				}
 			: baseAudit;
-		const insightResult = await generateInsightForProspect(prospect, gbp);
+		// GBP step only; insight is done in Insights job after website → industry
 		const scrapedData = {
 			...auditFromGbp,
-			...(gbpGradeResult.ok ? { gbpGrade: gbpGradeResult.data } : {}),
-			...(insightResult.ok ? { insight: insightResult.data } : {})
+			...(gbpGradeResult.ok ? { gbpGrade: gbpGradeResult.data } : {})
 		} as Record<string, unknown>;
 
 		const existingRow = await getDemoTrackingForProspect(userId, prospectId);

@@ -8,13 +8,16 @@
 		value = $bindable(),
 		class: className,
 		...props
-	}: ComponentProps<Input> = $props();
+	}: ComponentProps<typeof Input> = $props();
 </script>
 
 <Input
-	bind:this={ref}
-	bind:value
+	bind:ref
 	data-slot="input-group-control"
-	class={cn("min-w-0 flex-1 border-0 shadow-none focus-visible:ring-0", className)}
+	class={cn(
+		"flex-1 rounded-none border-0 bg-transparent shadow-none focus-visible:ring-0 dark:bg-transparent",
+		className
+	)}
+	bind:value
 	{...props}
 />

@@ -41,7 +41,7 @@
 			};
 		}}
 	>
-		<Card.Root class="border-0 bg-card shadow-none">
+		<Card.Root>
 			<Card.Header>
 				<Card.Title>Sender name (default delivery)</Card.Title>
 				<Card.Description>
@@ -76,7 +76,7 @@
 			};
 		}}
 	>
-		<Card.Root class="border-0 bg-card shadow-none">
+		<Card.Root>
 			<Card.Header>
 				<Card.Title>Email signature (AI-generated emails)</Card.Title>
 				<Card.Description>
@@ -103,7 +103,7 @@
 		</Card.Root>
 	</form>
 
-	<Card.Root class="border-0 bg-card shadow-none">
+	<Card.Root>
 		<Card.Content class="pt-6">
 			<div class="space-y-8">
 			<!-- Outreach: each row is an email HTML template -->
@@ -147,7 +147,7 @@
 			</div>
 
 			<!-- Email delivery: Gmail only -->
-			<Card.Root class="border-0 bg-card shadow-none">
+			<Card.Root>
 				<Card.Header>
 					<Card.Title class="flex items-center gap-2">
 						<Mail class="h-5 w-5" aria-hidden="true" />

@@ -77,3 +77,34 @@ import { notionIndustryToSlug as mapNotionToSlug } from '$lib/industryMapping';
 export function industryDisplayToSlug(display: string): IndustrySlug {
 	return mapNotionToSlug(display);
 }
+
+/**
+ * Parse a multi-value industry string (e.g. "Dental" or "Legal, Dental") into trimmed parts.
+ */
+export function parseIndustryValues(industryString: string): string[] {
+	if (!(industryString ?? '').trim()) return [];
+	return (industryString as string)
+		.split(',')
+		.map((s) => s.trim())
+		.filter(Boolean);
+}
+
+/**
+ * From a multi-value industry string, return the best slug for demo endpoint selection:
+ * - If preferredSlugs are given (e.g. ['dental']), return the first value that maps to one of them.
+ * - Otherwise return the first value's slug, or 'professional' if none.
+ */
+export function getPrimaryIndustrySlugFromMultiValue(
+	industryString: string,
+	preferredSlugs?: readonly IndustrySlug[]
+): IndustrySlug {
+	const values = parseIndustryValues(industryString);
+	if (preferredSlugs?.length) {
+		for (const v of values) {
+			const slug = mapNotionToSlug(v);
+			if (preferredSlugs.includes(slug)) return slug;
+		}
+	}
+	if (values.length > 0) return mapNotionToSlug(values[0]);
+	return 'professional';
+}

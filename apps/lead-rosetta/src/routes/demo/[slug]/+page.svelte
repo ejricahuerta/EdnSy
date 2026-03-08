@@ -34,28 +34,32 @@
 	function handleDemoIframeLoad() {
 		const iframe = demoIframeRef;
 		if (!iframe?.contentDocument) return;
+		// Single-file demos often have minimal visible text (hero + CTA). Allow short content; only flag when clearly empty or an error page.
 		setTimeout(() => {
 			try {
 				const body = iframe.contentDocument?.body;
 				const text = body?.innerText?.trim() ?? '';
-				// Same-origin iframe (src=page.html): show fallback when content is clearly empty or error-like
-				if (text.length < 80 || /failed to load|internal error|500|404 not found/i.test(text)) {
+				const isVeryShort = text.length < 25;
+				const looksLikeErrorPage =
+					text.length < 120 &&
+					/failed to load|internal server error|500 server error|404 not found|not found\./i.test(text);
+				if (isVeryShort || looksLikeErrorPage) {
 					iframeBlank = true;
 				}
 			} catch {
 				iframeBlank = true;
 			}
-		}, 800);
+		}, 1200);
 	}
 
-	// If iframe doesn't show meaningful content within 15s, show timeout error
+	// If iframe doesn't show meaningful content within 15s, show timeout error (single-file demos may have minimal text)
 	function startIframeLoadTimeout() {
 		if (!useCinematicDemo || !cinematicDemoSrc) return;
 		const t = setTimeout(() => {
 			const iframe = demoIframeRef;
 			if (iframe?.contentDocument?.body) {
 				const text = iframe.contentDocument.body.innerText?.trim() ?? '';
-				if (text.length < 50) iframeLoadTimeout = true;
+				if (text.length < 20) iframeLoadTimeout = true;
 			}
 		}, 15_000);
 		return () => clearTimeout(t);

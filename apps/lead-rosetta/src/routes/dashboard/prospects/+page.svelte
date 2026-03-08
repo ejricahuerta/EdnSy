@@ -2,13 +2,14 @@
 	import { applyAction, enhance } from '$app/forms';
 	import { invalidateAll, invalidate, goto } from '$app/navigation';
 	import { page } from '$app/stores';
-	import { getStatusDisplay } from '$lib/statusDisplay';
 	import {
-		ENGAGED_STATUSES,
-		getStatusFilterOptionsForPipelineTab,
-		getValidStatusFilterValuesForPipelineTab,
-		type DemoStatusFilterValue
-	} from '$lib/demo';
+		getNextStep,
+		getSimplifiedStatus,
+		NEXT_STEP_FILTER_OPTIONS,
+		getNextStepFilterLabel,
+		prospectMatchesNextStepFilter,
+		type NextStepFilterValue
+	} from '$lib/nextStep';
 	import type { PageData } from './$types';
 	// Prospects page: full CRM table; no overview
 	import type { Prospect } from '$lib/server/prospects';
@@ -19,6 +20,8 @@
 		insightsJob?: { jobId: string; status: string };
 		demoJob?: { status: string; jobId: string; demoLink?: string | null; errorMessage?: string | null };
 		tracking?: { status?: string; send_time?: string | null; opened_at?: string | null; clicked_at?: string | null };
+		/** True when scraped/GBP data exists; required for "Create demo" next step. */
+		hasGbpData?: boolean;
 	};
 	import { X, ExternalLink, Mail, MessageSquare, Copy, Link2, Send, Eye, Globe, Phone, MapPin, Star, ListChecks, Briefcase, LoaderCircle, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-svelte';
 	import SearchIcon from '@lucide/svelte/icons/search';
@@ -37,16 +40,14 @@
 	} from '@tanstack/table-core';
 	import { createRawSnippet, tick } from 'svelte';
 	import DataTableCheckbox from '$lib/components/data-table-checkbox.svelte';
-	import DataTableSortHeader from '../data-table-sort-header.svelte';
-	import DataTableActionsCell from '../data-table-actions-cell.svelte';
-	import DataTableCompanyCell from '../data-table-company-cell.svelte';
-	import DataTableStatusBadge from '../data-table-status-badge.svelte';
-	import DataTableDemoStatus from '../data-table-demo-status.svelte';
-	import DataTableGbpCell from '../data-table-gbp-cell.svelte';
-	import DataTableWebsiteCell from '../data-table-website-cell.svelte';
-	import DataTableWebsiteGradingCell from '../data-table-website-grading-cell.svelte';
-	import { auditFromScrapedData } from '$lib/demo';
-	import { getDemoFailureLabel } from '$lib/constants/demoErrors';
+	import DataTableSortHeader from '$lib/components/prospects/data-table-sort-header.svelte';
+	import DataTableActionsCell from '$lib/components/prospects/data-table-actions-cell.svelte';
+	import ProspectRowActionsCell from '$lib/components/prospects/prospect-row-actions-cell.svelte';
+	import DataTableCompanyCell from '$lib/components/prospects/data-table-company-cell.svelte';
+	import DataTableStatusBadge from '$lib/components/prospects/data-table-status-badge.svelte';
+	import DataTableGbpCell from '$lib/components/prospects/data-table-gbp-cell.svelte';
+	import DataTableWebsiteCell from '$lib/components/prospects/data-table-website-cell.svelte';
+	import { auditFromScrapedData, hasUsableGbpInAudit, hasUsableInsight } from '$lib/demo';
 	import {
 		FlexRender,
 		createSvelteTable,
@@ -61,13 +62,11 @@
 	import * as Drawer from '$lib/components/ui/drawer';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import * as Select from '$lib/components/ui/select';
-	import * as Tabs from '$lib/components/ui/tabs';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { cn } from '$lib/utils';
 	import { toastSuccess, toastError, toastInfo, toastFromActionResult } from '$lib/toast';
 import { clientError } from '$lib/log';
-import { INDUSTRY_LABELS, INDUSTRY_SLUGS, industryDisplayToSlug, type IndustrySlug } from '$lib/industries';
 
 	let { data, form } = $props<{
 		data: PageData;
@@ -123,17 +122,22 @@ import { INDUSTRY_LABELS, INDUSTRY_SLUGS, industryDisplayToSlug, type IndustrySl
 		const insights = data.insightsJobsByProspectId ?? {};
 		const demo = data.demoJobsByProspectId ?? {};
 		const tracking = data.demoTrackingByProspectId ?? {};
-		return list.map((p) => ({
-			...p,
-			gbpJob: gbp[p.id],
-			insightsJob: insights[p.id],
-			demoJob: demo[p.id],
-			tracking: tracking[p.id]
-		}));
+		const scraped = data.scrapedDataByProspectId ?? {};
+		return list.map((p) => {
+			const scrapedForP = scraped[p.id] as Record<string, unknown> | undefined;
+			const audit = auditFromScrapedData(scrapedForP ?? null);
+			return {
+				...p,
+				gbpJob: gbp[p.id],
+				insightsJob: insights[p.id],
+				demoJob: demo[p.id],
+				tracking: tracking[p.id],
+				// Use Insights grade (AI run) for status/next step: "Not graded" → Pull data; graded → Create demo
+				hasGbpData: audit ? hasUsableInsight(audit) : false
+			};
+		});
 	});
 
-	type PipelineTab = 'qualify' | 'research' | 'no_fit';
-	let pipelineTab = $state<PipelineTab>('qualify');
 	const approvedProspects = $derived(
 		prospects.filter((p) => trackingByProspectId[p.id]?.status === 'approved')
 	);
@@ -222,32 +226,35 @@ import { INDUSTRY_LABELS, INDUSTRY_SLUGS, industryDisplayToSlug, type IndustrySl
 		httpCallLogs = [logEntry, ...httpCallLogs].slice(0, HTTP_CALL_LOGS_MAX);
 	}
 
-	/** Sort key for status column: order matches display priority (flagged, demo queue, processing, queue, tracking, other). */
-	function statusSortKey(p: ProspectRow): string {
-		if (p.flagged) return '00_flagged';
-		const job = p.demoJob;
-		if (job?.status === 'pending') return '01_demo_queued';
-		if (job?.status === 'creating') return '02_demo_creating';
-		if (p.gbpJob?.status === 'running') return '03_processing_gbp';
-		if (p.insightsJob?.status === 'running') return '04_processing_insights';
-		if (optimisticGbpProspectIds.has(p.id) || p.gbpJob?.status === 'pending') return '05_queue';
-		if (optimisticInsightsProspectIds.has(p.id) || p.insightsJob?.status === 'pending') return '05_queue';
-		if (job?.status === 'failed') return '06_demo_failed';
-		if ((p.status ?? '').trim() === 'In queue') return '07_in_queue';
-		const tracking = p.tracking;
-		if (tracking?.status === 'draft') return '08_draft';
-		if (tracking?.status === 'sent') return '09_sent';
-		if (tracking?.status === 'opened') return '10_opened';
-		if (tracking?.status === 'clicked') return '11_clicked';
-		return `12_${(statusLabel(p) ?? '').toLowerCase().replace(/\s+/g, '_')}`;
+	/** Sort key for Next step column (order matches priority). */
+	function nextStepSortKey(p: ProspectRow): string {
+		const step = getNextStep(p, {
+			optimisticGbpIds: optimisticGbpProspectIds,
+			optimisticInsightsIds: optimisticInsightsProspectIds
+		});
+		const order: Record<NextStepFilterValue, string> = {
+			'': '12',
+			flagged: '00',
+			pull_data: '01',
+			create_demo: '02',
+			retry_demo: '03',
+			review_send: '04',
+			sent: '05',
+			engaged: '06',
+			replied: '07',
+			other: '11'
+		};
+		return `${order[step.filterValue] ?? '08'}_${step.label.toLowerCase().replace(/\s+/g, '_')}`;
 	}
 
-	/** True when the row is in a processing state (GBP, Insights, or demo creation). */
+	/** True when the row is in a processing state (GBP, Insights, or demo creation). Rows with a demo or with a failed demo are selectable so they can be retried after running qualifier. */
 	function isRowProcessing(p: ProspectRow): boolean {
+		if ((p.demoLink ?? '').trim()) return false; // Already has demo -> selectable
+		const job = p.demoJob;
+		if (job?.status === 'failed') return false; // Failed demo -> selectable so user can run qualifier then Process next step to retry
 		if (optimisticGbpProspectIds.has(p.id) || optimisticInsightsProspectIds.has(p.id)) return true;
 		if (p.gbpJob) return true;
 		if (p.insightsJob) return true;
-		const job = p.demoJob;
 		if (job?.status === 'pending' || job?.status === 'creating') return true;
 		// Persisted status so we treat as processing after refresh when job maps are empty
 		return (p.status ?? '').trim() === 'In queue';
@@ -260,7 +267,8 @@ import { INDUSTRY_LABELS, INDUSTRY_SLUGS, industryDisplayToSlug, type IndustrySl
 		if (/gbp|not found|no search results|dataforseo|business profile|scraped data/.test(lower)) {
 			return 'Unable to create demo - GBP not found.';
 		}
-		if (/crm|notion|sync|invalid input|pipedrive/.test(lower)) {
+		// Only rewrite when error clearly refers to a CRM provider (sync/integrations), not generic "sync" or "invalid input" from demo/generator
+		if (/\b(crm|notion|pipedrive|hubspot|gohighlevel)\b/i.test(lower)) {
 			return 'Unable to sync CRM - invalid input.';
 		}
 		if (/out of scope|flagged/.test(lower)) {
@@ -303,126 +311,44 @@ import { INDUSTRY_LABELS, INDUSTRY_SLUGS, industryDisplayToSlug, type IndustrySl
 	});
 
 	let filterQuery = $state('');
-	let statusFilter = $state<DemoStatusFilterValue>('');
-	const statusOptionsByGroup = $derived(getStatusFilterOptionsForPipelineTab(pipelineTab));
-	const statusFilterLabel = $derived.by(() => {
-		if (statusFilter === '') return 'All statuses';
-		const all = [...statusOptionsByGroup.pipeline, ...statusOptionsByGroup.engagement, ...statusOptionsByGroup.other];
-		return all.find((o) => o.value === statusFilter)?.label ?? 'All statuses';
-	});
-
-	// Reset status filter when switching tabs if current value is not valid for the new tab
-	$effect(() => {
-		const valid = getValidStatusFilterValuesForPipelineTab(pipelineTab);
-		if (statusFilter !== '' && !valid.includes(statusFilter)) {
-			statusFilter = '';
-		}
-	});
-
-	type IndustryFilterValue = '' | IndustrySlug;
-	let industryFilter = $state<IndustryFilterValue>('');
-	const INDUSTRY_OPTIONS: { value: IndustryFilterValue; label: string }[] = [
-		{ value: '', label: 'All industries' },
-		...INDUSTRY_SLUGS.map((slug) => ({ value: slug as IndustryFilterValue, label: INDUSTRY_LABELS[slug] }))
-	];
-	const industryFilterLabel = $derived(
-		INDUSTRY_OPTIONS.find((o) => o.value === industryFilter)?.label ?? 'All industries'
-	);
+	let nextStepFilter = $state<NextStepFilterValue>('');
+	const nextStepFilterLabel = $derived(getNextStepFilterLabel(nextStepFilter));
 
 	const hasActiveFilters = $derived(
-		filterQuery.trim() !== '' || statusFilter !== '' || industryFilter !== ''
+		filterQuery.trim() !== '' || nextStepFilter !== ''
 	);
 	const activeFilterCount = $derived(
-		(filterQuery.trim() ? 1 : 0) + (statusFilter ? 1 : 0) + (industryFilter ? 1 : 0)
+		(filterQuery.trim() ? 1 : 0) + (nextStepFilter ? 1 : 0)
 	);
 
 	function clearFilters() {
 		filterQuery = '';
-		statusFilter = '';
-		industryFilter = '';
+		nextStepFilter = '';
 	}
 
 	const filteredProspects = $derived.by((): ProspectRow[] => {
-		// First: filter by pipeline tab (Qualify, Research & Personalize, No Fit)
 		let list: ProspectRow[] = prospectsWithJobStatus;
-		if (pipelineTab === 'no_fit') {
-			list = list.filter((p) => !!p.flagged);
-		} else {
-			list = list.filter((p) => !p.flagged);
-			if (pipelineTab === 'qualify') {
-				// No GBP data yet — run GBP to qualify
-				list = list.filter((p) => !(scrapedDataByProspectId[p.id] as Record<string, unknown>)?.gbpRaw);
-			} else if (pipelineTab === 'research') {
-				// Have GBP data — research & personalize (Insights, booking sys, call service, reviews, demos)
-				list = list.filter((p) => !!(scrapedDataByProspectId[p.id] as Record<string, unknown>)?.gbpRaw);
-			}
-		}
 		const q = filterQuery.trim().toLowerCase();
+		const nextStepOpts = { optimisticGbpIds: optimisticGbpProspectIds, optimisticInsightsIds: optimisticInsightsProspectIds };
 		if (q) {
 			list = list.filter((p) => {
-				const tr = p.tracking;
-				const statusLabelForSearch = tr
-					? (tr.status ?? '').toLowerCase()
-					: getStatusDisplay(p.status).label.toLowerCase();
+				const nextStepLabel = getNextStep(p, nextStepOpts).label.toLowerCase();
 				return (
 					(p.companyName ?? '').toLowerCase().includes(q) ||
 					(p.email ?? '').toLowerCase().includes(q) ||
 					(p.website ?? '').toLowerCase().includes(q) ||
-					statusLabelForSearch.includes(q)
+					nextStepLabel.includes(q)
 				);
 			});
 		}
-		if (industryFilter) {
-			list = list.filter((p) => industryDisplayToSlug(p.industry) === industryFilter);
-		}
-		if (statusFilter === 'flagged') {
-			list = list.filter((p) => !!p.flagged);
-		} else if (statusFilter === 'queue') {
-			list = list.filter(
-				(p) =>
-					optimisticGbpProspectIds.has(p.id) ||
-					p.gbpJob?.status === 'pending' ||
-					optimisticInsightsProspectIds.has(p.id) ||
-					p.insightsJob?.status === 'pending'
-			);
-		} else if (statusFilter === 'processing_gbp') {
-			list = list.filter((p) => p.gbpJob?.status === 'running');
-		} else if (statusFilter === 'processing_insights') {
-			list = list.filter((p) => p.insightsJob?.status === 'running');
-		} else if (statusFilter === 'no_demo') {
-			list = list.filter((p) => !(p.demoLink ?? '').trim());
-		} else if (statusFilter === 'demo_queued') {
-			list = list.filter((p) => p.demoJob?.status === 'pending');
-		} else if (statusFilter === 'demo_creating') {
-			list = list.filter((p) => p.demoJob?.status === 'creating');
-		} else if (statusFilter === 'demo_failed') {
-			list = list.filter((p) => p.demoJob?.status === 'failed');
-		} else if (statusFilter === 'in_queue') {
-			list = list.filter((p) => (p.status ?? '').trim() === 'In queue');
-		} else if (statusFilter === 'engaged') {
-			list = list.filter((p) => {
-				const s = p.tracking?.status;
-				return s != null && ENGAGED_STATUSES.includes(s as (typeof ENGAGED_STATUSES)[number]);
-			});
-		} else if (statusFilter) {
-			list = list.filter((p) => p.tracking?.status === statusFilter);
+		if (nextStepFilter !== '') {
+			list = list.filter((p) => prospectMatchesNextStepFilter(p, nextStepFilter, nextStepOpts));
 		}
 		return list;
 	});
 
 	function openClientDialog(p: Prospect) {
 		goto(`/dashboard/prospects/${p.id}`);
-	}
-
-	function statusLabel(p: { status: string }): string {
-		return getStatusDisplay(p.status).label;
-	}
-
-	function badgeVariant(p: { status: string }): 'default' | 'secondary' | 'outline' {
-		const v = getStatusDisplay(p.status).variant;
-		if (v === 'success') return 'default';
-		if (v === 'warning') return 'secondary';
-		return 'outline';
 	}
 
 	let demoJobPollingActive = $state(false);
@@ -435,12 +361,70 @@ import { INDUSTRY_LABELS, INDUSTRY_SLUGS, industryDisplayToSlug, type IndustrySl
 	let bulkGbpSubmitting = $state(false);
 	let bulkInsightsSubmitting = $state(false);
 	let bulkRestoreSubmitting = $state(false);
+	let bulkProcessNextStepSubmitting = $state(false);
 	let clearStuckSubmitting = $state(false);
 	let gbpJobPollingActive = $state(false);
 	let insightsJobPollingActive = $state(false);
+	/** Prospect ID currently running processNextStep (per-row generate icon). */
+	let processNextStepId = $state<string | null>(null);
 	/** Prospect IDs we've just submitted for GBP/Insights so status updates immediately before server responds. */
 	let optimisticGbpProspectIds = $state<Set<string>>(new Set());
 	let optimisticInsightsProspectIds = $state<Set<string>>(new Set());
+
+	/** Run next step for one prospect (pull GBP, pull insights, or create demo). Used by per-row generate icon. */
+	async function handleProcessNextStep(prospectId: string) {
+		if (processNextStepId) return;
+		processNextStepId = prospectId;
+		const p = prospects.find((x) => x.id === prospectId);
+		const who = p?.companyName || p?.email || prospectId;
+		toastInfo('Next step', `Processing ${who}…`);
+		const formData = new FormData();
+		formData.set('prospectId', prospectId);
+		try {
+			const res = await fetch('?/processNextStep', {
+				method: 'POST',
+				body: formData,
+				headers: { Accept: 'application/json' }
+			});
+			const raw = (await res.json().catch(() => ({}))) as {
+				type?: string;
+				data?: { success?: boolean; step?: string; queued?: boolean; prospectId?: string; companyName?: string; alreadyQueued?: boolean; message?: string };
+				message?: string;
+			};
+			const result = raw?.data ?? raw;
+			const success = result && typeof result === 'object' && 'success' in result && result.success;
+			const message = result?.message ?? raw?.message;
+			if (success && result.queued && result.step) {
+				if (result.step === 'gbp') {
+					optimisticGbpProspectIds = new Set([...optimisticGbpProspectIds, prospectId]);
+					startGbpJobPolling();
+				} else if (result.step === 'insights') {
+					optimisticInsightsProspectIds = new Set([...optimisticInsightsProspectIds, prospectId]);
+					startInsightsJobPolling();
+				} else {
+					startDemoJobPolling();
+				}
+				toastSuccess(
+					result.alreadyQueued ? 'Already in progress' : 'Queued',
+					result.alreadyQueued
+						? 'Job is running. The list will update when ready.'
+						: result.step === 'demo'
+							? 'Demo usually takes 1–2 minutes. The list will update when ready.'
+							: 'The list will update when ready.',
+					result.prospectId ? { label: 'View prospect', onClick: () => goto(`/dashboard/prospects/${result.prospectId}`) } : undefined
+				);
+				await invalidateAll();
+			} else {
+				const msg = message ?? (res.ok ? 'Nothing to do for this prospect.' : 'Request failed.');
+				toastError('Next step', msg);
+			}
+		} catch (err) {
+			clientError('processNextStep', err);
+			toastError('Next step', 'Request failed.');
+		} finally {
+			processNextStepId = null;
+		}
+	}
 
 	/** Create demo for one prospect: enqueue job so it runs in background (demo creation can take 1–2 min). */
 	async function handleCreateDemo(p: Prospect) {
@@ -527,6 +511,8 @@ import { INDUSTRY_LABELS, INDUSTRY_SLUGS, industryDisplayToSlug, type IndustrySl
 				}
 				if (body.processed === false) {
 					demoJobPollingActive = false;
+					// Refresh list so "In queue" (e.g. after demo completed or failed) updates
+					await invalidateAll();
 					return;
 				}
 				tick().then(() => setTimeout(run, 3000));
@@ -592,6 +578,8 @@ import { INDUSTRY_LABELS, INDUSTRY_SLUGS, industryDisplayToSlug, type IndustrySl
 				}
 				if (body.processed === false) {
 					gbpJobPollingActive = false;
+					// Refresh list so "In queue" (e.g. after GBP completed or failed) updates
+					await invalidateAll();
 					return;
 				}
 				tick().then(() => setTimeout(run, 3000));
@@ -657,6 +645,8 @@ import { INDUSTRY_LABELS, INDUSTRY_SLUGS, industryDisplayToSlug, type IndustrySl
 				}
 				if (body.processed === false) {
 					insightsJobPollingActive = false;
+					// Refresh list so "In queue" (e.g. after insights completed) updates
+					await invalidateAll();
 					return;
 				}
 				tick().then(() => setTimeout(run, 3000));
@@ -670,7 +660,12 @@ import { INDUSTRY_LABELS, INDUSTRY_SLUGS, industryDisplayToSlug, type IndustrySl
 	$effect(() => {
 		const jobs = data.demoJobsByProspectId ?? {};
 		const hasPending = Object.values(jobs).some((j) => j.status === 'pending' || j.status === 'creating');
-		if (hasPending && !demoJobPollingActive) startDemoJobPolling();
+		// Also poll when some prospects have no demo and "In queue" (demo may have completed or failed; refresh will update state)
+		const prospects = data.prospects ?? [];
+		const inQueueNoDemo = prospects.some(
+			(p: Prospect) => !(p.demoLink ?? '').trim() && (p.status ?? '').trim() === 'In queue'
+		);
+		if ((hasPending || inQueueNoDemo) && !demoJobPollingActive) startDemoJobPolling();
 	});
 
 	$effect(() => {
@@ -680,7 +675,13 @@ import { INDUSTRY_LABELS, INDUSTRY_SLUGS, industryDisplayToSlug, type IndustrySl
 
 	$effect(() => {
 		const insightsJobs = data.insightsJobsByProspectId ?? {};
-		if (Object.keys(insightsJobs).length > 0 && !insightsJobPollingActive) startInsightsJobPolling();
+		const hasInsightsJobs = Object.keys(insightsJobs).length > 0;
+		// Also poll when some prospects have no demo and "In queue" (insights may have completed; refresh will update state)
+		const prospects = data.prospects ?? [];
+		const inQueueNoDemo = prospects.some(
+			(p: Prospect) => !(p.demoLink ?? '').trim() && (p.status ?? '').trim() === 'In queue'
+		);
+		if ((hasInsightsJobs || inQueueNoDemo) && !insightsJobPollingActive) startInsightsJobPolling();
 	});
 
 	/** Clear optimistic status only when the prospect has moved to the next step (server data has gbpRaw or insight). */
@@ -775,7 +776,7 @@ import { INDUSTRY_LABELS, INDUSTRY_SLUGS, industryDisplayToSlug, type IndustrySl
 					checked: row.getIsSelected(),
 					onCheckedChange: (value) => row.toggleSelected(!!value),
 					'aria-label': 'Select row',
-					disabled: isRowProcessing(row.original)
+					disabled: false
 				}),
 			enableSorting: false,
 			enableHiding: false
@@ -794,79 +795,15 @@ import { INDUSTRY_LABELS, INDUSTRY_SLUGS, industryDisplayToSlug, type IndustrySl
 			id: 'website',
 			header: () => 'Website',
 			meta: { label: 'Website' },
-			cell: ({ row }) =>
-				renderComponent(DataTableWebsiteCell, { website: row.original.website ?? null }),
-			enableSorting: false
-		},
-		{
-			id: 'status',
-			accessorFn: (row) => statusSortKey(row as ProspectRow),
-			header: ({ column }) =>
-				renderComponent(DataTableSortHeader, { column, label: 'Status' }),
-			meta: { label: 'Status' },
 			cell: ({ row }) => {
-				const p = row.original;
-				if (p.flagged) {
-					return renderComponent(DataTableStatusBadge, {
-						label: p.flaggedReason ?? 'Out of scope',
-						variant: 'muted'
-					});
-				}
-				const job = p.demoJob;
-				if (job?.status === 'pending') {
-					return renderComponent(DataTableStatusBadge, { label: 'Queued', variant: 'secondary' });
-				}
-				if (job?.status === 'creating') {
-					return renderComponent(DataTableStatusBadge, { label: 'Creating…', variant: 'secondary' });
-				}
-				// Only show "Processing (GBP)" when this row's job is currently running; otherwise show Pending
-				if (p.gbpJob?.status === 'running') {
-					return renderComponent(DataTableStatusBadge, {
-						label: 'Processing (GBP)',
-						variant: 'secondary',
-						showSpinner: true
-					});
-				}
-				if (optimisticGbpProspectIds.has(p.id) || p.gbpJob?.status === 'pending') {
-					return renderComponent(DataTableStatusBadge, { label: 'Queue', variant: 'secondary' });
-				}
-				if (p.insightsJob?.status === 'running') {
-					return renderComponent(DataTableStatusBadge, {
-						label: 'Processing (Insights)',
-						variant: 'secondary',
-						showSpinner: true
-					});
-				}
-				if (optimisticInsightsProspectIds.has(p.id) || p.insightsJob?.status === 'pending') {
-					return renderComponent(DataTableStatusBadge, { label: 'Queue', variant: 'secondary' });
-				}
-				if (job?.status === 'failed') {
-					return renderComponent(DataTableStatusBadge, {
-						label: getDemoFailureLabel(job.errorMessage ?? undefined),
-						variant: 'destructive'
-					});
-				}
-				// Persisted "In queue" so status is correct after refresh even when job maps are empty
-				if ((p.status ?? '').trim() === 'In queue') {
-					return renderComponent(DataTableStatusBadge, { label: 'In queue', variant: 'warning' });
-				}
-				const tracking = p.tracking;
-				const hasDemoLink = !!p.demoLink;
-				if (tracking) {
-					return renderComponent(DataTableDemoStatus, {
-						status: tracking.status,
-						sendTime: tracking.send_time,
-						openedAt: tracking.opened_at ?? null,
-						clickedAt: tracking.clicked_at ?? null,
-						hasDemoLink,
-						demoLink: p.demoLink ?? null
-					});
-				}
-				return renderComponent(DataTableStatusBadge, {
-					label: statusLabel(p),
-					variant: badgeVariant(p)
+				const scraped = data.scrapedDataByProspectId?.[row.original.id];
+				const audit = auditFromScrapedData(scraped ?? null);
+				return renderComponent(DataTableWebsiteCell, {
+					website: row.original.website ?? null,
+					audit
 				});
-			}
+			},
+			enableSorting: false
 		},
 		{
 			id: 'gbp',
@@ -885,31 +822,104 @@ import { INDUSTRY_LABELS, INDUSTRY_SLUGS, industryDisplayToSlug, type IndustrySl
 			enableSorting: false
 		},
 		{
-			id: 'websiteGrading',
-			header: () => 'Website Grading',
-			meta: { label: 'Website Grading' },
-			cell: ({ row }) => {
-				const scraped = data.scrapedDataByProspectId?.[row.original.id];
-				const audit = auditFromScrapedData(scraped ?? null);
-				return renderComponent(DataTableWebsiteGradingCell, { audit });
+			id: 'status',
+			header: () => 'Status',
+			meta: { label: 'Status' },
+			accessorFn: (row) => {
+				const audit = auditFromScrapedData(
+					((data.scrapedDataByProspectId ?? {})[(row as ProspectRow).id] as Record<string, unknown>) ?? null
+				);
+				return getSimplifiedStatus(row as ProspectRow, {
+					optimisticGbpIds: optimisticGbpProspectIds,
+					optimisticInsightsIds: optimisticInsightsProspectIds,
+					hasGbpData: audit ? hasUsableInsight(audit) : false
+				}).label;
 			},
-			enableSorting: false
+			cell: ({ row }) => {
+				const p = row.original;
+				const status = getSimplifiedStatus(p, {
+					optimisticGbpIds: optimisticGbpProspectIds,
+					optimisticInsightsIds: optimisticInsightsProspectIds,
+					hasGbpData: p.hasGbpData
+				});
+				// Map to distinct badge styles: success=primary, warning=secondary, destructive=red, muted=outline, default=secondary
+				const badgeVariant =
+					status.variant === 'success'
+						? 'default'
+						: status.variant === 'warning'
+							? 'secondary'
+							: status.variant === 'destructive'
+								? 'destructive'
+								: status.variant === 'muted'
+									? 'outline'
+									: 'secondary';
+				return renderComponent(DataTableStatusBadge, {
+					label: status.label,
+					variant: badgeVariant
+				});
+			}
+		},
+		{
+			id: 'nextStep',
+			accessorFn: (row) => nextStepSortKey(row as ProspectRow),
+			header: ({ column }) =>
+				renderComponent(DataTableSortHeader, { column, label: 'Next step' }),
+			meta: { label: 'Next step' },
+			cell: ({ row }) => {
+				const p = row.original;
+				const step = getNextStep(p, {
+					optimisticGbpIds: optimisticGbpProspectIds,
+					optimisticInsightsIds: optimisticInsightsProspectIds
+				});
+				const showSpinner =
+					step.label === 'Wait (GBP)' || step.label === 'Wait (Insights)' || step.label === 'Creating demo…';
+				// Map to distinct badge styles: success=primary, warning=secondary, destructive=red, muted=outline, default=secondary
+				const badgeVariant =
+					step.variant === 'success'
+						? 'default'
+						: step.variant === 'warning'
+							? 'secondary'
+							: step.variant === 'destructive'
+								? 'destructive'
+								: step.variant === 'muted'
+									? 'outline'
+									: 'secondary';
+				return renderComponent(DataTableStatusBadge, {
+					label: step.label,
+					variant: badgeVariant,
+					showSpinner
+				});
+			}
 		},
 		{
 			id: 'actions',
 			header: () => '',
 			meta: { label: '' },
 			enableHiding: false,
-			cell: ({ row }) =>
-				renderComponent(DataTableActionsCell, {
-					prospectId: row.original.id,
-					hasDemoLink: !!(row.original.demoLink ?? '').trim(),
-					demoJobStatus: row.original.demoJob?.status,
-					showDelete: !row.original.flagged,
-					showRestore: !!row.original.flagged,
-					processing: isRowProcessing(row.original),
+			cell: ({ row }) => {
+				const p = row.original;
+				const step = getNextStep(p, {
+					optimisticGbpIds: optimisticGbpProspectIds,
+					optimisticInsightsIds: optimisticInsightsProspectIds
+				});
+				const showGenerate =
+					step.filterValue === 'pull_data' ||
+					step.filterValue === 'create_demo' ||
+					step.filterValue === 'retry_demo';
+				const demoStatus = p.demoJob?.status as 'pending' | 'creating' | 'done' | 'failed' | undefined;
+				return renderComponent(ProspectRowActionsCell, {
+					prospectId: p.id,
+					showGenerate,
+					processing: isRowProcessing(p),
+					generating: processNextStepId === p.id,
+					onProcessNextStep: handleProcessNextStep,
+					hasDemoLink: !!(p.demoLink ?? '').trim(),
+					demoJobStatus: demoStatus,
+					showDelete: !p.flagged,
+					showRestore: !!p.flagged,
 					onRegenerateQueued: () => startDemoJobPolling()
-				})
+				});
+			}
 		}
 	];
 
@@ -953,7 +963,7 @@ import { INDUSTRY_LABELS, INDUSTRY_SLUGS, industryDisplayToSlug, type IndustrySl
 		},
 		columns,
 		getRowId: (row) => row.id,
-		enableRowSelection: (row) => !isRowProcessing(row.original),
+		enableRowSelection: () => true,
 		autoResetPageIndex: false,
 		state: {
 			get pagination() {
@@ -1048,24 +1058,17 @@ import { INDUSTRY_LABELS, INDUSTRY_SLUGS, industryDisplayToSlug, type IndustrySl
 		<input type="hidden" name="prospectId" value={singleCreateProspectId} />
 	</form>
 	<!-- Clients (CRM) – tasks-style layout -->
-	<Card.Root id="prospects" class="border-0 bg-card shadow-none">
+	<Card.Root id="prospects">
 		<Card.Header class="space-y-1 pb-6">
 			<Card.Title class="text-2xl font-semibold tracking-tight">Welcome back!</Card.Title>
 			<Card.Description class="text-muted-foreground">
-				Here's a list of your prospects. Search, filter by status or industry, and manage demos from the table.
+				Here's a list of your prospects. Search, filter by next step, and manage demos from the table.
 			</Card.Description>
 		</Card.Header>
 		{#if prospects.length > 0}
 			<div class="mx-4 mb-4 sm:mx-6">
-				<Tabs.Root bind:value={pipelineTab} class="w-full">
-					<Tabs.List class="grid grid-cols-3 mb-4">
-						<Tabs.Trigger value="qualify">Qualify</Tabs.Trigger>
-						<Tabs.Trigger value="research">Research & Personalize</Tabs.Trigger>
-						<Tabs.Trigger value="no_fit">No Fit</Tabs.Trigger>
-					</Tabs.List>
-				</Tabs.Root>
 				<div
-					class="flex flex-col gap-4 rounded-lg border border-border bg-muted/30 px-4 py-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-6"
+					class="flex flex-col gap-4 rounded-lg border border-border/50 bg-muted/30 px-4 py-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-6"
 					role="search"
 					aria-label="Filter prospects"
 				>
@@ -1106,57 +1109,19 @@ import { INDUSTRY_LABELS, INDUSTRY_SLUGS, industryDisplayToSlug, type IndustrySl
 						</div>
 					</div>
 
-					<!-- Status & Industry -->
+					<!-- Next step filter -->
 					<div class="flex flex-wrap items-center gap-3 sm:gap-4">
-						<Select.Root type="single" bind:value={statusFilter}>
+						<Select.Root type="single" bind:value={nextStepFilter}>
 							<Select.Trigger
-								id="lr-dash-status"
-								class="min-w-[11rem] h-9 bg-background font-normal"
-								aria-label="Filter by status"
+								id="lr-dash-next-step"
+								class="min-w-[11rem] h-9 bg-background font-normal border-border/50"
+								aria-label="Filter by next step"
 							>
-								<span class="text-muted-foreground mr-1.5 text-xs">Status:</span>
-								{statusFilterLabel}
+								<span class="text-muted-foreground mr-1.5 text-xs">Next step:</span>
+								{nextStepFilterLabel}
 							</Select.Trigger>
-							<Select.Content class="max-h-[min(20rem,60vh)]">
-								<Select.Item value="">All statuses</Select.Item>
-								{#if statusOptionsByGroup.pipeline.length > 0}
-									<Select.Group>
-										<Select.GroupHeading>Pipeline</Select.GroupHeading>
-										{#each statusOptionsByGroup.pipeline as opt (opt.value)}
-											<Select.Item value={opt.value}>{opt.label}</Select.Item>
-										{/each}
-									</Select.Group>
-								{/if}
-								{#if statusOptionsByGroup.engagement.length > 0}
-									<Select.Group>
-										<Select.GroupHeading>Engagement</Select.GroupHeading>
-										{#each statusOptionsByGroup.engagement as opt (opt.value)}
-											<Select.Item value={opt.value}>{opt.label}</Select.Item>
-										{/each}
-									</Select.Group>
-								{/if}
-								{#if statusOptionsByGroup.other.length > 0}
-									<Select.Group>
-										<Select.GroupHeading>Other</Select.GroupHeading>
-										{#each statusOptionsByGroup.other as opt (opt.value)}
-											<Select.Item value={opt.value}>{opt.label}</Select.Item>
-										{/each}
-									</Select.Group>
-								{/if}
-							</Select.Content>
-						</Select.Root>
-
-						<Select.Root type="single" bind:value={industryFilter}>
-							<Select.Trigger
-								id="lr-dash-industry"
-								class="min-w-[11rem] h-9 bg-background font-normal"
-								aria-label="Filter by industry"
-							>
-								<span class="text-muted-foreground mr-1.5 text-xs">Industry:</span>
-								{industryFilterLabel}
-							</Select.Trigger>
-							<Select.Content class="max-h-[min(20rem,60vh)]">
-								{#each INDUSTRY_OPTIONS as opt (opt.value)}
+							<Select.Content>
+								{#each NEXT_STEP_FILTER_OPTIONS as opt (opt.value)}
 									<Select.Item value={opt.value}>{opt.label}</Select.Item>
 								{/each}
 							</Select.Content>
@@ -1184,7 +1149,7 @@ import { INDUSTRY_LABELS, INDUSTRY_SLUGS, industryDisplayToSlug, type IndustrySl
 											} else {
 												toastInfo(
 													'Queue status',
-													'No stuck prospects found. All "In queue" have an active job.'
+													'No stuck prospects found. All Processing… have an active job.'
 												);
 												await invalidateAll();
 											}
@@ -1201,19 +1166,19 @@ import { INDUSTRY_LABELS, INDUSTRY_SLUGS, industryDisplayToSlug, type IndustrySl
 									size="sm"
 									class="h-9"
 									disabled={clearStuckSubmitting}
-									title="Clear 'In queue' for prospects with no active job (demo, GBP, or insights)"
+									title="Clear Processing… status for prospects with no active job (demo, GBP, or insights)"
 								>
 									{#if clearStuckSubmitting}
 										<LoaderCircle class="mr-1.5 size-4 animate-spin" aria-hidden="true" />
 									{/if}
-									{clearStuckSubmitting ? 'Clearing…' : 'Clear stuck queue'}
+									{clearStuckSubmitting ? 'Clearing…' : 'Clear stuck Processing…'}
 								</Button>
 							</form>
 						{/if}
 					</div>
 
 					<!-- Clear filters + Columns -->
-					<div class="flex shrink-0 items-center gap-2 border-t border-border/60 pt-4 sm:ms-auto sm:border-0 sm:pt-0">
+					<div class="flex shrink-0 items-center gap-2 border-t border-border/50 pt-4 sm:ms-auto sm:border-0 sm:pt-0">
 						{#if hasActiveFilters}
 							<Button
 								type="button"
@@ -1257,7 +1222,7 @@ import { INDUSTRY_LABELS, INDUSTRY_SLUGS, industryDisplayToSlug, type IndustrySl
 				</div>
 			</div>
 		{/if}
-		<Card.Content class="lr-dash-card-content p-0">
+		<Card.Content class="lr-dash-card-content lr-prospects-content p-0">
 			{#snippet selectionBar()}
 				{#if prospects.length > 0 && filteredProspects.length > 0}
 					<div class="flex flex-wrap items-center justify-between gap-4 py-4 px-4">
@@ -1267,125 +1232,102 @@ import { INDUSTRY_LABELS, INDUSTRY_SLUGS, industryDisplayToSlug, type IndustrySl
 								{table.getFilteredRowModel().rows.length} row(s) selected.
 							</div>
 							{#if table.getFilteredSelectedRowModel().rows.length > 0}
-								<div class="flex flex-wrap items-center gap-2">
-									{#if pipelineTab === 'qualify'}
-										<form method="POST" action="?/bulkEnqueueGbp" use:enhance={(input) => {
-											bulkGbpSubmitting = true;
-											const formData = input?.formData ?? (input as unknown as FormData);
-											const ids = (formData && typeof (formData as FormData).getAll === 'function'
-												? ((formData as FormData).getAll('prospectId') as string[])
-												: table.getFilteredSelectedRowModel().rows.map((r) => r.original.id)
-											).filter(Boolean);
-											optimisticGbpProspectIds = new Set([...optimisticGbpProspectIds, ...ids]);
+								{@const selectedRows = table.getFilteredSelectedRowModel().rows}
+								{@const nextStepOpts = { optimisticGbpIds: optimisticGbpProspectIds, optimisticInsightsIds: optimisticInsightsProspectIds }}
+								{@const partition = (() => {
+									const pullData: string[] = [];
+									const demo: string[] = [];
+									const flagged: string[] = [];
+									for (const row of selectedRows) {
+										const rowData = row.original as ProspectRow;
+										const step = getNextStep(rowData, nextStepOpts);
+										if (step.filterValue === 'pull_data') pullData.push(rowData.id);
+										else if (step.filterValue === 'create_demo' || step.filterValue === 'retry_demo') demo.push(rowData.id);
+										else if (step.filterValue === 'flagged') flagged.push(rowData.id);
+									}
+									return { pullData, demo, flagged };
+								})()}
+								{@const actionableCount = partition.pullData.length + partition.demo.length + partition.flagged.length}
+								{@const nextStepSummary = (() => {
+									const parts: string[] = [];
+									if (partition.pullData.length > 0) parts.push(`${partition.pullData.length} Pull data`);
+									if (partition.demo.length > 0) parts.push(`${partition.demo.length} Create/retry demo`);
+									if (partition.flagged.length > 0) parts.push(`${partition.flagged.length} Restore`);
+									return parts.join(', ');
+								})()}
+								{#if actionableCount > 0}
+									<form
+										method="POST"
+										action="?/bulkProcessNextStep"
+										use:enhance={() => {
+											bulkProcessNextStepSubmitting = true;
+											optimisticInsightsProspectIds = new Set([...optimisticInsightsProspectIds, ...partition.pullData]);
 											return async ({ result }) => {
 												try {
 													if (result.type === 'success' && result.data && typeof result.data === 'object' && (result.data as { success?: boolean }).success) {
-														const d = result.data as { queued?: number; total?: number; enqueueFailed?: number };
-														const queued = d.queued ?? 0;
-														const total = d.total ?? 0;
-														const enqueueFailed = d.enqueueFailed ?? 0;
-														let msg: string;
-														if (queued > 0) {
-															msg = `${queued} prospect(s) added to GBP queue`;
-															if (enqueueFailed > 0) msg += `; ${enqueueFailed} could not be queued (check server env)`;
-														} else if (enqueueFailed > 0) {
-															msg = 'No jobs queued. Check server env (SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY).';
-															optimisticGbpProspectIds = new Set([...optimisticGbpProspectIds].filter((id) => !ids.includes(id)));
-															toastError('GBP queue', msg);
-														} else if (total > 0) {
-															msg = 'Selected prospect(s) already in queue or skipped.';
-															optimisticGbpProspectIds = new Set([...optimisticGbpProspectIds].filter((id) => !ids.includes(id)));
-															toastSuccess('GBP jobs', msg);
-														} else {
-															msg = 'Done.';
-														}
+														const d = result.data as {
+															gbp?: { queued?: number; total?: number; enqueueFailed?: number };
+															demos?: { queued?: number; total?: number; errors?: string[] };
+															restored?: { count?: number; total?: number };
+														};
+														const parts: string[] = [];
+														if (d.gbp && (d.gbp.queued ?? 0) > 0) parts.push(`${d.gbp.queued} queued for pull data`);
+														if (d.gbp?.enqueueFailed && d.gbp.enqueueFailed > 0) parts.push(`${d.gbp.enqueueFailed} pull data enqueue failed`);
+														if (d.demos && (d.demos.queued ?? 0) > 0) parts.push(`${d.demos.queued} queued for demo`);
+														if (d.restored && (d.restored.count ?? 0) > 0) parts.push(`${d.restored.count} restored`);
+														if (parts.length > 0) toastSuccess('Process next step', parts.join('. '));
+														else if (actionableCount > 0) toastInfo('Process next step', 'No new jobs queued (already in progress or skipped).');
 														addHttpCallLog({
-															action: 'bulkEnqueueGbp',
+															action: 'bulkProcessNextStep',
 															result: 'success',
-															message: msg,
+															message: parts.join('; ') || 'Done',
 															status: 200,
-															context: ids.length > 0 ? `${ids.length} selected` : undefined
+															context: `${actionableCount} actionable`
 														});
-														if (enqueueFailed === 0 || queued > 0) toastSuccess('GBP jobs', msg);
 														rowSelection = {};
 														await invalidateAll();
-														startGbpJobPolling();
-														await applyAction(result);
+														if ((d.gbp?.queued ?? 0) > 0) startInsightsJobPolling();
+														if ((d.demos?.queued ?? 0) > 0) startDemoJobPolling();
+														await invalidate('/dashboard/prospects');
 													} else if (result.type === 'failure' && result.data?.message) {
+														optimisticInsightsProspectIds = new Set([...optimisticInsightsProspectIds].filter((id) => !partition.pullData.includes(id)));
 														addHttpCallLog({
-															action: 'bulkEnqueueGbp',
+															action: 'bulkProcessNextStep',
 															result: 'failure',
 															message: (result.data as { message?: string }).message,
 															status: (result as { status?: number }).status,
-															context: ids.length > 0 ? `${ids.length} selected` : undefined,
 															responseData: result.data
 														});
-														toastError('Pull GBP data', (result.data as { message?: string }).message);
+														toastError('Process next step', (result.data as { message?: string }).message);
 														await applyAction(result);
-														optimisticGbpProspectIds = new Set([...optimisticGbpProspectIds].filter((id) => !ids.includes(id)));
 													} else {
 														await applyAction(result);
 													}
 												} finally {
-													bulkGbpSubmitting = false;
+													bulkProcessNextStepSubmitting = false;
 												}
 											};
-										}}>
-											{#each table.getFilteredSelectedRowModel().rows as row (row.id)}
-												<input type="hidden" name="prospectId" value={row.original.id} />
-											{/each}
-											<Button type="submit" size="sm" disabled={bulkGbpSubmitting}>
-												{#if bulkGbpSubmitting}
+										}}
+									>
+										<input type="hidden" name="pullDataIds" value={JSON.stringify(partition.pullData)} />
+										<input type="hidden" name="demoIds" value={JSON.stringify(partition.demo)} />
+										<input type="hidden" name="flaggedIds" value={JSON.stringify(partition.flagged)} />
+										<div class="flex flex-wrap items-center gap-2">
+											<span class="text-muted-foreground text-sm" title="Next step for each selected row">{nextStepSummary}</span>
+											<Button type="submit" size="sm" disabled={bulkProcessNextStepSubmitting}>
+												{#if bulkProcessNextStepSubmitting}
 													<LoaderCircle class="mr-2 size-4 animate-spin" aria-hidden="true" />
 												{/if}
-												{bulkGbpSubmitting ? 'Pulling GBP data…' : 'Pull GBP data'}
+												{bulkProcessNextStepSubmitting ? 'Processing…' : 'Process next step'}
 											</Button>
-										</form>
-									{:else if pipelineTab === 'research'}
-										<Button
-											type="button"
-											variant="outline"
-											size="sm"
-											disabled={atDemoLimit}
-											title={atDemoLimit ? 'Demo limit reached' : 'Generate demo pages for selected prospects that do not have one yet'}
-											onclick={() => (createDemosDialogOpen = true)}
-										>
-											Create demos
-										</Button>
-									{:else if pipelineTab === 'no_fit'}
-										<form method="POST" action="?/bulkRestore" use:enhance={() => {
-											bulkRestoreSubmitting = true;
-											return async ({ result }) => {
-												try {
-													if (result.type === 'success' && result.data && typeof result.data === 'object' && (result.data as { success?: boolean }).success) {
-														const d = result.data as { restored?: number };
-														toastSuccess('Restored', d.restored ? `${d.restored} prospect(s) restored to pipeline` : 'Done.');
-														rowSelection = {};
-														await invalidateAll();
-													} else if (result.type === 'failure' && result.data?.message) {
-														toastError('Restore', (result.data as { message?: string }).message);
-														await applyAction(result);
-													}
-												} finally {
-													bulkRestoreSubmitting = false;
-												}
-											};
-										}}>
-											{#each table.getFilteredSelectedRowModel().rows as row (row.id)}
-												<input type="hidden" name="prospectId" value={row.original.id} />
-											{/each}
-											<Button type="submit" size="sm" variant="secondary" disabled={bulkRestoreSubmitting}>
-												{#if bulkRestoreSubmitting}
-													<LoaderCircle class="mr-2 size-4 animate-spin" aria-hidden="true" />
-												{/if}
-												{bulkRestoreSubmitting ? 'Restoring…' : 'Restore'}
-											</Button>
-										</form>
-									{/if}
-								</div>
+										</div>
+									</form>
+								{:else}
+									<span class="text-muted-foreground text-sm">Selected rows have no queueable next step (e.g. Review &amp; send or already sent).</span>
+								{/if}
 							{/if}
 						</div>
-						<div class="flex w-full flex-wrap items-center justify-end gap-6 lg:w-auto">
+						<div class="lr-prospects-pagination flex w-full flex-wrap items-center justify-end gap-6 lg:w-auto">
 							<div class="flex items-center gap-2">
 								<Label for="lr-rows-per-page" class="text-sm font-medium whitespace-nowrap">Rows per page</Label>
 								<Select.Root
@@ -1393,7 +1335,7 @@ import { INDUSTRY_LABELS, INDUSTRY_SLUGS, industryDisplayToSlug, type IndustrySl
 									value={String(pagination.pageSize)}
 									onValueChange={(v) => v != null && table.setPageSize(Number(v))}
 								>
-									<Select.Trigger id="lr-rows-per-page" size="sm" class="w-20 h-8">
+									<Select.Trigger id="lr-rows-per-page" size="sm" class="w-20 h-8 border-border/50">
 										{pagination.pageSize}
 									</Select.Trigger>
 									<Select.Content side="top">
@@ -1406,7 +1348,7 @@ import { INDUSTRY_LABELS, INDUSTRY_SLUGS, industryDisplayToSlug, type IndustrySl
 							<div class="flex items-center justify-center text-sm font-medium whitespace-nowrap">
 								Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
 							</div>
-							<div class="flex items-center gap-2">
+							<div class="flex items-center gap-2 [&_button]:border-border/50">
 								<Button
 									type="button"
 									variant="outline"
@@ -1457,7 +1399,7 @@ import { INDUSTRY_LABELS, INDUSTRY_SLUGS, industryDisplayToSlug, type IndustrySl
 				{/if}
 			{/snippet}
 			{@render selectionBar()}
-			<div class="overflow-x-auto -mx-px">
+			<div class="overflow-x-auto mx-4 sm:mx-6 my-2">
 				<div class="rounded-md overflow-hidden">
 					<Table.Root>
 						<Table.Header>
@@ -1633,7 +1575,7 @@ import { INDUSTRY_LABELS, INDUSTRY_SLUGS, industryDisplayToSlug, type IndustrySl
 									Recent form actions and API calls from this page (last {HTTP_CALL_LOGS_MAX}).
 								</Drawer.Description>
 							</Drawer.Header>
-							<div class="flex gap-1 border-b border-border pb-2 shrink-0">
+							<div class="flex gap-1 border-b border-border/50 pb-2 shrink-0">
 								<button
 									type="button"
 									class={cn(
@@ -1767,6 +1709,14 @@ import { INDUSTRY_LABELS, INDUSTRY_SLUGS, industryDisplayToSlug, type IndustrySl
 </div>
 
 <style>
+	/* Keep table and pagination interactive during demo/insights creation and form submission */
+	.lr-prospects-content,
+	.lr-prospects-pagination {
+		pointer-events: auto;
+		position: relative;
+		z-index: 1;
+	}
+
 	.sr-only {
 		position: absolute;
 		width: 1px;

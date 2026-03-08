@@ -98,7 +98,7 @@ export async function analyzeWebsiteAndProduceDemoJson(
 	}
 
 	const businessName = prospect.companyName ?? gbpSummary?.name ?? 'Business';
-	const industry = prospect.industry ?? gbpSummary?.category ?? 'General';
+	const industry = prospect.industry ?? gbpSummary?.category ?? 'Professional';
 	const context = [
 		`Website URL: ${websiteUrl}`,
 		`Business name: ${businessName}`,

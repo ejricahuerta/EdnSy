@@ -1,11 +1,30 @@
 import { getCrmConnection, saveCrmConnection } from '$lib/server/crm';
 
+/** Our prospect field keys for mapping UI and sync. (Address only; city and demo link use hardcoded fallbacks.) */
+export const NOTION_FIELD_KEYS = [
+	{ id: 'companyName', label: 'Company name' },
+	{ id: 'email', label: 'Email' },
+	{ id: 'website', label: 'Website' },
+	{ id: 'phone', label: 'Phone' },
+	{ id: 'industry', label: 'Industry' },
+	{ id: 'status', label: 'Status' },
+	{ id: 'address', label: 'Address' }
+] as const;
+
+export type NotionFieldKey = (typeof NOTION_FIELD_KEYS)[number]['id'];
+
 /** Load Notion config from crm_connections. userId = current user for dashboard; '' for app default (e.g. demo pages). */
-async function getNotionConfig(userId?: string): Promise<{ apiKey: string; databaseId: string } | null> {
+async function getNotionConfig(
+	userId?: string
+): Promise<{ apiKey: string; databaseId: string; fieldMapping?: Record<string, string> } | null> {
 	const key = userId ?? '';
 	const conn = await getCrmConnection(key, 'notion');
 	if (!conn?.access_token || !conn.databaseId) return null;
-	return { apiKey: conn.access_token, databaseId: conn.databaseId };
+	return {
+		apiKey: conn.access_token,
+		databaseId: conn.databaseId,
+		...(conn.fieldMapping != null ? { fieldMapping: conn.fieldMapping } : {})
+	};
 }
 
 /** Get current user's Notion connection (for Integrations UI). Reads from crm_connections. */
@@ -21,6 +40,89 @@ export async function saveNotionConnection(
 	databaseId: string
 ): Promise<{ ok: boolean; error?: string }> {
 	return saveCrmConnection(userId, 'notion', apiKey.trim(), { databaseId: databaseId.trim() });
+}
+
+export type NotionDatabaseOption = { id: string; title: string };
+
+/** Schema for one Notion database property (for mapping UI). */
+export type NotionPropertySchema = { name: string; type: string };
+
+/**
+ * Fetch Notion database schema (property names and types) for the connected database.
+ * Used by the Integrations "Map headers" popup.
+ */
+export async function getNotionDatabaseSchema(
+	userId: string
+): Promise<{ properties: NotionPropertySchema[] } | { error: string }> {
+	const config = await getNotionConfig(userId);
+	if (!config) return { error: 'Notion not connected' };
+	const { apiKey, databaseId } = config;
+	try {
+		const res = await fetch(`https://api.notion.com/v1/databases/${databaseId}`, {
+			headers: {
+				Authorization: `Bearer ${apiKey}`,
+				'Notion-Version': '2022-06-28',
+				'Content-Type': 'application/json'
+			}
+		});
+		if (!res.ok) {
+			const body = (await res.json().catch(() => ({}))) as { message?: string; code?: string };
+			return { error: body.message ?? body.code ?? `Notion API ${res.status}` };
+		}
+		const data = (await res.json()) as { properties?: Record<string, { type?: string }> };
+		const properties: NotionPropertySchema[] = Object.entries(data.properties ?? {}).map(([name, schema]) => ({
+			name,
+			type: schema?.type ?? 'unknown'
+		}));
+		return { properties };
+	} catch (e) {
+		return { error: e instanceof Error ? e.message : 'Failed to load database schema' };
+	}
+}
+
+/**
+ * List databases the Notion integration has access to (for integration UI).
+ * Uses Notion search API with filter object=database.
+ */
+export async function listNotionDatabases(
+	apiKey: string
+): Promise<{ databases: NotionDatabaseOption[] } | { error: string }> {
+	const key = apiKey?.trim();
+	if (!key) return { error: 'API key required' };
+	try {
+		const res = await fetch('https://api.notion.com/v1/search', {
+			method: 'POST',
+			headers: {
+				Authorization: `Bearer ${key}`,
+				'Notion-Version': '2022-06-28',
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				filter: { property: 'object', value: 'database' },
+				page_size: 100
+			})
+		});
+		if (!res.ok) {
+			const err = await res.text();
+			return { error: `Notion API ${res.status}: ${err || res.statusText}` };
+		}
+		const data = (await res.json()) as {
+			results?: Array<{ id: string; title?: Array<{ plain_text?: string }> }>;
+		};
+		const results = data.results ?? [];
+		const databases: NotionDatabaseOption[] = results.map((db) => {
+			const titleArr = db.title;
+			const title =
+				titleArr?.length && titleArr[0]?.plain_text !== undefined
+					? titleArr[0].plain_text
+					: 'Untitled';
+			return { id: db.id, title: title || 'Untitled' };
+		});
+		return { databases };
+	} catch (e) {
+		const msg = e instanceof Error ? e.message : 'Failed to list databases';
+		return { error: msg };
+	}
 }
 
 /**
@@ -66,7 +168,7 @@ export async function getProspectById(id: string, userId?: string): Promise<Pros
 		});
 		if (!res.ok) return null;
 		const page = (await res.json()) as { id: string; properties: Record<string, unknown> };
-		return mapNotionPageToProspect(page);
+		return mapNotionPageToProspect(page, config.fieldMapping);
 	} catch {
 		return null;
 	}
@@ -85,7 +187,7 @@ export async function listProspects(userId: string): Promise<ListProspectsResult
 	if (!config) {
 		return { prospects: [], error: 'not_configured', message: 'Connect Notion in Dashboard → Integrations (API key + Database ID).' };
 	}
-	const { apiKey, databaseId } = config;
+	const { apiKey, databaseId, fieldMapping } = config;
 
 	try {
 		const res = await fetch(`https://api.notion.com/v1/databases/${databaseId}/query`, {
@@ -103,7 +205,7 @@ export async function listProspects(userId: string): Promise<ListProspectsResult
 			return { prospects: [], error: 'api_error', message: `Notion API error (${res.status}): ${msg}` };
 		}
 		const data = (await res.json()) as { results: Array<{ id: string; properties: Record<string, unknown> }> };
-		const prospects = data.results.map((page) => mapNotionPageToProspect(page));
+		const prospects = data.results.map((page) => mapNotionPageToProspect(page, fieldMapping));
 		return { prospects };
 	} catch (e) {
 		const message = e instanceof Error ? e.message : 'Request failed';
@@ -220,7 +322,25 @@ type NotionProp = {
 	phone_number?: string;
 };
 
-function mapNotionPageToProspect(page: { id: string; properties: Record<string, unknown> }): Prospect {
+function getPropValue(props: Record<string, NotionProp>, notionName: string): string | undefined {
+	const p = props[notionName];
+	if (!p) return undefined;
+	const v =
+		p.title?.[0]?.plain_text ??
+		p.rich_text?.[0]?.plain_text ??
+		p.url ??
+		p.email ??
+		p.phone_number ??
+		p.select?.name ??
+		p.status?.name ??
+		'';
+	return v || undefined;
+}
+
+function mapNotionPageToProspect(
+	page: { id: string; properties: Record<string, unknown> },
+	fieldMapping?: Record<string, string>
+): Prospect {
 	const props = page.properties as Record<string, NotionProp>;
 	const getTitle = (p: NotionProp) => p?.title?.[0]?.plain_text ?? '';
 	const getRich = (p: NotionProp) => p?.rich_text?.[0]?.plain_text ?? '';
@@ -254,6 +374,27 @@ function mapNotionPageToProspect(page: { id: string; properties: Record<string, 
 		}
 		return '';
 	};
+
+	if (fieldMapping && Object.keys(fieldMapping).length > 0) {
+		const mapped = (ourKey: string): string | undefined => {
+			const notionName = fieldMapping[ourKey];
+			if (!notionName) return undefined;
+			return getPropValue(props, notionName);
+		};
+		return {
+			id: page.id,
+			companyName: mapped('companyName') ?? firstTitle('Name', 'Company', 'Company Name') ?? 'Unknown',
+			email: mapped('email') ?? firstRich('Email', 'E-mail') ?? '',
+			website: mapped('website') ?? (props['Website']?.url || firstRich('Website')) ?? '',
+			phone: mapped('phone') ?? (props['Phone']?.phone_number ?? firstRich('Phone', 'Phone Number')) ?? undefined,
+			address: mapped('address') ?? firstRich('Address') ?? undefined,
+			city: firstRich('City') ?? undefined,
+			industry: mapped('industry') ?? firstSelect('Industry', 'Vertical') ?? 'Professional',
+			status: mapped('status') ?? firstStatus('Client Status', 'Demo Status') ?? firstSelect('Status', 'Stage') ?? 'Prospect',
+			demoLink: firstRich('Demo link', 'Demo Link', 'Demo URL') ?? undefined
+		};
+	}
+
 	const websiteUrl = props['Website']?.url;
 	const emailVal = props['Email']?.email ?? firstRich('Email', 'E-mail');
 	const phoneVal = props['Phone']?.phone_number ?? firstRich('Phone', 'Phone Number');

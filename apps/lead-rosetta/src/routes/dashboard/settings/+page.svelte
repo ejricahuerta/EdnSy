@@ -48,7 +48,7 @@
 			};
 		}}
 	>
-		<Card.Root class="border-0 bg-card shadow-none">
+		<Card.Root>
 			<Card.Header>
 				<Card.Title>Default location for business lookup (GBP)</Card.Title>
 				<Card.Description>
@@ -83,7 +83,7 @@
 			};
 		}}
 	>
-		<Card.Root class="border-0 bg-card shadow-none">
+		<Card.Root>
 			<Card.Header>
 				<Card.Title>CRM industry filter</Card.Title>
 				<Card.Description>

@@ -120,6 +120,22 @@ const GBP_DISPLAY_KEYS: (keyof DemoAudit)[] = [
 	'gbpHasHours'
 ];
 
+/**
+ * True when the audit has meaningful GBP data (same logic as DataTableGbpCell "hasGbpData").
+ * Use this for Status/Next step so they stay in sync with the GBP column (e.g. no "Create demo" when column shows "No GBP").
+ */
+export function hasUsableGbpInAudit(audit: DemoAudit | null): boolean {
+	if (!audit || typeof audit !== 'object') return false;
+	return (
+		audit.gbpCompletenessScore != null ||
+		!!(audit.gbpCompletenessLabel ?? '').trim() ||
+		audit.googleRatingValue != null ||
+		(audit.googleReviewCount ?? 0) > 0 ||
+		audit.gbpClaimed != null ||
+		audit.gbpHasHours != null
+	);
+}
+
 function hasAnyGbpData(o: Record<string, unknown>): boolean {
 	for (const key of GBP_DISPLAY_KEYS) {
 		const v = o[key];

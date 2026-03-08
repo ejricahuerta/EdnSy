@@ -40,7 +40,7 @@
 			};
 		}}
 	>
-		<Card.Root class="border-0 bg-card shadow-none">
+		<Card.Root>
 			<Card.Header>
 				<Card.Title>Banner content</Card.Title>
 				<Card.Description>

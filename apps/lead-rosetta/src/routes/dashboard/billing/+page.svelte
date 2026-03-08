@@ -79,7 +79,7 @@
 		<p class="text-muted-foreground">Manage your plan and subscription.</p>
 	</div>
 
-	<Card.Root class="border-0 bg-card shadow-none">
+	<Card.Root>
 		<Card.Header>
 			<Card.Title>Current plan</Card.Title>
 			<Card.Description>Your active plan and usage.</Card.Description>
@@ -111,7 +111,7 @@
 	</Card.Root>
 
 	{#if !isInternal && plans.length > 0}
-		<Card.Root class="border-0 bg-card shadow-none">
+		<Card.Root>
 			<Card.Header>
 				<Card.Title>Upgrade</Card.Title>
 				<Card.Description>Choose a plan that fits your needs.</Card.Description>

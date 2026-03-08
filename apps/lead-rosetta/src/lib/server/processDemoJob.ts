@@ -12,15 +12,42 @@ import type { GeminiInsight } from '$lib/types/demo';
 import { NO_FIT_GBP_REASON } from '$lib/server/qualify';
 import { generateInsightForProspect, inferIndustryWithGemini } from '$lib/server/insights';
 import { inferToneWithGemini } from '$lib/server/generateTone';
-import {
-	buildLandingPageIndexJson,
-	mergeWebsiteDemoJsonWithGbp,
-	narrowLandingPageJsonForApi
-} from '$lib/server/buildLandingPageIndexJson';
+import { buildLandingPageIndexJson, mergeWebsiteDemoJsonWithGbp } from '$lib/server/buildLandingPageIndexJson';
 import { enrichPitchRosettaCopy } from '$lib/server/enrichPitchRosettaCopy';
+import { inferServicesFromAi } from '$lib/server/inferServicesFromAi';
+import { generateLandingPageContentFromGbp } from '$lib/server/generateLandingPageContentFromGbp';
+import { transformToPitchRosettaPayload } from '$lib/server/transformToPitchRosettaPayload';
 import { getDemoImageUrls } from '$lib/server/unsplash';
-import { industryDisplayToSlug } from '$lib/industries';
-import type { IndustrySlug } from '$lib/industries';
+import {
+	industryDisplayToSlug,
+	getPrimaryIndustrySlugFromMultiValue,
+	type IndustrySlug
+} from '$lib/industries';
+
+/** Pitch-rosetta industry endpoints. Dental uses template render (/api/dental-async); others use generic AI generate. */
+const DEMO_GENERATOR_ENDPOINT_BY_INDUSTRY: Partial<Record<IndustrySlug, string>> = {
+	dental: '/api/dental-async'
+};
+function getDemoGeneratorEndpoint(industrySlug: IndustrySlug): string {
+	return DEMO_GENERATOR_ENDPOINT_BY_INDUSTRY[industrySlug] ?? '/api/generate-async';
+}
+
+/** Slugs that have a dedicated demo endpoint (e.g. dental). Used to prefer them from multi-value industry. */
+const DEDICATED_INDUSTRY_SLUGS = Object.keys(DEMO_GENERATOR_ENDPOINT_BY_INDUSTRY) as IndustrySlug[];
+
+/** Merge an inferred industry into current (e.g. "" + "Dental" → "Dental", or "Legal, Dental" + "Dental" → "Legal, Dental"). Dedupes and trims. */
+function mergeIndustryValues(current: string, toAdd: string): string {
+	const parts = (current ?? '')
+		.split(',')
+		.map((s) => s.trim())
+		.filter(Boolean);
+	const add = (toAdd ?? '').trim();
+	if (!add) return parts.join(', ');
+	const addLower = add.toLowerCase();
+	if (parts.some((p) => p.toLowerCase() === addLower)) return parts.join(', ');
+	parts.push(add);
+	return parts.join(', ').slice(0, 200);
+}
 import type { LandingPageIndexJson } from '$lib/types/landingPageIndexJson';
 import { DEMO_ERROR } from '$lib/constants/demoErrors';
 import { serverError } from '$lib/server/logger';
@@ -91,25 +118,23 @@ export async function processOneDemoJob(origin: string): Promise<ProcessJobResul
 
 		const scrapedData = { ...existingScraped } as Record<string, unknown>;
 
-		// Industry: prefer GBP category, then Gemini inference, then existing prospect.industry. Only update from real GBP (not name-only stub).
+		// Industry: always use AI (Gemini) so we don't rely on GBP category. Merge with existing prospect.industry and persist.
 		const gbpRawForUpdate = scrapedData.gbpRaw as GbpData | undefined;
 		const isRealGbp = gbpRawForUpdate && ((gbpRawForUpdate.ratingCount ?? 0) > 0 || (gbpRawForUpdate.reviews?.length ?? 0) > 0);
 		if (isRealGbp && gbpRawForUpdate) {
 			await updateProspectFromGbp(prospectId, gbpRawForUpdate);
 		}
 		const gbpForIndustry = scrapedData.gbpRaw as GbpData | undefined;
-		let effectiveIndustry =
-			(gbpForIndustry?.industry?.trim() && gbpForIndustry.industry !== 'General'
-				? gbpForIndustry.industry
-				: null) || prospect.industry?.trim() || '';
-		if (!effectiveIndustry || effectiveIndustry === 'General') {
-			const inferred = await inferIndustryWithGemini(prospect, gbpForIndustry?.industry);
-			if (inferred) {
-				await updateProspectIndustry(prospectId, inferred);
-				effectiveIndustry = inferred;
-			} else {
-				effectiveIndustry = 'Professional';
-			}
+		let mergedIndustryForProspect = (prospect.industry ?? '').trim() || '';
+		const inferred = await inferIndustryWithGemini(prospect, undefined);
+		let effectiveIndustry: string;
+		if (inferred) {
+			mergedIndustryForProspect = mergeIndustryValues(mergedIndustryForProspect, inferred);
+			await updateProspectIndustry(prospectId, mergedIndustryForProspect);
+			effectiveIndustry = inferred;
+		} else {
+			effectiveIndustry = mergedIndustryForProspect || 'Professional';
+			if (!mergedIndustryForProspect) mergedIndustryForProspect = 'Professional';
 		}
 
 		// AI selects template by tone (luxury, rugged, soft-calm, etc.); stored for demo page theming
@@ -162,10 +187,16 @@ export async function processOneDemoJob(origin: string): Promise<ProcessJobResul
 			if (insightResult.ok) insight = insightResult.data;
 		}
 
-		const industrySlug = industryDisplayToSlug(effectiveIndustry) as IndustrySlug;
-		const imageUrls = await getDemoImageUrls(industrySlug, prospect.industry ?? undefined, {
+		// Multi-value industry (e.g. "Dental" or "Legal, Dental"): prefer a dedicated-endpoint slug when present for demo routing
+		const industrySlug = getPrimaryIndustrySlugFromMultiValue(
+			mergedIndustryForProspect || effectiveIndustry,
+			DEDICATED_INDUSTRY_SLUGS
+		) as IndustrySlug;
+		const industryForImages = mergedIndustryForProspect || prospect.industry || undefined;
+		const imageUrls = await getDemoImageUrls(industrySlug, industryForImages, {
 			companyName: prospect.companyName ?? undefined
 		});
+
 		const existingDemoJson =
 			existingScraped &&
 			typeof existingScraped === 'object' &&
@@ -182,27 +213,57 @@ export async function processOneDemoJob(origin: string): Promise<ProcessJobResul
 				imageUrls
 			});
 		} else {
-			indexJson = buildLandingPageIndexJson({
+			// Prefer full AI-generated JSON from GBP + insights; fallback to defaults + separate enrichment
+			const aiContent = await generateLandingPageContentFromGbp(
 				prospect,
-				gbpRaw: gbpRaw as GbpData,
-				industryLabel: effectiveIndustry,
-				tone,
-				imageUrls
-			});
+				gbpRaw as GbpData,
+				insight,
+				effectiveIndustry,
+				industrySlug
+			);
+			if (aiContent.ok) {
+				indexJson = buildLandingPageIndexJson({
+					prospect,
+					gbpRaw: gbpRaw as GbpData,
+					industryLabel: effectiveIndustry,
+					tone,
+					imageUrls,
+					contentFromAi: aiContent.content
+				});
+			} else {
+				const inferredServices = await inferServicesFromAi(
+					prospect,
+					gbpRaw as GbpData,
+					effectiveIndustry,
+					industrySlug
+				);
+				const servicesOverride = inferredServices.ok ? inferredServices.services : undefined;
+				indexJson = buildLandingPageIndexJson({
+					prospect,
+					gbpRaw: gbpRaw as GbpData,
+					industryLabel: effectiveIndustry,
+					tone,
+					imageUrls,
+					servicesOverride
+				});
+				const enriched = await enrichPitchRosettaCopy(indexJson, prospect, gbpRaw as GbpData, insight);
+				if (enriched.ok) indexJson = enriched.indexJson;
+			}
 		}
-		const enriched = await enrichPitchRosettaCopy(indexJson, prospect, gbpRaw as GbpData, insight);
-		if (enriched.ok) indexJson = enriched.indexJson;
-		const payload = narrowLandingPageJsonForApi(indexJson) as Record<string, unknown>;
-		payload.id = prospectId;
-		payload.jobId = jobId;
-		payload.prospectId = prospectId;
-		payload.userId = userId;
+		const pitchPayload = transformToPitchRosettaPayload({
+			indexJson,
+			prospect,
+			gbpRaw: gbpRaw as GbpData,
+			industrySlug
+		});
+		const payload = { ...pitchPayload, id: prospectId, jobId, prospectId, userId } as Record<string, unknown>;
 		payload.callbackUrl = `${origin.replace(/\/$/, '')}/api/demo/generation-callback`;
 		payload.callbackToken = demoCallbackSecret;
 
+		const endpoint = getDemoGeneratorEndpoint(industrySlug);
 		let res: Response;
 		try {
-			res = await fetch(`${demoGeneratorUrl.replace(/\/$/, '')}/api/generate-async`, {
+			res = await fetch(`${demoGeneratorUrl.replace(/\/$/, '')}${endpoint}`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -214,7 +275,7 @@ export async function processOneDemoJob(origin: string): Promise<ProcessJobResul
 			const errorMessage = err instanceof Error ? err.message : String(err);
 			await updateDemoJob(jobId, { status: 'failed', errorMessage });
 			await updateProspectStatus(prospectId, 'Prospect');
-			serverError('processDemoJob', 'generate-async request failed', { jobId, prospectId, errorMessage });
+			serverError('processDemoJob', 'demo generator request failed', { jobId, prospectId, endpoint, errorMessage });
 			return {
 				processed: true,
 				jobId,
@@ -230,7 +291,7 @@ export async function processOneDemoJob(origin: string): Promise<ProcessJobResul
 			const errorMessage = `Demo generator returned ${res.status}: ${text.slice(0, 200)}`;
 			await updateDemoJob(jobId, { status: 'failed', errorMessage });
 			await updateProspectStatus(prospectId, 'Prospect');
-			serverError('processDemoJob', 'generate-async not 202', { jobId, prospectId, status: res.status });
+			serverError('processDemoJob', 'demo generator not 202', { jobId, prospectId, endpoint, status: res.status });
 			return {
 				processed: true,
 				jobId,

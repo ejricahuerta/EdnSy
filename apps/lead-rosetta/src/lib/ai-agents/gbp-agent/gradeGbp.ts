@@ -6,6 +6,7 @@
 
 import type { Prospect } from '$lib/server/prospects';
 import type { GbpData } from '$lib/server/gbp';
+import { getResolvedContent } from '$lib/server/agentContent';
 import { callGemini } from '$lib/ai-agents/shared/gemini';
 import { parseJsonFromResponse } from '$lib/ai-agents/shared/parseJson';
 import type { AgentResult } from '$lib/ai-agents/shared/types';
@@ -14,6 +15,14 @@ import { serverError, serverInfo } from '$lib/server/logger';
 
 /** Require one line (no newlines) so the full JSON is less likely to be truncated. */
 const GBP_GRADE_JSON_SCHEMA = `Output exactly one line of JSON with no newlines. Keys: "score" (0-100 number), "label" (string: "Strong", "Good", "Needs work", or "Incomplete"), "reasoning" (one short sentence). Example: {"score":70,"label":"Good","reasoning":"Claimed with hours and website."}`;
+
+/** Default grading prompt template. Use {{context}} where the GBP summary is injected. */
+export const DEFAULT_GBP_GRADE_PROMPT = `Grade this Google Business Profile (0-100, one label). Reply with exactly one line of JSON, no newlines.
+
+Summary:
+{{context}}
+
+${GBP_GRADE_JSON_SCHEMA}`;
 
 function isGbpGradeOutput(value: unknown): value is GbpGradeOutput {
 	if (!value || typeof value !== 'object') return false;
@@ -72,7 +81,7 @@ ${rawContext}`;
  */
 export async function gradeGbp(gbp: GbpData, prospect?: Prospect): Promise<AgentResult<GbpGradeOutput>> {
 	const rawContext = [
-		`Business: ${gbp.name}, category: ${gbp.industry || 'General'}`,
+		`Business: ${gbp.name}, category: ${gbp.industry || 'Professional'}`,
 		`Address: ${gbp.address || 'none'}`,
 		`Phone: ${gbp.phone || 'none'}`,
 		`Website: ${gbp.website ? 'yes' : 'no'}`,
@@ -83,12 +92,13 @@ export async function gradeGbp(gbp: GbpData, prospect?: Prospect): Promise<Agent
 
 	const context = await summarizeGbpForGrading(rawContext);
 
-	const basePrompt = `Grade this Google Business Profile (0-100, one label). Reply with exactly one line of JSON, no newlines.
-
-Summary:
-${context}
-
-${GBP_GRADE_JSON_SCHEMA}`;
+	const resolved = await getResolvedContent(
+		'gbp',
+		'prompt',
+		'grade_prompt',
+		DEFAULT_GBP_GRADE_PROMPT
+	);
+	const basePrompt = resolved.body.replace(/\{\{context\}\}/g, context);
 
 	const TRUNCATED_MSG = 'Response truncated (incomplete JSON); try again';
 

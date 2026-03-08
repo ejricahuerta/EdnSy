@@ -69,15 +69,9 @@ export async function processOneFreeDemoJob(origin: string): Promise<ProcessFree
 
 		const scrapedData = scrapedResult.data as Record<string, unknown>;
 		const gbpRaw = scrapedData.gbpRaw as GbpData | undefined;
-		let effectiveIndustry =
-			(gbpRaw?.industry?.trim() && gbpRaw.industry !== 'General' ? gbpRaw.industry : null) ||
-			prospect.industry?.trim() ||
-			'Professional';
-		if (!effectiveIndustry || effectiveIndustry === 'General') {
-			const inferred = await inferIndustryWithGemini(prospect, gbpRaw?.industry);
-			if (inferred) effectiveIndustry = inferred;
-			else effectiveIndustry = 'Professional';
-		}
+		// Industry: always use AI so we don't rely on GBP category.
+		const inferred = await inferIndustryWithGemini(prospect, undefined);
+		const effectiveIndustry = inferred ?? (prospect.industry?.trim() || 'Professional');
 
 		const tone = await inferToneWithGemini(prospect, gbpRaw ?? undefined);
 		if (!gbpRaw) {

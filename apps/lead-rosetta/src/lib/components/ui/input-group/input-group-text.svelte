@@ -7,9 +7,16 @@
 		class: className,
 		children,
 		...restProps
-	}: WithElementRef<HTMLAttributes<HTMLDivElement>> = $props();
+	}: WithElementRef<HTMLAttributes<HTMLSpanElement>> = $props();
 </script>
 
-<div bind:this={ref} class={cn("", className)} {...restProps}>
+<span
+	bind:this={ref}
+	class={cn(
+		"text-muted-foreground flex items-center gap-2 text-sm [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4",
+		className
+	)}
+	{...restProps}
+>
 	{@render children?.()}
-</div>
+</span>

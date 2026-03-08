@@ -8,11 +8,14 @@ export {
 	VALID_DEMO_TRACKING_STATUSES,
 	DEMO_TRACKING_OPTIONS,
 	STATUS_FILTER_OPTIONS,
+	STATUS_GROUP_HEADINGS,
 	ENGAGED_STATUSES,
 	isValidDemoTrackingStatus,
 	getDemoTrackingLabel,
 	getStatusFilterOptionsForPipelineTab,
-	getValidStatusFilterValuesForPipelineTab
+	getValidStatusFilterValuesForPipelineTab,
+	getUnifiedStatusOptionsByGroup,
+	getValidStatusFilterValues
 } from '$lib/constants/demoStatus';
 
 export type {
@@ -21,7 +24,8 @@ export type {
 	StatusFilterGroup,
 	StatusFilterOption,
 	PipelineTabId,
-	StatusOptionsByGroup
+	StatusOptionsByGroup,
+	StageFilterValue
 } from '$lib/constants/demoStatus';
 
 export {
@@ -40,7 +44,12 @@ export type { V13Theme } from '$lib/demoThemes';
 export type { DemoTrackEvent } from '$lib/demoTracking';
 export { trackDemoEvent } from '$lib/demoTracking';
 
-export { auditFromScrapedData, isDemoAuditShape } from '$lib/types/demo';
+export {
+	auditFromScrapedData,
+	isDemoAuditShape,
+	hasUsableGbpInAudit,
+	hasUsableInsight
+} from '$lib/types/demo';
 export type { DemoAudit, DemoLandingContent } from '$lib/types/demo';
 
 export type { DemoPageJson } from '$lib/types/demoPageJson';

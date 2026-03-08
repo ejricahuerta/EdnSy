@@ -228,7 +228,7 @@ export async function fetchGbpFromPlaces(
 		serverInfo('placesApi', 'Found place', { keyword, placeId: searchResult.id, name });
 		const gbp: PlacesGbpData = {
 			name,
-			industry: (prospect.industry ?? '').trim() || 'General',
+			industry: (prospect.industry ?? '').trim() || 'Professional',
 			address,
 			phone,
 			website,

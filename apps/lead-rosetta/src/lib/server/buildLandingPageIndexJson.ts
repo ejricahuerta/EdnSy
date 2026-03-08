@@ -9,6 +9,7 @@ import type { ToneSlug } from '$lib/tones';
 import type { IndustrySlug } from '$lib/industries';
 import { industryDisplayToSlug } from '$lib/industries';
 import type { LandingPageIndexJson } from '$lib/types/landingPageIndexJson';
+import type { LandingContentFromAi } from '$lib/server/generateLandingPageContentFromGbp';
 
 function getAreaFromAddress(address: string): string {
 	if (!address?.trim()) return '';
@@ -170,6 +171,10 @@ export type BuildLandingPageIndexJsonInput = {
 	industryLabel: string;
 	tone: ToneSlug;
 	imageUrls: { hero: string; about: string };
+	/** When set, used instead of industry defaults (e.g. from inferServicesFromAi). */
+	servicesOverride?: LandingPageIndexJson['services'];
+	/** When set, all copy (hero, services, about, seo, etc.) comes from this AI-generated content. */
+	contentFromAi?: LandingContentFromAi;
 };
 
 /**
@@ -286,8 +291,10 @@ export function mergeWebsiteDemoJsonWithGbp(input: MergeWebsiteDemoJsonInput): L
  * Uses prospect + GBP + industry + tone + image URLs; fills any missing items with sample-like data.
  */
 export function buildLandingPageIndexJson(input: BuildLandingPageIndexJsonInput): LandingPageIndexJson {
-	const { prospect, gbpRaw, industryLabel, tone, imageUrls } = input;
-	const name = gbpRaw?.name || prospect.companyName?.trim() || 'This Business';
+	const { prospect, gbpRaw, industryLabel, tone, imageUrls, servicesOverride, contentFromAi } = input;
+	const rawName = gbpRaw?.name || prospect.companyName?.trim() || 'This Business';
+	// Display name only: strip SEO-style " | ..." so we never show "Business Name | Dental Care in City"
+	const name = typeof rawName === 'string' && rawName.includes(' | ') ? rawName.split(' | ')[0].trim() || rawName : rawName;
 	const address = gbpRaw?.address || prospect.address || '';
 	const phone = gbpRaw?.phone || prospect.phone || '';
 	const email = prospect.email?.trim() || '';
@@ -298,18 +305,23 @@ export function buildLandingPageIndexJson(input: BuildLandingPageIndexJsonInput)
 	const primaryCtaLabel = 'Get in touch';
 	const primaryCtaHref = phone ? `tel:${phone.replace(/\s/g, '')}` : '#contact';
 
-	const services = (getDefaultServices(name, industryLabel, area) ?? []).slice(0, 3);
-	const about = getDefaultAbout(name, industryLabel, area);
+	const ai = contentFromAi;
+	const services = (ai?.services?.length
+		? (ai.services as LandingPageIndexJson['services'])
+		: servicesOverride ?? (getDefaultServices(name, industryLabel, area) ?? []).slice(0, 3)) as LandingPageIndexJson['services'];
+	const defaultAbout = getDefaultAbout(name, industryLabel, area);
+	const about = ai?.about
+		? { ...defaultAbout, headline: ai.about.headline ?? defaultAbout.headline, body: ai.about.body ?? defaultAbout.body, values: ai.about.values ?? defaultAbout.values, image: imageUrls.about }
+		: { ...defaultAbout, image: imageUrls.about };
 	const faq = getDefaultFaq(industryLabel, area);
 	const process = getDefaultProcess();
-	const stats = getDefaultStats(name, gbpRaw ?? null);
+	const stats = (ai?.stats?.length ? ai.stats : getDefaultStats(name, gbpRaw ?? null)) as LandingPageIndexJson['stats'];
 	const reviews = gbpRaw?.reviews?.filter((r) => (r.text ?? '').trim().length > 0) ?? [];
 	const testimonialsRaw =
 		reviews.length > 0 ? mapReviewsToTestimonials(reviews, DEFAULT_AVATAR) : getFallbackTestimonials(industryLabel, area, DEFAULT_AVATAR);
 	const testimonials = testimonialsRaw.slice(0, 3);
 	const unsplashKeywords = getUnsplashKeywords(industryLabel);
 
-	// Business hours: try to shape GBP workHours if present; otherwise generic
 	let hours: Record<string, string> = {
 		'Monday–Friday': '9am – 6pm',
 		Saturday: '10am – 4pm',
@@ -326,12 +338,20 @@ export function buildLandingPageIndexJson(input: BuildLandingPageIndexJsonInput)
 	}
 
 	const oneLiner = `${industryLabel} services${city ? ` in ${city}` : ''} — quality and trust.`;
+	const tagline = ai?.business?.tagline ?? oneLiner;
+	const description = ai?.business?.description ?? defaultAbout.body;
+	const heroCta = ai?.hero?.cta ?? { label: primaryCtaLabel, href: primaryCtaHref };
+	const ctaBanner = ai?.cta_banner ?? {
+		headline: 'Ready to get started?',
+		subtext: `Get in touch with ${name} today.`,
+		button: { label: primaryCtaLabel, href: primaryCtaHref }
+	};
 
 	return {
 		business: {
 			name,
-			tagline: oneLiner,
-			description: about.body,
+			tagline,
+			description,
 			logo: null,
 			phone: phone || undefined,
 			email: email || undefined,
@@ -341,28 +361,21 @@ export function buildLandingPageIndexJson(input: BuildLandingPageIndexJsonInput)
 			social: {}
 		},
 		hero: {
-			headline: `${name}. ${industryLabel}${city ? ` in ${city}` : ''}.`,
-			subheadline: oneLiner,
-			cta: { label: primaryCtaLabel, href: primaryCtaHref },
+			headline: ai?.hero?.headline ?? `${name}. ${industryLabel}${city ? ` in ${city}` : ''}.`,
+			subheadline: ai?.hero?.subheadline ?? oneLiner,
+			cta: heroCta,
 			image: imageUrls.hero,
 			backgroundStyle: 'image'
 		},
 		services,
-		about: {
-			...about,
-			image: imageUrls.about
-		},
+		about,
 		stats,
 		testimonials,
 		faq,
 		process,
-		cta_banner: {
-			headline: 'Ready to get started?',
-			subtext: `Get in touch with ${name} today.`,
-			button: { label: primaryCtaLabel, href: primaryCtaHref }
-		},
+		cta_banner: ctaBanner,
 		contact: {
-			headline: 'Contact us',
+			headline: ai?.contact?.headline ?? 'Contact us',
 			showForm: true,
 			showMap: !!address,
 			googleMapsApiKey: null,
@@ -384,10 +397,16 @@ export function buildLandingPageIndexJson(input: BuildLandingPageIndexJsonInput)
 		},
 		valuePropositions: about.values,
 		primaryCta: primaryCtaLabel,
-		seo: {
-			title: `${name} | ${industryLabel}${city ? ` in ${city}` : ''}`,
-			description: `${name} — ${oneLiner}`,
-			keywords: [industryLabel, name, city, area].filter(Boolean)
-		}
+		seo: ai?.seo
+			? {
+					title: ai.seo.title ?? `${name} | ${industryLabel}${city ? ` in ${city}` : ''}`,
+					description: ai.seo.description ?? `${name} — ${oneLiner}`,
+					keywords: (ai.seo.keywords?.length ? ai.seo.keywords : [industryLabel, name, city, area].filter(Boolean)) as string[]
+				}
+			: {
+					title: `${name} | ${industryLabel}${city ? ` in ${city}` : ''}`,
+					description: `${name} — ${oneLiner}`,
+					keywords: [industryLabel, name, city, area].filter(Boolean)
+				}
 	};
 }

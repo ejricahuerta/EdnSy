@@ -80,6 +80,16 @@ export function parseJsonFromResponse(text: string): ParseJsonResult {
 				// ignore
 			}
 		}
+		// Truncated response (depth > 0): try to close an open string and all open braces
+		if (depth > 0) {
+			const repaired = (raw.slice(firstBrace) + '"' + '}'.repeat(depth)).replace(/,(\s*[}\]])/g, '$1');
+			try {
+				const data = JSON.parse(repaired);
+				return { ok: true, data };
+			} catch {
+				// fall through to error
+			}
+		}
 		if (lastBrace === -1) {
 			return { ok: false, error: 'Response truncated (incomplete JSON); try again' };
 		}

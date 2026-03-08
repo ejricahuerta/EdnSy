@@ -1,9 +1,12 @@
 /**
- * Process one "Insights" job from the queue. Adds AI insight to existing GBP data in demo_tracking.
- * If prospect has no scraped_data (GBP), falls back to full getScrapedDataForDemo (GBP + insight) for backward compat.
+ * Process one "Insights" job from the queue.
+ *
+ * Pipeline: data sync → [ GBP → website → industry → insight ] → demo
+ * This job does website → industry → insight (and GBP if not already present).
+ * Order: 1) GBP (if missing), 2) website analysis, 3) infer industry + persist, 4) generate insight.
  */
 
-import { getProspectByIdForUser } from '$lib/server/prospects';
+import { getProspectByIdForUser, updateProspectFromGbp, updateProspectStatus, updateProspectIndustry } from '$lib/server/prospects';
 import {
 	getDemoTrackingForProspect,
 	claimNextPendingInsightsJob,
@@ -14,14 +17,33 @@ import {
 } from '$lib/server/supabase';
 import { getScrapedDataForDemo, getScrapedDataForDemoFromNameOnly, formatScrapedDataErrorMessage } from '$lib/server/gbp';
 import { getGbpDefaultLocation } from '$lib/server/userSettings';
-import { updateProspectFromGbp, updateProspectStatus } from '$lib/server/prospects';
 import { isValidDemoTrackingStatus, type DemoTrackingStatus } from '$lib/demo';
-import { generateInsightForProspect } from '$lib/server/insights';
+import { generateInsightForProspect, generateInsightFromBusinessName, inferIndustryWithGemini } from '$lib/server/insights';
 import type { GbpData } from '$lib/server/gbp';
 import { NO_FIT_GBP_REASON } from '$lib/server/qualify';
 import { analyzeWebsiteAndProduceDemoJson } from '$lib/ai-agents';
+import { notionIndustryToSlug } from '$lib/industryMapping';
+import { INDUSTRY_LABELS } from '$lib/industries';
 
 const ANALYSIS_PLACEHOLDER_LINK = 'https://leadrosetta.local/analysis-pending';
+
+/** Merge an inferred industry with current (e.g. "" + "Dental" → "Dental"). Dedupes and trims. */
+function mergeIndustryValues(current: string, toAdd: string): string {
+	const parts = (current ?? '').split(',').map((s) => s.trim()).filter(Boolean);
+	const add = (toAdd ?? '').trim();
+	if (!add) return parts.join(', ');
+	if (parts.some((p) => p.toLowerCase() === add.toLowerCase())) return parts.join(', ');
+	parts.push(add);
+	return parts.join(', ').slice(0, 200);
+}
+
+/** When Gemini inference returns null, derive industry from GBP category so we never leave it empty. */
+function industryLabelFromGbpCategory(gbpCategory: string | null | undefined): string | null {
+	const raw = (gbpCategory ?? '').trim();
+	if (!raw) return null;
+	const slug = notionIndustryToSlug(raw);
+	return INDUSTRY_LABELS[slug];
+}
 
 export type ProcessInsightsJobResult =
 	| { processed: true; prospectId: string; status: 'done'; companyName?: string }
@@ -64,26 +86,12 @@ export async function processOneInsightsJob(): Promise<ProcessInsightsJobResult>
 
 		let scrapedData: Record<string, unknown>;
 		if (hasGbpRaw) {
+			// Flow: GBP (already present) → website → industry → insight
 			const gbp = (existingScraped as { gbpRaw: GbpData }).gbpRaw;
-			const insightResult = await generateInsightForProspect(prospect, gbp);
-			if (!insightResult.ok) {
-				const errorMessage = insightResult.error ?? 'AI insight failed';
-				await updateInsightsJob(jobId, { status: 'failed', errorMessage });
-				await updateProspectStatus(prospectId, 'Prospect');
-				return {
-					processed: true,
-					prospectId,
-					status: 'failed',
-					errorMessage,
-					companyName: prospect.companyName ?? undefined
-				};
-			}
-			scrapedData = { ...existingScraped, insight: insightResult.data } as Record<string, unknown>;
-			// When prospect has a website, run website agent and store analysis + demoJson
+			scrapedData = { ...existingScraped } as Record<string, unknown>;
+			// Step 2: website
 			if (prospect.website?.trim().startsWith('http')) {
-				const gbpSummary = existingScraped && typeof existingScraped === 'object' && (existingScraped as { gbpRaw?: GbpData }).gbpRaw
-					? { name: (existingScraped as { gbpRaw: GbpData }).gbpRaw.name, address: (existingScraped as { gbpRaw: GbpData }).gbpRaw.address, category: (existingScraped as { gbpRaw: GbpData }).gbpRaw.industry }
-					: undefined;
+				const gbpSummary = { name: gbp.name, address: gbp.address, category: gbp.industry };
 				const websiteResult = await analyzeWebsiteAndProduceDemoJson({
 					websiteUrl: prospect.website.trim(),
 					prospect,
@@ -103,6 +111,42 @@ export async function processOneInsightsJob(): Promise<ProcessInsightsJobResult>
 					}
 				}
 			}
+			// Step 3: industry (infer from GBP + website context, persist)
+			let prospectForInsight = prospect;
+			const inferred = await inferIndustryWithGemini(prospect, gbp?.industry ?? null);
+			if (inferred) {
+				const merged = mergeIndustryValues((prospect.industry ?? '').trim(), inferred);
+				const updated = await updateProspectIndustry(prospectId, merged);
+				if (updated.ok) {
+					const refetched = await getProspectByIdForUser(userId, prospectId);
+					if (refetched) prospectForInsight = refetched;
+				}
+			} else if (!(prospect.industry ?? '').trim()) {
+				// Fallback: Gemini returned null; derive from GBP category so we never leave industry empty
+				const fallbackLabel = industryLabelFromGbpCategory(gbp?.industry ?? null);
+				if (fallbackLabel) {
+					const updated = await updateProspectIndustry(prospectId, fallbackLabel);
+					if (updated.ok) {
+						const refetched = await getProspectByIdForUser(userId, prospectId);
+						if (refetched) prospectForInsight = refetched;
+					}
+				}
+			}
+			// Step 4: insight (uses prospect with industry set)
+			const insightResult = await generateInsightForProspect(prospectForInsight, gbp);
+			if (!insightResult.ok) {
+				const errorMessage = insightResult.error ?? 'AI insight failed';
+				await updateInsightsJob(jobId, { status: 'failed', errorMessage });
+				await updateProspectStatus(prospectId, 'Prospect');
+				return {
+					processed: true,
+					prospectId,
+					status: 'failed',
+					errorMessage,
+					companyName: prospect.companyName ?? undefined
+				};
+			}
+			scrapedData.insight = insightResult.data;
 		} else {
 			// No existing GBP: for "no online presence" use name-only; otherwise try GBP then fall back to name-only.
 			const useNameOnly =
@@ -138,10 +182,11 @@ export async function processOneInsightsJob(): Promise<ProcessInsightsJobResult>
 			}
 			scrapedData = scrapedResult.data as Record<string, unknown>;
 			const gbpFromResult = (scrapedResult.data as { gbpRaw?: GbpData }).gbpRaw;
+			// Step 1 (GBP): already done above; enrich prospect from GBP
 			if (fromRealGbp && gbpFromResult) {
 				await updateProspectFromGbp(prospectId, gbpFromResult);
 			}
-			// When prospect has a website, run website agent and store analysis + demoJson
+			// Step 2: website
 			if (prospect.website?.trim().startsWith('http')) {
 				const gbpSummary = gbpFromResult
 					? { name: gbpFromResult.name, address: gbpFromResult.address, category: gbpFromResult.industry }
@@ -165,6 +210,44 @@ export async function processOneInsightsJob(): Promise<ProcessInsightsJobResult>
 					}
 				}
 			}
+			// Step 3: industry (infer from GBP + website context, persist)
+			let prospectForInsight = prospect;
+			const inferred = await inferIndustryWithGemini(prospect, gbpFromResult?.industry ?? null);
+			if (inferred) {
+				const merged = mergeIndustryValues((prospect.industry ?? '').trim(), inferred);
+				const updated = await updateProspectIndustry(prospectId, merged);
+				if (updated.ok) {
+					const refetched = await getProspectByIdForUser(userId, prospectId);
+					if (refetched) prospectForInsight = refetched;
+				}
+			} else if (!(prospect.industry ?? '').trim()) {
+				// Fallback: Gemini returned null; derive from GBP category so we never leave industry empty
+				const fallbackLabel = industryLabelFromGbpCategory(gbpFromResult?.industry ?? null);
+				if (fallbackLabel) {
+					const updated = await updateProspectIndustry(prospectId, fallbackLabel);
+					if (updated.ok) {
+						const refetched = await getProspectByIdForUser(userId, prospectId);
+						if (refetched) prospectForInsight = refetched;
+					}
+				}
+			}
+			// Step 4: insight (uses prospect with industry set when available)
+			const insightResult = gbpFromResult
+				? await generateInsightForProspect(prospectForInsight, gbpFromResult)
+				: await generateInsightFromBusinessName(prospectForInsight);
+			if (!insightResult.ok) {
+				const errorMessage = insightResult.error ?? 'AI insight failed';
+				await updateInsightsJob(jobId, { status: 'failed', errorMessage });
+				await updateProspectStatus(prospectId, 'Prospect');
+				return {
+					processed: true,
+					prospectId,
+					status: 'failed',
+					errorMessage,
+					companyName: prospect.companyName ?? undefined
+				};
+			}
+			scrapedData.insight = insightResult.data;
 		}
 
 		const existingRow = await getDemoTrackingForProspect(userId, prospectId);

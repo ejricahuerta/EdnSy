@@ -15,7 +15,7 @@
 		Star,
 		Link2,
 		Copy,
-		MessageSquare,
+		ExternalLink,
 		LoaderCircle,
 		Trash2,
 		Check,
@@ -33,7 +33,17 @@
 	import { buttonVariants } from '$lib/components/ui/button';
 	import { toastSuccess, toastError } from '$lib/toast';
 	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 	import { tick } from 'svelte';
+
+	/** Safe return URL from ?returnTo= (only dashboard paths). Default: prospects list. */
+	const backHref = $derived.by(() => {
+		const raw = page.url?.searchParams.get('returnTo') ?? '';
+		const decoded = raw ? decodeURIComponent(raw) : '';
+		// Only allow relative dashboard paths to avoid open redirect
+		if (decoded.startsWith('/dashboard/') && !decoded.includes('//')) return decoded;
+		return '/dashboard/prospects';
+	});
 
 	let { data }: { data: PageData; form?: import('./$types').ActionFailure<{ message: string }> } =
 		$props();
@@ -44,6 +54,8 @@
 	const demoJob = $derived(data.demoJob);
 	const insightsJob = $derived(data.insightsJob ?? null);
 	const insightsJobActive = $derived(!!insightsJob);
+	const gbpJob = $derived(data.gbpJob ?? null);
+	const gbpJobActive = $derived(!!gbpJob);
 	const canSend = $derived(data.canSend ?? false);
 	const atDemoLimit = $derived(data.atDemoLimit ?? false);
 	const showInsightsAndDemo = $derived(data.showInsightsAndDemo ?? !prospect.flagged);
@@ -58,8 +70,10 @@
 	let generatingDemo = $state(false);
 	let regeneratingDemo = $state(false);
 	let analyzingBusiness = $state(false);
+	let regeneratingGbpInsights = $state(false);
 	let demoJobPollingActive = $state(false);
 	let insightsJobPollingActive = $state(false);
+	let gbpJobPollingActive = $state(false);
 	let deleteDialogOpen = $state(false);
 	let sendConfirmOpen = $state(false);
 	let sendAlternateConfirmOpen = $state(false);
@@ -77,6 +91,10 @@
 
 	$effect(() => {
 		if (insightsJob && !insightsJobPollingActive) startInsightsJobPolling();
+	});
+
+	$effect(() => {
+		if (gbpJob && !gbpJobPollingActive) startGbpJobPolling();
 	});
 
 	type HistoryEntry = { key: string; label: string; at: string | null; done: boolean };
@@ -152,7 +170,7 @@
 		// Analysis says no website demo: show Send email (AI agent / voice AI / SEO)
 		if (hasAnalysis && insight?.needsWebsiteDemo === false && !prospect.demoLink && canSend && prospect.email?.trim())
 			return { type: 'sendAlternateOffer' };
-		// Only show Generate demo after insights have been pulled
+		// Only show Generate demo after insights have been pulled (demo job infers industry from GBP/website via Gemini)
 		if (hasAnalysis && !prospect.demoLink)
 			return demoJob?.status === 'failed' && isGbpError(demoJob?.errorMessage) ? null : { type: 'generate' };
 		if (demoTracking?.status === 'approved' && canSend && prospect.email?.trim()) return { type: 'send' };
@@ -191,8 +209,8 @@
 		if (demoTracking?.status) {
 			return ['sent', 'opened', 'clicked', 'replied'].includes(demoTracking.status)
 				? 'default'
-				: demoTracking.status === 'approved'
-					? 'secondary'
+				: demoTracking.status === 'approved' || demoTracking.status === 'draft'
+					? 'default'
 					: 'outline';
 		}
 		const v = getStatusDisplay(prospect.status).variant;
@@ -348,6 +366,90 @@
 		};
 	}
 
+	function enhanceRegenerateGbpInsights(input: FormData | { formData: FormData }) {
+		const formData = input instanceof FormData ? input : input?.formData;
+		if (formData) regeneratingGbpInsights = true;
+		return async ({
+			result
+		}: {
+			result: import('./$types').ActionResult;
+			formData: FormData;
+		}) => {
+			try {
+				if (result.type === 'success' && result.data && typeof result.data === 'object') {
+					if ('queued' in result.data && result.data.queued) {
+						const d = result.data as { alreadyQueued?: boolean };
+						toastSuccess(
+							d.alreadyQueued ? 'GBP job already in progress' : 'Regenerating GBP and insights',
+							d.alreadyQueued ? 'Job is running. Page will update when done.' : 'Usually 1–2 minutes. Page will update when done.'
+						);
+						await invalidateAll();
+						startGbpJobPolling();
+					}
+				} else if (result.type === 'failure' && result.data?.message) {
+					toastError('Regenerate GBP and insights', result.data.message);
+					await applyAction(result);
+					regeneratingGbpInsights = false;
+				}
+			} finally {
+				// Keep regeneratingGbpInsights true while polling; startGbpJobPolling will set it false when done
+				if (result.type === 'failure') regeneratingGbpInsights = false;
+			}
+		};
+	}
+
+	/** Poll process-gbp-job until this prospect's job is done or failed (or queue empty). */
+	function startGbpJobPolling() {
+		if (gbpJobPollingActive) return;
+		gbpJobPollingActive = true;
+		const prospectId = prospect.id;
+		const maxAttempts = 80;
+		let attempts = 0;
+		const run = async () => {
+			if (attempts >= maxAttempts) {
+				gbpJobPollingActive = false;
+				return;
+			}
+			attempts++;
+			try {
+				const res = await fetch('/api/jobs/gbp', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ prospectId })
+				});
+				const body = await res.json().catch(() => ({}));
+				if (body.processed && body.prospectId === prospectId) {
+					gbpJobPollingActive = false;
+					if (body.status === 'done') {
+						toastSuccess('GBP and insights updated', body.companyName ?? prospectId);
+						await invalidateAll();
+					} else if (body.status === 'failed') {
+						toastError('Regenerate GBP and insights', body.errorMessage ?? 'Job failed');
+						await invalidateAll();
+					}
+					regeneratingGbpInsights = false;
+					return;
+				}
+				if (body.currentJob && body.currentJob.prospectId === prospectId) {
+					gbpJobPollingActive = false;
+					if (body.currentJob.status === 'done') {
+						toastSuccess('GBP and insights updated', body.currentJob.companyName ?? prospectId);
+						await invalidateAll();
+					} else if (body.currentJob.status === 'failed') {
+						toastError('Regenerate GBP and insights', body.currentJob.errorMessage ?? 'Job failed');
+						await invalidateAll();
+					}
+					regeneratingGbpInsights = false;
+					return;
+				}
+				tick().then(() => setTimeout(run, 3000));
+			} catch {
+				tick().then(() => setTimeout(run, 3000));
+			}
+		};
+		tick().then(() => setTimeout(run, 500));
+	}
+
 	/** Poll process-insights-job until this prospect's job is done or failed (or queue empty). User can navigate away; polling stops. Sends prospectId so the API can return currentJob when status is already done/failed (e.g. another tab processed it). */
 	function startInsightsJobPolling() {
 		if (insightsJobPollingActive) return;
@@ -416,9 +518,9 @@
 	<!-- Header: who + one primary action -->
 	<header class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
 		<div class="space-y-1.5 min-w-0">
-			<Button variant="ghost" size="sm" class="-ml-2 text-muted-foreground hover:text-foreground" onclick={() => goto('/dashboard/prospects')}>
+			<Button variant="ghost" size="sm" class="-ml-2 text-muted-foreground hover:text-foreground" href={backHref}>
 				<ArrowLeft class="size-4 mr-1.5" aria-hidden="true" />
-				Prospects
+				{backHref === '/dashboard/demos' ? 'Demos' : 'Prospects'}
 			</Button>
 			<div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
 				<h1 class="text-2xl font-semibold tracking-tight truncate">{prospect.companyName}</h1>
@@ -622,7 +724,7 @@
 	<Separator />
 
 	<div class="grid grid-cols-1 gap-8 lg:grid-cols-3 lg:gap-10">
-		<!-- Main: single scroll - About then Outreach -->
+		<!-- Main: About, Insights, Website grading -->
 		<div class="space-y-6 lg:col-span-2">
 			<!-- About: contact + GBP in one card -->
 			<Card.Root>
@@ -732,6 +834,21 @@
 									</ul>
 								</div>
 							{/if}
+							<form method="POST" action="?/regenerateGbpAndInsights" use:enhance={enhanceRegenerateGbpInsights} class="pt-2">
+								<input type="hidden" name="prospectId" value={prospect.id} />
+								<Button
+									type="submit"
+									variant="outline"
+									size="sm"
+									disabled={regeneratingGbpInsights || gbpJobActive}
+									title="Re-fetch Google Business Profile and regenerate AI insight"
+								>
+									{#if regeneratingGbpInsights || gbpJobActive}
+										<LoaderCircle class="size-4 mr-2 animate-spin" aria-hidden="true" />
+									{/if}
+									{regeneratingGbpInsights || gbpJobActive ? 'Regenerating…' : 'Regenerate GBP and insights'}
+								</Button>
+							</form>
 						{/if}
 					</Card.Content>
 				</Card.Root>
@@ -799,8 +916,11 @@
 					</Card.Content>
 				</Card.Root>
 			{/if}
+		</div>
 
-			<!-- Outreach: demo + pipeline in one card -->
+		<!-- Sidebar: Outreach then Remove -->
+		<aside class="space-y-6">
+			<!-- Outreach: demo + pipeline -->
 			<Card.Root>
 				<Card.Header>
 					<Card.Title>Outreach</Card.Title>
@@ -811,7 +931,7 @@
 						<div class="flex items-center gap-3 rounded-lg border bg-muted/30 px-4 py-3">
 							<LoaderCircle class="size-5 shrink-0 animate-spin text-muted-foreground" />
 							<div>
-								<p class="text-sm font-medium">{demoJob?.status === 'creating' ? 'Generating demo…' : 'In queue'}</p>
+								<p class="text-sm font-medium">{demoJob?.status === 'creating' ? 'Generating demo…' : 'Processing…'}</p>
 								<p class="text-xs text-muted-foreground">Usually ready in under a minute.</p>
 							</div>
 						</div>
@@ -840,62 +960,86 @@
 						{/if}
 					{:else}
 						<!-- Demo link + share -->
-						<div class="space-y-2">
-							<p class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Demo link</p>
-							<div class="flex flex-wrap items-center gap-2">
-								<Button variant="outline" size="sm" href={prospect.demoLink} target="_blank" rel="noopener noreferrer"><Link2 class="size-4 mr-2" />Open</Button>
-								<Button variant="outline" size="sm" onclick={copyLink}><Copy class="size-4 mr-2" />{copied ? 'Copied' : 'Copy link'}</Button>
-								<Button variant="outline" size="sm" href="sms:?body={encodeURIComponent('Your demo: ' + prospect.demoLink)}"><MessageSquare class="size-4 mr-2" />SMS</Button>
+						{@const demoUrl = prospect.demoLink ?? ''}
+						<div class="space-y-3">
+							<p class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Share demo</p>
+							<div class="flex rounded-md border border-input bg-muted/30 overflow-hidden focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background">
+								<input
+									type="text"
+									readonly
+									value={demoUrl}
+									aria-label="Demo URL"
+									class="min-w-0 flex-1 border-0 bg-transparent px-3 py-2 font-mono text-xs text-foreground outline-none placeholder:text-muted-foreground disabled:cursor-default"
+								/>
+								<Button
+									type="button"
+									variant="ghost"
+									size="icon"
+									class="shrink-0 rounded-none border-l border-input h-auto size-9"
+									onclick={copyLink}
+									aria-label={copied ? 'Copied' : 'Copy link'}
+								>
+									<Copy class="size-4" />
+								</Button>
+								<Button
+									type="button"
+									variant="ghost"
+									size="icon"
+									class="shrink-0 rounded-none border-l border-input h-auto size-9"
+									href={demoUrl}
+									target="_blank"
+									rel="noopener noreferrer"
+									aria-label="Open in new tab"
+								>
+									<ExternalLink class="size-4" />
+								</Button>
 							</div>
-							<p class="text-xs text-muted-foreground break-all font-mono bg-muted/50 rounded px-2 py-1.5">{prospect.demoLink}</p>
 						</div>
 
-						<!-- Pipeline: timeline + update status -->
+						<!-- Pipeline: timeline then update status at bottom -->
 						{#if demoTracking}
 							<Separator />
 							<div class="space-y-4">
 								<p class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Pipeline</p>
-								<div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-8">
-									<ul class="relative space-y-0 min-w-0 flex-1">
-										{#each historyEntries as entry, i}
-											<li class="relative flex gap-3 pb-4 last:pb-0">
-												{#if i < historyEntries.length - 1}
-													<span class="absolute left-[7px] top-5 bottom-0 w-px bg-border" aria-hidden="true"></span>
-												{/if}
-												<span class={cn('relative z-10 flex size-4 shrink-0 items-center justify-center rounded-full mt-0.5', entry.done ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground')}>
-													{#if entry.done}<Check class="size-2.5" strokeWidth={3} />{:else}<Circle class="size-2.5" />{/if}
-												</span>
-												<div class="min-w-0">
-													<p class="text-sm font-medium">{entry.label}</p>
-													{#if entry.at}<p class="text-xs text-muted-foreground">{formatDate(entry.at)}</p>{/if}
-												</div>
-											</li>
-										{/each}
-									</ul>
-									<form method="POST" action="?/updateDemoStatus" use:enhance={() => async ({ result }) => {
-										if (result.type === 'success') { toastSuccess('Status updated'); await invalidateAll(); }
-										else if (result.type === 'failure' && result.data?.message) { toastError('Update status', result.data.message); await applyAction(result); }
-									}} class="flex flex-wrap items-center gap-2 shrink-0">
-										<input type="hidden" name="prospectId" value={prospect.id} />
-										<input type="hidden" name="status" value={demoStatus} />
+								<ul class="relative space-y-0 min-w-0">
+									{#each historyEntries as entry, i}
+										<li class="relative flex gap-3 pb-4 last:pb-0">
+											{#if i < historyEntries.length - 1}
+												<span class="absolute left-[7px] top-5 bottom-0 w-px bg-border" aria-hidden="true"></span>
+											{/if}
+											<span class={cn('relative z-10 flex size-4 shrink-0 items-center justify-center rounded-full mt-0.5', entry.done ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground')}>
+												{#if entry.done}<Check class="size-2.5" strokeWidth={3} />{:else}<Circle class="size-2.5" />{/if}
+											</span>
+											<div class="min-w-0">
+												<p class="text-sm font-medium">{entry.label}</p>
+												{#if entry.at}<p class="text-xs text-muted-foreground">{formatDate(entry.at)}</p>{/if}
+											</div>
+										</li>
+									{/each}
+								</ul>
+								<form method="POST" action="?/updateDemoStatus" use:enhance={() => async ({ result }) => {
+									if (result.type === 'success') { toastSuccess('Status updated'); await invalidateAll(); }
+									else if (result.type === 'failure' && result.data?.message) { toastError('Update status', result.data.message); await applyAction(result); }
+								}} class="flex w-full items-center gap-2 pt-1">
+									<input type="hidden" name="prospectId" value={prospect.id} />
+									<input type="hidden" name="status" value={demoStatus} />
+									<div class="min-w-0 flex-1">
 										<Select.Root type="single" bind:value={demoStatus}>
-											<Select.Trigger class="w-[160px] h-9" id="demo-status" aria-label="Stage">{(DEMO_TRACKING_OPTIONS.find((o) => o.value === demoStatus)?.label ?? demoStatus) || 'Stage'}</Select.Trigger>
+											<Select.Trigger class="h-9 w-full" id="demo-status" aria-label="Stage">{(DEMO_TRACKING_OPTIONS.find((o) => o.value === demoStatus)?.label ?? demoStatus) || 'Stage'}</Select.Trigger>
 											<Select.Content>
 												{#each DEMO_TRACKING_OPTIONS as opt (opt.value)}<Select.Item value={opt.value}>{opt.label}</Select.Item>{/each}
 											</Select.Content>
 										</Select.Root>
-										<Button type="submit" variant="secondary" size="sm">Update</Button>
-									</form>
-								</div>
+									</div>
+									<Button type="submit" variant="secondary" size="sm" class="shrink-0">Update</Button>
+								</form>
 							</div>
 						{/if}
 					{/if}
 				</Card.Content>
 			</Card.Root>
-		</div>
 
-		<!-- Sidebar: only Remove -->
-		<aside>
+			<!-- Remove client -->
 			<Card.Root class="border-destructive/20">
 				<Card.Header>
 					<Card.Title class="text-destructive">Remove client</Card.Title>
@@ -920,7 +1064,7 @@
 									if (result.type === 'success') {
 										deleteDialogOpen = false;
 										toastSuccess('Prospect removed', prospect.companyName || prospect.email);
-										goto('/dashboard/prospects');
+										goto(backHref);
 									} else if (result.type === 'failure' && result.data?.message) {
 										toastError('Remove prospect', result.data.message);
 										await applyAction(result);

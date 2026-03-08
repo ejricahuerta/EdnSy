@@ -50,7 +50,7 @@
 		}}
 		class="space-y-6"
 	>
-		<Card.Root class="border-0 bg-card shadow-none">
+		<Card.Root>
 			<Card.Header>
 				<Card.Title>Email body HTML</Card.Title>
 				<Card.Description>

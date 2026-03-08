@@ -5,7 +5,7 @@
 
 import { getSupabaseAdmin } from '$lib/server/supabase';
 
-export type AgentId = 'design' | 'demo-chat' | 'demo-creation';
+export type AgentId = 'design' | 'demo-chat' | 'demo-creation' | 'email' | 'gbp';
 export type ContentType = 'prompt' | 'knowledge_base';
 
 export type AgentContentRow = {
@@ -121,10 +121,18 @@ export const AGENT_CONTENT_KEYS = {
 	},
 	'demo-chat': {
 		prompt: ['system_instruction'],
-		knowledge_base: ['chat_kb']
+		knowledge_base: []
 	},
 	'demo-creation': {
 		prompt: ['audit', 'audit_modal_copy'],
 		knowledge_base: ['demo_kb']
+	},
+	email: {
+		prompt: ['email_copy_prompt'],
+		knowledge_base: []
+	},
+	gbp: {
+		prompt: ['grade_prompt'],
+		knowledge_base: []
 	}
 } as const;

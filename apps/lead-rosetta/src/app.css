@@ -10,17 +10,7 @@
    ========================================================================== */
 
 /* Focus and selection for better accessibility */
-:root {
-  --focus-ring: 2px solid #2D6A4F;
-}
-:focus-visible {
-  outline: var(--focus-ring);
-  outline-offset: 2px;
-}
-::selection {
-  background-color: rgb(45 106 79 / 0.25);
-  color: inherit;
-}
+
 
 html {
   scroll-behavior: smooth;
@@ -132,26 +122,7 @@ body {
   color: var(--ink);
 }
 
-/* Dashboard dark mode: map shell vars from globals (shadcn) only. No Lead Rosetta
-   token overrides; --muted stays shadcn background so bg-muted is correct. */
-.dark .leadrosetta-app-dashboard {
-  --cream: var(--background);
-  --ink: var(--foreground);
-  --sage: var(--primary);
-  --sage-light: var(--primary);
-  --amber: var(--primary);
-  --amber-light: var(--primary);
-  --border: var(--border);
-  --surface: var(--muted);
-  --white: var(--card);
-  --color-text-secondary: var(--muted-foreground);
-  --lr-dashboard-bg: var(--background);
-  --lr-dashboard-border: var(--border);
-  --lr-dashboard-sidebar-bg: var(--sidebar);
-  --lr-dashboard-sidebar-hover: var(--accent);
-  --lr-dashboard-th-bg: var(--muted);
-  --lr-dashboard-row-hover: var(--muted);
-}
+/* Dashboard: no token overrides. Dark/light use globals.css (shadcn) only. */
 
 /* ==========================================================================
    Dashboard: shadcn from globals.css only. No Lead Rosetta overrides in this file.
@@ -1195,10 +1166,12 @@ body {
 }
 
 /* ==========================================================================
-   Dashboard (shadcn-style): sidebar + main, card, bordered table
+   Dashboard (shadcn-style): sidebar + main, subtle borders, shadow-led cards
    ========================================================================== */
 .leadrosetta-app-dashboard {
   --sidebar-width: 16rem;
+  /* Softer divider lines to match shadcn themes (shadow over outline) */
+  --dashboard-divider: color-mix(in oklch, var(--border) 45%, transparent);
   display: flex;
   height: 100vh;
   min-height: 100vh;
@@ -1215,13 +1188,13 @@ body {
   display: flex;
   flex-direction: column;
   background: var(--sidebar);
-  border-right: 1px solid var(--border);
+  border-right: 1px solid var(--dashboard-divider);
   transition: width 0.2s ease;
   overflow: hidden;
 }
 .leadrosetta-app-dashboard .lr-dashboard-sidebar-header {
   padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--dashboard-divider);
 }
 .leadrosetta-app-dashboard .lr-dashboard-sidebar-logo {
   display: flex;
@@ -1287,7 +1260,7 @@ body {
 }
 .leadrosetta-app-dashboard .lr-dashboard-sidebar-footer {
   padding: 1rem 1.5rem;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--dashboard-divider);
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -1326,7 +1299,7 @@ body {
   transition: color 0.15s;
   margin-top: 0.5rem;
   padding-top: 0.5rem;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--dashboard-divider);
 }
 .leadrosetta-app-dashboard .lr-dashboard-sidebar-powered:hover {
   color: var(--foreground);
@@ -1351,7 +1324,7 @@ body {
   align-items: center;
   justify-content: center;
   background: var(--sidebar);
-  border: 1px solid var(--border);
+  border: 1px solid var(--dashboard-divider);
   border-left: none;
   border-radius: 0 0.375rem 0.375rem 0;
   cursor: pointer;
@@ -1387,6 +1360,21 @@ body {
   flex-direction: column;
   gap: 0.125rem;
   padding: 0.75rem;
+}
+@media (max-width: 767px) {
+  .leadrosetta-app-dashboard .lr-dashboard-settings-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0.5rem 0.75rem;
+    gap: 0.25rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+  .leadrosetta-app-dashboard .lr-dashboard-settings-link {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
 }
 @media (min-width: 768px) {
   .leadrosetta-app-dashboard .lr-dashboard-settings-nav {
@@ -1501,7 +1489,7 @@ body {
   gap: 1rem;
   padding: 0 1rem 0 0.75rem;
   height: 3rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--dashboard-divider);
   background: var(--background);
 }
 .leadrosetta-app-dashboard .lr-dashboard-topnav-left {
@@ -1529,6 +1517,24 @@ body {
 .leadrosetta-app-dashboard .lr-dashboard-sidebar-trigger:hover {
   color: var(--foreground);
   background: var(--accent);
+}
+/* Mobile: show hamburger/close; desktop: show collapse/expand */
+.leadrosetta-app-dashboard .lr-dashboard-menu-btn-mobile {
+  display: none;
+}
+.leadrosetta-app-dashboard .lr-dashboard-menu-btn-desktop {
+  display: inline-flex;
+}
+@media (max-width: 767px) {
+  .leadrosetta-app-dashboard .lr-dashboard-menu-btn-mobile {
+    display: inline-flex;
+  }
+  .leadrosetta-app-dashboard .lr-dashboard-menu-btn-desktop {
+    display: none;
+  }
+  .leadrosetta-app-dashboard .lr-dashboard-sidebar-rail {
+    display: none;
+  }
 }
 .leadrosetta-app-dashboard .lr-dashboard-breadcrumb {
   font-size: 0.8125rem;
@@ -1597,7 +1603,126 @@ body {
   flex: 1;
   min-height: 0;
   overflow: auto;
-  padding: 1.5rem 2rem;
+  padding: 1rem;
+  min-width: 0; /* allow flex child to shrink on narrow viewports */
+  /* Subtle background so cards read with shadow (shadcn themes look) */
+  background: color-mix(in oklch, var(--muted) 35%, var(--background));
+}
+@media (min-width: 768px) {
+  .leadrosetta-app-dashboard .lr-dashboard-main-content {
+    padding: 1.5rem 2rem;
+  }
+}
+
+/* Mobile: sidebar overlay (visible only when drawer is open) */
+.leadrosetta-app-dashboard .lr-dashboard-sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+@media (max-width: 767px) {
+  .leadrosetta-app-dashboard .lr-dashboard-sidebar-overlay {
+    display: block;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  .leadrosetta-app-dashboard[data-sidebar-open="true"] .lr-dashboard-sidebar-overlay {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+/* Mobile: sidebar as off-canvas drawer; allow scroll so menu isn't cut off */
+@media (max-width: 767px) {
+  .leadrosetta-app-dashboard .lr-dashboard-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    height: 100dvh;
+    width: 16rem;
+    max-width: 85vw;
+    z-index: 50;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+    box-shadow: none;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .leadrosetta-app-dashboard[data-sidebar-open="true"] .lr-dashboard-sidebar {
+    transform: translateX(0);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+  }
+  .leadrosetta-app-dashboard .lr-dashboard-sidebar-footer {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+  /* On mobile ignore collapsed state for width */
+  .leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar {
+    width: 16rem;
+    max-width: 85vw;
+  }
+  .leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-logo-text,
+  .leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-link-label,
+  .leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-bottom {
+    width: auto;
+    overflow: visible;
+    opacity: 1;
+    white-space: normal;
+    pointer-events: auto;
+    height: auto;
+    padding: inherit;
+    margin: inherit;
+  }
+  .leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-link {
+    justify-content: flex-start;
+    padding: 0.5rem 0.75rem;
+  }
+  .leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-nav {
+    align-items: stretch;
+    padding: 0.75rem;
+  }
+  .leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-header {
+    justify-content: flex-start;
+  }
+  .leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-logo {
+    justify-content: flex-start;
+  }
+  .leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-footer {
+    padding: 1rem 1.5rem;
+    align-items: stretch;
+  }
+}
+
+/* Mobile: topnav adjustments */
+@media (max-width: 767px) {
+  .leadrosetta-app-dashboard .lr-dashboard-topnav {
+    padding: 0 0.5rem 0 0.5rem;
+    gap: 0.5rem;
+    min-height: 3rem;
+  }
+  .leadrosetta-app-dashboard .lr-dashboard-breadcrumb {
+    font-size: 0.75rem;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .leadrosetta-app-dashboard .lr-dashboard-topnav-user {
+    max-width: 6rem;
+    font-size: 0.75rem;
+  }
+  .leadrosetta-app-dashboard .lr-dashboard-topnav-right {
+    gap: 0.5rem;
+  }
+  .leadrosetta-app-dashboard .lr-dashboard-topnav-logout {
+    font-size: 0.75rem;
+  }
 }
 
 /* Dashboard page-loading bar (shown during internal route transitions) */
@@ -1681,16 +1806,16 @@ body {
   margin: 0;
 }
 
-/* Dashboard page: legacy custom card/table (shadcn vars only) */
+/* Dashboard page: legacy custom card/table – match shadcn (shadow-led, no border) */
 .lr-dashboard-main .lr-dash-card {
   background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  border: none;
+  border-radius: var(--radius-xl);
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
 }
 .lr-dashboard-main .lr-dash-card-header {
   padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--dashboard-divider);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1712,6 +1837,13 @@ body {
 }
 .lr-dashboard-main .lr-dash-table-wrap {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+/* Page containers: prevent horizontal overflow on mobile */
+@media (max-width: 767px) {
+  .leadrosetta-app-dashboard .lr-dash-page {
+    min-width: 0;
+  }
 }
 .lr-dashboard-main .lr-dash-table {
   width: 100%;
@@ -1724,11 +1856,11 @@ body {
   color: var(--muted-foreground);
   background: var(--muted);
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--dashboard-divider);
 }
 .lr-dashboard-main .lr-dash-table td {
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--dashboard-divider);
   vertical-align: middle;
 }
 .lr-dashboard-main .lr-dash-table tbody tr:hover {

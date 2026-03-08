@@ -192,7 +192,6 @@ export const NOTION_INDUSTRY_TO_SLUG: Record<IndustrySlug, readonly string[]> = 
 		'translator',
 		'insurance',
 		'insurance agent',
-		'general',
 		'other'
 	],
 	'real-estate': [

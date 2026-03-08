@@ -15,7 +15,7 @@
 		<p class="text-muted-foreground">Your account details.</p>
 	</div>
 
-	<Card.Root class="border-0 bg-card shadow-none">
+	<Card.Root>
 		<Card.Header>
 			<Card.Title>Account</Card.Title>
 			<Card.Description>Signed in with Google.</Card.Description>

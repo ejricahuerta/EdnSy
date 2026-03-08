@@ -52,7 +52,7 @@ get along, so we shut typescript up by casting `value` to `never`.
 	data-spacing={spacing}
 	style={`--gap: ${spacing}`}
 	class={cn(
-		"group/toggle-group flex w-fit items-center gap-[--spacing(var(--gap))] rounded-md",
+		"group/toggle-group flex w-fit items-center gap-[--spacing(var(--gap))] rounded-md data-[spacing=default]:data-[variant=outline]:shadow-xs",
 		className
 	)}
 	{...restProps}

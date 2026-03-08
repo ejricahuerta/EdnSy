@@ -78,7 +78,7 @@ This keeps a single source of truth and avoids circular dependencies.
 
 ## 4. Internal / ednsy.com-only
 
-- **AI Agent Page** (`/dashboard/agents`) — Lists where prompts and knowledge base live for each agent. Access is restricted to `@ednsy.com` users (`isEdnsyUser` in `$lib/plans`). **Design**, **Demo Chat**, and **Demo Creation** support DB-backed versioning: prompts and knowledge base are stored in `agent_content_versions`; the app uses the default from code until an override is saved. Resolver: `$lib/server/agentContent` (`getResolvedContent`, `saveAgentContent`).
+- **AI Agent Page** (`/dashboard/agents`) — Editable agents are **Email AI Agent**, **GBP AI Agent**, and **Demo AI Agent (chat)**. Access is restricted to `@ednsy.com` users (`isEdnsyUser` in `$lib/plans`). Prompts are stored in `agent_content_versions`; the app uses the default from code until an override is saved. Resolver: `$lib/server/agentContent` (`getResolvedContent`, `saveAgentContent`). Design and Demo Creation are no longer shown on the dashboard but existing DB overrides for those agents are still resolved when used by `generateTone` and `generateAudit`.
 
 ---
 

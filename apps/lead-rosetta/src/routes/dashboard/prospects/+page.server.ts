@@ -23,7 +23,9 @@ import {
 	getDemoJobsForUser,
 	getActiveDemoJobForProspect,
 	getGbpJobsForUser,
-	getInsightsJobsForUser
+	getInsightsJobsForUser,
+	getGbpJobForProspect,
+	getInsightsJobForProspect
 } from '$lib/server/supabase';
 import { getScrapedDataForDemo, formatScrapedDataErrorMessage } from '$lib/server/gbp';
 import { generateDemoHtmlWithClaude } from '$lib/server/claudeGenerateDemoHtml';
@@ -34,7 +36,7 @@ import type { PageServerLoad, Actions } from './$types';
 import { isValidDemoTrackingStatus } from '$lib/demo';
 import { getSessionFromCookie, getSessionCookieName } from '$lib/server/session';
 import { getCrmIndustryFilter, getEffectiveEmailSenderName, getEmailSignatureOverride } from '$lib/server/userSettings';
-import { industryDisplayToSlug } from '$lib/industries';
+import { industryDisplayToSlug, parseIndustryValues } from '$lib/industries';
 
 /** Summary of scraped/GBP data for call log display (serializable). */
 export type ScrapedSummary = {
@@ -87,7 +89,11 @@ export const load: PageServerLoad = async ({ cookies }) => {
 	let prospects = result.prospects;
 	if (crmIndustryFilter.length > 0) {
 		const allowed = new Set(crmIndustryFilter);
-		prospects = prospects.filter((p) => allowed.has(industryDisplayToSlug(p.industry)));
+		prospects = prospects.filter((p) => {
+			const values = parseIndustryValues(p.industry ?? '');
+			const slugs = values.length ? values.map((v) => industryDisplayToSlug(v)) : [industryDisplayToSlug((p.industry ?? '').trim() || '')];
+			return slugs.some((s) => allowed.has(s));
+		});
 	}
 	const demoTrackingByProspectId = await getDemoTrackingForUser(user.id);
 	const scrapedDataByProspectId = await getScrapedDataMapForUser(user.id);
@@ -147,6 +153,17 @@ export const actions: Actions = {
 		if (prospect.demoLink) {
 			return fail(400, { message: 'Demo already created' });
 		}
+		const scraped = await getScrapedDataForProspectForUser(user.id, prospectId);
+		const hasGbp =
+			scraped &&
+			typeof scraped === 'object' &&
+			scraped.gbpRaw != null &&
+			typeof scraped.gbpRaw === 'object';
+		if (!hasGbp) {
+			return fail(400, {
+				message: 'GBP data is required. Run "Pull insights" for this prospect first, then create a demo.'
+			});
+		}
 		const result = await enqueueDemoJob(user.id, prospectId);
 		if (!result) {
 			return fail(503, { message: 'Could not enqueue job. Is Supabase configured?' });
@@ -159,6 +176,74 @@ export const actions: Actions = {
 			companyName: prospect.companyName ?? undefined,
 			alreadyQueued: !result.created
 		};
+	},
+	/**
+	 * Process the next step for a single prospect: enqueue Pull data (GBP + website + insight) or Demo.
+	 * Pull data = one Insights job that does GBP → website → insight in a single process.
+	 */
+	processNextStep: async ({ request, cookies }) => {
+		const cookie = cookies.get(getSessionCookieName());
+		const user = await getSessionFromCookie(cookie);
+		if (!user) return fail(401, { message: 'Sign in required' });
+		const formData = await request.formData();
+		const prospectId = formData.get('prospectId');
+		if (!prospectId || typeof prospectId !== 'string') return fail(400, { message: 'Missing prospect ID' });
+		const prospect = await getProspectById(prospectId);
+		if (!prospect) return fail(404, { message: 'Prospect not found' });
+		if (prospect.flagged) return fail(400, { message: 'This prospect is out of scope.' });
+
+		const [scraped, insightsJob] = await Promise.all([
+			getScrapedDataForProspectForUser(user.id, prospectId),
+			getInsightsJobForProspect(user.id, prospectId)
+		]);
+		const scrapedObj = scraped && typeof scraped === 'object' ? scraped : undefined;
+		const hasGbp =
+			!!scrapedObj?.gbpRaw && typeof scrapedObj.gbpRaw === 'object';
+		const hasInsight = scrapedObj?.insight != null;
+		const hasIndustry = !!((prospect.industry ?? '').trim());
+		const insightsActive = insightsJob?.status === 'pending' || insightsJob?.status === 'running';
+
+		// 1) No insight yet, or have insight but no industry (re-run to infer industry) → enqueue "Pull data" job
+		const needsPullData = (!hasInsight || (hasInsight && hasGbp && !hasIndustry)) && !insightsActive;
+		if (needsPullData) {
+			const result = await enqueueInsightsJob(user.id, prospectId);
+			if (!result) return fail(503, { message: 'Could not enqueue. Try again.' });
+			await updateProspectStatus(prospectId, 'In queue');
+			return {
+				success: true,
+				step: 'insights',
+				queued: true,
+				prospectId,
+				companyName: prospect.companyName ?? undefined,
+				alreadyQueued: !result.created
+			};
+		}
+		// 2) Have insight (and GBP), no demo → enqueue Demo (or retry after demo failed)
+		if (hasGbp && !(prospect.demoLink ?? '').trim()) {
+			const plan = await getPlanForUser(user);
+			const demoLimit = getDemoCreationLimit(plan);
+			if (demoLimit !== null) {
+				const count = await getDemoCountThisMonth(user.id);
+				if (count >= demoLimit) {
+					return fail(403, {
+						message: `Limit: ${demoLimit} demos per month. Upgrade your plan for more.`
+					});
+				}
+			}
+			const result = await enqueueDemoJob(user.id, prospectId);
+			if (!result) return fail(503, { message: 'Could not enqueue demo job. Try again.' });
+			await updateProspectStatus(prospectId, 'In queue');
+			return {
+				success: true,
+				step: 'demo',
+				queued: true,
+				prospectId,
+				companyName: prospect.companyName ?? undefined,
+				alreadyQueued: !result.created
+			};
+		}
+
+		return fail(400, { message: 'Nothing to do for this prospect right now.' });
 	},
 	generateDemo: async ({ request, url, cookies }) => {
 		const cookie = cookies.get(getSessionCookieName());
@@ -345,6 +430,7 @@ export const actions: Actions = {
 		if (prospectIds.length === 0) {
 			return fail(400, { message: 'Select at least one prospect' });
 		}
+		const scrapedMap = await getScrapedDataMapForUser(user.id);
 		let queued = 0;
 		const errors: string[] = [];
 		for (const prospectId of prospectIds) {
@@ -353,6 +439,13 @@ export const actions: Actions = {
 			if (!prospect) continue;
 			if (prospect.flagged) continue;
 			if (prospect.demoLink) continue;
+			const scraped = scrapedMap[prospectId];
+			const hasGbp =
+				scraped &&
+				typeof scraped === 'object' &&
+				scraped.gbpRaw != null &&
+				typeof scraped.gbpRaw === 'object';
+			if (!hasGbp) continue; // Skip prospects without GBP; do not enqueue
 			const result = await enqueueDemoJob(user.id, prospectId);
 			if (!result) {
 				errors.push(`${prospect.companyName || prospectId}: Could not enqueue`);
@@ -567,7 +660,89 @@ export const actions: Actions = {
 		return { success: true, restored, total: prospectIds.length };
 	},
 	/**
-	 * Clear "In queue" status for prospects that have no active job (demo, GBP, or insights).
+	 * Process the next step for each selected prospect: queue GBP for pull_data,
+	 * queue demos for create_demo/retry_demo, restore for flagged.
+	 * Client sends JSON arrays via form fields pullDataIds, demoIds, flaggedIds.
+	 */
+	bulkProcessNextStep: async ({ request, cookies }) => {
+		const cookie = cookies.get(getSessionCookieName());
+		const user = await getSessionFromCookie(cookie);
+		if (!user) return fail(401, { message: 'Sign in required' });
+		const formData = await request.formData();
+		const parseIds = (raw: FormDataEntryValue | null): string[] => {
+			if (!raw || typeof raw !== 'string') return [];
+			try {
+				const a = JSON.parse(raw) as unknown;
+				return Array.isArray(a) ? a.filter((id): id is string => typeof id === 'string') : [];
+			} catch {
+				return [];
+			}
+		};
+		const pullDataIds = parseIds(formData.get('pullDataIds'));
+		const demoIds = parseIds(formData.get('demoIds'));
+		const flaggedIds = parseIds(formData.get('flaggedIds'));
+		const hasAny = pullDataIds.length > 0 || demoIds.length > 0 || flaggedIds.length > 0;
+		if (!hasAny) return fail(400, { message: 'No actionable prospects selected' });
+
+		const plan = await getPlanForUser(user);
+		const demoLimit = getDemoCreationLimit(plan);
+		const countThisMonth = await getDemoCountThisMonth(user.id);
+
+		// Pull data queue (one process: GBP + website + insight via Insights job)
+		let pullDataQueued = 0;
+		let pullDataEnqueueFailed = 0;
+		for (const prospectId of pullDataIds) {
+			const prospect = await getProspectById(prospectId);
+			if (!prospect || prospect.flagged) continue;
+			const result = await enqueueInsightsJob(user.id, prospectId);
+			if (result) {
+				if (result.created) pullDataQueued++;
+				await updateProspectStatus(prospectId, 'In queue');
+			} else {
+				pullDataEnqueueFailed++;
+			}
+		}
+
+		// Demo queue (create + retry); only enqueue prospects that have GBP data
+		const scrapedMap = await getScrapedDataMapForUser(user.id);
+		let demoQueued = 0;
+		const demoErrors: string[] = [];
+		for (const prospectId of demoIds) {
+			if (demoLimit !== null && countThisMonth + demoQueued >= demoLimit) break;
+			const prospect = await getProspectById(prospectId);
+			if (!prospect || prospect.flagged || prospect.demoLink) continue;
+			const scraped = scrapedMap[prospectId];
+			const hasGbp =
+				scraped &&
+				typeof scraped === 'object' &&
+				scraped.gbpRaw != null &&
+				typeof scraped.gbpRaw === 'object';
+			if (!hasGbp) continue; // Skip prospects without GBP; do not enqueue
+			const result = await enqueueDemoJob(user.id, prospectId);
+			if (!result) {
+				demoErrors.push(`${prospect.companyName || prospectId}: Could not enqueue`);
+				continue;
+			}
+			if (result.created) demoQueued++;
+			await updateProspectStatus(prospectId, 'In queue');
+		}
+
+		// Restore (unflag)
+		let restored = 0;
+		for (const prospectId of flaggedIds) {
+			const result = await setProspectFlagged(user.id, prospectId, false);
+			if (result.ok) restored++;
+		}
+
+		return {
+			success: true,
+			gbp: { queued: pullDataQueued, total: pullDataIds.length, enqueueFailed: pullDataEnqueueFailed },
+			demos: { queued: demoQueued, total: demoIds.length, errors: demoErrors.slice(0, 5) },
+			restored: { count: restored, total: flaggedIds.length }
+		};
+	},
+	/**
+	 * Clear "In queue" status for prospects that have no active job (demo, pull-data/insights, or legacy GBP).
 	 * Use when prospects appear stuck in queue (e.g. cron not running or jobs already finished).
 	 */
 	clearStuckQueueStatus: async ({ cookies }) => {

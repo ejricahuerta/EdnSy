@@ -18,7 +18,7 @@
 			Back to integrations
 		</Button>
 	</div>
-	<Card.Root class="border-0 bg-[var(--surface)]">
+	<Card.Root>
 		<Card.Header>
 			<Card.Title>{data.title}</Card.Title>
 			<Card.Description>Step-by-step setup guide</Card.Description>

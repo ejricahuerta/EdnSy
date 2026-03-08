@@ -3,6 +3,7 @@ import { getProspectByIdForUser } from '$lib/server/prospects';
 import {
 	getDemoTrackingForProspect,
 	getScrapedDataForProspect,
+	getScrapedDataForProspectForUser,
 	updateDemoTrackingStatus,
 	enqueueDemoJob,
 	getDemoJobsForUser,
@@ -10,7 +11,9 @@ import {
 	upsertDemoTrackingForProspect,
 	getSupabaseAdmin,
 	enqueueInsightsJob,
-	getInsightsJobForProspect
+	enqueueGbpJob,
+	getInsightsJobForProspect,
+	getGbpJobForProspect
 } from '$lib/server/supabase';
 import type { PageServerLoad, Actions } from './$types';
 import { getSessionFromCookie, getSessionCookieName } from '$lib/server/session';
@@ -50,12 +53,13 @@ export const load: PageServerLoad = async ({ params, cookies }) => {
 	const prospect = await getProspectByIdForUser(user.id, prospectId);
 	if (!prospect) throw redirect(303, '/dashboard/prospects');
 
-	const [demoTracking, scrapedData, demoJobMap, insightsJob, plan, demoCountThisMonth, sendConfigured] =
+	const [demoTracking, scrapedData, demoJobMap, insightsJob, gbpJob, plan, demoCountThisMonth, sendConfigured] =
 		await Promise.all([
 			getDemoTrackingForProspect(user.id, prospectId),
 			getScrapedDataForProspect(prospectId),
 			getDemoJobsForUser(user.id),
 			getInsightsJobForProspect(user.id, prospectId),
+			getGbpJobForProspect(user.id, prospectId),
 			getPlanForUser(user),
 			getDemoCountThisMonth(user.id),
 			getSendConfigured(user.id)
@@ -71,6 +75,7 @@ export const load: PageServerLoad = async ({ params, cookies }) => {
 		scrapedData,
 		demoJob,
 		insightsJob: insightsJob?.status === 'pending' || insightsJob?.status === 'running' ? insightsJob : null,
+		gbpJob: gbpJob?.status === 'pending' || gbpJob?.status === 'running' ? gbpJob : null,
 		plan,
 		demoLimit,
 		demoCountThisMonth: demoCountThisMonth ?? 0,
@@ -102,6 +107,26 @@ export const actions: Actions = {
 		return { queued: true, prospectId, companyName: prospect.companyName ?? undefined };
 	},
 
+	/** Regenerate GBP and insights: enqueue a GBP job to re-fetch listing data and re-run AI grading + insight. */
+	regenerateGbpAndInsights: async ({ request, cookies }) => {
+		const cookie = cookies.get(getSessionCookieName());
+		const user = await getSessionFromCookie(cookie);
+		if (!user) return fail(401, { message: 'Sign in required' });
+		const formData = await request.formData();
+		const prospectId = formData.get('prospectId');
+		if (!prospectId || typeof prospectId !== 'string') {
+			return fail(400, { message: 'Missing prospect ID' });
+		}
+		const prospect = await getProspectByIdForUser(user.id, prospectId);
+		if (!prospect) return fail(404, { message: 'Prospect not found' });
+		if (prospect.flagged && prospect.flaggedReason !== NO_FIT_GBP_REASON) {
+			return fail(400, { message: 'This prospect is out of scope. Regeneration is not available.' });
+		}
+		const result = await enqueueGbpJob(user.id, prospectId);
+		if (!result) return fail(502, { message: 'Failed to queue GBP job. Try again.' });
+		return { queued: true, prospectId, companyName: prospect.companyName ?? undefined, alreadyQueued: !result.created };
+	},
+
 	enqueueDemo: async ({ request, cookies }) => {
 		const cookie = cookies.get(getSessionCookieName());
 		const user = await getSessionFromCookie(cookie);
@@ -127,6 +152,18 @@ export const actions: Actions = {
 			return fail(400, { message: 'This prospect is out of scope. Demos and GBP are not available.' });
 		}
 		if (prospect.demoLink) return fail(400, { message: 'Demo already created' });
+		const scraped = await getScrapedDataForProspectForUser(user.id, prospectId);
+		const hasGbp =
+			scraped &&
+			typeof scraped === 'object' &&
+			scraped.gbpRaw != null &&
+			typeof scraped.gbpRaw === 'object';
+		if (!hasGbp) {
+			return fail(400, {
+				message: 'GBP data is required. Run "Pull insights" for this prospect first, then create a demo.'
+			});
+		}
+		// Endpoint (dental vs generic) is determined by prospect.industry when the job runs in processDemoJob
 		const result = await enqueueDemoJob(user.id, prospectId);
 		if (!result) return fail(503, { message: 'Could not enqueue job. Is Supabase configured?' });
 		return {
@@ -174,6 +211,7 @@ export const actions: Actions = {
 		if (!prospect.demoLink) {
 			return fail(400, { message: 'No demo to regenerate. Create a demo first.' });
 		}
+		// Endpoint (dental vs generic) is determined by prospect.industry when the job runs in processDemoJob
 		const result = await enqueueDemoJob(user.id, prospectId);
 		if (!result) {
 			return fail(503, { message: 'Could not queue regeneration. Try again.' });

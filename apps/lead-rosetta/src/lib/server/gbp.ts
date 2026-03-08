@@ -121,7 +121,7 @@ export type ScrapedDataOptions = GbpOptions;
 export function buildStubGbpFromProspect(prospect: Prospect): GbpData {
 	return {
 		name: (prospect.companyName ?? '').trim() || 'Business',
-		industry: (prospect.industry ?? '').trim() || 'General',
+		industry: (prospect.industry ?? '').trim() || 'Professional',
 		address: (prospect.address ?? '').trim(),
 		phone: (prospect.phone ?? '').trim(),
 		website: '',

@@ -84,7 +84,7 @@ export async function generateAuditForProspect(prospect: Prospect): Promise<Gene
 
 	const context = [
 		`Business name: ${prospect.companyName ?? 'Unknown'}`,
-		`Industry: ${prospect.industry ?? 'General'}`,
+		`Industry: ${prospect.industry ?? 'Professional'}`,
 		prospect.city ? `City/area: ${prospect.city}` : null,
 		prospect.website ? `Website URL: ${prospect.website}` : null,
 		websiteSnippet
@@ -239,7 +239,7 @@ export async function generateInsightForProspect(
 	}
 
 	const context = [
-		`Business: ${prospect.companyName ?? 'Unknown'}, industry: ${prospect.industry ?? 'General'}`,
+		`Business: ${prospect.companyName ?? 'Unknown'}, industry: ${prospect.industry ?? 'Professional'}`,
 		prospect.city ? `Area: ${prospect.city}` : null,
 		prospect.website ? `Website URL: ${prospect.website}` : null,
 		websiteSnippet
@@ -510,7 +510,7 @@ const ALLOWED_INDUSTRY_LABELS = new Set(Object.values(INDUSTRY_LABELS));
  * Infer industry from business name, website, and optional GBP category using Gemini.
  * Maps the business to one of our industry demos so we can show the correct demo page.
  * Returns one of our INDUSTRY_LABELS (e.g. "Healthcare", "Construction") or null if Gemini is not configured or fails.
- * Used when GBP category is missing or "General" so demo routing and content use a sensible industry.
+ * Used when GBP category is missing or uncategorized so demo routing and content use a sensible industry.
  */
 export async function inferIndustryWithGemini(
 	prospect: Prospect,
@@ -521,7 +521,10 @@ export async function inferIndustryWithGemini(
 	const context = [
 		`Business name: ${(prospect.companyName ?? '').trim() || 'Unknown'}`,
 		prospect.website ? `Website: ${prospect.website}` : null,
-		gbpCategory && gbpCategory !== 'General' ? `Google Business category: ${gbpCategory}` : null
+		gbpCategory && gbpCategory !== 'General' ? `Google Business category: ${gbpCategory}` : null,
+		gbpCategory === 'General' || !gbpCategory
+			? 'Note: GBP category is missing or uncategorized; infer the real industry from the business name and the nature of the business.'
+			: null
 	]
 		.filter(Boolean)
 		.join('\n');
@@ -530,7 +533,7 @@ export async function inferIndustryWithGemini(
 	const labelsList = INDUSTRY_SLUGS.map((slug) => INDUSTRY_LABELS[slug]).join(', ');
 	const prompt = `We have demo pages for these industries only: ${labelsList}.
 
-Your task: classify this local business into exactly one of the above industries so we can show them the right demo page. Reply with exactly one label from the list, exactly as written (e.g. "Construction" or "Salons & beauty"). No other text.
+Your task: classify this local business into exactly one of the above industries so we can show them the right demo page. Use the business name and the nature of the business (e.g. a dental practice, orthodontist, or "Smile Dental" should be "Dental"; a plumbing company should be "Construction"). Do not rely only on the GBP category—it may be missing or uncategorized. Reply with exactly one label from the list, exactly as written (e.g. "Dental" or "Construction" or "Salons & beauty"). No other text.
 
 ${context}
 

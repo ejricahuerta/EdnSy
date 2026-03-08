@@ -2,6 +2,7 @@
 	import '../app.css';
 	import { onMount } from 'svelte';
 	import { page, navigating } from '$app/stores';
+	import { afterNavigate } from '$app/navigation';
 	import { injectAnalytics } from '@vercel/analytics/sveltekit';
 	import { ModeWatcher } from 'mode-watcher';
 	import { toggleMode } from 'mode-watcher';
@@ -10,7 +11,7 @@
 	import { PLAN_LABELS } from '$lib/plans';
 	import { Toaster } from '$lib/components/ui/sonner';
 	import { Button } from '$lib/components/ui/button';
-	import { LayoutGrid, User, Users, Plug, CreditCard, Settings, PanelLeftClose, ChevronRight, Sun, Moon, Presentation, Bot } from 'lucide-svelte';
+	import { LayoutGrid, User, Users, Plug, CreditCard, Settings, PanelLeftClose, ChevronRight, Sun, Moon, Presentation, Bot, Menu, X } from 'lucide-svelte';
 import { isEdnsyUser } from '$lib/plans';
 
 	let { data, children } = $props();
@@ -38,17 +39,47 @@ import { isEdnsyUser } from '$lib/plans';
 	);
 
 	let sidebarCollapsed = $state(false);
+	/** On mobile: sidebar is a drawer; when true the drawer is open. */
+	let mobileSidebarOpen = $state(false);
+	/** True when viewport is ≤767px (used for aria-label and title). */
+	let isMobile = $state(false);
+
 	function toggleSidebar() {
-		sidebarCollapsed = !sidebarCollapsed;
-		try {
-			localStorage.setItem('lr-sidebar-collapsed', String(sidebarCollapsed));
-		} catch (_) {}
+		if (isMobile) {
+			mobileSidebarOpen = !mobileSidebarOpen;
+		} else {
+			sidebarCollapsed = !sidebarCollapsed;
+			try {
+				localStorage.setItem('lr-sidebar-collapsed', String(sidebarCollapsed));
+			} catch (_) {}
+		}
 	}
+
+	const menuButtonLabel = $derived(
+		isMobile
+			? (mobileSidebarOpen ? 'Close menu' : 'Open menu')
+			: (sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar')
+	);
+	const menuButtonTitle = $derived(
+		isMobile ? (mobileSidebarOpen ? 'Close menu' : 'Open menu') : 'Toggle sidebar (Ctrl+B)'
+	);
+
+	function closeMobileSidebar() {
+		mobileSidebarOpen = false;
+	}
+
 	onMount(() => {
 		try {
 			const stored = localStorage.getItem('lr-sidebar-collapsed');
 			if (stored === 'true') sidebarCollapsed = true;
 		} catch (_) {}
+
+		const mq = window.matchMedia('(max-width: 767px)');
+		isMobile = mq.matches;
+		const onResize = () => {
+			isMobile = mq.matches;
+		};
+		mq.addEventListener('change', onResize);
 
 		const onKey = (e: KeyboardEvent) => {
 			if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
@@ -57,11 +88,17 @@ import { isEdnsyUser } from '$lib/plans';
 					toggleSidebar();
 				}
 			}
+			if (e.key === 'Escape') closeMobileSidebar();
 		};
 		window.addEventListener('keydown', onKey);
 		return () => {
+			mq.removeEventListener('change', onResize);
 			window.removeEventListener('keydown', onKey);
 		};
+	});
+
+	afterNavigate(() => {
+		mobileSidebarOpen = false;
 	});
 </script>
 
@@ -107,8 +144,18 @@ import { isEdnsyUser } from '$lib/plans';
 	<div
 		class="leadrosetta-app-dashboard"
 		data-sidebar-collapsed={sidebarCollapsed}
+		data-sidebar-open={mobileSidebarOpen}
 		style="--sidebar-width: {sidebarCollapsed ? '3.5rem' : '16rem'};"
 	>
+		<!-- Mobile overlay: close sidebar when tapping outside -->
+		<button
+			type="button"
+			class="lr-dashboard-sidebar-overlay"
+			aria-label="Close menu"
+			aria-hidden={!mobileSidebarOpen}
+			tabindex={mobileSidebarOpen ? 0 : -1}
+			onclick={closeMobileSidebar}
+		></button>
 		<aside class="lr-dashboard-sidebar" aria-label="Dashboard navigation">
 			<div class="lr-dashboard-sidebar-header">
 				<a href="/dashboard" class="lr-dashboard-sidebar-logo" title="Lead Rosetta">
@@ -217,16 +264,27 @@ import { isEdnsyUser } from '$lib/plans';
 				<div class="lr-dashboard-topnav-left">
 					<button
 						type="button"
-						class="lr-dashboard-sidebar-trigger"
+						class="lr-dashboard-sidebar-trigger lr-dashboard-menu-btn"
 						onclick={toggleSidebar}
-						aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-						title="Toggle sidebar (Ctrl+B)"
+						aria-label={menuButtonLabel}
+						title={menuButtonTitle}
 					>
-						{#if sidebarCollapsed}
-							<ChevronRight size={18} strokeWidth={1.5} aria-hidden="true" />
-						{:else}
-							<PanelLeftClose size={18} strokeWidth={1.5} aria-hidden="true" />
-						{/if}
+						<!-- Mobile: hamburger when closed, X when open -->
+						<span class="lr-dashboard-menu-btn-mobile" aria-hidden="true">
+							{#if mobileSidebarOpen}
+								<X size={20} strokeWidth={1.5} />
+							{:else}
+								<Menu size={20} strokeWidth={1.5} />
+							{/if}
+						</span>
+						<!-- Desktop: collapse/expand icons -->
+						<span class="lr-dashboard-menu-btn-desktop" aria-hidden="true">
+							{#if sidebarCollapsed}
+								<ChevronRight size={18} strokeWidth={1.5} />
+							{:else}
+								<PanelLeftClose size={18} strokeWidth={1.5} />
+							{/if}
+						</span>
 					</button>
 					<nav class="lr-dashboard-breadcrumb" aria-label="Breadcrumb">
 						<a href="/dashboard">Dashboard</a>

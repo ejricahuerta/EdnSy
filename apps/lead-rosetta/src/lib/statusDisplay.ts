@@ -17,7 +17,7 @@ export interface StatusDisplay {
 const APP_STATUS_TO_DISPLAY: Record<string, StatusDisplay> = {
 	Prospect: { label: 'Not contacted', variant: 'default' },
 	New: { label: 'New', variant: 'default' },
-	'In queue': { label: 'In queue', variant: 'warning' },
+	'In queue': { label: 'Processing…', variant: 'warning' },
 	'Generate Demo': { label: 'Needs demo', variant: 'warning' },
 	'Demo Created': { label: 'Ready to send', variant: 'success' },
 	'Demo Sent': { label: 'Demo sent', variant: 'muted' },

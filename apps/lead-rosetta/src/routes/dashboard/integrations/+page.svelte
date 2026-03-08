@@ -8,10 +8,12 @@
 	import { Label } from '$lib/components/ui/label';
 	import { Badge } from '$lib/components/ui/badge';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
+	import * as Dialog from '$lib/components/ui/dialog';
 	import { toastSuccess, toastError, toastFromActionResult } from '$lib/toast';
-	import { LoaderCircle, CheckCircle2, Link2, Lock, Plus, Eye, EyeOff, Pencil } from 'lucide-svelte';
+	import { LoaderCircle, CheckCircle2, Link2, Lock, Plus, Eye, EyeOff, Pencil, Database } from 'lucide-svelte';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
+	import * as Select from '$lib/components/ui/select';
 
 	type IntegrationId = 'notion' | 'hubspot' | 'gohighlevel' | 'pipedrive';
 
@@ -46,6 +48,39 @@
 	/** Loaded credential values for the selected integration (only set when editing) */
 	let editValues = $state<{ apiKey?: string; databaseId?: string; domain?: string }>({});
 	let loadingCredentials = $state(false);
+	/** Notion: API key for connect form (shared with Load databases form) */
+	let notionApiKey = $state('');
+	/** Notion: databases returned from getNotionDatabases */
+	let notionDatabases = $state<{ id: string; title: string }[]>([]);
+	let notionDatabasesLoading = $state(false);
+	/** Notion: selected database id from dropdown */
+	let selectedNotionDatabaseId = $state('');
+	/** Notion: manual database ID paste (overrides select when non-empty) */
+	let notionManualDatabaseId = $state('');
+	/** Notion: effective database ID for submit (manual paste overrides select when non-empty) */
+	let notionDatabaseIdForSubmit = $derived(notionManualDatabaseId.trim() || selectedNotionDatabaseId);
+	/** Notion (edit mode): databases list when editing credentials */
+	let notionEditDatabases = $state<{ id: string; title: string }[]>([]);
+	let notionEditDatabasesLoading = $state(false);
+	/** Map headers dialog (Notion): open state */
+	let mapHeadersOpen = $state(false);
+	/** Notion schema (property names) for mapping dropdowns */
+	let notionSchemaProperties = $state<{ name: string; type: string }[]>([]);
+	let notionSchemaLoading = $state(false);
+	let notionSchemaError = $state<string | null>(null);
+	/** Current field mapping: our field id -> Notion property name (for form initial value) */
+	let notionFieldMapping = $state<Record<string, string>>({});
+	let getNotionSchemaForm: HTMLFormElement | null = $state(null);
+	$effect(() => {
+		if (!mapHeadersOpen) {
+			notionSchemaProperties = [];
+			notionSchemaError = null;
+		} else if (notionConnected && getNotionSchemaForm && notionSchemaProperties.length === 0 && !notionSchemaLoading && !notionSchemaError) {
+			notionSchemaLoading = true;
+			notionSchemaError = null;
+			getNotionSchemaForm.requestSubmit();
+		}
+	});
 
 	$effect(() => {
 		const gmail = $page.url.searchParams.get('gmail');
@@ -142,6 +177,11 @@
 
 	const selected = $derived(selectedId ? integrations.find((i) => i.id === selectedId) : null);
 	const helpContent = $derived((selected && data.helpDocs?.[selected.id]) ?? '');
+	const notionFieldKeys = $derived(data.notionFieldKeys ?? []);
+
+	function openMapHeadersDialog() {
+		mapHeadersOpen = true;
+	}
 
 	$effect(() => {
 		if (form?.success) invalidateAll();
@@ -158,6 +198,28 @@
 	<title>Integrations · Dashboard</title>
 </svelte:head>
 
+<!-- Hidden form to fetch Notion schema when Map headers dialog opens -->
+<form
+	bind:this={getNotionSchemaForm}
+	method="POST"
+	action="?/getNotionSchema"
+	use:enhance={() => {
+		return async ({ result }) => {
+			notionSchemaLoading = false;
+			if (result.type === 'success' && result.data) {
+				const d = result.data as { schema?: { name: string; type: string }[]; fieldMapping?: Record<string, string> };
+				notionSchemaProperties = d.schema ?? [];
+				notionFieldMapping = d.fieldMapping ?? {};
+				notionSchemaError = null;
+			} else if (result.type === 'failure' && result.data) {
+				notionSchemaError = (result.data as { message?: string }).message ?? 'Failed to load schema';
+			}
+		};
+	}}
+	class="hidden"
+	aria-hidden="true"
+></form>
+
 <div class="space-y-8">
 	<div>
 		<h1 class="text-2xl font-semibold tracking-tight">Integrations</h1>
@@ -170,7 +232,7 @@
 	<section class="space-y-3" aria-labelledby="oauth-section-heading">
 		<h2 id="oauth-section-heading" class="text-lg font-medium tracking-tight text-foreground">Connected accounts</h2>
 		<p class="text-sm text-muted-foreground">Sign in with your account; no API keys required.</p>
-		<Card.Root class="flex flex-col border rounded-[16px] {gmailConnected ? 'ring-2 ring-ring ring-inset' : ''}">
+		<Card.Root class="flex flex-col {gmailConnected ? 'ring-2 ring-ring ring-inset' : ''}">
 			<Card.Header class="flex flex-row items-start justify-between gap-4">
 				<div class="flex min-w-0 items-center gap-3">
 					<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-white p-1 overflow-hidden" aria-hidden="true">
@@ -258,7 +320,7 @@
 		<!-- Form / detail panel (right), height aligned to left column -->
 		<div class="flex min-w-0 flex-1 flex-col">
 	{#if selected}
-		<Card.Root class="integration-detail-card flex min-h-[420px] flex-col border rounded-[16px] {selected.connected ? 'ring-2 ring-ring ring-inset' : ''}">
+		<Card.Root class="integration-detail-card flex min-h-[420px] flex-col {selected.connected ? 'ring-2 ring-ring ring-inset' : ''}">
 			<Card.Header class="flex flex-row items-start justify-between gap-4">
 				<div class="min-w-0 space-y-1">
 					<Card.Title class="mb-0">{selected.name}</Card.Title>
@@ -287,6 +349,33 @@
 					{#if selected.connected}
 						<div class="flex flex-col gap-4">
 							{#if editingCredentials}
+								<form
+									method="POST"
+									action="?/getNotionDatabases"
+									use:enhance={() => {
+										notionEditDatabasesLoading = true;
+										return async ({ result }) => {
+											notionEditDatabasesLoading = false;
+											if (result.type === 'success' && (result.data as { databases?: { id: string; title: string }[] })?.databases) {
+												notionEditDatabases = (result.data as { databases: { id: string; title: string }[] }).databases;
+												toastSuccess('Databases loaded', 'Select a database or paste an ID.');
+											} else if (result.type === 'failure' && (result.data as { message?: string })?.message) {
+												toastError('Load databases', (result.data as { message: string }).message);
+											}
+										};
+									}}
+									class="contents"
+								>
+									<input type="hidden" name="apiKey" value={editValues.apiKey ?? ''} />
+									<Button type="submit" variant="outline" size="sm" class="w-fit" disabled={!editValues.apiKey?.trim() || notionEditDatabasesLoading}>
+										{#if notionEditDatabasesLoading}
+											<LoaderCircle class="mr-2 h-4 w-4 animate-spin" />
+										{:else}
+											<Database class="mr-2 h-4 w-4" />
+										{/if}
+										Load databases
+									</Button>
+								</form>
 								<form method="POST" action="?/connectNotion" use:enhance={() => async ({ result }) => {
 									toastFromActionResult('Connect Notion', result, 'Notion connected.');
 								}} class="flex flex-col gap-4">
@@ -316,7 +405,20 @@
 											</div>
 										</div>
 										<div class="space-y-2">
-											<Label for="notion-databaseId-edit">Database ID</Label>
+											<Label for="notion-database-edit">Database</Label>
+											{#if notionEditDatabases.length > 0}
+												<Select.Root type="single" bind:value={editValues.databaseId}>
+													<Select.Trigger id="notion-database-edit" class="w-full font-mono text-sm">
+														<Select.Value placeholder="Select a database" />
+													</Select.Trigger>
+													<Select.Content>
+														{#each notionEditDatabases as db (db.id)}
+															<Select.Item value={db.id}>{db.title}</Select.Item>
+														{/each}
+													</Select.Content>
+												</Select.Root>
+												<p class="text-xs text-muted-foreground">Or paste a database ID below.</p>
+											{/if}
 											<div class="flex gap-1">
 												<input
 													id="notion-databaseId-edit"
@@ -324,6 +426,7 @@
 													type={showConnectedKeys ? 'text' : 'password'}
 													bind:value={editValues.databaseId}
 													class="border-input bg-background flex h-9 min-w-0 flex-1 rounded-md border px-3 py-1 font-mono text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+													placeholder={notionEditDatabases.length ? 'Or paste database ID' : 'Paste database ID or load databases above'}
 												/>
 												<button
 													type="button"
@@ -415,27 +518,19 @@
 										{/if}
 										Edit key
 									</Button>
-									<form
-										method="POST"
-										action="?/syncNotion"
-										use:enhance={() => {
-											syncing = 'notion';
-											return async ({ result }) => {
-												syncing = null;
-												toastFromActionResult('Sync Notion', result, 'Contacts synced to dashboard.');
-											};
-										}}
-										class="inline"
+									<Button
+										type="button"
+										size="sm"
+										onclick={openMapHeadersDialog}
+										class="inline-flex"
 									>
-										<Button type="submit" size="sm" disabled={syncing !== null}>
-											{#if syncing === 'notion'}
-												<LoaderCircle class="mr-2 h-4 w-4 animate-spin" />
-											{:else}
-												<Link2 class="mr-2 h-4 w-4" />
-											{/if}
-											Sync to dashboard
-										</Button>
-									</form>
+										{#if syncing === 'notion'}
+											<LoaderCircle class="mr-2 h-4 w-4 animate-spin" />
+										{:else}
+											<Link2 class="mr-2 h-4 w-4" />
+										{/if}
+										Sync to dashboard
+									</Button>
 									<form bind:this={notionDisconnectForm} method="POST" action="?/disconnectNotion" use:enhance={() => async ({ result }) => {
 										if (result.type === 'success' && (result.data as { success?: boolean })?.success) {
 											await invalidateAll();
@@ -464,9 +559,113 @@
 										</AlertDialog.Content>
 									</AlertDialog.Root>
 								</form>
+
+								<!-- Map headers dialog -->
+								<Dialog.Root bind:open={mapHeadersOpen}>
+									<Dialog.Content class="max-h-[90vh] overflow-y-auto">
+										<Dialog.Header>
+											<Dialog.Title>Map headers</Dialog.Title>
+											<Dialog.Description>
+												Map your Notion database columns to dashboard fields. Unmapped fields use default column names when syncing.
+											</Dialog.Description>
+										</Dialog.Header>
+										{#if notionSchemaLoading}
+											<div class="flex items-center justify-center py-8">
+												<LoaderCircle class="h-8 w-8 animate-spin text-muted-foreground" />
+											</div>
+										{:else if notionSchemaError}
+											<p class="text-sm text-destructive py-4">{notionSchemaError}</p>
+											<Dialog.Footer>
+												<Button type="button" variant="outline" onclick={() => (mapHeadersOpen = false)}>Close</Button>
+											</Dialog.Footer>
+										{:else}
+											<div class="space-y-4 py-2">
+												<div class="grid gap-3">
+													{#each notionFieldKeys as field (field.id)}
+														<div class="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:items-center">
+															<Label for="map-{field.id}" class="sm:truncate">{field.label}</Label>
+															<select
+																id="map-{field.id}"
+																class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+																value={notionFieldMapping[field.id] ?? ''}
+																onchange={(e) => {
+																	notionFieldMapping = { ...notionFieldMapping, [field.id]: (e.target as HTMLSelectElement).value };
+																}}
+															>
+																<option value="">— Don't map —</option>
+																{#each notionSchemaProperties as prop (prop.name)}
+																	<option value={prop.name}>{prop.name}</option>
+																{/each}
+															</select>
+														</div>
+													{/each}
+												</div>
+											</div>
+											<Dialog.Footer class="flex flex-wrap gap-2">
+												<Button type="button" variant="outline" onclick={() => (mapHeadersOpen = false)}>Cancel</Button>
+												<form
+													method="POST"
+													action="?/syncNotionWithMapping"
+													use:enhance={() => {
+														syncing = 'notion';
+														return async ({ result }) => {
+															syncing = null;
+															toastFromActionResult('Sync Notion', result, 'Contacts synced to dashboard.');
+															if (result.type === 'success' && (result.data as { success?: boolean })?.success) {
+																mapHeadersOpen = false;
+																invalidateAll();
+															}
+														};
+													}}
+													class="inline"
+												>
+													{#each notionFieldKeys as field (field.id)}
+														<input type="hidden" name={field.id} value={notionFieldMapping[field.id] ?? ''} />
+													{/each}
+													<Button type="submit" disabled={syncing === 'notion'}>
+														{#if syncing === 'notion'}
+															<LoaderCircle class="mr-2 h-4 w-4 animate-spin" />
+														{:else}
+															<Link2 class="mr-2 h-4 w-4" />
+														{/if}
+														Sync to dashboard
+													</Button>
+												</form>
+											</Dialog.Footer>
+										{/if}
+									</Dialog.Content>
+								</Dialog.Root>
 					{/if}
 						</div>
 					{:else}
+						<!-- Load databases: separate form so apiKey is sent via hidden field (value from connect form) -->
+						<form
+							method="POST"
+							action="?/getNotionDatabases"
+							use:enhance={() => {
+								notionDatabasesLoading = true;
+								return async ({ result }) => {
+									notionDatabasesLoading = false;
+									if (result.type === 'success' && (result.data as { databases?: { id: string; title: string }[] })?.databases) {
+										notionDatabases = (result.data as { databases: { id: string; title: string }[] }).databases;
+										toastSuccess('Databases loaded', 'Select a database below or paste an ID.');
+									} else if (result.type === 'failure' && (result.data as { message?: string })?.message) {
+										toastError('Load databases', (result.data as { message: string }).message);
+									}
+								};
+							}}
+							class="contents"
+						>
+							<input type="hidden" name="apiKey" value={notionApiKey} />
+							<Button type="submit" variant="outline" size="sm" class="w-fit" disabled={!notionApiKey.trim() || notionDatabasesLoading}>
+								{#if notionDatabasesLoading}
+									<LoaderCircle class="mr-2 h-4 w-4 animate-spin" />
+								{:else}
+									<Database class="mr-2 h-4 w-4" />
+								{/if}
+								Load databases
+							</Button>
+						</form>
 						<form method="POST" action="?/connectNotion" use:enhance={() => async ({ result }) => {
 							toastFromActionResult('Connect Notion', result, 'Notion connected. Sync contacts to see them on the dashboard.');
 						}} class="flex flex-col gap-4">
@@ -480,22 +679,37 @@
 										placeholder="secret_..."
 										autocomplete="off"
 										class="font-mono text-sm"
+										bind:value={notionApiKey}
 									/>
 								</div>
 								<div class="space-y-2">
-									<Label for="notion-databaseId">Database ID</Label>
+									<Label for="notion-database-select">Database</Label>
+									{#if notionDatabases.length > 0}
+										<Select.Root type="single" bind:value={selectedNotionDatabaseId}>
+											<Select.Trigger id="notion-database-select" class="w-full font-mono text-sm">
+												<Select.Value placeholder="Select a database" />
+											</Select.Trigger>
+											<Select.Content>
+												{#each notionDatabases as db (db.id)}
+													<Select.Item value={db.id}>{db.title}</Select.Item>
+												{/each}
+											</Select.Content>
+										</Select.Root>
+										<p class="text-xs text-muted-foreground">Or paste a database ID below if it’s not in the list.</p>
+									{/if}
 									<Input
 										id="notion-databaseId"
-										name="databaseId"
 										type="text"
-										placeholder="Paste your database ID"
+										placeholder={notionDatabases.length ? 'Or paste database ID' : 'Paste database ID or load databases above'}
 										autocomplete="off"
 										class="font-mono text-sm"
+										bind:value={notionManualDatabaseId}
 									/>
+									<input type="hidden" name="databaseId" value={notionDatabaseIdForSubmit} />
 								</div>
 							</div>
-							<div class="mt-auto pt-2">
-								<Button type="submit">Connect Notion</Button>
+							<div class="mt-auto flex flex-wrap gap-2 pt-2">
+								<Button type="submit" disabled={!notionDatabaseIdForSubmit.trim()}>Connect Notion</Button>
 							</div>
 						</form>
 					{/if}

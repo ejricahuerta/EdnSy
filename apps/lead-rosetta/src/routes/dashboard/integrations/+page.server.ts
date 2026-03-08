@@ -15,7 +15,12 @@ import {
 	listPipedriveContacts
 } from '$lib/server/crm';
 import { getGmailTokens, deleteGmailTokens } from '$lib/server/gmail';
-import { listProspects as listNotionProspects } from '$lib/server/notion';
+import {
+	listProspects as listNotionProspects,
+	listNotionDatabases,
+	getNotionDatabaseSchema,
+	NOTION_FIELD_KEYS
+} from '$lib/server/notion';
 import { upsertProspect } from '$lib/server/prospects';
 
 function loadHelpDocs(): Record<string, string> {
@@ -37,7 +42,8 @@ export const load: PageServerLoad = async ({ cookies }) => {
 	const gmailTokens = await getGmailTokens(user.id);
 	const gmailConnected = !!(gmailTokens?.refresh_token);
 	const gmailEmail = gmailTokens?.email ?? null;
-	return { plan, connections, canConnect: canConnectCrm(plan), helpDocs, gmailConnected, gmailEmail };
+	const notionFieldKeys = NOTION_FIELD_KEYS;
+	return { plan, connections, canConnect: canConnectCrm(plan), helpDocs, gmailConnected, gmailEmail, notionFieldKeys };
 };
 
 export const actions: Actions = {
@@ -129,6 +135,17 @@ export const actions: Actions = {
 		}
 		return { success: true, message: `Synced ${synced} of ${contacts.length} contacts to your dashboard.` };
 	},
+	getNotionDatabases: async ({ request, cookies }) => {
+		const cookie = cookies.get(getSessionCookieName());
+		const user = await getSessionFromCookie(cookie);
+		if (!user) return fail(401, { message: 'Sign in required' });
+		const formData = await request.formData();
+		const apiKey = (formData.get('apiKey') as string)?.trim();
+		if (!apiKey) return fail(400, { message: 'API key required to load databases' });
+		const result = await listNotionDatabases(apiKey);
+		if ('error' in result) return fail(400, { message: result.error, databases: [] });
+		return { success: true, databases: result.databases };
+	},
 	connectNotion: async ({ request, cookies }) => {
 		const cookie = cookies.get(getSessionCookieName());
 		const user = await getSessionFromCookie(cookie);
@@ -148,6 +165,40 @@ export const actions: Actions = {
 		const result = await deleteCrmConnection(user.id, 'notion');
 		if (!result.ok) return fail(502, { message: result.error ?? 'Failed to disconnect' });
 		return { success: true, message: 'Notion disconnected.' };
+	},
+	getNotionSchema: async ({ cookies }) => {
+		const cookie = cookies.get(getSessionCookieName());
+		const user = await getSessionFromCookie(cookie);
+		if (!user) return fail(401, { message: 'Sign in required' });
+		const schemaResult = await getNotionDatabaseSchema(user.id);
+		if ('error' in schemaResult) return fail(502, { message: schemaResult.error, schema: null, fieldMapping: null });
+		const conn = await getCrmConnection(user.id, 'notion');
+		const fieldMapping = conn?.fieldMapping ?? undefined;
+		return {
+			success: true,
+			schema: schemaResult.properties,
+			fieldMapping: fieldMapping ?? {}
+		};
+	},
+	saveNotionFieldMapping: async ({ request, cookies }) => {
+		const cookie = cookies.get(getSessionCookieName());
+		const user = await getSessionFromCookie(cookie);
+		if (!user) return fail(401, { message: 'Sign in required' });
+		const conn = await getCrmConnection(user.id, 'notion');
+		if (!conn?.access_token || !conn.databaseId) return fail(400, { message: 'Notion not connected' });
+		const formData = await request.formData();
+		const allowedIds = new Set(NOTION_FIELD_KEYS.map((f) => f.id));
+		const fieldMapping: Record<string, string> = {};
+		for (const { id } of NOTION_FIELD_KEYS) {
+			const value = (formData.get(id) as string)?.trim();
+			if (value && allowedIds.has(id)) fieldMapping[id] = value;
+		}
+		const result = await saveCrmConnection(user.id, 'notion', conn.access_token, {
+			databaseId: conn.databaseId,
+			fieldMapping
+		});
+		if (!result.ok) return fail(502, { message: result.error ?? 'Failed to save mapping' });
+		return { success: true, message: 'Field mapping saved.' };
 	},
 	connectPipedrive: async ({ request, cookies }) => {
 		const cookie = cookies.get(getSessionCookieName());
@@ -201,6 +252,40 @@ export const actions: Actions = {
 		if (!user) return fail(401, { message: 'Sign in required' });
 		const conn = await getCrmConnection(user.id, 'notion');
 		if (!conn?.databaseId) return fail(400, { message: 'Notion not connected' });
+		const result = await listNotionProspects(user.id);
+		if (result.error) return fail(502, { message: result.message ?? 'Failed to load from Notion' });
+		let synced = 0;
+		for (const p of result.prospects) {
+			const { id, error: err } = await upsertProspect(user.id, 'notion', p.id, {
+				companyName: p.companyName,
+				email: p.email,
+				website: p.website || undefined,
+				phone: p.phone || undefined,
+				status: p.status || 'Prospect'
+			});
+			if (id && !err) synced++;
+		}
+		return { success: true, message: `Synced ${synced} of ${result.prospects.length} rows from Notion to your dashboard.` };
+	},
+	/** Save current mapping from form then run sync (single action for the Map headers popup). */
+	syncNotionWithMapping: async ({ request, cookies }) => {
+		const cookie = cookies.get(getSessionCookieName());
+		const user = await getSessionFromCookie(cookie);
+		if (!user) return fail(401, { message: 'Sign in required' });
+		const conn = await getCrmConnection(user.id, 'notion');
+		if (!conn?.access_token || !conn.databaseId) return fail(400, { message: 'Notion not connected' });
+		const formData = await request.formData();
+		const allowedIds = new Set(NOTION_FIELD_KEYS.map((f) => f.id));
+		const fieldMapping: Record<string, string> = {};
+		for (const { id } of NOTION_FIELD_KEYS) {
+			const value = (formData.get(id) as string)?.trim();
+			if (value && allowedIds.has(id)) fieldMapping[id] = value;
+		}
+		const saveResult = await saveCrmConnection(user.id, 'notion', conn.access_token, {
+			databaseId: conn.databaseId,
+			fieldMapping
+		});
+		if (!saveResult.ok) return fail(502, { message: saveResult.error ?? 'Failed to save mapping' });
 		const result = await listNotionProspects(user.id);
 		if (result.error) return fail(502, { message: result.message ?? 'Failed to load from Notion' });
 		let synced = 0;

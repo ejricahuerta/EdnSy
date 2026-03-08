@@ -44,7 +44,7 @@
 
 	<!-- KPIs: AI agent (GBP + Insights), Demos, Places API this month -->
 	<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-		<Card.Root class="border shadow-none">
+		<Card.Root>
 			<Card.Header class="pb-2">
 				<Card.Title class="text-base font-semibold">AI agent pulls</Card.Title>
 				<Card.Description class="text-sm">Qualify (GBP) + Insights, this month</Card.Description>
@@ -53,7 +53,7 @@
 				<p class="text-2xl font-semibold tabular-nums">{agentPullsLabel}</p>
 			</Card.Content>
 		</Card.Root>
-		<Card.Root class="border shadow-none">
+		<Card.Root>
 			<Card.Header class="pb-2">
 				<Card.Title class="text-base font-semibold">Demos</Card.Title>
 				<Card.Description class="text-sm">This month</Card.Description>
@@ -62,7 +62,7 @@
 				<p class="text-2xl font-semibold tabular-nums">{demoLabel}</p>
 			</Card.Content>
 		</Card.Root>
-		<Card.Root class="border shadow-none">
+		<Card.Root>
 			<Card.Header class="pb-2">
 				<Card.Title class="text-base font-semibold">Places API lookups</Card.Title>
 				<Card.Description class="text-sm">This month (app-wide)</Card.Description>
@@ -74,7 +74,7 @@
 	</div>
 
 	<!-- Usage this month: shadcn-svelte chart (LayerChart BarChart) -->
-	<Card.Root class="border shadow-none">
+	<Card.Root>
 		<Card.Header class="pb-2">
 			<Card.Title class="text-base font-semibold">Usage this month</Card.Title>
 			<Card.Description class="text-sm">AI agent pulls, demos, and Places API lookups</Card.Description>

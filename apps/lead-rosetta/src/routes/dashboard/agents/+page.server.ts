@@ -14,6 +14,8 @@ import {
 	DEFAULT_AUDIT_PROMPT_TEMPLATE,
 	DEFAULT_AUDIT_MODAL_COPY_PROMPT_TEMPLATE
 } from '$lib/server/generateAudit';
+import { DEFAULT_EMAIL_COPY_PROMPT } from '$lib/server/generateEmailCopy';
+import { DEFAULT_GBP_GRADE_PROMPT } from '$lib/ai-agents/gbp-agent/gradeGbp';
 
 const DEFAULTS: Record<AgentId, Record<string, Record<string, string>>> = {
 	design: {
@@ -22,7 +24,7 @@ const DEFAULTS: Record<AgentId, Record<string, Record<string, string>>> = {
 	},
 	'demo-chat': {
 		prompt: { system_instruction: DEFAULT_CHAT_SYSTEM_INSTRUCTION },
-		knowledge_base: { chat_kb: '' }
+		knowledge_base: {}
 	},
 	'demo-creation': {
 		prompt: {
@@ -30,6 +32,14 @@ const DEFAULTS: Record<AgentId, Record<string, Record<string, string>>> = {
 			audit_modal_copy: DEFAULT_AUDIT_MODAL_COPY_PROMPT_TEMPLATE
 		},
 		knowledge_base: { demo_kb: '' }
+	},
+	email: {
+		prompt: { email_copy_prompt: DEFAULT_EMAIL_COPY_PROMPT },
+		knowledge_base: {}
+	},
+	gbp: {
+		prompt: { grade_prompt: DEFAULT_GBP_GRADE_PROMPT },
+		knowledge_base: {}
 	}
 };
 
@@ -37,11 +47,15 @@ const KEY_LABELS: Record<string, string> = {
 	tone_selection: 'Tone selection',
 	tone_guidance: 'Tone guidance',
 	system_instruction: 'System instruction',
-	chat_kb: 'Chat knowledge base',
 	audit: 'Audit prompt',
 	audit_modal_copy: 'Audit modal copy',
-	demo_kb: 'Demo knowledge base'
+	demo_kb: 'Demo knowledge base',
+	email_copy_prompt: 'Email copy prompt',
+	grade_prompt: 'GBP grade prompt'
 };
+
+/** Agent IDs shown and editable on the dashboard. */
+const EDITABLE_AGENT_IDS: AgentId[] = ['email', 'gbp', 'demo-chat'];
 
 export type ContentSlot = {
 	agentId: AgentId;
@@ -55,8 +69,7 @@ export type ContentSlot = {
 
 async function loadSlots(): Promise<ContentSlot[]> {
 	const slots: ContentSlot[] = [];
-	const agents: AgentId[] = ['design', 'demo-chat', 'demo-creation'];
-	for (const agentId of agents) {
+	for (const agentId of EDITABLE_AGENT_IDS) {
 		const keys = AGENT_CONTENT_KEYS[agentId];
 		const defaults = DEFAULTS[agentId];
 		for (const contentType of ['prompt', 'knowledge_base'] as const) {
@@ -109,7 +122,7 @@ export const actions: Actions = {
 			!contentType ||
 			!key ||
 			body == null ||
-			!['design', 'demo-chat', 'demo-creation'].includes(agentId) ||
+			!EDITABLE_AGENT_IDS.includes(agentId as AgentId) ||
 			!['prompt', 'knowledge_base'].includes(contentType)
 		) {
 			return { success: false, error: 'Invalid request' };

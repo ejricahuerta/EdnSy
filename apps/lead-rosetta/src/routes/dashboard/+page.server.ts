@@ -3,7 +3,8 @@ import {
 	listProspects,
 	getProspectById,
 	updateProspectDemoLink,
-	updateProspectFromGbp
+	updateProspectFromGbp,
+	updateProspectStatus
 } from '$lib/server/prospects';
 import {
 	getSupabaseAdmin,
@@ -14,13 +15,14 @@ import {
 	getPlacesCountThisMonth,
 	getPlacesMonthlyLimit,
 	updateDemoTrackingStatus,
-	upsertDemoTrackingForProspect
+	upsertDemoTrackingForProspect,
+	enqueueDemoJob
 } from '$lib/server/supabase';
 import { getScrapedDataForDemo, formatScrapedDataErrorMessage } from '$lib/server/gbp';
 import type { PageServerLoad, Actions } from './$types';
 import { getSessionFromCookie, getSessionCookieName } from '$lib/server/session';
+import { env } from '$env/dynamic/private';
 import { getCrmIndustryFilter, getGbpDefaultLocation, getEffectiveEmailSenderName, getEmailSignatureOverride } from '$lib/server/userSettings';
-import { industryDisplayToSlug } from '$lib/industries';
 import { isValidDemoTrackingStatus } from '$lib/demo';
 import { getPlanForUser, getUpcomingInvoiceForUser } from '$lib/server/stripe';
 import { listCrmConnections } from '$lib/server/crm';
@@ -200,9 +202,12 @@ export const actions: Actions = {
 			return fail(400, { message: 'Select at least one client' });
 		}
 		const supabase = getSupabaseAdmin();
+		if (!supabase) {
+			return fail(503, { message: 'Demo tracking not configured. Supabase is required for bulk demo creation.' });
+		}
 		const origin = getOriginForOutgoingLinks(url.origin);
 		const defaultLocation = await getGbpDefaultLocation(user.id);
-		let created = 0;
+		let enqueued = 0;
 		const errors: string[] = [];
 		for (const prospectId of prospectIds) {
 			if (demoLimit !== null && countThisMonth >= demoLimit) break;
@@ -217,43 +222,40 @@ export const actions: Actions = {
 				errors.push(`${prospect.companyName || prospectId}: ${formatScrapedDataErrorMessage(scrapedResult.errors)}`);
 				continue;
 			}
-			const scrapedData = scrapedResult.data;
+			const scrapedData = scrapedResult.data as Record<string, unknown>;
 			const demoUrl = `${origin}/demo/${prospectId}`;
-			const updateResult = await updateProspectDemoLink(prospectId, demoUrl, 'Demo Created');
-			if (!updateResult.ok) {
-				errors.push(`${prospect.companyName || prospectId}: ${updateResult.error ?? 'Failed'}`);
+			const crmSource = prospect.provider ?? 'manual';
+			const crmProspectId = prospect.provider_row_id ?? prospectId;
+			await upsertDemoTrackingForProspect(user.id, prospectId, crmSource, crmProspectId, demoUrl, 'draft');
+			await updateDemoTrackingStatus(user.id, prospectId, { status: 'draft', scrapedData });
+			if (scrapedData?.gbpRaw && typeof scrapedData.gbpRaw === 'object') {
+				await updateProspectFromGbp(prospectId, scrapedData.gbpRaw as { phone?: string; website?: string; address?: string; industry?: string });
+			}
+			const enqueueResult = await enqueueDemoJob(user.id, prospectId);
+			if (!enqueueResult) {
+				errors.push(`${prospect.companyName || prospectId}: Could not enqueue job`);
 				continue;
 			}
-			if (supabase) {
-				const crmSource = prospect.provider ?? 'manual';
-				const crmProspectId = prospect.provider_row_id ?? prospectId;
-				await upsertDemoTrackingForProspect(
-					user.id,
-					prospectId,
-					crmSource,
-					crmProspectId,
-					demoUrl,
-					'draft'
-				);
-			}
-			if (supabase) {
-				await updateDemoTrackingStatus(user.id, prospectId, {
-					status: 'draft',
-					scrapedData
-				});
-			}
-			if ('gbpRaw' in scrapedData && scrapedData.gbpRaw) {
-				await updateProspectFromGbp(prospectId, scrapedData.gbpRaw);
-			}
-			created++;
+			await updateProspectStatus(prospectId, 'In queue');
+			enqueued++;
 			countThisMonth++;
 		}
-		if (created === 0 && errors.length > 0) {
+		if (enqueued === 0 && errors.length > 0) {
 			return fail(502, { message: errors.slice(0, 3).join('; ') });
+		}
+		// Kick cron so jobs start processing (uses industry mapping in processDemoJob for correct endpoint e.g. dental → /api/dental-async)
+		const cronSecret = (env.CRON_SECRET ?? '').trim();
+		if (origin && cronSecret && enqueued > 0) {
+			fetch(`${origin.replace(/\/$/, '')}/api/cron/jobs/demo`, {
+				method: 'GET',
+				headers: { Authorization: `Bearer ${cronSecret}` }
+			}).catch(() => {});
 		}
 		return {
 			success: true,
-			created,
+			created: enqueued,
+			enqueued,
+			queued: enqueued,
 			total: prospectIds.length,
 			errors: errors.length > 0 ? errors.slice(0, 5) : undefined
 		};

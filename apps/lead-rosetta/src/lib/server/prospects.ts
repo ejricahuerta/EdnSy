@@ -227,7 +227,7 @@ export async function upsertProspect(
 }
 
 /**
- * Update only the industry field (e.g. after Gemini inference when GBP category was missing or "General").
+ * Update only the industry field (e.g. after Gemini inference when GBP category was missing or uncategorized).
  */
 export async function updateProspectIndustry(
 	prospectId: string,
@@ -246,7 +246,7 @@ export async function updateProspectIndustry(
 }
 
 /**
- * Enrich prospect from GBP data (phone, website, address, industry). Only updates fields that have a value in gbp.
+ * Enrich prospect from GBP data (phone, website, address). Industry is always set by AI (inferIndustryWithGemini), not from GBP.
  */
 export async function updateProspectFromGbp(
 	prospectId: string,
@@ -258,7 +258,6 @@ export async function updateProspectFromGbp(
 	if ((gbp.phone ?? '').trim()) updates.phone = gbp.phone!.trim().slice(0, 100);
 	if ((gbp.website ?? '').trim()) updates.website = gbp.website!.trim().slice(0, 500);
 	if ((gbp.address ?? '').trim()) updates.address = gbp.address!.trim().slice(0, 500);
-	if ((gbp.industry ?? '').trim()) updates.industry = gbp.industry!.trim().slice(0, 200);
 	if (Object.keys(updates).length <= 1) return { ok: true }; // only updated_at
 	const { error } = await supabase.from('prospects').update(updates).eq('id', prospectId);
 	if (error) return { ok: false, error: error.message };
