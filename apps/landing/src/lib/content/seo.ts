@@ -137,9 +137,9 @@ export const seoPages: Record<string, PageSeo> = {
     canonicalPath: "/ontario-ai-automation",
   },
   "/case-studies": {
-    title: "Case Studies | Voice AI, Automation & Website Results | Ed & Sy Toronto",
+    title: "Case Studies | Voice AI and Website & SEO for Toronto Businesses | Ed & Sy Toronto",
     description:
-      "Toronto case studies: Voice AI for healthcare, automation for contractors, website & SEO for window glass repair. Real outcomes.",
+      "Toronto case study: website & SEO for a window glass repair business. Recovered from a compromised site; stronger local rankings, clean SEO, and more leads.",
     canonicalPath: "/case-studies",
   },
   "/blog": {

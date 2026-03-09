@@ -250,19 +250,10 @@ export const processStats = [
 /** Case studies (homepage): add real entries as they become available */
 export const caseStudies = [
   {
-    title: "Voice AI for a Toronto healthcare practice",
-    outcome: "24/7 call answering; zero missed appointments.",
-    cta: "Learn how",
-  },
-  {
-    title: "Automation for a GTA contractor",
-    outcome: "15+ hours saved weekly on follow-ups and invoicing.",
-    cta: "See results",
-  },
-  {
     title: "Website & SEO for a Toronto window glass repair business",
-    outcome: "Stronger local rankings, more organic traffic, and more leads from search.",
-    cta: "Read more",
+    outcome:
+      "Recovered a compromised site, strengthened local rankings and Google Business Profile, and built a clean, professional site that brings in more leads from search.",
+    cta: "Read case study",
   },
 ] as const;
 

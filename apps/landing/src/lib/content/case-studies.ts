@@ -5,58 +5,21 @@
 
 export const caseStudyList = [
   {
-    slug: "voice-ai-healthcare-toronto",
-    title: "Voice AI for a Toronto Healthcare Practice",
-    industry: "Healthcare",
-    location: "Toronto, Ontario",
-    outcome: "24/7 call answering; zero missed appointments.",
-    challenge:
-      "The practice missed after-hours and lunch-hour calls, losing potential patients to voicemail and competitors.",
-    solutions:
-      "We deployed a Voice AI system that answers every call 24/7, qualifies callers, and books appointments into their calendar (Voice AI platform, Google Calendar, Cal.com).",
-    stats: [
-      "Before: 20+ missed calls per week → After: Every call answered; leads captured and appointments booked.",
-      "Over 100+ additional bookings made in 3 months.",
-      "Zero missed appointments from call handling.",
-      "15+ hours saved monthly on phone tag.",
-    ],
-    testimonial: null,
-    cta: "Book a free strategy call",
-    href: "/contact",
-  },
-  {
-    slug: "automation-gta-contractor",
-    title: "Automation for a GTA Contractor",
-    industry: "Construction",
-    location: "Greater Toronto Area",
-    outcome: "15+ hours saved weekly on follow-ups and invoicing.",
-    challenge:
-      "Manual follow-ups and invoice reminders consumed 15–20 hours per week; leads and payments were delayed.",
-    solutions:
-      "We built automated workflows for lead nurturing, appointment reminders, and invoice follow-ups, with CRM and calendar integration (Google Workspace, CRM, email automation).",
-    stats: [
-      "Before: Manual follow-up and chasing invoices → After: Automated sequences and payment reminders.",
-      "15+ hours saved weekly.",
-      "Faster lead response and improved cash flow.",
-    ],
-    testimonial: null,
-    cta: "Book a free strategy call",
-    href: "/contact",
-  },
-  {
     slug: "website-seo-toronto-window-glass-repair",
     title: "Website & SEO for a Toronto Window Glass Repair Business",
     industry: "Window & Glass Repair",
     location: "Toronto & GTA",
-    outcome: "Recovered from a compromised site; stronger local rankings, clean SEO, and improved Google Business Profile.",
+    outcome:
+      "Recovered from a compromised site; stronger local rankings, clean SEO, improved Google Business Profile, and a professional site that converts.",
     challenge:
-      "The owner reported his website wasn't ranking. We discovered the blog had been compromised: it was full of gambling, crypto, and other unrelated spam content. That toxic content dragged his SEO and local visibility down and hurt his business.",
+      "The owner (OhMyGlass) reported his website wasn't ranking and didn't represent his business. We audited the site and found the blog had been compromised: it was full of gambling, crypto, and other unrelated spam content. That toxic content dragged his SEO and local visibility down, confused potential customers, and hurt trust. His previous web providers had left the site vulnerable and never addressed the hack.",
     solutions:
-      "We overhauled the website: removed all compromised and spam content, rebuilt the site for speed and trust, improved on-page and technical SEO, and optimized his Google Business Profile (GBP). The site is now clean, relevant, and built to rank for Toronto and GTA glass repair searches.",
+      "We did a full recovery and rebuild: removed all compromised and spam content, secured the site, and rebuilt it for speed and trust. We improved on-page and technical SEO (titles, meta, structure, Core Web Vitals), optimized his Google Business Profile (GBP) for Toronto and GTA glass repair searches, and gave him a clear, professional presence (ohmyglass.ca) that reflects his services: emergency glass repair, window replacement, and mirror installation across Toronto, Etobicoke, and Scarborough.",
     stats: [
-      "Before: Compromised blog (gambling/crypto spam); SEO dragged down → After: Clean site, no spam; improved local SEO and GBP.",
-      "Site recovered from compromise; measurable improvement in local search visibility and organic traffic.",
-      "Cleaner, trustworthy presence and more leads from search.",
+      "Before: Compromised blog (gambling/crypto spam); SEO dragged down; no clear local positioning → After: Clean site, no spam; improved local SEO and GBP.",
+      "Site fully recovered from compromise; measurable improvement in local search visibility and organic traffic.",
+      "Clear, trustworthy presence aligned with real services; more qualified leads from search.",
+      "Google Business Profile optimized so local searchers can find and contact the business reliably.",
     ],
     testimonial: null,
     cta: "Book a free strategy call",
