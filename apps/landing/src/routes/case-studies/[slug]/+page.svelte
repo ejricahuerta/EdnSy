@@ -81,18 +81,20 @@
   </div>
 </section>
 
-<section class="py-12 md:py-16 bg-background">
-  <div class="max-w-6xl mx-auto px-6 lg:px-8">
-    <p class="text-muted-foreground mb-6">Explore more case studies:</p>
-    <ul class="space-y-3">
-      {#each caseStudyList.filter((s) => s.slug !== study.slug) as other}
-        <li>
-          <a href="/case-studies/{other.slug}" class="text-primary hover:underline font-medium">
-            {other.title}
-          </a>
-          <span class="text-muted-foreground text-sm"> — {other.industry}</span>
-        </li>
-      {/each}
-    </ul>
-  </div>
-</section>
+{#if caseStudyList.filter((s) => s.slug !== study.slug).length > 0}
+  <section class="py-12 md:py-16 bg-background">
+    <div class="max-w-6xl mx-auto px-6 lg:px-8">
+      <p class="text-muted-foreground mb-6">Explore more case studies:</p>
+      <ul class="space-y-3">
+        {#each caseStudyList.filter((s) => s.slug !== study.slug) as other}
+          <li>
+            <a href="/case-studies/{other.slug}" class="text-primary hover:underline font-medium">
+              {other.title}
+            </a>
+            <span class="text-muted-foreground text-sm"> — {other.industry}</span>
+          </li>
+        {/each}
+      </ul>
+    </div>
+  </section>
+{/if}

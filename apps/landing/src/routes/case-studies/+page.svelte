@@ -23,7 +23,7 @@
     </nav>
     <h1 class="typography-h1 mb-5">Case Studies</h1>
     <p class="typography-lead max-w-2xl">
-      See how Toronto and Ontario businesses use our Voice AI, automation, and website solutions. Real results and client outcomes.
+      Real results for Toronto and GTA businesses. Our case study shows how we recovered a window glass repair site from compromise and built a clean, ranking presence.
     </p>
   </div>
 </section>
