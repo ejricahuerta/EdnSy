@@ -368,9 +368,37 @@ import { clientError } from '$lib/log';
 	let insightsJobPollingActive = $state(false);
 	/** Prospect ID currently running processNextStep (per-row generate icon). */
 	let processNextStepId = $state<string | null>(null);
+	let sendDemosDialogOpen = $state(false);
+	let sendDemosForm: HTMLFormElement | null = $state(null);
+	let sendDemosSubmitting = $state(false);
 	/** Prospect IDs we've just submitted for GBP/Insights so status updates immediately before server responds. */
 	let optimisticGbpProspectIds = $state<Set<string>>(new Set());
 	let optimisticInsightsProspectIds = $state<Set<string>>(new Set());
+
+	/** Approved prospects that have a demo and email (can be sent). */
+	const approvedSendableProspects = $derived(
+		approvedProspects.filter(
+			(p) => (p.demoLink ?? '').trim().length > 0 && (p.email ?? '').trim().length > 0
+		)
+	);
+
+	function ensureAupInput(formEl: HTMLFormElement | null) {
+		if (!formEl) return;
+		let input = formEl.querySelector<HTMLInputElement>('input[name="aupConfirmed"]');
+		if (!input) {
+			input = document.createElement('input');
+			input.type = 'hidden';
+			input.name = 'aupConfirmed';
+			formEl.appendChild(input);
+		}
+		input.value = 'on';
+	}
+
+	function submitSendDemosForm() {
+		if (!sendDemosForm || sendDemosSubmitting) return;
+		ensureAupInput(sendDemosForm);
+		sendDemosForm.requestSubmit();
+	}
 
 	/** Run next step for one prospect (pull GBP, pull insights, or create demo). Used by per-row generate icon. */
 	async function handleProcessNextStep(prospectId: string) {
@@ -908,14 +936,21 @@ import { clientError } from '$lib/log';
 					optimisticGbpIds: optimisticGbpProspectIds,
 					optimisticInsightsIds: optimisticInsightsProspectIds
 				});
+				const showSendDemo =
+					step.filterValue === 'approved' &&
+					!!(p.demoLink ?? '').trim() &&
+					!!(p.email ?? '').trim();
 				const showGenerate =
-					step.filterValue === 'pull_data' ||
-					step.filterValue === 'create_demo' ||
-					step.filterValue === 'retry_demo';
+					!showSendDemo &&
+					(step.filterValue === 'pull_data' ||
+						step.filterValue === 'create_demo' ||
+						step.filterValue === 'retry_demo');
 				const demoStatus = p.demoJob?.status as 'pending' | 'creating' | 'done' | 'failed' | undefined;
 				return renderComponent(ProspectRowActionsCell, {
 					prospectId: p.id,
 					showGenerate,
+					showSendDemo,
+					prospectLabel: p.companyName || p.email || p.id,
 					processing: isRowProcessing(p),
 					generating: processNextStepId === p.id,
 					onProcessNextStep: handleProcessNextStep,
@@ -923,7 +958,8 @@ import { clientError } from '$lib/log';
 					demoJobStatus: demoStatus,
 					showDelete: !p.flagged,
 					showRestore: !!p.flagged,
-					onRegenerateQueued: () => startDemoJobPolling()
+					onRegenerateQueued: () => startDemoJobPolling(),
+					onSendDemoSuccess: () => invalidateAll()
 				});
 			}
 		}
@@ -1078,6 +1114,65 @@ import { clientError } from '$lib/log';
 					role="search"
 					aria-label="Filter prospects"
 				>
+					{#if approvedSendableProspects.length > 0}
+						<form
+							bind:this={sendDemosForm}
+							method="POST"
+							action="?/sendDemos"
+							use:enhance={() => {
+								sendDemosSubmitting = true;
+								return async ({ result }) => {
+									try {
+										if (result.type === 'success' && result.data && typeof result.data === 'object' && 'success' in result.data && result.data.success) {
+											const d = result.data as { sent?: number; total?: number };
+											toastSuccess('Send demo', d.sent != null ? `Email sent to ${d.sent} prospect${d.sent === 1 ? '' : 's'}.` : 'Done.');
+											sendDemosDialogOpen = false;
+											await invalidateAll();
+										} else if (result.type === 'failure' && result.data?.message) {
+											toastError('Send demo', (result.data as { message?: string }).message);
+											await applyAction(result);
+										}
+									} finally {
+										sendDemosSubmitting = false;
+									}
+								};
+							}}
+							class="contents"
+						>
+							{#each approvedSendableProspects as p (p.id)}
+								<input type="hidden" name="prospectId" value={p.id} />
+							{/each}
+							<AlertDialog.Root bind:open={sendDemosDialogOpen}>
+								<AlertDialog.Trigger asChild>
+									{#snippet trigger({ props })}
+										<Button type="button" size="sm" class="h-9" {...props}>
+											<Send class="mr-2 size-4" aria-hidden="true" />
+											Send Demo
+										</Button>
+									{/snippet}
+								</AlertDialog.Trigger>
+								<AlertDialog.Content>
+									<AlertDialog.Header>
+										<AlertDialog.Title>Send demo to approved prospects?</AlertDialog.Title>
+										<AlertDialog.Description>
+											An email with the demo link will be sent to {approvedSendableProspects.length} prospect{approvedSendableProspects.length === 1 ? '' : 's'}.
+											<br><br>
+											<strong>Sending means you accept the Acceptable Use Policy (AUP).</strong>
+										</AlertDialog.Description>
+									</AlertDialog.Header>
+									<AlertDialog.Footer>
+										<AlertDialog.Cancel disabled={sendDemosSubmitting}>Cancel</AlertDialog.Cancel>
+										<AlertDialog.Action type="button" disabled={sendDemosSubmitting} onclick={submitSendDemosForm}>
+											{#if sendDemosSubmitting}
+												<LoaderCircle class="mr-2 size-4 animate-spin" aria-hidden="true" />
+											{/if}
+											{sendDemosSubmitting ? 'Sending…' : 'Send email'}
+										</AlertDialog.Action>
+									</AlertDialog.Footer>
+								</AlertDialog.Content>
+							</AlertDialog.Root>
+						</form>
+					{/if}
 					<!-- Search: theme colors only (no Lead Rosetta overrides) -->
 					<div class="prospects-search relative min-w-0 flex-1 basis-64 sm:max-w-xs">
 						<label for="lr-dash-filter" class="sr-only">Search prospects</label>
