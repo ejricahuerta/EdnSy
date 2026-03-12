@@ -1,0 +1,11 @@
+## Summary
+When a demo is created and updated as **Approved**, the prospects table row action now:
+- Shows the **Send** icon (instead of Mail)
+- Uses tooltip and aria-label **"Send Email"** (instead of "Send demo by email")
+
+## Changes
+- `apps/lead-rosetta/src/lib/components/prospects/prospect-row-actions-cell.svelte`: Mail → Send icon; "Send demo by email" → "Send Email" for the approved/send action.
+
+## Testing
+- Go to Dashboard → Prospects
+- For a prospect with demo status **Approved** (and demo link + email), the row actions cell shows the Send icon with "Send Email" on hover; dialog unchanged (still "Send email" button).

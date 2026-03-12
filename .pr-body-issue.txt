@@ -1,0 +1,8 @@
+## Summary
+- Add a **Send Demo** button at the top of the prospects page when there are approved prospects (with demo + email), opening a confirmation dialog to send to all.
+- In the table row for approved prospects, show an **email icon** instead of the generate (Sparkles) icon; clicking it opens a dialog to send the demo to that prospect.
+
+## Acceptance criteria
+- [ ] When there are approved prospects with demo link and email, a Send Demo button appears in the filter bar and sends to all on confirm.
+- [ ] For rows in Approved next step with demo + email, the actions column shows a Mail icon that sends the demo to that prospect on confirm (with AUP).
+- [ ] Other rows unchanged (Sparkles for run next step).

@@ -1,0 +1,9 @@
+Fixes #14
+
+## Summary
+- **Send Demo at top**: When there are approved prospects (with demo link and email), a "Send Demo" button appears in the filter bar; clicking opens a confirmation dialog and sends the demo to all approved sendable prospects.
+- **Email icon in row**: For table rows in "Approved" next step with demo + email, the actions column shows a Mail icon instead of the Sparkles (generate) icon; clicking opens a dialog to send the demo to that prospect (with AUP confirmation).
+
+## Changes
+- `apps/lead-rosetta/src/routes/dashboard/prospects/+page.svelte`: approvedSendableProspects, Send Demo form/dialog in filter bar, actions column passes showSendDemo, prospectLabel, onSendDemoSuccess.
+- `apps/lead-rosetta/src/lib/components/prospects/prospect-row-actions-cell.svelte`: showSendDemo, Mail icon, send-demo form and AlertDialog for single prospect.

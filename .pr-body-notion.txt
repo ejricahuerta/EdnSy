@@ -1,0 +1,18 @@
+## Summary
+Improve the Notion integration so selecting which database to sync is explicit and visible.
+
+## Goals
+- Make "select database to sync" a clear step in the connect flow (copy and UI).
+- When connected, show which database is currently synced (title or truncated ID) without opening Edit.
+- Ensure the connect form reliably submits the selected database ID (support Select value string or object).
+
+## Acceptance criteria
+- [ ] Connect flow has explicit "Select database to sync" label and short description.
+- [ ] Load data returns notionDatabaseId and notionDatabaseTitle for the integrations page.
+- [ ] Connected state shows current synced database (title or truncated ID) and optional "ID: …" subtitle.
+- [ ] Connect form submit uses normalized value so dropdown selection is sent correctly.
+- [ ] Help doc (notion.md) updated to mention Load databases and selecting from the list.
+
+## Out of scope
+- Multiple Notion databases per user.
+- Changing credential storage or Edit flow beyond visibility of selected database.
