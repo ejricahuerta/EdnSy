@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { applyAction } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
-	import { Sparkles, LoaderCircle, Mail } from 'lucide-svelte';
+	import { Sparkles, LoaderCircle, Send } from 'lucide-svelte';
 	import { buttonVariants } from '$lib/components/ui/button';
 	import { cn } from '$lib/utils';
 	import * as Tooltip from '$lib/components/ui/tooltip';
@@ -100,16 +100,16 @@
 						<button
 							type="button"
 							class={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), 'h-8 w-8 text-muted-foreground hover:text-foreground')}
-							aria-label="Send demo by email"
+							aria-label="Send Email"
 							onclick={() => (sendDemoDialogOpen = true)}
 							use:builder.action
 							{...builder.props}
 						>
-							<Mail class="size-4" aria-hidden="true" />
+							<Send class="size-4" aria-hidden="true" />
 						</button>
 					</Tooltip.Trigger>
 					<Tooltip.Content side="top" sideOffset={6}>
-						Send demo by email
+						Send Email
 					</Tooltip.Content>
 				</Tooltip.Root>
 				<AlertDialog.Content>
