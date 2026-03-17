@@ -32,6 +32,7 @@ export type SimplifiedStatusLabel =
 	| 'No demo'
 	| 'Draft'
 	| 'Approved'
+	| 'Send email'
 	| 'Sent'
 	| 'Engaged'
 	| 'Replied'
@@ -207,7 +208,7 @@ export function getNextStep(
 		return { label: 'Review draft', variant: 'default', filterValue: 'draft' };
 	}
 	if (trackingStatus === 'approved') {
-		return { label: 'Review & send', variant: 'default', filterValue: 'approved' };
+		return { label: 'Send Email', variant: 'default', filterValue: 'approved' };
 	}
 	if (trackingStatus === 'sent') {
 		return { label: 'Sent', variant: 'muted', filterValue: 'sent' };
@@ -238,7 +239,7 @@ export const NEXT_STEP_FILTER_OPTIONS: { value: NextStepFilterValue; label: stri
 	{ value: 'create_demo', label: 'Create demo' },
 	{ value: 'retry_demo', label: 'Retry demo' },
 	{ value: 'draft', label: 'Draft' },
-	{ value: 'approved', label: 'Approved' },
+	{ value: 'approved', label: 'Send email' },
 	{ value: 'sent', label: 'Sent' },
 	{ value: 'engaged', label: 'Engaged' },
 	{ value: 'replied', label: 'Replied' },

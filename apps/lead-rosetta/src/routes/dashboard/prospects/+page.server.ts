@@ -509,6 +509,19 @@ export const actions: Actions = {
 			if (typeof id !== 'string') continue;
 			const prospect = await getProspectById(id);
 			if (!prospect?.demoLink || prospect.flagged) continue;
+			let demoTracking = await getDemoTrackingForProspect(user.id, id);
+			if (!demoTracking && (prospect.demoLink ?? '').trim()) {
+				await upsertDemoTrackingForProspect(
+					user.id,
+					id,
+					prospect.provider ?? 'manual',
+					prospect.provider_row_id ?? id,
+					(prospect.demoLink ?? '').trim(),
+					'approved'
+				);
+				demoTracking = await getDemoTrackingForProspect(user.id, id);
+			}
+			if (!demoTracking || demoTracking.status !== 'approved') continue;
 			const demoLink = prospect.demoLink;
 			let anySent = false;
 			if (prospect.email?.trim()) {
@@ -564,6 +577,12 @@ export const actions: Actions = {
 		if (sent === 0 && errors.length > 0) {
 			serverError('sendDemos', 'No emails sent', { sent, errors });
 			return fail(502, { message: errors.slice(0, 3).join('; ') });
+		}
+		if (sent === 0) {
+			return fail(400, {
+				message:
+					'No email was sent. Each prospect needs a demo link, approved status, and an email address. Add an email on the prospect detail page if missing.'
+			});
 		}
 		serverInfo('sendDemos', 'Completed', { sent, total: prospectIds.length, errors: errors.length > 0 ? errors : undefined });
 		return {

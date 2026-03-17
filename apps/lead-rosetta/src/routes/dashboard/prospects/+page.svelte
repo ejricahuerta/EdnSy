@@ -936,10 +936,9 @@ import { clientError } from '$lib/log';
 					optimisticGbpIds: optimisticGbpProspectIds,
 					optimisticInsightsIds: optimisticInsightsProspectIds
 				});
+				// Show email icon whenever demo is approved and has a demo link (email required by server when sending)
 				const showSendDemo =
-					step.filterValue === 'approved' &&
-					!!(p.demoLink ?? '').trim() &&
-					!!(p.email ?? '').trim();
+					step.filterValue === 'approved' && !!(p.demoLink ?? '').trim();
 				const showGenerate =
 					!showSendDemo &&
 					(step.filterValue === 'pull_data' ||
@@ -1322,6 +1321,23 @@ import { clientError } from '$lib/log';
 					</div>
 				</div>
 			</div>
+			<!-- Prominent "Send email" bar when there are approved prospects -->
+			{#if approvedSendableProspects.length > 0}
+				<div class="mx-4 mt-2 flex flex-wrap items-center gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 dark:border-green-800 dark:bg-green-950/40 sm:mx-6">
+					<span class="text-sm font-medium text-green-800 dark:text-green-200">
+						{approvedSendableProspects.length} approved demo{approvedSendableProspects.length === 1 ? '' : 's'} ready to send
+					</span>
+					<Button
+						type="button"
+						size="sm"
+						class="h-9 bg-green-700 text-white hover:bg-green-800 dark:bg-green-600 dark:hover:bg-green-700"
+						onclick={() => (sendDemosDialogOpen = true)}
+					>
+						<Send class="mr-2 size-4" aria-hidden="true" />
+						Send email
+					</Button>
+				</div>
+			{/if}
 		{/if}
 		<Card.Content class="lr-dash-card-content lr-prospects-content p-0">
 			{#snippet selectionBar()}

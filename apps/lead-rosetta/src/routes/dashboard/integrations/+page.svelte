@@ -10,12 +10,12 @@
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { toastSuccess, toastError, toastFromActionResult } from '$lib/toast';
-	import { LoaderCircle, CheckCircle2, Link2, Lock, Plus, Eye, EyeOff, Pencil, Database } from 'lucide-svelte';
+	import { LoaderCircle, CheckCircle2, Link2, Lock, Plus, Eye, EyeOff, Pencil, Database, MapPin } from 'lucide-svelte';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import * as Select from '$lib/components/ui/select';
 
-	type IntegrationId = 'notion' | 'hubspot' | 'gohighlevel' | 'pipedrive';
+	type IntegrationId = 'notion' | 'hubspot' | 'gohighlevel' | 'pipedrive' | 'gbp-dental';
 
 	let { data, form } = $props<{
 		data: PageData;
@@ -26,6 +26,9 @@
 	const canConnect = $derived(data.canConnect ?? false);
 	const gmailConnected = $derived(data.gmailConnected ?? false);
 	const gmailEmail = $derived(data.gmailEmail ?? null);
+	const gbpDentalTodayCount = $derived(data.gbpDentalTodayCount ?? 0);
+	const gbpDentalDailyCap = $derived(data.gbpDentalDailyCap ?? 25);
+	const placesApiConfigured = $derived(data.placesApiConfigured ?? false);
 	const notionConnected = $derived(connections.find((c) => c.provider === 'notion')?.connected ?? false);
 	const notionDatabaseId = $derived(data.notionDatabaseId ?? null);
 	const notionDatabaseTitle = $derived(data.notionDatabaseTitle ?? null);
@@ -38,7 +41,7 @@
 	const pipedriveConnected = $derived(connections.find((c) => c.provider === 'pipedrive')?.connected ?? false);
 
 	let selectedId = $state<IntegrationId | null>(null);
-	let syncing = $state<'notion' | 'hubspot' | 'gohighlevel' | 'pipedrive' | null>(null);
+	let syncing = $state<'notion' | 'hubspot' | 'gohighlevel' | 'pipedrive' | 'gbp-dental' | null>(null);
 	let disconnectNotionOpen = $state(false);
 	let disconnectHubSpotOpen = $state(false);
 	let disconnectGhlOpen = $state(false);
@@ -183,6 +186,14 @@
 			logoSrc: '/integrations/pipedrive.png',
 			connected: pipedriveConnected,
 			locked: !canConnect
+		},
+		{
+			id: 'gbp-dental' as const,
+			name: 'Lead discovery (GBP)',
+			description: 'Pull dental leads from Toronto/GTA (no website, fewer reviews). Max 25 per day.',
+			logoSrc: '',
+			connected: placesApiConfigured,
+			locked: !placesApiConfigured
 		}
 	]);
 
@@ -309,14 +320,18 @@
 					onclick={() => (selectedId = selectedId === integration.id ? null : integration.id)}
 				>
 					<div
-						class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-[10px] bg-white p-1"
+						class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-[10px] bg-white p-1 {integration.id === 'gbp-dental' ? 'text-muted-foreground' : ''}"
 						aria-hidden="true"
 					>
-						<img
-							src={integration.logoSrc}
-							alt=""
-							class="h-full w-full object-contain"
-						/>
+						{#if integration.id === 'gbp-dental'}
+							<MapPin class="h-6 w-6" />
+						{:else}
+							<img
+								src={integration.logoSrc}
+								alt=""
+								class="h-full w-full object-contain"
+							/>
+						{/if}
 					</div>
 					<span class="min-w-0 flex-1 truncate text-sm font-medium">{integration.name}</span>
 					{#if integration.connected}
@@ -348,13 +363,60 @@
 				<div class="flex min-h-0 min-w-0 flex-1 flex-col lg:col-span-2">
 				{#if selected.locked}
 					<div class="flex flex-col gap-4">
+						{#if selected.id === 'gbp-dental'}
+							<p class="text-sm text-muted-foreground">
+								Google Places API is not configured. Set <code class="rounded bg-muted px-1 py-0.5 text-xs font-mono">GOOGLE_PLACES_API_KEY</code> (or <code class="rounded bg-muted px-1 py-0.5 text-xs font-mono">GOOGLE_MAPS_API_KEY</code>) in your server <code class="rounded bg-muted px-1 py-0.5 text-xs font-mono">.env</code> to pull dental leads.
+							</p>
+						{:else}
+							<p class="text-sm text-muted-foreground">
+								CRM integrations are available on Growth and Agency plans. Upgrade to connect {selected.name} and
+								sync contacts to your dashboard.
+							</p>
+							<div class="mt-auto pt-4">
+								<Button variant="default" href="/dashboard/billing">Upgrade plan</Button>
+							</div>
+						{/if}
+					</div>
+				{:else if selected.id === 'gbp-dental'}
+					<div class="flex flex-col gap-4">
 						<p class="text-sm text-muted-foreground">
-							CRM integrations are available on Growth and Agency plans. Upgrade to connect {selected.name} and
-							sync contacts to your dashboard.
+							Pull up to 5 dental leads from Toronto and the GTA. Only businesses with <strong>fewer than 50 reviews</strong> are added (prioritizing those that need more visibility). They appear in your <a href="/dashboard/prospects" class="underline hover:no-underline">Prospects</a> list with industry &quot;Dental&quot;.
 						</p>
-						<div class="mt-auto pt-4">
-							<Button variant="default" href="/dashboard/billing">Upgrade plan</Button>
-						</div>
+						<p class="text-sm font-medium">
+							Today: {gbpDentalTodayCount} / {gbpDentalDailyCap} leads
+						</p>
+						<form
+							method="POST"
+							action="?/pullGbpDental"
+							use:enhance={() => {
+								syncing = 'gbp-dental';
+								return async ({ result }) => {
+									syncing = null;
+									if (result.type === 'success' && result.data) {
+										const d = result.data as { message?: string; added?: number };
+										toastSuccess('Lead discovery', d.message ?? `Added ${d.added ?? 0} prospect(s).`);
+										invalidateAll();
+									} else if (result.type === 'failure' && result.data) {
+										toastError('Lead discovery', (result.data as { message?: string }).message ?? 'Pull failed.');
+										invalidateAll();
+									}
+								};
+							}}
+							class="contents"
+						>
+							<Button
+								type="submit"
+								size="sm"
+								disabled={syncing === 'gbp-dental' || gbpDentalTodayCount >= gbpDentalDailyCap}
+							>
+								{#if syncing === 'gbp-dental'}
+									<LoaderCircle class="mr-2 h-4 w-4 animate-spin" />
+								{:else}
+									<MapPin class="mr-2 h-4 w-4" />
+								{/if}
+								Pull up to 5 dental leads
+							</Button>
+						</form>
 					</div>
 				{:else if selected.id === 'notion'}
 					{#if selected.connected}

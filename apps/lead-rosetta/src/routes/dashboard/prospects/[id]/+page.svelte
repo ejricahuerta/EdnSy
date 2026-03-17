@@ -28,6 +28,7 @@
 	import { Separator } from '$lib/components/ui/separator';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 	import { Label } from '$lib/components/ui/label';
+	import { Input } from '$lib/components/ui/input';
 	import * as Select from '$lib/components/ui/select';
 	import { cn } from '$lib/utils';
 	import { buttonVariants } from '$lib/components/ui/button';
@@ -80,13 +81,20 @@
 	let sendingEmail = $state(false);
 	let sendForm: HTMLFormElement | null = $state(null);
 	let sendAlternateForm: HTMLFormElement | null = $state(null);
+	/** Set true after Approve demo succeeds so Send button appears immediately before refetch. */
+	let approvedJustNow = $state(false);
+	let editingEmail = $state(false);
+	let updatingEmail = $state(false);
 
 	let demoStatus = $state<DemoTrackingStatus>(() =>
 		(demoTracking?.status as DemoTrackingStatus) ?? 'draft'
 	);
 	$effect(() => {
 		const s = demoTracking?.status as DemoTrackingStatus | undefined;
-		if (s && DEMO_TRACKING_OPTIONS.some((o) => o.value === s)) demoStatus = s;
+		if (s && DEMO_TRACKING_OPTIONS.some((o) => o.value === s)) {
+			demoStatus = s;
+			if (s === 'approved') approvedJustNow = false;
+		}
 	});
 
 	$effect(() => {
@@ -173,10 +181,25 @@
 		// Only show Generate demo after insights have been pulled (demo job infers industry from GBP/website via Gemini)
 		if (hasAnalysis && !prospect.demoLink)
 			return demoJob?.status === 'failed' && isGbpError(demoJob?.errorMessage) ? null : { type: 'generate' };
-		if (demoTracking?.status === 'approved' && canSend && prospect.email?.trim()) return { type: 'send' };
-		if (demoTracking?.status === 'draft' || demoTracking?.status === 'approved') return { type: 'review' };
+		// Approved: show Send (from server, optimistic approve, Stage dropdown, or no tracking row = legacy)
+		const isApproved =
+			!demoTracking ||
+			demoTracking.status === 'approved' ||
+			approvedJustNow ||
+			demoStatus === 'approved';
+		if (isApproved) return { type: 'send' };
+		if (demoTracking?.status === 'draft' || demoStatus === 'draft') return { type: 'review' };
 		return null;
 	});
+
+	/** True when demo is approved (any source) or has demo but no tracking row (legacy). Used to show Send by email in header. */
+	const isApprovedForSend = $derived(
+		!!(prospect.demoLink ?? '').trim() &&
+		(!demoTracking ||
+			demoTracking.status === 'approved' ||
+			approvedJustNow ||
+			demoStatus === 'approved')
+	);
 
 	/** Short label for failed demo badge (avoids long error text in header). */
 	function failedDemoBadgeLabel(): string {
@@ -563,13 +586,13 @@
 				>
 					<input type="hidden" name="prospectId" value={prospect.id} />
 					<AlertDialog.Root bind:open={sendAlternateConfirmOpen}>
-						<AlertDialog.Trigger asChild>
-							{#snippet trigger({ props })}
-								<Button type="button" size="lg" {...props}>
-									<Send class="size-4 mr-2" />
-									Send email (AI agent, voice AI & SEO)
-								</Button>
-							{/snippet}
+						<AlertDialog.Trigger
+							type="button"
+							class={cn(buttonVariants({ size: 'lg' }), 'inline-flex items-center justify-center')}
+							onclick={() => (sendAlternateConfirmOpen = true)}
+						>
+							<Send class="size-4 mr-2" />
+							Send email (AI agent, voice AI & SEO)
 						</AlertDialog.Trigger>
 						<AlertDialog.Content>
 							<AlertDialog.Header>
@@ -612,6 +635,31 @@
 					<Link2 class="size-4 mr-2" />
 					Review demo page
 				</Button>
+				{#if !demoTracking || demoTracking.status === 'draft'}
+					<form
+						method="POST"
+						action="?/approveDemo"
+						use:enhance={() => {
+							return async ({ result }) => {
+								if (result.type === 'success') {
+									approvedJustNow = true;
+									toastSuccess('Demo approved', 'You can now send the email.');
+									await invalidateAll();
+								} else if (result.type === 'failure' && result.data?.message) {
+									toastError('Approve demo', result.data.message);
+									await applyAction(result);
+								}
+							};
+						}}
+						class="inline"
+					>
+						<input type="hidden" name="prospectId" value={prospect.id} />
+						<Button type="submit" size="lg">
+							<Check class="size-4 mr-2" />
+							Approve demo
+						</Button>
+					</form>
+				{/if}
 				<form
 					method="POST"
 					action="?/regenerateDemo"
@@ -663,7 +711,7 @@
 					</Button>
 				</form>
 			</div>
-		{:else if primaryAction?.type === 'send' && prospect.demoLink}
+		{:else if isApprovedForSend}
 			<div class="shrink-0">
 				<form
 					bind:this={sendForm}
@@ -690,19 +738,27 @@
 				>
 					<input type="hidden" name="prospectId" value={prospect.id} />
 					<AlertDialog.Root bind:open={sendConfirmOpen}>
-						<AlertDialog.Trigger asChild>
-							{#snippet trigger({ props })}
-								<Button type="button" size="lg" {...props}>
-									<Send class="size-4 mr-2" />
-									Send by email
-								</Button>
-							{/snippet}
+						<AlertDialog.Trigger
+							type="button"
+							class={cn(buttonVariants({ size: 'lg' }), 'inline-flex items-center justify-center')}
+							disabled={!canSend || !(prospect.email ?? '').trim()}
+							title={
+								!(prospect.email ?? '').trim()
+									? 'Add an email for this prospect to send'
+									: !canSend
+										? 'Connect Gmail in Integrations to send email'
+										: ''
+							}
+							onclick={() => (sendConfirmOpen = true)}
+						>
+							<Send class="size-4 mr-2" />
+							Send by email
 						</AlertDialog.Trigger>
 						<AlertDialog.Content>
 							<AlertDialog.Header>
 								<AlertDialog.Title>Send demo to this client?</AlertDialog.Title>
 								<AlertDialog.Description>
-									An email with the demo link will be sent to {prospect.email}.
+									An email with the demo link will be sent to {prospect.email || '(no email set)'}.
 									<br><br>
 									<strong>Sending means you accept the Acceptable Use Policy (AUP).</strong>
 								</AlertDialog.Description>
@@ -740,12 +796,58 @@
 								<div><dt class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Industry</dt><dd class="text-sm mt-0.5">{prospect.industry.trim()}</dd></div>
 							</div>
 						{/if}
-						{#if prospect.email}
-							<div class="flex gap-3">
-								<Mail class="size-4 shrink-0 mt-0.5 text-muted-foreground" />
-								<div><dt class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Email</dt><dd class="text-sm mt-0.5"><a href="mailto:{prospect.email}" class="text-primary hover:underline break-all">{prospect.email}</a></dd></div>
+						<div class="flex gap-3">
+							<Mail class="size-4 shrink-0 mt-0.5 text-muted-foreground" />
+							<div class="min-w-0 flex-1">
+								<dt class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Email</dt>
+								{#if editingEmail || !(prospect.email ?? '').trim()}
+									<form
+										method="POST"
+										action="?/updateEmail"
+										use:enhance={() => {
+											updatingEmail = true;
+											return async ({ result }) => {
+												try {
+													if (result.type === 'success') {
+														editingEmail = false;
+														toastSuccess('Email saved');
+														await invalidateAll();
+													} else if (result.type === 'failure' && result.data?.message) {
+														toastError('Update email', result.data.message);
+														await applyAction(result);
+													}
+												} finally {
+													updatingEmail = false;
+												}
+											};
+										}}
+										class="mt-1 flex flex-wrap items-center gap-2"
+									>
+										<input type="hidden" name="prospectId" value={prospect.id} />
+										<Input
+											type="email"
+											name="email"
+											value={prospect.email ?? ''}
+											placeholder="e.g. contact@company.com"
+											class="h-9 max-w-xs"
+											disabled={updatingEmail}
+										/>
+										<Button type="submit" size="sm" disabled={updatingEmail}>
+											{#if updatingEmail}<LoaderCircle class="size-4 mr-1.5 animate-spin" aria-hidden="true" />{/if}
+											{(prospect.email ?? '').trim() ? 'Save' : 'Add email'}
+										</Button>
+										{#if (prospect.email ?? '').trim()}
+											<Button type="button" variant="ghost" size="sm" onclick={() => editingEmail = false} disabled={updatingEmail}>Cancel</Button>
+										{/if}
+									</form>
+								{:else}
+									<dd class="text-sm mt-0.5 flex items-center gap-2">
+										<a href="mailto:{prospect.email}" class="text-primary hover:underline break-all">{prospect.email}</a>
+										<Button type="button" variant="ghost" size="sm" class="h-7 text-muted-foreground" onclick={() => editingEmail = true}>Edit</Button>
+									</dd>
+								{/if}
 							</div>
-						{/if}
+						</div>
 						{#if prospect.website}
 							<div class="flex gap-3">
 								<Globe class="size-4 shrink-0 mt-0.5 text-muted-foreground" />

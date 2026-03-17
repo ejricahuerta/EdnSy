@@ -17,9 +17,11 @@
     "demo:download-images": "node ../scripts/download-demo-images.mjs",
     "db:link": "supabase link",
     "db:push": "supabase db push",
-    "db:status": "supabase db remote status"
+    "db:status": "supabase db remote status",
+    "pull-gbp-dental": "node scripts/pull-gbp-dental.mjs"
   },
   "devDependencies": {
+    "dotenv": "^16.4.5",
     "@dnd-kit-svelte/svelte": "^0.1.6",
     "@dnd-kit/abstract": "^0.1.21",
     "@dnd-kit/helpers": "^0.1.21",

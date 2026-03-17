@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { applyAction } from '$app/forms';
+	import { applyAction, enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
 	import { Sparkles, LoaderCircle, Send } from 'lucide-svelte';
 	import { buttonVariants } from '$lib/components/ui/button';
@@ -75,7 +75,11 @@
 			action="?/sendDemos"
 			use:enhance={() => {
 				sendingDemo = true;
-				return async ({ result }) => {
+				return async ({
+					result
+				}: {
+					result: import('$app/forms').ActionResult;
+				}) => {
 					try {
 						if (result.type === 'success' && result.data && typeof result.data === 'object' && 'success' in result.data && result.data.success) {
 							toastSuccess('Email sent', prospectLabel || prospectId);
@@ -95,23 +99,15 @@
 		>
 			<input type="hidden" name="prospectId" value={prospectId} />
 			<AlertDialog.Root bind:open={sendDemoDialogOpen}>
-				<Tooltip.Root>
-					<Tooltip.Trigger asChild let:builder>
-						<button
-							type="button"
-							class={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), 'h-8 w-8 text-muted-foreground hover:text-foreground')}
-							aria-label="Send Email"
-							onclick={() => (sendDemoDialogOpen = true)}
-							use:builder.action
-							{...builder.props}
-						>
-							<Send class="size-4" aria-hidden="true" />
-						</button>
-					</Tooltip.Trigger>
-					<Tooltip.Content side="top" sideOffset={6}>
-						Send Email
-					</Tooltip.Content>
-				</Tooltip.Root>
+				<AlertDialog.Trigger
+					type="button"
+					class={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), 'h-8 w-8 text-muted-foreground hover:text-foreground')}
+					aria-label="Send Email"
+					title="Send Email"
+					onclick={() => (sendDemoDialogOpen = true)}
+				>
+					<Send class="size-4" aria-hidden="true" />
+				</AlertDialog.Trigger>
 				<AlertDialog.Content>
 					<AlertDialog.Header>
 						<AlertDialog.Title>Send demo to this client?</AlertDialog.Title>

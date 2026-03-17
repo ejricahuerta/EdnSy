@@ -30,7 +30,7 @@ export type Prospect = {
 	userId?: string;
 };
 
-export type ProspectProvider = 'notion' | 'hubspot' | 'gohighlevel' | 'pipedrive' | 'manual';
+export type ProspectProvider = 'notion' | 'hubspot' | 'gohighlevel' | 'pipedrive' | 'manual' | 'gbp';
 
 function rowToProspect(r: {
 	id: string;
@@ -301,6 +301,36 @@ export async function updateProspectStatus(
 		.from('prospects')
 		.update({ status: value, updated_at: new Date().toISOString() })
 		.eq('id', prospectId);
+	if (error) return { ok: false, error: error.message };
+	return { ok: true };
+}
+
+/**
+ * Update email (and optionally phone) for a prospect. Only the owning user can update. Use when sync misses email or user wants to correct it.
+ */
+export async function updateProspectContact(
+	userId: string,
+	prospectId: string,
+	fields: { email?: string; phone?: string }
+): Promise<{ ok: boolean; error?: string }> {
+	const supabase = getSupabaseAdmin();
+	if (!supabase) return { ok: false, error: 'Database not configured' };
+	const { data: existing } = await supabase
+		.from('prospects')
+		.select('id')
+		.eq('id', prospectId)
+		.eq('user_id', userId)
+		.maybeSingle();
+	if (!existing) return { ok: false, error: 'Prospect not found or access denied' };
+	const updates: Record<string, string | null> = { updated_at: new Date().toISOString() };
+	if (fields.email !== undefined) updates.email = (fields.email ?? '').trim().slice(0, 500);
+	if (fields.phone !== undefined) updates.phone = (fields.phone ?? '').trim().slice(0, 100) || null;
+	if (Object.keys(updates).length <= 1) return { ok: true };
+	const { error } = await supabase
+		.from('prospects')
+		.update(updates)
+		.eq('id', prospectId)
+		.eq('user_id', userId);
 	if (error) return { ok: false, error: error.message };
 	return { ok: true };
 }

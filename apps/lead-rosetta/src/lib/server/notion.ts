@@ -368,6 +368,21 @@ function getPropValue(props: Record<string, NotionProp>, notionName: string): st
 	return v || undefined;
 }
 
+/** Try common Notion property names for email, then scan all properties for native email type. */
+function getEmailFromNotionProps(props: Record<string, NotionProp>): string {
+	const tryKeys = ['Email', 'E-mail', 'Contact Email', 'Email Address', 'Contact', 'Work Email'];
+	for (const key of tryKeys) {
+		const p = props[key];
+		if (p?.email && typeof p.email === 'string' && p.email.trim()) return p.email.trim();
+		const rich = p?.rich_text?.[0]?.plain_text?.trim();
+		if (rich) return rich;
+	}
+	for (const [, p] of Object.entries(props)) {
+		if (p?.email && typeof p.email === 'string' && p.email.trim()) return p.email.trim();
+	}
+	return '';
+}
+
 function mapNotionPageToProspect(
 	page: { id: string; properties: Record<string, unknown> },
 	fieldMapping?: Record<string, string>
@@ -415,7 +430,7 @@ function mapNotionPageToProspect(
 		return {
 			id: page.id,
 			companyName: mapped('companyName') ?? firstTitle('Name', 'Company', 'Company Name') ?? 'Unknown',
-			email: mapped('email') ?? firstRich('Email', 'E-mail') ?? '',
+			email: (mapped('email') ?? getEmailFromNotionProps(props)) || '',
 			website: mapped('website') ?? (props['Website']?.url || firstRich('Website')) ?? '',
 			phone: mapped('phone') ?? (props['Phone']?.phone_number ?? firstRich('Phone', 'Phone Number')) ?? undefined,
 			address: mapped('address') ?? firstRich('Address') ?? undefined,
@@ -427,12 +442,12 @@ function mapNotionPageToProspect(
 	}
 
 	const websiteUrl = props['Website']?.url;
-	const emailVal = props['Email']?.email ?? firstRich('Email', 'E-mail');
+	const emailVal = getEmailFromNotionProps(props);
 	const phoneVal = props['Phone']?.phone_number ?? firstRich('Phone', 'Phone Number');
 	return {
 		id: page.id,
 		companyName: firstTitle('Name', 'Company', 'Company Name'),
-		email: emailVal ?? '',
+		email: emailVal,
 		website: websiteUrl || firstRich('Website') || '',
 		phone: phoneVal || undefined,
 		address: firstRich('Address') || undefined,

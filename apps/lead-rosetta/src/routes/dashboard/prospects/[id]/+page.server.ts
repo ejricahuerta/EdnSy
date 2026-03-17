@@ -42,7 +42,7 @@ import {
 } from '$lib/server/send';
 import { generateEmailCopy } from '$lib/server/generateEmailCopy';
 import { getTemplates } from '$lib/server/templates';
-import { deleteProspect } from '$lib/server/prospects';
+import { deleteProspect, updateProspectContact } from '$lib/server/prospects';
 
 export const load: PageServerLoad = async ({ params, cookies }) => {
 	const cookie = cookies.get(getSessionCookieName());
@@ -193,6 +193,42 @@ export const actions: Actions = {
 		return { success: true, prospectId, status };
 	},
 
+	/** Set demo to approved so the user can send email. Only allowed when current status is draft. */
+	approveDemo: async ({ request, cookies }) => {
+		const cookie = cookies.get(getSessionCookieName());
+		const user = await getSessionFromCookie(cookie);
+		if (!user) return fail(401, { message: 'Sign in required' });
+		const formData = await request.formData();
+		const prospectId = formData.get('prospectId');
+		if (!prospectId || typeof prospectId !== 'string') {
+			return fail(400, { message: 'Missing prospect ID' });
+		}
+		const prospect = await getProspectByIdForUser(user.id, prospectId);
+		if (!prospect) return fail(404, { message: 'Prospect not found' });
+		if (!(prospect.demoLink ?? '').trim()) {
+			return fail(400, { message: 'No demo to approve. Create a demo first.' });
+		}
+		let demoTracking = await getDemoTrackingForProspect(user.id, prospectId);
+		if (!demoTracking) {
+			// Legacy: prospect has demo link but no demo_tracking row; create one as approved so Send is available
+			await upsertDemoTrackingForProspect(
+				user.id,
+				prospectId,
+				prospect.provider ?? 'manual',
+				prospect.provider_row_id ?? prospectId,
+				(prospect.demoLink ?? '').trim(),
+				'approved'
+			);
+			return { success: true, prospectId };
+		}
+		if (demoTracking.status !== 'draft') {
+			return fail(400, { message: 'Demo is already approved or sent. No need to approve again.' });
+		}
+		const result = await updateDemoTrackingStatus(user.id, prospectId, { status: 'approved' });
+		if (!result.ok) return fail(502, { message: result.error ?? 'Failed to approve demo' });
+		return { success: true, prospectId };
+	},
+
 	/** Regenerate demo: enqueue a job so Claude runs one-at-a-time (avoids rate limit). */
 	regenerateDemo: async ({ request, cookies }) => {
 		const cookie = cookies.get(getSessionCookieName());
@@ -250,6 +286,24 @@ export const actions: Actions = {
 		if (!prospect.demoLink || (prospect.flagged && prospect.flaggedReason !== NO_FIT_GBP_REASON)) {
 			return fail(400, { message: 'No demo link or prospect out of scope.' });
 		}
+		let demoTracking = await getDemoTrackingForProspect(user.id, prospectId);
+		if (!demoTracking && (prospect.demoLink ?? '').trim()) {
+			// Legacy: create demo_tracking as approved so send can proceed
+			await upsertDemoTrackingForProspect(
+				user.id,
+				prospectId,
+				prospect.provider ?? 'manual',
+				prospect.provider_row_id ?? prospectId,
+				(prospect.demoLink ?? '').trim(),
+				'approved'
+			);
+			demoTracking = await getDemoTrackingForProspect(user.id, prospectId);
+		}
+		if (!demoTracking || demoTracking.status !== 'approved') {
+			return fail(400, {
+				message: 'Demo must be approved before sending. Open the prospect and click Approve demo.'
+			});
+		}
 		const [senderName, emailSignatureOverride] = await Promise.all([
 			getEffectiveEmailSenderName(user.id, user.email),
 			getEmailSignatureOverride(user.id)
@@ -293,8 +347,13 @@ export const actions: Actions = {
 			const result = await sendSms(prospect.phone.trim(), body);
 			if (result.ok) sent++;
 		}
-		if (sent === 0 && !prospect.email?.trim() && !prospect.phone?.trim()) {
-			return fail(400, { message: 'No email or phone to send to.' });
+		if (sent === 0) {
+			if (!(prospect.email ?? '').trim() && !(prospect.phone ?? '').trim()) {
+				return fail(400, {
+					message: 'No email or phone to send to. Add an email (or phone for SMS) on this prospect first.'
+				});
+			}
+			return fail(502, { message: 'Email could not be sent. Check Integrations (Gmail) and try again.' });
 		}
 		return { success: true, sent, prospectId };
 	},
@@ -342,6 +401,24 @@ export const actions: Actions = {
 		});
 		if (!result.ok) return fail(502, { message: result.error });
 		return { success: true, prospectId };
+	},
+
+	updateEmail: async ({ request, cookies }) => {
+		const cookie = cookies.get(getSessionCookieName());
+		const user = await getSessionFromCookie(cookie);
+		if (!user) return fail(401, { message: 'Sign in required' });
+		const formData = await request.formData();
+		const prospectId = formData.get('prospectId');
+		const email = (formData.get('email') as string)?.trim() ?? '';
+		if (!prospectId || typeof prospectId !== 'string') return fail(400, { message: 'Missing prospect ID' });
+		const result = await updateProspectContact(user.id, prospectId, { email });
+		if (!result.ok) {
+			return fail(
+				result.error === 'Prospect not found or access denied' ? 404 : 502,
+				{ message: result.error ?? 'Failed to update email' }
+			);
+		}
+		return { success: true, prospectId, email };
 	},
 
 	deleteProspect: async ({ request, cookies }) => {

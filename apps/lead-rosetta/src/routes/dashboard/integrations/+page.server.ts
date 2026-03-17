@@ -23,6 +23,11 @@ import {
 	NOTION_FIELD_KEYS
 } from '$lib/server/notion';
 import { upsertProspect } from '$lib/server/prospects';
+import {
+	getGbpDentalDailyStats,
+	runPullGbpDental,
+	isPlacesConfiguredForGbp
+} from '$lib/server/pullGbpDental';
 
 function loadHelpDocs(): Record<string, string> {
 	const out: Record<string, string> = {};
@@ -44,6 +49,9 @@ export const load: PageServerLoad = async ({ cookies }) => {
 	const gmailConnected = !!(gmailTokens?.refresh_token);
 	const gmailEmail = gmailTokens?.email ?? null;
 	const notionFieldKeys = NOTION_FIELD_KEYS;
+	const { todayCount: gbpDentalTodayCount, dailyCap: gbpDentalDailyCap } =
+		await getGbpDentalDailyStats(user.id);
+	const placesApiConfigured = isPlacesConfiguredForGbp();
 
 	let notionDatabaseId: string | null = null;
 	let notionDatabaseTitle: string | null = null;
@@ -63,7 +71,10 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		gmailEmail,
 		notionFieldKeys,
 		notionDatabaseId,
-		notionDatabaseTitle
+		notionDatabaseTitle,
+		gbpDentalTodayCount,
+		gbpDentalDailyCap,
+		placesApiConfigured
 	};
 };
 
@@ -329,5 +340,13 @@ export const actions: Actions = {
 		const result = await deleteGmailTokens(user.id);
 		if (!result.ok) return fail(502, { message: result.error ?? 'Failed to disconnect' });
 		return { success: true, message: 'Gmail disconnected.' };
+	},
+	pullGbpDental: async ({ cookies }) => {
+		const cookie = cookies.get(getSessionCookieName());
+		const user = await getSessionFromCookie(cookie);
+		if (!user) return fail(401, { message: 'Sign in required' });
+		const result = await runPullGbpDental(user.id);
+		if (!result.ok) return fail(400, { message: result.message });
+		return { success: true, message: result.message, added: result.added };
 	}
 };
