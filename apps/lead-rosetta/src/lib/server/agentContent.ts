@@ -86,7 +86,24 @@ export async function saveAgentContent(
 		version: nextVersion
 	});
 
-	if (error) return { ok: false, error: error.message };
+	if (error) {
+		const lowerError = error.message.toLowerCase();
+		if (lowerError.includes('agent_content_versions_agent')) {
+			return {
+				ok: false,
+				error:
+					'Database migration is out of date for AI agent prompts. Run migration 20260313120000_agent_content_versions_add_email_gbp.sql.'
+			};
+		}
+		if (lowerError.includes('relation') && lowerError.includes('agent_content_versions')) {
+			return {
+				ok: false,
+				error:
+					'Missing database table for AI agent prompts. Run migration 20260310120000_agent_content_versions.sql.'
+			};
+		}
+		return { ok: false, error: error.message };
+	}
 	return { ok: true, version: nextVersion };
 }
 
