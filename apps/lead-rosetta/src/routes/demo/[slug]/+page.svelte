@@ -4,32 +4,37 @@
 	import ChatWidget from '$lib/components/ChatWidget.svelte';
 	import RetellCallbackDialog from '$lib/components/RetellCallbackDialog.svelte';
 	import DemoCtaDropdown from '$lib/components/DemoCtaDropdown.svelte';
-	import { DEMO_PHONE, DEMO_PHONE_DISPLAY, CAL_COM_LINK } from '$lib/constants';
+	import { DEMO_PHONE, DEMO_PHONE_DISPLAY, CAL_COM_LINK, EDNSY_PRIVACY_LINK, EDNSY_TERMS_LINK } from '$lib/constants';
 	import { DEMO_ERROR } from '$lib/constants/demoErrors';
 
 	let { data } = $props();
-	const freeDemoPending = data.freeDemoPending === true;
-	const freeDemoCompanyName = (data.freeDemoCompanyName as string) ?? 'Your business';
-	const freeDemoIndustry = (data.freeDemoIndustry as string) ?? 'professional';
-	const freeDemoEmail = (data.freeDemoEmail as string) ?? '';
-	const freeDemoFailed = data.freeDemoFailed === true;
-	const freeDemoErrorMessage = (data.errorMessage as string) ?? '';
-	const useCinematicDemo = data.useCinematicDemo === true;
-	const prospectId = data.prospectId as string;
-	const industrySlug = data.industrySlug as string;
-	const companyName = (data.companyName as string) ?? 'Demo';
+	const freeDemoPending = $derived(data.freeDemoPending === true);
+	const freeDemoCompanyName = $derived((data.freeDemoCompanyName as string) ?? 'Your business');
+	const freeDemoIndustry = $derived((data.freeDemoIndustry as string) ?? 'professional');
+	const freeDemoEmail = $derived((data.freeDemoEmail as string) ?? '');
+	const freeDemoFailed = $derived(data.freeDemoFailed === true);
+	const freeDemoErrorMessage = $derived((data.errorMessage as string) ?? '');
+	const useCinematicDemo = $derived(data.useCinematicDemo === true);
+	const prospectId = $derived(data.prospectId as string);
+	const industrySlug = $derived(data.industrySlug as string);
+	const companyName = $derived((data.companyName as string) ?? 'Demo');
 	/** Iframe loads HTML from /demo/[slug]/page.html (avoids embedding raw HTML in load data). */
-	const cinematicDemoSrc = useCinematicDemo && prospectId ? `/demo/${prospectId}/page.html` : '';
+	const cinematicDemoSrc = $derived(useCinematicDemo && prospectId ? `/demo/${prospectId}/page.html` : '');
 
-	const pageJson = useCinematicDemo ? null : (data.pageJson as DemoPageJson);
-	const theme = useCinematicDemo ? '' : (data.theme as string);
-	const layout = useCinematicDemo ? '' : (data.layout as string);
-	const themeClass = theme ? `theme-${theme}` : '';
+	const pageJson = $derived(data.pageJson as DemoPageJson);
+	const theme = $derived((data.theme as string) ?? '');
+	const layout = $derived((data.layout as string) ?? '');
+	const themeClass = $derived(theme ? `theme-${theme}` : '');
 
 	let callbackDialogOpen = $state(false);
 	let demoIframeRef = $state<HTMLIFrameElement | null>(null);
 	let iframeBlank = $state(false);
 	let iframeLoadTimeout = $state(false);
+
+	function openEdnsyLegalDocs() {
+		window.open(EDNSY_PRIVACY_LINK, '_blank', 'noopener,noreferrer');
+		setTimeout(() => window.open(EDNSY_TERMS_LINK, '_blank', 'noopener,noreferrer'), 50);
+	}
 
 	function handleDemoIframeLoad() {
 		const iframe = demoIframeRef;
@@ -224,7 +229,7 @@
 		<RetellCallbackDialog
 			bind:open={callbackDialogOpen}
 			prospectId={prospectId}
-			onerror={(e) => e.detail?.notConfigured && window.open(CAL_COM_LINK, '_blank', 'noopener,noreferrer')}
+			on:error={() => openEdnsyLegalDocs()}
 		/>
 		<ChatWidget
 			industrySlug={industrySlug}
@@ -239,7 +244,7 @@
 	<!-- Nav -->
 	<nav class="nav-bar" id="nav">
 		<div class="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-4 py-4 min-h-[3.5rem] md:min-h-14">
-			<a href="#" class="flex items-center gap-2">
+			<a href="/" class="flex items-center gap-2">
 				<img
 					src={pageJson.brand.logoUrl?.trim() || DEFAULT_LOGO}
 					alt={pageJson.brand.logoAlt}
@@ -635,7 +640,7 @@
 	<RetellCallbackDialog
 		bind:open={callbackDialogOpen}
 		prospectId={prospectId}
-		onerror={(e) => e.detail?.notConfigured && window.open(CAL_COM_LINK, '_blank', 'noopener,noreferrer')}
+		on:error={() => openEdnsyLegalDocs()}
 	/>
 
 	<ChatWidget

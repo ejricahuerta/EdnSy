@@ -39,8 +39,10 @@ function nav(data) {
 function hero(data) {
   const b = data.business || {};
   const h = data.hero || {};
-  // Generic hero copy only — no business name or business-specific headline in headings
-  const headline = "Your Smile Deserves Expert Care";
+  const rawHeadline = typeof h.headline === "string" ? h.headline.trim() : "";
+  const headlineMarkup = rawHeadline
+    ? escapeHtml(rawHeadline)
+    : `Your Smile Deserves Expert Care<br><span class="wave">Every Smile</span>`;
   const sub = escapeHtml(h.subheadline || "Comprehensive dentistry in a comfortable, modern setting. From checkups to cosmetic and restorative treatments.");
   const cta = h.cta || { label: "Book an Appointment", href: "#contact" };
   const heroImg = data.images?.hero || data.hero?.image;
@@ -49,7 +51,7 @@ function hero(data) {
   <div class="hero-content">
     <div class="hero-pill"><span class="dot"></span> Family Dental Care</div>
     <span class="badge badge-teal badge-dot" style="margin-left:12px;margin-bottom:28px;display:inline-flex">Accepting New Patients</span>
-    <h1 class="hero-h1">${headline}<br><span class="wave">Every Smile</span></h1>
+    <h1 class="hero-h1">${headlineMarkup}</h1>
     <p class="hero-sub">${sub}</p>
     <div class="hero-actions">
       <a class="btn btn-primary" href="${escapeHtml(cta.href)}">${escapeHtml(cta.label)}</a>

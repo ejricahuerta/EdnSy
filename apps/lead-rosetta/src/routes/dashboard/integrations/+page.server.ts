@@ -218,6 +218,6 @@ export const actions: Actions = {
 		if (!user) return fail(401, { message: 'Sign in required' });
 		const result = await runPullGbpDental(user.id);
 		if (!result.ok) return fail(400, { message: result.message });
-		return { success: true, message: result.message, added: result.added };
+		return { success: true, message: result.message, added: result.added, leads: result.leads };
 	}
 };

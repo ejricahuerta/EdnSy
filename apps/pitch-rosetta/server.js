@@ -131,8 +131,14 @@ async function postCallback(callbackUrl, callbackToken, body) {
 
 const app = express();
 
-/** Static images for dental styles (v3, v4, v5) — GET /images/hero.jpg, /images/about.jpg */
+/** Static images for dental styles (v3, v4, v5) — GET /images/dental/hero.jpg, /images/dental/about.jpg */
 app.use("/images", express.static(resolve(__dirname, "images")));
+
+/** Static images used by dental style-guide HTML (dental-v6.html, etc.) */
+app.use(
+  "/style-guides/dental/images",
+  express.static(resolve(__dirname, "style-guides", "dental", "images"))
+);
 
 /** API docs (OpenAPI 3 + Swagger UI). Set DISABLE_API_DOCS=1 to hide in production. */
 if (!DISABLE_API_DOCS) {
@@ -185,7 +191,7 @@ function loadIndexJson(jsonParam) {
 
 /** GET /api/render-test — render HTML. Mix/match JSON and style via query.
  *  ?json=index.json|index-dental-riverside.json|index-dental-downtown.json (optional; omit for random JSON)
- *  ?style=dental-v1|dental-v2|dental-v3|dental-v4 (optional; omit for random style)
+ *  ?style=dental-v1|dental-v2|dental-v3|dental-v4|dental-v6 (optional; omit for random style)
  */
 app.get("/api/render-test", (req, res) => {
   const loaded = loadIndexJson(req.query.json);

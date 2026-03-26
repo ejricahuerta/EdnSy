@@ -38,8 +38,8 @@ function nav(data) {
 function hero(data) {
   const b = data.business || {};
   const h = data.hero || {};
-  // Generic hero copy only — no business name or business-specific headline in headings
-  const headline = "Your Smile Deserves the Best Possible Care";
+  const rawHeadline = typeof h.headline === "string" ? h.headline.trim() : "";
+  const headline = escapeHtml(rawHeadline || "Your Smile Deserves the Best Possible Care");
   const sub = escapeHtml(h.subheadline || "Modern dentistry that combines clinical precision with genuine compassion.");
   const cta = h.cta || { label: "Book Free Consultation →", href: "#cta-section" };
   const stats = data.stats || [

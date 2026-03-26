@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Serenity Dental Studio — Toronto, ON</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── RESET ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    :root {
+      --cream:  #FAFAF7;
+      --warm:   #F3EDE3;
+      --deep:   #1A2D25;
+      --gold:   #BF9A6A;
+      --sage:   #6B8C7A;
+      --text:   #1E1E1C;
+      --muted:  #8A8580;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      background: var(--cream);
+      color: var(--text);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      padding: 0 64px;
+      transition: background 0.4s ease, box-shadow 0.4s ease;
+    }
+
+    nav.scrolled {
+      background: rgba(250,250,247,0.97);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 1px 0 rgba(30,30,28,0.07);
+    }
+
+    .nav-inner {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 500;
+      font-size: 21px;
+      letter-spacing: 0.04em;
+      color: #fff;
+      transition: color 0.4s;
+    }
+
+    nav.scrolled .nav-logo { color: var(--deep); }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+      list-style: none;
+    }
+
+    .nav-links li a {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      font-size: 14px;
+      color: rgba(255,255,255,0.72);
+      letter-spacing: 0.01em;
+      transition: color 0.25s;
+    }
+
+    .nav-links li a:hover { color: #fff; }
+    nav.scrolled .nav-links li a { color: var(--muted); }
+    nav.scrolled .nav-links li a:hover { color: var(--text); }
+
+    .btn-nav {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: 13px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+      padding: 12px 28px;
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 2px;
+      cursor: pointer;
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .btn-nav:hover { background: rgba(255,255,255,0.22); border-color: rgba(255,255,255,0.65); }
+    nav.scrolled .btn-nav { background: var(--deep); color: #fff; border-color: var(--deep); }
+    nav.scrolled .btn-nav:hover { background: #243d32; border-color: #243d32; }
+
+    /* ─── HERO ─── */
+    .hero {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      min-height: 720px;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background-image: url('images/hero.jpg');
+      background-size: cover;
+      background-position: center 25%;
+      animation: hero-zoom 14s ease-out forwards;
+    }
+
+    @keyframes hero-zoom {
+      from { transform: scale(1.06); }
+      to   { transform: scale(1.00); }
+    }
+
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        160deg,
+        rgba(20,38,30,0.25) 0%,
+        rgba(20,38,30,0.15) 30%,
+        rgba(20,38,30,0.52) 68%,
+        rgba(20,38,30,0.82) 100%
+      );
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 10;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 0 88px 108px;
+    }
+
+    .hero-eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .hero-eyebrow-line { width: 36px; height: 1px; background: var(--gold); }
+
+    .hero-eyebrow-text {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .hero-headline {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: clamp(68px, 8.5vw, 118px);
+      line-height: 0.94;
+      letter-spacing: -1px;
+      color: #fff;
+      margin-bottom: 32px;
+      max-width: 860px;
+    }
+
+    .hero-headline em { font-style: italic; color: var(--gold); }
+
+    .hero-sub {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      font-size: 17px;
+      line-height: 1.75;
+      color: rgba(255,255,255,0.6);
+      max-width: 420px;
+      margin-bottom: 52px;
+    }
+
+    .hero-actions { display: flex; align-items: center; gap: 28px; }
+
+    .btn-primary {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: 13px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: var(--gold);
+      color: #fff;
+      padding: 18px 44px;
+      border-radius: 2px;
+      display: inline-block;
+      transition: background 0.3s;
+      cursor: pointer;
+    }
+
+    .btn-primary:hover { background: #a8855a; }
+
+    .btn-ghost {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      font-size: 13px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.65);
+      border-bottom: 1px solid rgba(255,255,255,0.28);
+      padding-bottom: 3px;
+      transition: color 0.3s, border-color 0.3s;
+    }
+
+    .btn-ghost:hover { color: #fff; border-color: rgba(255,255,255,0.75); }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 48px;
+      right: 88px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      z-index: 10;
+    }
+
+    .hero-scroll span {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      writing-mode: vertical-rl;
+    }
+
+    .hero-scroll-bar {
+      width: 1px;
+      height: 56px;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.35), transparent);
+      animation: scroll-pulse 2.2s ease-in-out infinite;
+    }
+
+    @keyframes scroll-pulse {
+      0%, 100% { opacity: 0.35; }
+      50%       { opacity: 1; }
+    }
+
+    /* ─── TICKER ─── */
+    .ticker {
+      background: var(--deep);
+      padding: 18px 0;
+      overflow: hidden;
+    }
+
+    .ticker-track {
+      display: inline-flex;
+      animation: ticker-move 32s linear infinite;
+      white-space: nowrap;
+    }
+
+    .ticker-track span {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 400;
+      font-size: 14px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.42);
+      padding: 0 36px;
+    }
+
+    .ticker-track span.sep {
+      color: var(--gold);
+      padding: 0 4px;
+      font-size: 10px;
+      opacity: 0.8;
+    }
+
+    @keyframes ticker-move {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* ─── SHARED ─── */
+    .section-label {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-label::before {
+      content: '';
+      width: 26px;
+      height: 1px;
+      background: var(--gold);
+      flex-shrink: 0;
+    }
+
+    .section-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 400;
+      font-size: clamp(38px, 3.8vw, 56px);
+      letter-spacing: -0.5px;
+      line-height: 1.08;
+      color: var(--text);
+    }
+
+    .section-heading em { font-style: italic; color: var(--deep); }
+
+    .section-body {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      font-size: 16px;
+      line-height: 1.82;
+      color: var(--muted);
+    }
+
+    .btn-text {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--deep);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--deep);
+      padding-bottom: 3px;
+      transition: gap 0.3s, color 0.3s, border-color 0.3s;
+    }
+
+    .btn-text:hover { gap: 18px; color: var(--gold); border-color: var(--gold); }
+
+    /* ─── ABOUT ─── */
+    .about {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 660px;
+    }
+
+    .about-text {
+      background: var(--cream);
+      padding: 120px 88px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .about-text .section-heading { margin-top: 0; margin-bottom: 22px; }
+    .about-text .section-body   { max-width: 400px; margin-bottom: 40px; }
+
+    .about-image { position: relative; overflow: hidden; }
+
+    .about-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.9s ease;
+    }
+
+    .about-image:hover img { transform: scale(1.04); }
+
+    .about-badge {
+      position: absolute;
+      bottom: 44px;
+      left: 44px;
+      background: var(--cream);
+      padding: 24px 30px;
+      border-left: 3px solid var(--gold);
+    }
+
+    .badge-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 500;
+      font-size: 46px;
+      color: var(--deep);
+      line-height: 1;
+      display: block;
+    }
+
+    .badge-label {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 4px;
+      display: block;
+    }
+
+    /* ─── SERVICES ─── */
+    .services {
+      background: var(--warm);
+      padding: 120px 88px;
+    }
+
+    .services-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 64px;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+    }
+
+    .service-card {
+      background: var(--cream);
+      cursor: pointer;
+      transition: background 0.3s;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .service-card-img {
+      width: 100%;
+      aspect-ratio: 3/2;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.7s ease;
+    }
+
+    .service-card:hover .service-card-img { transform: scale(1.05); }
+
+    .service-card-body { padding: 36px 40px 40px; flex: 1; }
+
+    .service-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 0; height: 2px;
+      background: var(--gold);
+      transition: width 0.45s ease;
+    }
+
+    .service-card:hover { background: #fff; }
+    .service-card:hover::after { width: 100%; }
+
+    .service-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 400;
+      font-size: 13px;
+      letter-spacing: 0.14em;
+      color: var(--gold);
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .service-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 500;
+      font-size: 24px;
+      letter-spacing: -0.3px;
+      color: var(--text);
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+
+    .service-desc {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      font-size: 14px;
+      line-height: 1.72;
+      color: var(--muted);
+    }
+
+    .service-arrow {
+      margin-top: 22px;
+      font-size: 20px;
+      color: var(--gold);
+      display: inline-block;
+      transition: transform 0.3s;
+    }
+
+    .service-card:hover .service-arrow { transform: translate(4px, -4px); }
+
+    /* ─── PHOTO STRIP ─── */
+    .photo-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      height: 320px;
+    }
+
+    .photo-strip-item {
+      overflow: hidden;
+      position: relative;
+    }
+
+    .photo-strip-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.7s ease;
+    }
+
+    .photo-strip-item:hover img { transform: scale(1.07); }
+
+    /* ─── INSURANCE BANNER ─── */
+    .insurance-banner {
+      background: var(--cream);
+      padding: 56px 88px;
+      border-top: 1px solid rgba(30,30,28,0.07);
+      border-bottom: 1px solid rgba(30,30,28,0.07);
+    }
+
+    .insurance-inner {
+      display: flex;
+      align-items: center;
+      gap: 64px;
+    }
+
+    .insurance-label {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .insurance-divider {
+      width: 1px;
+      height: 32px;
+      background: rgba(30,30,28,0.12);
+      flex-shrink: 0;
+    }
+
+    .insurance-list {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+
+    .insurance-item {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 500;
+      font-size: 16px;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+      transition: color 0.25s;
+      white-space: nowrap;
+    }
+
+    .insurance-item:hover { color: var(--deep); }
+
+    .insurance-cdcp {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      background: var(--deep);
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 2px;
+      white-space: nowrap;
+    }
+
+    /* ─── EXPERIENCE ─── */
+    .experience {
+      background: var(--deep);
+      padding: 140px 88px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 100px;
+      align-items: center;
+    }
+
+    .exp-left .section-label { color: rgba(255,255,255,0.35); }
+    .exp-left .section-label::before { background: rgba(255,255,255,0.18); }
+    .exp-left .section-heading { color: #fff; margin-bottom: 24px; }
+    .exp-left .section-heading em { color: var(--gold); }
+    .exp-left .section-body { color: rgba(255,255,255,0.42); max-width: 380px; margin-bottom: 44px; }
+
+    .exp-points { display: flex; flex-direction: column; }
+
+    .exp-point {
+      padding: 32px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      display: flex;
+      gap: 28px;
+      align-items: flex-start;
+    }
+
+    .exp-point:first-child { border-top: 1px solid rgba(255,255,255,0.07); }
+
+    .exp-point-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 400;
+      font-size: 13px;
+      color: var(--gold);
+      opacity: 0.75;
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+
+    .exp-point h4 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 500;
+      font-size: 20px;
+      color: #fff;
+      margin-bottom: 8px;
+      letter-spacing: -0.2px;
+    }
+
+    .exp-point p {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      font-size: 14px;
+      line-height: 1.68;
+      color: rgba(255,255,255,0.38);
+    }
+
+    /* ─── TESTIMONIALS ─── */
+    .testimonials {
+      background: var(--cream);
+      padding: 120px 88px;
+    }
+
+    .testimonials-header { margin-bottom: 68px; }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+    }
+
+    .t-card { background: var(--warm); padding: 52px 44px; }
+
+    .t-stars {
+      font-size: 13px;
+      letter-spacing: 3px;
+      color: var(--gold);
+      margin-bottom: 24px;
+      display: block;
+    }
+
+    .t-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 400;
+      font-style: italic;
+      font-size: 20px;
+      line-height: 1.6;
+      color: var(--text);
+      margin-bottom: 36px;
+    }
+
+    .t-author { display: flex; align-items: center; gap: 14px; }
+
+    .t-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .t-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .t-name {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      color: var(--text);
+      display: block;
+    }
+
+    .t-service {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      font-size: 12px;
+      color: var(--muted);
+      display: block;
+      margin-top: 3px;
+    }
+
+    /* ─── CTA ─── */
+    .cta-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 580px;
+    }
+
+    .cta-image { position: relative; overflow: hidden; }
+
+    .cta-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      display: block;
+    }
+
+    .cta-content {
+      background: var(--deep);
+      padding: 100px 88px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .cta-content .section-label { color: rgba(255,255,255,0.32); }
+    .cta-content .section-label::before { background: rgba(255,255,255,0.18); }
+    .cta-content .section-heading { color: #fff; margin-bottom: 20px; }
+    .cta-content .section-heading em { color: var(--gold); }
+
+    .cta-content > p {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      font-size: 15px;
+      line-height: 1.78;
+      color: rgba(255,255,255,0.42);
+      margin-bottom: 48px;
+      max-width: 360px;
+    }
+
+    .cta-phone-label {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.28);
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .cta-phone {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 400;
+      font-size: 32px;
+      color: #fff;
+      letter-spacing: -0.5px;
+      margin-bottom: 32px;
+      display: block;
+      transition: color 0.3s;
+    }
+
+    .cta-phone:hover { color: var(--gold); }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: #13201A;
+      padding: 88px;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 60px;
+    }
+
+    .footer-brand .logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 500;
+      font-size: 21px;
+      letter-spacing: 0.04em;
+      color: #fff;
+      margin-bottom: 18px;
+      display: block;
+    }
+
+    .footer-brand p {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      font-size: 14px;
+      line-height: 1.78;
+      color: rgba(255,255,255,0.3);
+      max-width: 250px;
+    }
+
+    .footer-cda {
+      margin-top: 24px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.22);
+    }
+
+    .footer-cda::before {
+      content: '✦';
+      color: var(--gold);
+      font-size: 8px;
+    }
+
+    .footer-col h5 {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 22px;
+      opacity: 0.85;
+    }
+
+    .footer-col ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+    }
+
+    .footer-col ul li a {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      font-size: 14px;
+      color: rgba(255,255,255,0.38);
+      transition: color 0.25s;
+    }
+
+    .footer-col ul li a:hover { color: rgba(255,255,255,0.75); }
+
+    .footer-bottom {
+      background: #13201A;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      padding: 24px 88px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-bottom p {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      font-size: 13px;
+      color: rgba(255,255,255,0.22);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav id="nav">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">Serenity Dental Studio</a>
+      <ul class="nav-links">
+        <li><a href="#">About</a></li>
+        <li><a href="#">Services</a></li>
+        <li><a href="#">Our Team</a></li>
+        <li><a href="#">New Patients</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+      <a href="#" class="btn-nav">Book a Recall</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-eyebrow">
+        <div class="hero-eyebrow-line"></div>
+        <span class="hero-eyebrow-text">Toronto, Ontario &nbsp;·&nbsp; Est. 2012</span>
+      </div>
+      <h1 class="hero-headline">Where <em>beautiful</em><br>smiles begin.</h1>
+      <p class="hero-sub">Exceptional dental care in a calm, boutique setting — designed entirely around you.</p>
+      <div class="hero-actions">
+        <a href="#" class="btn-primary">Book a Visit</a>
+        <a href="#" class="btn-ghost">Explore Services</a>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <span>Scroll</span>
+      <div class="hero-scroll-bar"></div>
+    </div>
+  </section>
+
+  <!-- TICKER -->
+  <div class="ticker">
+    <div class="ticker-track">
+      <span>General Dentistry</span><span class="sep">◆</span>
+      <span>Cosmetic Dentistry</span><span class="sep">◆</span>
+      <span>Dental Implants</span><span class="sep">◆</span>
+      <span>Teeth Whitening</span><span class="sep">◆</span>
+      <span>Invisalign</span><span class="sep">◆</span>
+      <span>Porcelain Veneers</span><span class="sep">◆</span>
+      <span>Sedation Dentistry</span><span class="sep">◆</span>
+      <span>Restorative Care</span><span class="sep">◆</span>
+      <span>General Dentistry</span><span class="sep">◆</span>
+      <span>Cosmetic Dentistry</span><span class="sep">◆</span>
+      <span>Dental Implants</span><span class="sep">◆</span>
+      <span>Teeth Whitening</span><span class="sep">◆</span>
+      <span>Invisalign</span><span class="sep">◆</span>
+      <span>Porcelain Veneers</span><span class="sep">◆</span>
+      <span>Sedation Dentistry</span><span class="sep">◆</span>
+      <span>Restorative Care</span><span class="sep">◆</span>
+    </div>
+  </div>
+
+  <!-- ABOUT -->
+  <section class="about">
+    <div class="about-text">
+      <span class="section-label">Our Philosophy</span>
+      <h2 class="section-heading">Dentistry <em>reimagined</em><br>for modern life.</h2>
+      <p class="section-body" style="margin-top:22px;margin-bottom:40px;">We believe dental care should feel like a retreat, not a chore. Our studio blends clinical excellence with spa-inspired comfort — so you leave feeling genuinely cared for, not just treated.</p>
+      <a href="#" class="btn-text">Meet the team &nbsp;→</a>
+    </div>
+    <div class="about-image">
+      <img src="images/about.jpg" alt="Our dental team" />
+      <div class="about-badge">
+        <span class="badge-num">15+</span>
+        <span class="badge-label">Years serving Toronto</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section class="services">
+    <div class="services-header">
+      <div>
+        <span class="section-label">What We Offer</span>
+        <h2 class="section-heading">Our <em>services</em></h2>
+      </div>
+      <a href="#" class="btn-text">View all &nbsp;→</a>
+    </div>
+    <div class="services-grid">
+      <div class="service-card">
+        <img class="service-card-img" src="images/dental-cleaning-smile-3x2.jpg" alt="General dentistry" />
+        <div class="service-card-body">
+          <span class="service-num">01</span>
+          <h3 class="service-title">General Dentistry</h3>
+          <p class="service-desc">Recall exams, hygiene appointments, and preventive care — the foundation of a healthy smile.</p>
+          <span class="service-arrow">↗</span>
+        </div>
+      </div>
+      <div class="service-card">
+        <img class="service-card-img" src="images/dental-cleaning-woman-3x2.jpg" alt="Cosmetic dentistry" />
+        <div class="service-card-body">
+          <span class="service-num">02</span>
+          <h3 class="service-title">Cosmetic Dentistry</h3>
+          <p class="service-desc">Veneers, whitening, and smile makeovers crafted to complement your natural beauty.</p>
+          <span class="service-arrow">↗</span>
+        </div>
+      </div>
+      <div class="service-card">
+        <img class="service-card-img" src="images/dental-eye-protector-3x2.jpg" alt="Dental implants" />
+        <div class="service-card-body">
+          <span class="service-num">03</span>
+          <h3 class="service-title">Dental Implants</h3>
+          <p class="service-desc">Permanent, natural-looking tooth replacements that restore full function and confidence.</p>
+          <span class="service-arrow">↗</span>
+        </div>
+      </div>
+      <div class="service-card">
+        <div class="service-card-body" style="padding-top:52px;">
+          <span class="service-num">04</span>
+          <h3 class="service-title">Invisalign®</h3>
+          <p class="service-desc">Clear aligner therapy to straighten your teeth discreetly, on your timeline.</p>
+          <span class="service-arrow">↗</span>
+        </div>
+      </div>
+      <div class="service-card">
+        <div class="service-card-body" style="padding-top:52px;">
+          <span class="service-num">05</span>
+          <h3 class="service-title">Sedation Dentistry</h3>
+          <p class="service-desc">Safe, gentle sedation for anxious patients — so every visit is calm and comfortable.</p>
+          <span class="service-arrow">↗</span>
+        </div>
+      </div>
+      <div class="service-card">
+        <div class="service-card-body" style="padding-top:52px;">
+          <span class="service-num">06</span>
+          <h3 class="service-title">Restorative Care</h3>
+          <p class="service-desc">Crowns, bridges, and full-mouth rehabilitation — bringing your smile back to its best.</p>
+          <span class="service-arrow">↗</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PHOTO STRIP -->
+  <div class="photo-strip">
+    <div class="photo-strip-item">
+      <img src="images/dental-checkup-smile-3x2.jpg" alt="Patient checkup" />
+    </div>
+    <div class="photo-strip-item">
+      <img src="images/dental-asian-man-3x2.jpg" alt="Patient care" />
+    </div>
+    <div class="photo-strip-item">
+      <img src="images/dental-smile-asian-3x2.jpg" alt="Happy patient" />
+    </div>
+    <div class="photo-strip-item">
+      <img src="images/dental-cleaning-3x2.jpg" alt="Dental cleaning" />
+    </div>
+  </div>
+
+  <!-- INSURANCE BANNER -->
+  <div class="insurance-banner">
+    <div class="insurance-inner">
+      <span class="insurance-label">Insurance &amp; Benefits</span>
+      <div class="insurance-divider"></div>
+      <div class="insurance-list">
+        <span class="insurance-item">Sun Life</span>
+        <span class="insurance-item">Manulife</span>
+        <span class="insurance-item">Canada Life</span>
+        <span class="insurance-item">Green Shield Canada</span>
+        <span class="insurance-item">Blue Cross</span>
+        <span class="insurance-item">Desjardins</span>
+        <span class="insurance-cdcp">CDCP Accepted</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPERIENCE -->
+  <section class="experience">
+    <div class="exp-left">
+      <span class="section-label">The Difference</span>
+      <h2 class="section-heading">Care that<br><em>goes further.</em></h2>
+      <p class="section-body">From the moment you walk in, every detail is designed to put you at ease. We don't just treat teeth — we build lasting relationships with every patient, every visit.</p>
+      <a href="#" class="btn-primary" style="margin-top:16px;">Book Your Recall</a>
+    </div>
+    <div class="exp-points">
+      <div class="exp-point">
+        <span class="exp-point-num">01</span>
+        <div>
+          <h4>A Calming Environment</h4>
+          <p>Thoughtfully designed spaces with warm lighting, soft music, and spa-inspired amenities throughout.</p>
+        </div>
+      </div>
+      <div class="exp-point">
+        <span class="exp-point-num">02</span>
+        <div>
+          <h4>Advanced Technology</h4>
+          <p>Digital X-rays, 3D cone-beam imaging, and same-day CEREC restorations — precision care, minimal disruption.</p>
+        </div>
+      </div>
+      <div class="exp-point">
+        <span class="exp-point-num">03</span>
+        <div>
+          <h4>Direct Insurance Billing</h4>
+          <p>We direct-bill all major Canadian insurers — Sun Life, Manulife, Canada Life, Green Shield, and more.</p>
+        </div>
+      </div>
+      <div class="exp-point">
+        <span class="exp-point-num">04</span>
+        <div>
+          <h4>Canada Dental Care Plan</h4>
+          <p>Proud to be a CDCP provider. We help eligible patients navigate their federal dental benefits with ease.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="testimonials">
+    <div class="testimonials-header">
+      <span class="section-label">Patient Stories</span>
+      <h2 class="section-heading">What our patients <em>say</em></h2>
+    </div>
+    <div class="testimonials-grid">
+      <div class="t-card">
+        <span class="t-stars">★★★★★</span>
+        <p class="t-text">"I've always been anxious about dental visits, but the team here made me feel completely at ease. The space is beautiful and the care is exceptional."</p>
+        <div class="t-author">
+          <div class="t-avatar">
+            <img src="images/dental-smile-asian-3x2.jpg" alt="Sarah M." />
+          </div>
+          <div>
+            <span class="t-name">Sarah M.</span>
+            <span class="t-service">Smile Makeover · Toronto</span>
+          </div>
+        </div>
+      </div>
+      <div class="t-card">
+        <span class="t-stars">★★★★★</span>
+        <p class="t-text">"My veneers look completely natural. I finally feel confident smiling in photos. Worth every penny — the whole experience was world-class."</p>
+        <div class="t-author">
+          <div class="t-avatar">
+            <img src="images/dental-asian-man-3x2.jpg" alt="James R." />
+          </div>
+          <div>
+            <span class="t-name">James R.</span>
+            <span class="t-service">Porcelain Veneers · Mississauga</span>
+          </div>
+        </div>
+      </div>
+      <div class="t-card">
+        <span class="t-stars">★★★★★</span>
+        <p class="t-text">"They direct-billed my Sun Life plan seamlessly and were upfront about every cost. No surprises — just genuine, attentive care from start to finish."</p>
+        <div class="t-author">
+          <div class="t-avatar">
+            <img src="images/dental-checkup-smile-3x2.jpg" alt="Priya K." />
+          </div>
+          <div>
+            <span class="t-name">Priya K.</span>
+            <span class="t-service">Invisalign · North York</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="cta-image">
+      <img src="images/dental-chair-9x16.jpg" alt="Our dental studio" />
+    </div>
+    <div class="cta-content">
+      <span class="section-label">Ready to Begin?</span>
+      <h2 class="section-heading">Your best smile<br><em>awaits.</em></h2>
+      <p>Book a complimentary consultation and discover what exceptional Canadian dental care truly feels like. We welcome new patients and offer direct billing to all major insurers.</p>
+      <span class="cta-phone-label">Call us directly</span>
+      <a href="tel:+14165550100" class="cta-phone">(416) 555-0100</a>
+      <a href="#" class="btn-primary" style="text-align:center;max-width:260px;">Book Online</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-brand">
+      <span class="logo">Serenity Dental Studio</span>
+      <p>Boutique dental care in Toronto, ON — where every visit feels like a retreat for your smile.</p>
+      <span class="footer-cda">Member · Canadian Dental Association</span>
+    </div>
+    <div class="footer-col">
+      <h5>Services</h5>
+      <ul>
+        <li><a href="#">General Dentistry</a></li>
+        <li><a href="#">Cosmetic Dentistry</a></li>
+        <li><a href="#">Dental Implants</a></li>
+        <li><a href="#">Invisalign</a></li>
+        <li><a href="#">Sedation</a></li>
+        <li><a href="#">Restorative Care</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Practice</h5>
+      <ul>
+        <li><a href="#">About Us</a></li>
+        <li><a href="#">Our Team</a></li>
+        <li><a href="#">Patient Reviews</a></li>
+        <li><a href="#">CDCP Information</a></li>
+        <li><a href="#">Insurance &amp; Billing</a></li>
+        <li><a href="#">New Patients</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Contact</h5>
+      <ul>
+        <li><a href="#">(416) 555-0100</a></li>
+        <li><a href="#">hello@serenitydental.ca</a></li>
+        <li><a href="#">123 Queen St W, Toronto ON</a></li>
+        <li><a href="#">Mon–Thu · 8am – 7pm</a></li>
+        <li><a href="#">Fri · 8am – 4pm</a></li>
+        <li><a href="#">Sat · 9am – 2pm</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <div class="footer-bottom">
+    <p>© 2025 Serenity Dental Studio. All rights reserved.</p>
+    <p>Privacy Policy &nbsp;·&nbsp; Accessibility &nbsp;·&nbsp; AODA Compliant</p>
+  </div>
+
+  <script>
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 60);
+    });
+  </script>
+
+</body>
+</html>

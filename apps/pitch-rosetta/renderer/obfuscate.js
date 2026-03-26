@@ -104,7 +104,16 @@ function obfuscateAttributes(html, map) {
  * Replace .class and #id and [id="..."] / [class*="..."] in style block content.
  */
 function obfuscateCss(css, map) {
-  let out = css
+  // Important: CSS contains `url('.../image.jpg')`. The obfuscation regexes below
+  // match any `.word`/`#word` which would incorrectly rewrite the `.jpg` extension.
+  // We protect `url(...)` segments first, obfuscate the rest, then restore.
+  const urlBlocks = [];
+  const protectedCss = css.replace(/url\(\s*(['"]?)([\s\S]*?)\1\s*\)/gi, (full) => {
+    urlBlocks.push(full);
+    return `__PITCH_ROSETTA_URL_BLOCK_${urlBlocks.length - 1}__`;
+  });
+
+  let out = protectedCss
     .replace(new RegExp(IDENT_CLASS.source, "g"), (_, name) => {
       const obf = map.get(name);
       return obf != null ? "." + obf : "." + name;
@@ -114,6 +123,8 @@ function obfuscateCss(css, map) {
       const obf = map.get(name);
       return obf != null ? "#" + obf : "#" + name;
     });
+
+  out = out.replace(/__PITCH_ROSETTA_URL_BLOCK_(\d+)__/g, (_, i) => urlBlocks[Number(i)]);
   map.forEach((obf, key) => {
     out = out.replace(new RegExp(`\\[id\\s*=\\s*["']${escapeRegex(key)}["']`, "gi"), `[id="${obf}"]`);
     out = out.replace(new RegExp(`\\[class\\s*~?=\\s*["']${escapeRegex(key)}["']`, "gi"), (m) =>

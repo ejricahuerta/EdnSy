@@ -37,9 +37,10 @@ function nav(data) {
 function hero(data) {
   const b = data.business || {};
   const h = data.hero || {};
-  // Generic hero copy only — no business name or business-specific headline in headings
-  const headline = "Your Smile Deserves Expert Care";
-  const italicPart = "Perfected.";
+  const rawHeadline = typeof h.headline === "string" ? h.headline.trim() : "";
+  const headlineMarkup = rawHeadline
+    ? escapeHtml(rawHeadline)
+    : `Your Smile Deserves Expert Care<br><span class="hero-title-italic">Perfected.</span>`;
   const sub = escapeHtml(h.subheadline || "Experience dentistry elevated to an art form. Where precision meets care in every treatment.");
   const cta = h.cta || { label: "Book an Appointment", href: "#contact" };
   const stats = data.stats || [
@@ -56,7 +57,7 @@ function hero(data) {
   return `<section class="hero">
   <div class="hero-content">
     <div class="hero-eyebrow">Premium Aesthetic Dentistry</div>
-    <h1 class="hero-title">${headline}<br><span class="hero-title-italic">${italicPart}</span></h1>
+    <h1 class="hero-title">${headlineMarkup}</h1>
     <p class="hero-subtitle">${sub}</p>
     <div class="hero-actions">
       <a href="${escapeHtml(cta.href)}" class="btn-hero-primary">${escapeHtml(cta.label)}</a>

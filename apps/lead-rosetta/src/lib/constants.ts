@@ -4,6 +4,10 @@
  */
 export const CAL_COM_LINK = 'https://cal.com/edmel-ednsy/enable-ai';
 
+/** EdnSy legal docs (used by demo callback fallbacks). */
+export const EDNSY_PRIVACY_LINK = 'https://ednsy.com/privacy';
+export const EDNSY_TERMS_LINK = 'https://ednsy.com/terms';
+
 /**
  * Google Maps embed URL centered on Yonge and Finch, North York, Toronto (43.7756, -79.4124).
  * All demo landings use this map only; displayed addresses use mockup "1 Yonge Finch Plaza, Toronto, ON".

@@ -7,7 +7,7 @@ export function getOriginForOutgoingLinks(requestOrigin: string): string {
 	const site = env.SITE_ORIGIN?.trim();
 	return site || requestOrigin;
 }
-import { LEGAL_COMPANY_NAME, LEGAL_COMPANY_ADDRESS, SIGNATURE_DOMAIN } from '$lib/constants';
+import { SIGNATURE_DOMAIN } from '$lib/constants';
 import { getEffectiveEmailSenderName } from '$lib/server/userSettings';
 import { getGmailTokens, sendEmailViaGmail } from '$lib/server/gmail';
 import { serverInfo, serverError } from '$lib/server/logger';
@@ -99,9 +99,6 @@ ${paragraphs}
 <p><a href="${trackableLink}">👉 VIEW YOUR DEMO</a></p>
 <p>Take a look and let us know what you think.</p>
 <p>${escapeHtml(signatureLine)}</p>
-<hr style="margin-top:1.5em; border:none; border-top:1px solid #eee;" />
-<p style="font-size:0.85em; color:#666;">You received this message because someone used Lead Rosetta to send you a personalized demo. To unsubscribe from future messages from this sender, reply with "Unsubscribe" or "STOP".</p>
-<p style="font-size:0.85em; color:#666;">${LEGAL_COMPANY_NAME} | ${LEGAL_COMPANY_ADDRESS}</p>
 <img src="${pixelUrl}" width="1" height="1" alt="" style="display:block;width:1px;height:1px;border:0;" />
 `.trim();
 	return html;
@@ -126,9 +123,6 @@ export function buildEmailBody(
 <p><a href="${trackableLink}">View your demo</a></p>
 <p>${trackableLink}</p>
 <p>— ${senderName}</p>
-<hr style="margin-top:1.5em; border:none; border-top:1px solid #eee;" />
-<p style="font-size:0.85em; color:#666;">You received this message because someone used Lead Rosetta to send you a personalized demo. To unsubscribe from future messages from this sender, reply with "Unsubscribe" or "STOP".</p>
-<p style="font-size:0.85em; color:#666;">${LEGAL_COMPANY_NAME} | ${LEGAL_COMPANY_ADDRESS}</p>
 <img src="${pixelUrl}" width="1" height="1" alt="" style="display:block;width:1px;height:1px;border:0;" />
 `.trim();
 	return html;
@@ -155,11 +149,7 @@ export function buildEmailBodyFromTemplate(
 		.replace(/\{\{demoLink\}\}/g, vars.demoLink)
 		.replace(/\{\{trackableLink\}\}/g, vars.trackableLink)
 		.replace(/\{\{senderName\}\}/g, escapeHtml(vars.senderName));
-	const footer = `
-<hr style="margin-top:1.5em; border:none; border-top:1px solid #eee;" />
-<p style="font-size:0.85em; color:#666;">You received this message because someone used Lead Rosetta to send you a personalized demo. To unsubscribe from future messages from this sender, reply with "Unsubscribe" or "STOP".</p>
-<p style="font-size:0.85em; color:#666;">${LEGAL_COMPANY_NAME} | ${LEGAL_COMPANY_ADDRESS}</p>
-<img src="${vars.pixelUrl}" width="1" height="1" alt="" style="display:block;width:1px;height:1px;border:0;" />`;
+	const footer = `<img src="${vars.pixelUrl}" width="1" height="1" alt="" style="display:block;width:1px;height:1px;border:0;" />`;
 	return body.trim() + footer;
 }
 

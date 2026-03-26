@@ -29,8 +29,8 @@
     "backgroundStyle": "image"
   },
   "images": {
-    "hero": "/images/hero.jpg",
-    "about": "/images/about.jpg",
+    "hero": "/images/dental/hero.jpg",
+    "about": "/images/dental/about.jpg",
     "unsplashKeywords": ["dental clinic", "cosmetic dentist", "dental office", "teeth", "dental care"]
   },
   "services": [
