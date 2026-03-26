@@ -1,340 +1,498 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import { Button } from "$lib/components/ui/button";
-  import * as Card from "$lib/components/ui/card";
-  import * as Accordion from "$lib/components/ui/accordion";
   import { Badge } from "$lib/components/ui/badge";
   import {
     hero,
+    stats,
     services,
     industries,
-    industriesIntro,
-    faqIntro,
-    faqItems,
-    ctaBlock,
-    servicesIntro,
     problemsWeSolve,
-    problemsWeSolveIntro,
+    servicesIntro,
+    faqItems,
     caseStudies,
+    ctaBlock,
     voiceAiPhoneNumber,
+    processIntro,
+    processSteps,
   } from "$lib/content/site";
-  import { industryIcons } from "$lib/content/industry-icons";
+  import { websitePage } from "$lib/content/service-pages";
   import { buildFAQSchema } from "$lib/content/seo";
-  import { BrushCard } from "$lib/components/landing";
-  import { Phone, Workflow, Globe, Sparkles, PhoneOff, ClipboardList, MessageSquarePlus, X, Check } from "lucide-svelte";
+  import { gsap, prefersReduced, fadeUp, staggerIn, floatLoop, hoverLift } from "$lib/animations/gsap.js";
+  import { industryIcons } from "$lib/content/industry-icons";
 
   const faqSchema = buildFAQSchema(faqItems);
 
-  const serviceIcons: Record<string, typeof Phone> = {
-    "voice-ai": Phone,
-    "workflow-automation": Workflow,
-    "website-seo": Globe,
+  const serviceIllustrations: Record<string, string> = {
+    "voice-ai": "voice.svg",
+    "workflow-automation": "automation.svg",
+    "website-seo": "website.svg",
   };
-  const problemIcons: Record<string, typeof PhoneOff> = {
-    "missed-calls": PhoneOff,
-    "manual-admin": ClipboardList,
-    "inefficient-follow-ups": MessageSquarePlus,
-  };
+
+  const featuredIndustries = industries.slice(0, 4);
+
+  let heroRoot: HTMLElement | null = $state(null);
+
+  onMount(() => {
+    if (prefersReduced || !heroRoot) return;
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({ delay: 0.2 });
+      tl.from(".hp-eyebrow", { opacity: 0, y: 16, duration: 0.5, ease: "power2.out" })
+        .from(".hp-headline", { opacity: 0, y: 28, duration: 0.75, ease: "power3.out" }, "-=0.1")
+        .from(".hp-sub", { opacity: 0, y: 24, duration: 0.6, ease: "power2.out" }, "-=0.35")
+        .from(".hp-ctas", { opacity: 0, y: 16, duration: 0.5, ease: "power2.out" }, "-=0.25");
+    }, heroRoot);
+    return () => ctx.revert();
+  });
+
 </script>
 
 <svelte:head>
   {@html `<script type="application/ld+json">${JSON.stringify(faqSchema)}</script>`}
 </svelte:head>
 
-<!-- Hero: 1200px height, text + CTA centered -->
-<section class="hero-block">
-  <div class="hero-block-inner">
-    <h1 class="typography-h1 mb-3 text-balance">
-      {hero.h1}
-    </h1>
-    <h2 class="typography-h2 mb-5 text-balance">
-      {hero.headline}
-    </h2>
-    <p class="typography-lead mb-6">
-      {hero.subhead}
-    </p>
-    <div class="flex flex-wrap gap-3 mb-5">
-      <Button
-        href="#contact"
-        size="lg"
-        class="bg-primary hover:bg-primary/90"
-        data-cal-link="edmel-ednsy/enable-ai"
-        data-cal-namespace="enable-ai"
-        data-cal-config={JSON.stringify({ layout: "month_view" })}
-      >
-        {hero.ctaPrimary}
-      </Button>
-      <Button
-        href="#services"
-        variant="outline"
-        size="lg"
-        class="border-primary text-primary hover:!bg-primary hover:!text-white hover:!border-primary"
-      >
-        {hero.ctaSecondary}
-      </Button>
-    </div>
-    <p class="typography-muted">{hero.tagline}</p>
-  </div>
-</section>
+<!-- Hero: headline + CTA + hourglass art (fades left into gradient) -->
+<section
+  class="relative flex min-h-[100svh] items-center overflow-hidden text-white lg:min-h-0"
+  style="background: radial-gradient(ellipse 80% 70% at 50% 100%, #3a00ff 0%, #280066 25%, #1e004d 50%, #150033 75%, #0a0015 100%);"
+>
+  <div class="absolute inset-0 bg-[radial-gradient(ellipse_140%_120%_at_50%_100%,rgba(58,0,255,0.25)_0%,transparent_50%)]"></div>
+  <div class="absolute inset-x-0 top-0 h-px bg-white/10"></div>
 
-<!-- The Problems We Solve -->
-<section class="py-16 md:py-24 bg-background">
-  <div class="max-w-6xl mx-auto px-6 lg:px-8">
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 items-start">
-      <div class="lg:sticky lg:top-24">
-        <h2 class="typography-h2 mb-3">The Problems We Solve</h2>
-        <p class="text-muted-foreground text-base max-w-xl leading-7">
-          {problemsWeSolveIntro}
-        </p>
+  <!-- Hourglass: anchored right, soft fade toward the left (into copy / gradient) -->
+  <div
+    class="pointer-events-none absolute inset-y-0 right-0 z-0 w-[min(92vw,28rem)] sm:w-[min(88vw,32rem)] md:w-[min(85vw,36rem)] lg:w-[min(42vw,28rem)] xl:w-[min(38vw,30rem)]"
+    aria-hidden="true"
+  >
+    <img
+      src="/images/hero-hourglass.png"
+      alt=""
+      class="hero-hourglass-img h-full w-full object-contain object-right"
+      loading="eager"
+      decoding="async"
+      width="480"
+      height="720"
+    />
+  </div>
+
+  <div class="relative z-10 mx-auto w-full max-w-6xl px-6 py-24 md:py-32 lg:px-8 lg:pt-44 lg:pb-32">
+    <div class="max-w-2xl" bind:this={heroRoot}>
+      <p class="hp-eyebrow text-xs font-medium uppercase tracking-[0.25em] text-white/50">
+        {hero.eyebrow}
+      </p>
+
+      <h1 class="hp-headline mt-6 text-5xl font-medium tracking-tight text-white sm:text-6xl md:text-7xl md:leading-[1.1]">
+        We give your <em class="not-italic text-primary">time</em> back
+      </h1>
+
+      <p class="hp-sub mt-4 text-base leading-7 text-white/70">
+        {hero.subhead}
+      </p>
+
+      <div class="hp-ctas mt-10 flex flex-wrap gap-3">
+        <Button
+          href="#cta"
+          size="lg"
+          class="bg-primary text-primary-foreground hover:bg-primary/90"
+        >
+          {hero.ctaPrimary}
+        </Button>
+
+        <Button
+          href="#services"
+          size="lg"
+          variant="outline"
+          class="border-white/30 text-primary hover:bg-background hover:text-primary"
+        >
+          {hero.ctaSecondary}
+        </Button>
       </div>
-      <div class="flex flex-col gap-5 md:gap-6">
-        {#each problemsWeSolve as problem}
-          <BrushCard>
-            <Card.Root class="border-border bg-card hover:border-primary/40 hover:bg-muted/30 transition-colors flex flex-col">
-              <Card.Header class="space-y-3 flex-1 pb-2">
-              {#if problemIcons[problem.slug]}
-                <div class="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary shrink-0">
-                  <svelte:component this={problemIcons[problem.slug]} class="h-5 w-5" />
-                </div>
-              {/if}
-              <Card.Title class="text-xl font-semibold tracking-tight">{problem.title}</Card.Title>
-              <div class="flex items-start gap-2 text-muted-foreground text-sm leading-relaxed">
-                <X class="h-4 w-4 shrink-0 mt-0.5 text-destructive/80" aria-hidden="true" />
-                <span>{problem.description}</span>
-              </div>
-              <div class="flex items-start gap-2 text-sm font-medium text-primary pt-1">
-                <Check class="h-4 w-4 shrink-0 mt-0.5" aria-hidden="true" />
-                <span>{problem.solution}</span>
-              </div>
-            </Card.Header>
-            </Card.Root>
-          </BrushCard>
+
+      <div class="mt-12 border-t border-white/10 pt-10 flex flex-wrap gap-x-10 gap-y-7">
+        {#each stats as stat}
+          <div class="min-w-[140px]">
+            <div class="text-4xl font-semibold leading-none tracking-tight text-white">
+              {stat.value}
+            </div>
+            <div class="mt-2 text-xs font-semibold uppercase tracking-[0.16em] text-white/60">
+              {stat.label}
+            </div>
+          </div>
         {/each}
       </div>
     </div>
   </div>
 </section>
 
-<!-- Operational AI Stack (internal links to money pages) -->
-<section id="services" class="py-16 md:py-24 bg-muted/30">
-  <div class="max-w-6xl mx-auto px-6 lg:px-8">
-    <h2 class="typography-h2 mb-3">Operational AI Stack</h2>
-    <p class="text-muted-foreground text-base mb-12 max-w-2xl leading-7">{servicesIntro}</p>
+<style>
+  /* Fade hourglass toward the left so it blends into the purple hero gradient */
+  .hero-hourglass-img {
+    -webkit-mask-image: linear-gradient(to left, #000 28%, transparent 100%);
+    mask-image: linear-gradient(to left, #000 28%, transparent 100%);
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+  }
+  @media (min-width: 1024px) {
+    .hero-hourglass-img {
+      -webkit-mask-image: linear-gradient(to left, #000 35%, transparent 100%);
+      mask-image: linear-gradient(to left, #000 35%, transparent 100%);
+    }
+  }
 
-    <div class="space-y-16 md:space-y-20">
-      {#each services as service}
-        <BrushCard>
-          <Card.Root
-            id={service.slug}
-            class="scroll-mt-24 grid md:grid-cols-2 gap-0 border-border bg-card overflow-hidden"
-          >
-          <Card.Content class="order-2 md:order-1 flex flex-col justify-center p-8 md:p-10 space-y-4">
-            {#if service.popular}
-              <Badge variant="secondary" class="w-fit bg-primary/10 text-primary border-0">
-                Most Popular
-              </Badge>
-            {/if}
-            <div class="flex items-center gap-3">
-              <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <svelte:component this={serviceIcons[service.slug]} class="h-5 w-5" />
-              </div>
-              <Card.Title class="typography-h3">{service.title}</Card.Title>
+  @keyframes ednsy-ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  .ednsy-ticker-track {
+    animation: ednsy-ticker 38s linear infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ednsy-ticker-track {
+      animation: none;
+    }
+  }
+</style>
+
+<section
+  class="relative overflow-hidden py-16 text-white md:py-20"
+  style="background: radial-gradient(ellipse 80% 60% at 50% 50%, #1e004d 0%, #150033 40%, #0a0015 100%);"
+>
+  <div class="absolute inset-x-0 top-0 h-px bg-white/10" aria-hidden="true"></div>
+  <div class="relative mx-auto w-full max-w-6xl px-6 lg:px-8">
+    <!-- Ticker -->
+    <div class="overflow-hidden border-y border-white/10 py-3" role="presentation">
+      <div class="ednsy-ticker-track flex w-max gap-x-8">
+        {#each [
+          "Voice AI",
+          "Business Automation",
+          "Lead Capture",
+          "Appointment Booking",
+          "CRM Integration",
+          "Toronto & GTA",
+          "24/7 Answering",
+          "Workflow Automation",
+          "Website & SEO",
+          "Voice AI",
+          "Business Automation",
+          "Lead Capture",
+          "Appointment Booking",
+          "CRM Integration",
+          "Toronto & GTA",
+          "24/7 Answering",
+          "Workflow Automation",
+          "Website & SEO"
+        ] as item (item)}
+          <span class="whitespace-nowrap text-[11px] font-semibold tracking-[0.12em] uppercase text-white/60">
+            {item}
+          </span>
+        {/each}
+      </div>
+    </div>
+
+    <!-- The problem -->
+    <div class="mt-14">
+      <div class="text-xs font-semibold uppercase tracking-[0.14em] text-primary flex items-center gap-3">
+        <span class="h-px w-4 bg-primary" aria-hidden="true"></span>
+        The problem
+      </div>
+      <h2 class="mt-4 text-4xl font-medium tracking-tight md:text-5xl">
+        Where you're<br />
+        losing revenue
+      </h2>
+
+      <div class="mt-10 grid gap-6 md:grid-cols-3">
+        {#each problemsWeSolve as problem, idx (problem.slug)}
+          <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-7">
+            <div class="text-5xl font-semibold text-white/10 leading-none mb-3">
+              {String(idx + 1).padStart(2, "0")}
             </div>
-            <p class="text-sm font-medium text-primary">{service.tagline}</p>
-            <Card.Description class="text-base leading-relaxed">{service.description}</Card.Description>
-            <ul class="space-y-2 text-foreground">
+            <div class="text-xl font-semibold tracking-tight">{problem.title}</div>
+            <p class="mt-3 text-sm leading-relaxed text-white/70">{problem.description}</p>
+            <div class="mt-4 text-sm font-semibold text-primary">
+              → {problem.solution}
+            </div>
+          </div>
+        {/each}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Solution – Operational AI Stack -->
+
+<section id="services" class="bg-white py-16 md:py-24">
+  <div class="mx-auto max-w-6xl px-6 lg:px-8">
+    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-primary" use:fadeUp>Services</p>
+
+    <h2 class="mt-4 text-4xl font-medium tracking-tight md:text-5xl" use:fadeUp={{ delay: 0.06 }}>
+      Three solutions.<br />
+      One leaky bucket <span class="italic">fixed.</span>
+    </h2>
+
+    <p class="mt-4 max-w-2xl text-lg leading-7 text-muted-foreground" use:fadeUp={{ delay: 0.12 }}>
+      {servicesIntro}
+    </p>
+
+    <div class="mt-10 grid gap-6 grid-cols-1" use:staggerIn={{ stagger: 0.12, y: 28, duration: 0.55 }}>
+      {#each services as service, sIdx}
+        <div
+          id={service.slug}
+          class="scroll-mt-24 flex flex-col md:grid md:grid-cols-[3fr_1fr] md:items-center gap-6 md:gap-8 rounded-2xl border border-border/60 bg-white p-6 shadow-sm"
+        >
+          <!-- Left: content -->
+          <div class="min-w-0">
+            {#if service.popular}
+              <div class="mb-4">
+                <Badge variant="secondary" class="border-0 bg-primary/10 text-primary text-xs">Most Popular</Badge>
+              </div>
+            {/if}
+
+            <h3 class="text-xl font-semibold tracking-tight text-foreground">{service.title}</h3>
+            <p class="mt-1 text-sm font-medium text-primary">{service.tagline}</p>
+
+            <p class="mt-4 text-sm leading-6 text-muted-foreground">{service.description}</p>
+
+            <ul class="mt-5 space-y-2">
               {#each service.bullets as bullet}
-                <li class="flex items-start gap-2">
-                  <span class="text-primary mt-0.5 shrink-0">•</span>
+                <li class="flex items-start gap-2 text-sm leading-6 text-foreground">
+                  <span class="mt-1 text-primary">•</span>
                   <span>{bullet}</span>
                 </li>
               {/each}
             </ul>
-            <div class="pt-4 flex flex-wrap gap-3">
-              <Button
-                href={service.href}
-                class="w-fit bg-primary hover:bg-primary/90"
-              >
-                {service.cta}
-              </Button>
+
+            <div class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm font-medium">
+              <a href={service.href} class="text-primary hover:underline">{service.cta}</a>
               {#if service.slug === "voice-ai"}
-                <Button
-                  href="tel:{voiceAiPhoneNumber.replace(/\s/g, '')}"
-                  variant="outline"
-                  class="w-fit border-primary text-primary hover:bg-primary/10"
-                >
-                  <Sparkles class="mr-2 h-4 w-4" />
-                  Call
-                </Button>
+                <a href={`tel:${voiceAiPhoneNumber.replace(/\s/g, "")}`} class="text-primary hover:underline">Call</a>
               {/if}
             </div>
-          </Card.Content>
-          <div class="order-1 md:order-2 aspect-video md:aspect-auto md:min-h-[260px] bg-muted flex items-center justify-center p-4 md:p-6 md:pr-8 overflow-hidden">
-            {#if service.slug === "voice-ai"}
-              <img
-                src="/images/voice.svg"
-                alt="Voice AI - 24/7 call handling for Toronto businesses"
-                class="w-full h-full object-contain max-h-[260px]"
-                width="400"
-                height="260"
-              />
-            {:else if service.slug === "workflow-automation"}
-              <img
-                src="/images/automation.svg"
-                alt="Business automation - reclaim your time"
-                class="w-full h-full object-contain max-h-[260px]"
-                width="400"
-                height="260"
-              />
-            {:else if service.slug === "website-seo"}
-              <img
-                src="/images/website.svg"
-                alt="Website & SEO Toronto - convert and rank"
-                class="w-full h-full object-contain max-h-[260px]"
-                width="400"
-                height="260"
-              />
-            {:else}
-              <span class="text-muted-foreground">{(service as { title: string }).title}</span>
-            {/if}
           </div>
-          </Card.Root>
-        </BrushCard>
+
+          <!-- Right: image -->
+          <div class="flex-shrink-0 flex justify-center md:justify-end">
+            <img
+              src={`/images/${serviceIllustrations[service.slug]}`}
+              alt={`${service.title} illustration`}
+              width="128"
+              height="128"
+              loading="lazy"
+              class="h-24 w-24 md:h-32 md:w-32 object-contain will-change-transform"
+              use:floatLoop={{ y: 6, duration: 2.8, delay: sIdx * 0.45 }}
+            />
+          </div>
+        </div>
       {/each}
     </div>
-
-    <p class="mt-10 text-sm text-muted-foreground">
-      Custom packages available. Mix and match any solutions. <a href="/contact" class="text-primary underline">get in touch</a>.
-    </p>
   </div>
 </section>
 
-<!-- Industries we serve -->
-<section id="industries" class="py-16 md:py-24 bg-background">
-  <div class="max-w-6xl mx-auto px-6 lg:px-8">
-    <h2 class="typography-h2 mb-3">
-      Built for businesses like yours
+<!-- How it works -->
+<section id="how-it-works" class="bg-zinc-50 py-16 md:py-24 scroll-mt-24">
+  <div class="mx-auto max-w-6xl px-6 lg:px-8">
+    <div class="text-xs font-semibold uppercase tracking-[0.2em] text-primary">How it works</div>
+    <h2 class="mt-4 text-4xl font-medium tracking-tight md:text-5xl">
+      Go from first call to fully automated<br />
+      in weeks, not months
     </h2>
-    <p class="text-muted-foreground text-base mb-10 max-w-2xl leading-7">{industriesIntro}</p>
+    <p class="mt-4 max-w-2xl text-lg leading-7 text-muted-foreground">
+      {processIntro}
+    </p>
 
-    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
-      {#each industries as ind}
-        <BrushCard>
-          <Card.Root class="border-border bg-card hover:border-primary/40 hover:bg-muted/30 transition-colors h-full flex flex-col">
-            <a href={ind.href} class="block contents flex flex-col flex-1 min-h-0">
-            <Card.Header class="space-y-1.5 pb-2 flex-1">
-              {#if industryIcons[ind.slug]}
-                <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <svelte:component this={industryIcons[ind.slug]} class="h-5 w-5" />
-                </div>
-              {/if}
-              <Card.Title class="text-xl font-semibold tracking-tight">{ind.name}</Card.Title>
-              <Card.Description class="text-muted-foreground leading-relaxed text-sm">{ind.description}</Card.Description>
-            </Card.Header>
-            <Card.Content class="pt-4 pb-6">
-              <span class="text-sm font-medium text-primary hover:underline">Learn more →</span>
-            </Card.Content>
-          </a>
-          </Card.Root>
-        </BrushCard>
+    <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {#each processSteps as step, idx (step.step)}
+        <div class="rounded-2xl border border-border/60 bg-white p-7">
+          <div class="text-5xl font-semibold text-primary/10 leading-none mb-3">
+            {step.step}
+          </div>
+          <div class="text-xl font-semibold tracking-tight">{step.title}</div>
+          <p class="mt-3 text-sm leading-relaxed text-muted-foreground">{step.description}</p>
+          <div class="mt-5 text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+            {["Day 1", "Week 1", "Week 2–3", "Month 1+"][idx] ?? ""}
+          </div>
+        </div>
       {/each}
     </div>
-
-    <div class="mt-8">
-      <Button href="/industries" variant="link" class="font-heading text-primary p-0 h-auto text-sm">
-        View all industries we serve →
-      </Button>
-    </div>
-    <p class="mt-6 text-sm text-muted-foreground">
-      Also see our umbrella page: <a href="/ai-automation-toronto" class="text-primary underline">AI Automation Toronto</a> and <a href="/ai-automation-gta" class="text-primary underline">AI Automation GTA</a>.
-    </p>
   </div>
 </section>
 
-<!-- Example outcomes (not full case studies; one CTA to contact) -->
-<section class="py-16 md:py-24 bg-background">
-  <div class="max-w-6xl mx-auto px-6 lg:px-8">
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 items-start">
-      <div class="lg:sticky lg:top-24">
-        <h2 class="typography-h2 mb-3">Results we help businesses achieve</h2>
-        <p class="text-muted-foreground text-base max-w-xl leading-7">
-          Toronto and GTA businesses use our Voice AI, automation, and website & SEO to get outcomes like these.
-        </p>
-      </div>
-      <div class="flex flex-col gap-5 md:gap-6">
-        {#each caseStudies as study}
-          <BrushCard>
-            <Card.Root class="border-border bg-card hover:border-primary/40 hover:bg-muted/30 transition-colors flex flex-col">
-              <a href="/case-studies" class="block contents flex flex-col flex-1 min-h-0">
-                <Card.Header class="space-y-1.5 pb-2 flex-1">
-                  <Card.Title class="text-xl font-semibold tracking-tight">{study.title}</Card.Title>
-                  <Card.Description class="text-muted-foreground leading-relaxed text-sm">{study.outcome}</Card.Description>
-                </Card.Header>
-                <Card.Content class="pt-4 pb-6">
-                  <span class="text-sm font-medium text-primary hover:underline">{study.cta} →</span>
-                </Card.Content>
-              </a>
-            </Card.Root>
-          </BrushCard>
-        {/each}
-        <BrushCard>
-          <Card.Root class="border-border bg-card hover:border-primary/40 hover:bg-muted/30 transition-colors flex flex-col">
-            <a href="/process" class="block contents flex flex-col flex-1 min-h-0">
-              <Card.Header class="space-y-1.5 pb-2 flex-1">
-                <Card.Title class="text-xl font-semibold tracking-tight">How It Works</Card.Title>
-                <Card.Description class="text-muted-foreground leading-relaxed text-sm">
-                  Free strategy call, custom solution, implementation, then ongoing support. Toronto-based, no surprises.
-                </Card.Description>
-              </Card.Header>
-              <Card.Content class="pt-4 pb-6">
-                <span class="text-sm font-medium text-primary hover:underline">See our process →</span>
-              </Card.Content>
+<!-- Case study -->
+<section id="case-study" class="bg-white py-16 md:py-24">
+  <div class="mx-auto max-w-6xl px-6 lg:px-8">
+    <div class="rounded-2xl border border-border/60 bg-white p-6 shadow-sm md:p-8">
+      <div class="grid gap-8 md:grid-cols-[3fr_1.6fr] md:items-center">
+        <div class="min-w-0">
+          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-primary" use:fadeUp>Case study</p>
+          <h2 class="mt-4 text-2xl font-semibold tracking-tight text-foreground md:text-3xl" use:fadeUp={{ delay: 0.06 }}>
+            {caseStudies[0].title}
+          </h2>
+          <p class="mt-4 text-lg leading-7 text-muted-foreground" use:fadeUp={{ delay: 0.12 }}>
+            {caseStudies[0].outcome}
+          </p>
+          <div class="mt-6 flex flex-wrap items-center gap-4 text-sm font-medium">
+            <a href={caseStudies[0].href} class="text-primary hover:underline">
+              {caseStudies[0].cta} →
             </a>
-          </Card.Root>
-        </BrushCard>
+          </div>
+        </div>
+
+        <div class="flex justify-center md:justify-end">
+          <img
+            src="/images/case-studies/ohmyglass-aluminum-storefront.jpg"
+            alt="OhMyGlass storefront case study"
+            width="800"
+            height="520"
+            loading="lazy"
+            class="h-56 w-full rounded-xl object-cover md:h-72 md:w-auto md:max-w-[420px] will-change-transform"
+            use:fadeUp={{ y: 32, duration: 0.75 }}
+          />
+        </div>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- About -->
+<section id="about" class="bg-zinc-50 py-16 md:py-24">
+  <div class="mx-auto max-w-6xl px-6 lg:px-8">
+    <div class="text-xs font-semibold uppercase tracking-[0.2em] text-primary">About</div>
+    <h2 class="mt-4 text-4xl font-medium tracking-tight md:text-5xl">
+      Two founders.<br />
+      <span class="italic">Zero middlemen.</span>
+    </h2>
+
+    <div class="mt-10 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+      <div class="rounded-2xl border border-border/60 bg-white p-7">
+        <p class="text-base leading-relaxed text-muted-foreground">
+          We're Ed and Sy, a two-person Toronto agency that actually implements what we sell. <strong>No offshore team, no project managers, no account reps. When you email us, Ed or Sy answers.</strong>
+        </p>
+        <p class="mt-4 text-base leading-relaxed text-muted-foreground">
+          We started Ed &amp; Sy because we watched too many Toronto service businesses lose customers to broken systems, not bad service. A missed call here, a slow follow-up there. We knew AI could fix it and that nobody was making it accessible to businesses without a tech team.
+        </p>
+        <p class="mt-4 text-base leading-relaxed text-muted-foreground">
+          Every client gets <strong>direct access to both founders</strong>, a solution built for their workflow, and support that doesn't disappear after launch.
+        </p>
+
+        <div class="mt-8 grid grid-cols-3 gap-6">
+          <div>
+            <div class="text-3xl font-semibold tracking-tight">Toronto</div>
+            <div class="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground mt-1">Based</div>
+          </div>
+          <div>
+            <div class="text-3xl font-semibold tracking-tight">2</div>
+            <div class="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground mt-1">Founders only</div>
+          </div>
+          <div>
+            <div class="text-3xl font-semibold tracking-tight">Direct</div>
+            <div class="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground mt-1">Access always</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-6">
+        <div class="rounded-2xl border border-border/60 bg-white p-7">
+          <div class="text-xl font-semibold tracking-tight">Ed</div>
+          <div class="text-xs font-semibold uppercase tracking-[0.18em] text-primary mt-1">Co-Founder · Tech Lead</div>
+          <p class="mt-3 text-sm leading-relaxed text-muted-foreground">
+            Deep background in AI implementation and systems integration. Turns complex automation into things that actually work inside real businesses, not just demos.
+          </p>
+        </div>
+
+        <div class="rounded-2xl border border-border/60 bg-white p-7">
+          <div class="text-xl font-semibold tracking-tight">Sy</div>
+          <div class="text-xs font-semibold uppercase tracking-[0.18em] text-primary mt-1">Co-Founder · AI Specialist</div>
+          <p class="mt-3 text-sm leading-relaxed text-muted-foreground">
+            Operations and AI background. Finds exactly where your business leaks time and money, then closes those gaps with the right tools and no unnecessary complexity.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Industries -->
+<section id="industries" class="bg-zinc-50 py-16 md:py-24">
+  <div class="mx-auto max-w-6xl px-6 lg:px-8">
+    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-primary" use:fadeUp>Related</p>
+    <div class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4" use:staggerIn={{ stagger: 0.08, y: 22, duration: 0.5 }}>
+      {#each featuredIndustries.slice(0, 4) as ind}
+        <a
+          href={ind.href}
+          class="block rounded-xl border border-border/60 bg-white p-5 transition-colors hover:border-primary/30 will-change-transform"
+          use:hoverLift={{ y: -4, scale: 1.02, duration: 0.22 }}
+        >
+          {#if industryIcons[ind.slug]}
+            {@const Icon = industryIcons[ind.slug]}
+            <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <Icon class="h-4 w-4" />
+            </div>
+          {/if}
+          <h3 class="mt-3 font-semibold tracking-tight text-foreground">{ind.name}</h3>
+          <p class="mt-1 text-sm text-muted-foreground">{ind.description}</p>
+        </a>
+      {/each}
+    </div>
+    <p class="mt-6">
+      <a href="/industries" class="text-sm font-medium text-primary hover:underline">View all industries →</a>
+    </p>
   </div>
 </section>
 
 <!-- FAQ -->
-<section id="faq" class="py-16 md:py-24 bg-background">
-  <div class="max-w-6xl mx-auto px-6 lg:px-8">
-    <h2 class="typography-h2 mb-3">
-      Frequently Asked Questions
+<section id="faq" class="bg-white py-16 md:py-24">
+  <div class="mx-auto max-w-6xl px-6 lg:px-8">
+    <div class="text-xs font-semibold uppercase tracking-[0.2em] text-primary">FAQ</div>
+    <h2 class="mt-4 text-4xl font-medium tracking-tight md:text-5xl">
+      Questions before<br />
+      every first call
     </h2>
-    <p class="text-muted-foreground text-base mb-10 leading-7">{faqIntro}</p>
-
-    <Accordion.Root type="single" class="w-full">
+    <div class="mt-10 grid gap-1 sm:grid-cols-2">
       {#each faqItems as item}
-        <Accordion.Item value={item.question}>
-          <Accordion.Trigger>{item.question}</Accordion.Trigger>
-          <Accordion.Content>{item.answer}</Accordion.Content>
-        </Accordion.Item>
+        <div class="rounded-2xl border border-border/60 bg-zinc-50 p-7">
+          <div class="text-lg font-semibold leading-7 tracking-tight">{item.question}</div>
+          <p class="mt-3 text-sm leading-relaxed text-muted-foreground">{item.answer}</p>
+        </div>
       {/each}
-    </Accordion.Root>
+    </div>
   </div>
 </section>
 
-<!-- CTA -->
-<section id="contact" class="py-16 md:py-24 bg-muted/30">
-  <div class="max-w-6xl mx-auto px-6 lg:px-8 text-center">
-    <h2 class="typography-h2 mb-3">
-      {ctaBlock.headline}
-    </h2>
-    <p class="typography-lead mb-6 max-w-2xl mx-auto">
-      {ctaBlock.subhead}
-    </p>
-    <Button
-      href="#contact"
-      size="lg"
-      class="bg-primary hover:bg-primary/90"
-      data-cal-link="edmel-ednsy/enable-ai"
-      data-cal-namespace="enable-ai"
-      data-cal-config={JSON.stringify({ layout: "month_view" })}
-    >
-      {ctaBlock.button}
-    </Button>
-    <p class="typography-muted mt-4">{ctaBlock.note}</p>
+<!-- Final CTA -->
+<section id="contact" class="bg-white pb-24 md:pb-32">
+  <div id="cta" class="mx-auto max-w-6xl px-6 lg:px-8">
+    <div class="overflow-hidden rounded-2xl border border-white/10 text-white shadow-xl" style="background: radial-gradient(ellipse 100% 80% at 50% 0%, #280066 0%, #1e004d 35%, #150033 100%);">
+      <div class="p-8 md:p-12 text-center">
+        <div class="text-xs font-semibold uppercase tracking-[0.14em] text-primary flex items-center justify-center gap-3 mb-5">
+          <span class="h-px w-4 bg-primary" aria-hidden="true"></span>
+          Get started
+        </div>
+
+        <h2 class="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+          Stop losing leads<br />
+          to <span class="italic text-primary">voicemail.</span>
+        </h2>
+
+        <p class="mt-4 max-w-xl mx-auto text-lg text-slate-300">
+          {ctaBlock.subhead}
+        </p>
+
+        <div class="mt-8">
+          <Button
+            href={`tel:${voiceAiPhoneNumber.replace(/\s/g, "")}`}
+            size="lg"
+            class="bg-primary text-primary-foreground hover:bg-primary/90"
+          >
+            {ctaBlock.button}
+          </Button>
+        </div>
+
+        <div class="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-slate-300">
+          <span class="font-medium text-primary">✓ No commitment</span>
+          <span class="font-medium text-primary">✓ 30-minute call</span>
+          <span class="font-medium text-primary">✓ Custom roadmap</span>
+          <span class="font-medium text-primary">✓ Toronto-based team</span>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
-

@@ -3,6 +3,26 @@
  * Primary market: Toronto, Ontario. Positioning: Tech implementation partner (Voice AI, automation, websites & SEO).
  */
 
+import {
+  siCaldotcom,
+  siCalendly,
+  siGmail,
+  siGooglecalendar,
+  siGooglesheets,
+  siHubspot,
+  siMake,
+  siNotion,
+  siPaypal,
+  siQuickbooks,
+  siSquare,
+  siStripe,
+  siWhatsapp,
+  siXero,
+  siZoho,
+  siZapier,
+} from "simple-icons";
+import type { SimpleIcon } from "simple-icons";
+
 export const site = {
   name: "Ed & Sy",
   legalName: "Ed & Sy Inc.",
@@ -21,15 +41,16 @@ export const definitionBlocks = {
     "AI website development uses AI-assisted tools and methods to build fast, high-converting, SEO-ready websites, reducing time to launch compared to traditional drag-and-drop CMS builds while improving performance and local search visibility for Toronto and Ontario businesses.",
 } as const;
 
-/** Homepage hero: H1 for SEO, headline (H2) benefit-led; value prop section carries SEO H2 */
+/** Homepage hero: eyebrow first, H1 carries the time message, headline supports conversion */
 export const hero = {
-  h1: "Toronto AI Automation & Voice AI Agency",
-  headline: "We give you time back.",
+  eyebrow: "Toronto AI Agency",
+  h1: "We give your time back",
+  headline: "We give your time back",
   subhead:
-    "Ed & Sy helps Toronto service businesses automate calls, capture more leads, and streamline operations using Voice AI and smart automation.",
-  ctaPrimary: "Book a Free Strategy Call",
-  ctaSecondary: "See How It Works",
-  tagline: "Free Strategy Call • Toronto-Based • Results-Focused",
+    "Ed & Sy helps Toronto service businesses answer every call, automate follow-ups, and eliminate admin using Voice AI and smart automation.",
+  ctaPrimary: "Book a free call →",
+  ctaSecondary: "See services",
+  tagline: "",
 } as const;
 
 /** About Ed & Sy (single short block) */
@@ -40,50 +61,89 @@ export const valueProposition = {
 
 /** Intro copy for the problems we solve section (homepage). */
 export const problemsWeSolveIntro =
-  "Toronto service businesses lose leads and time to manual processes and slow follow‑ups. We use AI and automation to capture more leads, respond instantly, and boost bookings.";
+  "Manual follow-up, missed calls, and disconnected tools create hidden work. We replace the busywork with systems that answer faster, route better, and keep your team focused.";
 
 /** The problems we solve (homepage); icon = lucide-svelte name for +page.svelte */
 export const problemsWeSolve = [
   {
     slug: "missed-calls",
-    title: "Missed revenue from unanswered calls",
-    description: "Every unanswered call is a lost lead.",
-    solution: "24/7 AI phone answering",
+    title: "Calls going to voicemail",
+    description:
+      "You're with a client at 7pm. Your phone rings. Nobody answers. They call your competitor instead. That's a lost customer every single time.",
+    solution: "24/7 Voice AI answers every call",
   },
   {
     slug: "manual-admin",
-    title: "10+ hours per week lost to admin",
-    description: "Repetitive tasks eat your time.",
-    solution: "Workflow automation so you focus on clients",
+    title: "10+ hours a week on admin",
+    description:
+      "Scheduling, invoice follow-ups, CRM updates, onboarding emails. You didn't start a business to spend half your week on tasks a machine could handle.",
+    solution: "Automated workflows eliminate the busywork",
   },
   {
     slug: "inefficient-follow-ups",
-    title: "Leads that never get followed up",
-    description: "Leads go cold without fast follow-up.",
-    solution: "Automated nurturing and booking",
+    title: "Leads going cold",
+    description:
+      "Someone fills your form Friday afternoon. You see it Monday. They booked someone else Saturday morning. Speed of follow-up is survival.",
+    solution: "Instant automated follow-up and booking",
   },
 ] as const;
 
 export const stats = [
-  { value: "24/7", label: "AI Assistant", sublabel: "Always available" },
-  { value: "15-20", label: "Hours Saved Weekly", sublabel: "Per business" },
-  { value: "3x", label: "More Leads", sublabel: "Qualified & nurtured" },
-  { value: "100%", label: "Toronto Based", sublabel: "Local support" },
+  { value: "24/7", label: "Call coverage", sublabel: "" },
+  { value: "15–20h", label: "Saved weekly", sublabel: "" },
+  { value: "<30d", label: "Typical ROI", sublabel: "" },
+  { value: "$0", label: "Strategy call", sublabel: "" },
 ] as const;
 
 export const servicesIntro =
-  "Voice AI, business automation, and website & SEO. Three ways we help Toronto businesses grow and never miss a lead.";
+  "Three solutions. One leaky bucket fixed.";
 
 /** Tools we integrate with (API-based; no licensed/compliance-heavy platforms). */
 export const integrationsList = [
+  "Gmail",
   "Google Calendar",
   "Google Sheets",
   "Notion",
+  "Stripe",
   "Cal.com",
+  "Calendly",
+  "HubSpot",
+  "Zoho",
+  "QuickBooks",
+  "Xero",
+  "Square",
+  "PayPal",
+  "WhatsApp",
+  "Zapier",
+  "Make",
 ] as const;
 
 export const integrationsCopy =
-  "Google Calendar, Google Sheets, Notion, Cal.com, and other apps that provide APIs.";
+  "Gmail, Google Calendar, Google Sheets, Notion, Stripe, Cal.com, Calendly, HubSpot, Zoho, QuickBooks, Xero, Square, PayPal, WhatsApp, Zapier, Make, and other apps that provide APIs.";
+
+type Integration = {
+  name: string;
+  icon: SimpleIcon;
+};
+
+export const integrations = [
+  { name: "Gmail", icon: siGmail },
+  { name: "Google Calendar", icon: siGooglecalendar },
+  { name: "Google Sheets", icon: siGooglesheets },
+  { name: "Notion", icon: siNotion },
+  { name: "HubSpot", icon: siHubspot },
+  { name: "Zoho", icon: siZoho },
+  { name: "QuickBooks", icon: siQuickbooks },
+  { name: "Xero", icon: siXero },
+  { name: "Square", icon: siSquare },
+  { name: "PayPal", icon: siPaypal },
+  { name: "WhatsApp", icon: siWhatsapp },
+  { name: "Zapier", icon: siZapier },
+  { name: "Make", icon: siMake },
+  { name: "Stripe", icon: siStripe },
+  { name: "Cal.com", icon: siCaldotcom },
+  { name: "Calendly", icon: siCalendly },
+] as const satisfies readonly Integration[];
 
 /** Voice AI call number (shown in Voice AI service card on homepage) */
 export const voiceAiPhoneNumber = "+12895135055";
@@ -91,37 +151,40 @@ export const voiceAiPhoneNumber = "+12895135055";
 /** Core service pages (money pages): hrefs match SEO doc URLs */
 export const services = [
   {
-    id: "voice-ai",
-    slug: "voice-ai",
-    href: "/voice-ai-for-business",
-    tagline: "Never miss a call",
-    title: "Voice AI",
-    description:
-      "24/7 AI phone answering and call automation for Toronto businesses. Never miss a lead.",
-    bullets: [
-      "24/7 call handling with natural conversation",
-      "Lead qualification & appointment booking",
-      "Integrates with Google Calendar, Cal.com, and your CRM",
-    ],
-    cta: "Get Voice AI",
-    popular: false,
-  },
-  {
     id: "workflow-automation",
     slug: "workflow-automation",
     href: "/business-automation-services",
     tagline: "Reclaim your time",
     title: "Business Automation",
     description:
-      "Workflow and process automation for Toronto businesses, with AI when it helps. Eliminate manual admin and follow up at scale.",
+      "We map your workflows and automate the parts that don't need you, like invoicing, onboarding, follow-up sequences, and CRM updates. Clients save 15–20 hours per week on average. We build around your actual tools, not a generic template.",
     bullets: [
-      "Invoice processing & payment reminders",
-      "Customer onboarding & follow-ups",
-      "CRM, email, and calendar integration",
-      "AI where it adds value (summaries, routing, smart triggers)",
+      "Invoice processing",
+      "Client onboarding",
+      "Follow-up sequences",
+      "CRM integration",
+      "Smart routing",
+      "AI summaries",
     ],
-    cta: "Automate Now",
+    cta: "Automate your business →",
     popular: true,
+  },
+  {
+    id: "voice-ai",
+    slug: "voice-ai",
+    href: "/voice-ai-for-business",
+    tagline: "Never miss a call",
+    title: "Voice AI",
+    description:
+      "An AI phone agent that answers 24/7, qualifies callers, and books directly into your calendar. Sounds natural. Works at midnight on a Sunday.",
+    bullets: [
+      "24/7 answering",
+      "Lead qualification",
+      "Calendar booking",
+      "Call summaries",
+    ],
+    cta: "Get Voice AI →",
+    popular: false,
   },
   {
     id: "website-seo",
@@ -130,19 +193,15 @@ export const services = [
     tagline: "Convert and rank",
     title: "Website & SEO",
     description:
-      "Not drag-and-drop CMS: we use AI to build fast and ship fast. High-converting, SEO-ready sites for Toronto businesses.",
-    bullets: [
-      "AI-powered build: fast to launch, no endless DIY drag-and-drop",
-      "SEO for Toronto and GTA (on-page, local, content)",
-      "Lead capture and form integration",
-    ],
-    cta: "Get Website & SEO",
+      "A fast, conversion-focused site built to rank in Toronto and the GTA. We use AI to ship in days, not months of back-and-forth.",
+    bullets: ["Local SEO", "Lead capture", "Fast launch", "Real code"],
+    cta: "Get a website →",
     popular: false,
   },
 ] as const;
 
 export const industriesIntro =
-  "We work with service-based businesses across Toronto and the GTA: healthcare, dental, construction, salons, real estate, legal, fitness, and solo professionals. If you run on appointments and client follow-up, we can help.";
+  "If your business runs on appointments, inbound calls, and client relationships, we automate the parts that slow you down.";
 
 /** Industries index page hero (reflects all 3 services: Voice AI, Business Automation, Website & SEO). */
 export const industriesPageHero = {
@@ -156,87 +215,87 @@ export const industries = [
     slug: "healthcare",
     name: "Healthcare",
     description:
-      "Streamline patient intake, appointment scheduling, and follow-up communications.",
+      "Patient intake, scheduling, follow-ups",
     href: "/industries/healthcare",
   },
   {
     slug: "dental",
-    name: "Dental Practices",
+    name: "Dental",
     description:
-      "Automate appointment reminders, patient recalls, and treatment follow-ups.",
+      "Reminders, recalls, rebooking",
     href: "/industries/dental",
   },
   {
     slug: "construction",
     name: "Construction",
     description:
-      "Handle lead capture, invoice processing, and project status updates automatically.",
+      "Lead capture, estimates, updates",
     href: "/industries/construction",
   },
   {
     slug: "salons",
     name: "Salons & Spas",
     description:
-      "Manage bookings, send appointment reminders, and handle client communications.",
+      "Bookings, reminders, client comms",
     href: "/industries/salons",
   },
   {
     slug: "solo-professionals",
     name: "Solo Professionals",
     description:
-      "Free yourself from admin tasks with automated scheduling and client management.",
+      "Full admin automation",
     href: "/industries/solo-professionals",
   },
   {
     slug: "real-estate",
     name: "Real Estate",
     description:
-      "Qualify leads instantly, schedule viewings, and automate follow-up sequences.",
+      "Lead qual, viewings, follow-up",
     href: "/industries/real-estate",
   },
   {
     slug: "legal",
-    name: "Legal Firms",
+    name: "Legal",
     description:
-      "Streamline client intake, document processing, and appointment scheduling.",
+      "Client intake, scheduling, doc flow",
     href: "/industries/legal",
   },
   {
     slug: "fitness",
     name: "Fitness & Gyms",
     description:
-      "Automate class bookings, membership management, and retention campaigns.",
+      "Classes, memberships, retention",
     href: "/industries/fitness",
   },
 ] as const;
 
 export const processIntro =
-  "Our 4-step process is designed so your automation solution is built right and delivers real results.";
+  "No 6-month projects. No bloated scopes. Toronto businesses can't afford to wait, and we don't make them.";
 
 export const processSteps = [
   {
     step: "01",
-    title: "Free Strategy Call",
+    title: "Free strategy call",
     description:
-      "We review your current operations and identify the biggest opportunities for automation and lead capture.",
+      "30 minutes. We map your biggest time sinks and lead leaks and hand you a roadmap, whether you work with us or not.",
   },
   {
     step: "02",
-    title: "Custom Solution",
+    title: "Custom solution design",
     description:
-      "We design a tailored plan (Voice AI, automation, or website & SEO) that fits your business and budget.",
+      "We spec a solution around your actual workflow, not a template. You review and approve before we touch anything.",
   },
   {
     step: "03",
     title: "Implementation",
     description:
-      "We handle setup and integration so you can focus on running your Toronto business.",
+      "We build and integrate everything. You test it. We refine until it's exactly right. No technical knowledge required on your end.",
   },
   {
     step: "04",
-    title: "Ongoing Support",
+    title: "Live + ongoing support",
     description:
-      "Training and support so your systems keep delivering results and ROI.",
+      "You go live. We stay on. Direct access to Ed and Sy for changes, improvements, and anything else that comes up.",
   },
 ] as const;
 
@@ -254,104 +313,56 @@ export const caseStudies = [
     outcome:
       "Recovered a compromised site, strengthened local rankings and Google Business Profile, and built a clean, professional site that brings in more leads from search.",
     cta: "Read case study",
+    href: "/case-studies/website-seo-toronto-window-glass-repair",
   },
 ] as const;
 
-export const faqIntro =
-  "Common questions about our AI automation and Voice AI solutions for Toronto businesses.";
+export const faqIntro = "Questions before every first call.";
 
 export const faqItems = [
   {
     id: "1",
-    question: "What does a Voice AI agency do?",
+    question: "Does Voice AI actually sound natural?",
     answer:
-      "A Voice AI agency designs and deploys AI phone systems that answer business calls 24/7, qualify leads, book appointments, and capture callers using natural conversation. Ed & Sy Inc. is a Toronto Voice AI agency that helps Ontario businesses never miss a lead.",
+      "Yes. Modern Voice AI uses near-human speech synthesis. We train the agent on your business, services, and tone. Most callers don't realise it's AI, and we configure transparent disclosure for the ones who ask.",
   },
   {
     id: "2",
-    question: "What businesses benefit from automation?",
+    question: "How much does it cost?",
     answer:
-      "Service-based businesses that rely on appointments, follow-ups, and client communication benefit most: healthcare, dental, construction, salons, real estate, legal, fitness, and solo professionals across Toronto and the GTA. Any business with repetitive admin tasks can benefit.",
+      "We don't publish fixed pricing because every business is different. Most clients see full ROI within their first month from recovered leads alone. Book a call and we'll give you a real number, not a range.",
   },
   {
     id: "3",
-    question: "How is AI automation different from traditional software?",
+    question: "How fast can you get this running?",
     answer:
-      "Traditional software follows fixed rules. AI automation adds intelligent behavior: understanding intent, summarizing content, routing by context, and triggering actions based on natural language. The result is fewer manual steps and better handling of edge cases.",
+      "Voice AI is typically live in 5–10 business days. Automation workflows take 1–3 weeks depending on scope. We move fast because we know you're losing leads while we talk.",
   },
   {
     id: "4",
-    question: "Do Toronto businesses need Voice AI?",
+    question: "Do I need technical knowledge?",
     answer:
-      "Any Toronto business that misses calls after hours or during busy periods loses leads. Voice AI ensures every call is answered, qualified, and converted into a booking or lead. For Toronto service businesses, it acts as a 24/7 AI receptionist.",
+      "None at all. We handle every part of setup, integration, and training. You get a walkthrough of how to monitor things, then leave the rest to us.",
   },
   {
     id: "5",
-    question: "How much does business automation cost?",
+    question: "What if I want changes after launch?",
     answer:
-      "Costs depend on scope and complexity. We offer custom packages for Toronto and Ontario businesses. Many clients see ROI within the first month from time saved and extra leads captured. Book a free strategy call for a tailored quote.",
+      "You contact Ed or Sy directly, not through a ticket system. We turn changes around quickly, usually within 48 hours. Ongoing support is part of every engagement.",
   },
   {
     id: "6",
-    question: "What industries benefit most from AI websites?",
+    question: "Is my data secure?",
     answer:
-      "Service businesses that need to rank locally and convert visitors (healthcare, dental, contractors, salons, real estate, legal, and fitness) benefit most from AI-built websites with strong SEO for Toronto and Ontario markets.",
-  },
-  {
-    id: "7",
-    question: "How long does it take to see results?",
-    answer:
-      "We focus on quick wins and ROI. Most Toronto clients see measurable improvements within the first 30 days, with typical ROI within the first month of implementation.",
-  },
-  {
-    id: "8",
-    question: "Do I need technical knowledge?",
-    answer:
-      "No. We handle setup and integration and provide training and support. You and your team can focus on running your business.",
-  },
-  {
-    id: "9",
-    question: "What's included in the free strategy call?",
-    answer:
-      "A 30-minute call where we review your operations, identify the biggest automation and lead-capture opportunities, and outline a custom roadmap. No commitment required.",
-  },
-  {
-    id: "10",
-    question: "Can automation work for small businesses in Toronto?",
-    answer:
-      "Yes. We specialize in Toronto small businesses and solo professionals. Our solutions scale to your size and budget and are designed to save 15–20+ hours per week.",
-  },
-  {
-    id: "11",
-    question: "How do you ensure data security?",
-    answer:
-      "We use industry-standard encryption, secure integrations, and best practices for data handling. We can design for HIPAA, SOC2, or other compliance when needed.",
-  },
-  {
-    id: "12",
-    question: "Do you serve the GTA and Ontario?",
-    answer:
-      "Yes. We're based in Toronto and serve the Greater Toronto Area, Ontario, and Canada. We also work with businesses in Markham, Mississauga, Vaughan, and North York. Remote setup and support are available.",
-  },
-  {
-    id: "13",
-    question: "Do you serve Mississauga, Markham, and the broader GTA?",
-    answer:
-      "Yes — Ed & Sy is a Toronto-based automation agency serving the entire Greater Toronto Area, including Mississauga, Markham, Vaughan, Brampton, and North York. We offer remote setup for all Ontario clients.",
-  },
-  {
-    id: "14",
-    question: "What business automation services do you offer?",
-    answer:
-      "We offer end-to-end business automation services: workflow automation, AI-powered follow-ups, invoice processing, CRM integration, and Voice AI. We serve Toronto and Ontario businesses looking to eliminate repetitive admin and scale without adding headcount.",
+      "We use industry-standard encryption and secure integrations. For PIPEDA, HIPAA, or SOC2 compliance, we design around your requirements. Just flag it on the strategy call.",
   },
 ] as const;
 
 export const ctaBlock = {
-  headline: "Ready to automate and capture more leads?",
+  headline: "Stop losing leads to voicemail.",
   subhead:
-    "Book a free strategy call. We'll outline a custom roadmap for Voice AI, automation, or website & SEO. No commitment required.",
-  button: "Book a Free Strategy Call",
+    "Book a free 30-minute strategy call. We'll show you exactly where your business is losing time and money, and what to do about it.",
+  button: "Book free strategy call →",
   note: "No commitment • 30-minute call • Custom roadmap • Toronto-based team",
 } as const;
 

@@ -1,5 +1,5 @@
 /**
- * SEO config and schema for Ed & Sy: Tech implementation partner in Toronto
+ * SEO config and schema for Ed & Sy | Tech implementation partner in Toronto
  * Title format: Primary Keyword | Ed & Sy Toronto
  * Meta description: Pain point + benefit + CTA (under 155 chars)
  */
@@ -26,9 +26,9 @@ export type PageSeo = {
 /** All money pages and key routes with SEO metadata */
 export const seoPages: Record<string, PageSeo> = {
   "/": {
-    title: "Ed & Sy (Ednsy) — AI Automation & Voice AI Agency in Toronto",
+    title: "Ed & Sy (Ednsy) | AI Automation & Voice AI Agency in Toronto",
     description:
-      "We give Toronto service businesses their time back — AI phone answering, workflow automation, and SEO. Book a free strategy call.",
+      "We give Toronto service businesses their time back with AI phone answering, workflow automation, and SEO. Book a free strategy call.",
     canonicalPath: "/",
   },
   "/voice-ai-for-business": {
@@ -46,7 +46,7 @@ export const seoPages: Record<string, PageSeo> = {
   "/website-design-toronto": {
     title: "Website Design & SEO Toronto | Ed & Sy Toronto",
     description:
-      "Not drag-and-drop: we use AI to build fast and ship fast. Website & SEO for Toronto businesses. Get a free strategy call.",
+      "Not drag-and-drop. We use AI to build fast and ship fast. Website & SEO for Toronto businesses. Get a free strategy call.",
     canonicalPath: "/website-design-toronto",
   },
   "/ai-automation-toronto": {
@@ -88,13 +88,13 @@ export const seoPages: Record<string, PageSeo> = {
   "/process": {
     title: "How It Works | Ed & Sy Toronto",
     description:
-      "Our 4-step process: free consultation, custom solution, implementation, ongoing support. Toronto-based, results-focused.",
+      "Our four-step process includes free consultation, custom solution, implementation, and ongoing support. Toronto-based, results-focused.",
     canonicalPath: "/process",
   },
   "/team": {
     title: "Team | Ed & Sy Toronto",
     description:
-      "Meet Ed & Sy: Toronto entrepreneurs helping local businesses reclaim their time through AI and automation.",
+      "Meet Ed & Sy. Toronto entrepreneurs helping local businesses reclaim their time through AI and automation.",
     canonicalPath: "/team",
   },
   "/terms": {
@@ -115,7 +115,7 @@ export const seoPages: Record<string, PageSeo> = {
   "/toronto-voice-ai": {
     title: "Toronto Voice AI Development | Custom AI Phone Systems | Ed & Sy",
     description:
-      "We build custom Voice AI phone systems for Toronto businesses — 24/7 call answering, lead qualification, and appointment booking. See how it works.",
+      "We build custom Voice AI phone systems for Toronto businesses with 24/7 call answering, lead qualification, and appointment booking. See how it works.",
     canonicalPath: "/toronto-voice-ai",
   },
   "/toronto-automation-agency": {
@@ -139,7 +139,7 @@ export const seoPages: Record<string, PageSeo> = {
   "/case-studies": {
     title: "Case Studies | Voice AI and Website & SEO for Toronto Businesses | Ed & Sy Toronto",
     description:
-      "Toronto case study: website & SEO for a window glass repair business. Recovered from a compromised site; stronger local rankings, clean SEO, and more leads.",
+      "Toronto case study on website and SEO for a window glass repair business. Recovered from a compromised site; stronger local rankings, clean SEO, and more leads.",
     canonicalPath: "/case-studies",
   },
   "/blog": {
@@ -157,7 +157,7 @@ export const seoPages: Record<string, PageSeo> = {
   "/blog/rosetta-suites-for-smbs": {
     title: "Rosetta Suites for SMBs | In Development | Ed & Sy Toronto",
     description:
-      "Ed & Sy is building the Rosetta Suites: practical AI tools for SMBs. Chart Rosetta is live; Lead Rosetta is in development. Learn what's coming and why it matters for small business.",
+      "Ed & Sy is building the Rosetta Suites as practical AI tools for SMBs. Chart Rosetta is live; Lead Rosetta is in development. Learn what's coming and why it matters for small business.",
     canonicalPath: "/blog/rosetta-suites-for-smbs",
   },
 };

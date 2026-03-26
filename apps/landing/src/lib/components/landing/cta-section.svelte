@@ -25,7 +25,7 @@
     
     <div class="flex flex-col sm:flex-row gap-6 justify-center items-center mb-12">
       <Button
-        onclick={() => goto("/demos")}
+        onclick={() => goto("/case-studies")}
         size="lg"
         class="group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-700 hover:to-emerald-700 text-white font-bold text-xl rounded-2xl shadow-2xl transform hover:scale-105 transition-all duration-300 overflow-hidden"
       >
@@ -35,7 +35,7 @@
       </Button>
       
       <Button
-        onclick={() => goto("/demos")}
+        onclick={() => goto("/case-studies")}
         variant="outline"
         size="lg"
         class="px-8 py-4 border-2 border-white/30 hover:border-white/50 text-white font-semibold text-xl rounded-2xl backdrop-blur-sm hover:bg-white/10 transition-all duration-300"

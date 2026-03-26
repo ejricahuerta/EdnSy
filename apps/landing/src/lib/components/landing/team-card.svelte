@@ -5,7 +5,8 @@
 
   export let name = "Team Member";
   export let role = "Role";
-  export let image = "/team/member.jpg";
+  // Optional avatar image URL. Defaults to empty to avoid 404s.
+  export let image = "";
   export let fallback = "TM";
   export let description = "Description";
   export let skills = ["Skill 1", "Skill 2", "Skill 3"];
@@ -18,7 +19,9 @@
     <div class="relative bg-white border border-slate-200/50 rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden">
       <div class="flex items-center gap-6 mb-6">
         <Avatar.Root class="w-20 h-20 ring-4 ring-blue-100">
-          <AvatarImage src={image} alt={name} />
+          {#if image}
+            <AvatarImage src={image} alt={name} />
+          {/if}
           <AvatarFallback class="bg-gradient-to-r from-blue-500 to-emerald-500 text-white text-2xl font-bold">
             {fallback}
           </AvatarFallback>

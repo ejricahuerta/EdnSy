@@ -10,7 +10,8 @@
     name: "Maria Rodriguez",
     role: "Owner & Operator",
     company: "Rodriguez Plumbing & HVAC",
-    image: "/testimonials/maria.jpg",
+    // Optional avatar image URL. Defaults to empty to avoid 404s.
+    image: "",
     fallback: "MR",
     quote: "Ed & Sy's AI automation saved us 15+ hours per week on scheduling and customer follow-ups. The n8n-powered workflows are so reliable, I can focus on growing my business instead of paperwork. Our customer satisfaction went up 40% because we respond instantly now!",
     rating: 5,
@@ -65,7 +66,9 @@
         
         <div class="flex items-center justify-center mb-10">
           <Avatar.Root class="w-20 h-20 ring-4 ring-slate-600/50">
-            <AvatarImage src={testimonial.image} alt={testimonial.name} />
+            {#if testimonial.image}
+              <AvatarImage src={testimonial.image} alt={testimonial.name} />
+            {/if}
             <AvatarFallback class="bg-gradient-to-br from-blue-600 to-emerald-600 text-white text-2xl font-semibold">
               {testimonial.fallback}
             </AvatarFallback>

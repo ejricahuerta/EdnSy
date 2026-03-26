@@ -1,19 +1,18 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
   import "../app.css";
-  import { Calendar, Heart, Briefcase, ShoppingCart, Home, Factory, Utensils, Headphones, Workflow, Smartphone, MessageCircle, Youtube, Instagram, Linkedin } from "@lucide/svelte";
+  import { Instagram, Linkedin } from "@lucide/svelte";
 
   import posthog from "posthog-js";
   import { browser } from "$app/environment";
   import { beforeNavigate, afterNavigate } from "$app/navigation";
   import { page } from "$app/stores";
   import { Button } from "$lib/components/ui/button";
-  import * as Sidebar from "$lib/components/ui/sidebar/index.js";
+  import * as NavigationMenu from "$lib/components/ui/navigation-menu";
   import * as Sheet from "$lib/components/ui/sheet/index.js";
-  import ContentHeader from "$lib/components/app/content/header.svelte";
-  import SidebarLayout from "$lib/components/app/sidebar/layout.svelte";
   import type { LayoutData } from "./$types";
   import { getSeoForPath, buildCanonical, buildOrganizationSchema, buildLocalBusinessSchema, buildWebSiteSchema } from "$lib/content/seo";
+  import { services as coreServices } from "$lib/content/site";
+  import { refreshScrollTrigger } from "$lib/animations/gsap.js";
   import { Menu } from "lucide-svelte";
 
   let { children } = $props<{ data: LayoutData }>();
@@ -21,11 +20,42 @@
   let pastHero = $state(false);
   let isAnimating = $state(false);
   let mobileNavOpen = $state(false);
+  let mobileServicesOpen = $state(false);
 
-  const HERO_THRESHOLD = 600;
+  const HERO_THRESHOLD = 720;
   const isHomePage = $derived($page.url.pathname === "/");
   /** On homepage over hero: logo and nav links are light; past hero or other pages: blue */
   const navLight = $derived(isHomePage && !pastHero);
+
+  const voiceService = coreServices.find((s) => s.slug === "voice-ai")!;
+  const automationService = coreServices.find((s) => s.slug === "workflow-automation")!;
+  const websiteService = coreServices.find((s) => s.slug === "website-seo")!;
+
+  function firstSentence(text: string) {
+    const match = text.match(/(.+?[.!?])(\s|$)/);
+    return match ? match[1] : text;
+  }
+
+  const serviceGroups = [
+    {
+      slug: "voice",
+      title: "Voice",
+      href: voiceService.href,
+      description: firstSentence(voiceService.description),
+    },
+    {
+      slug: "automation",
+      title: "Automation",
+      href: automationService.href,
+      description: firstSentence(automationService.description),
+    },
+    {
+      slug: "website-seo",
+      title: "Website & SEO",
+      href: websiteService.href,
+      description: firstSentence(websiteService.description),
+    },
+  ] as const;
 
   const seo = $derived(getSeoForPath($page.url.pathname));
   const organizationSchema = buildOrganizationSchema();
@@ -55,10 +85,7 @@
     };
     pastHero = window.scrollY > HERO_THRESHOLD;
     window.addEventListener("scroll", handleScroll);
-
-    // Cleanup will be handled by the browser when the page unloads
   }
-
 
   const posthogApiKey = import.meta.env.VITE_POSTHOG_API_KEY;
 
@@ -67,12 +94,30 @@
     console.warn("⚠️ PostHog API key not found. Analytics will be disabled.");
   }
 
+  if (browser) {
+    function syncNavScroll() {
+      scrolled = window.scrollY > 10;
+      pastHero = window.scrollY > HERO_THRESHOLD;
+    }
+
+    afterNavigate(() => {
+      syncNavScroll();
+      refreshScrollTrigger();
+      mobileNavOpen = false;
+      mobileServicesOpen = false;
+      if (posthogApiKey) {
+        posthog.capture("$pageview");
+      }
+      // Scroll-to-top runs after this callback; sync again on the next frame(s) so home hero/nav colors match
+      requestAnimationFrame(() => {
+        syncNavScroll();
+        requestAnimationFrame(syncNavScroll);
+      });
+    });
+  }
+
   if (browser && posthogApiKey) {
     beforeNavigate(() => posthog.capture("$pageleave"));
-    afterNavigate(() => {
-      posthog.capture("$pageview");
-      mobileNavOpen = false;
-    });
   }
 
   // Close mobile nav when route changes after clicking a link in the sheet
@@ -128,31 +173,57 @@
 </svelte:head>
 
 <!-- NAVIGATION BAR - Collapses to hamburger menu on mobile -->
-{#if $page.url.pathname === "/" || (!$page.url.pathname.startsWith("/demos"))}
-  <header class="fixed top-0 z-50 w-full transition-all duration-300 {navLight ? 'bg-transparent border-b border-transparent' : 'bg-gradient-to-b from-white to-gray-50/90 border-b border-border'}">
+{#if true}
+  <header
+    class="fixed top-0 z-[100] w-full transition-all duration-300 {navLight
+      ? 'bg-transparent border-b border-transparent'
+      : 'border-b border-white/10 bg-slate-950/95 shadow-sm backdrop-blur-md'}"
+  >
     <div class="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 sm:py-4 min-h-[56px] sm:min-h-[60px]">
       <a href="/" class="flex items-center shrink-0" aria-label="Ed & Sy home">
         <img
           src="/logo/logo.png"
           alt="Ed & Sy"
-          class="h-10 w-auto sm:h-12 transition-[filter] duration-300 {navLight ? 'brightness-0 invert' : ''}"
+          class="h-10 w-auto sm:h-12 brightness-0 invert transition-[filter] duration-300"
           width="120"
           height="40"
         />
       </a>
 
-      <!-- Desktop nav: visible from lg up. Light over hero, blue past hero. -->
-      <nav class="hidden lg:flex items-center gap-6 xl:gap-8" aria-label="Main navigation">
-        <Button href="/voice-ai-for-business" variant="link" class="font-heading p-0 h-auto text-sm xl:text-base transition-colors duration-300 {navLight ? 'text-white hover:text-white/90' : 'text-primary'}">Voice AI</Button>
-        <Button href="/business-automation-services" variant="link" class="font-heading p-0 h-auto text-sm xl:text-base transition-colors duration-300 {navLight ? 'text-white hover:text-white/90' : 'text-primary'}">Automation</Button>
-        <Button href="/website-design-toronto" variant="link" class="font-heading p-0 h-auto text-sm xl:text-base transition-colors duration-300 {navLight ? 'text-white hover:text-white/90' : 'text-primary'}">Website & SEO</Button>
-        <Button href="/industries" variant="link" class="font-heading p-0 h-auto text-sm xl:text-base transition-colors duration-300 {navLight ? 'text-white hover:text-white/90' : 'text-primary'}">Industries</Button>
-        <Button href="/process" variant="link" class="font-heading p-0 h-auto text-sm xl:text-base transition-colors duration-300 {navLight ? 'text-white hover:text-white/90' : 'text-primary'}">Process</Button>
-        <Button href="/about" variant="link" class="font-heading p-0 h-auto text-sm xl:text-base transition-colors duration-300 {navLight ? 'text-white hover:text-white/90' : 'text-primary'}">About</Button>
-        <Button href="/contact" variant="link" class="font-heading p-0 h-auto text-sm xl:text-base transition-colors duration-300 {navLight ? 'text-white hover:text-white/90' : 'text-primary'}">Contact</Button>
+      <!-- Desktop: light on transparent (over hero) or on solid dark bar (past hero / inner pages) -->
+      <nav class="hidden md:flex items-center gap-6 xl:gap-8" aria-label="Main navigation">
+        <NavigationMenu.Root>
+          <NavigationMenu.List class="flex items-center gap-6 xl:gap-8">
+            <NavigationMenu.Item>
+              <NavigationMenu.Trigger class="bg-transparent text-white hover:bg-white/10 hover:text-white">
+                Services
+              </NavigationMenu.Trigger>
+              <NavigationMenu.Content>
+                <div class="grid gap-6 p-6 md:w-[720px] md:grid-cols-3">
+                  {#each serviceGroups as group (group.slug)}
+                    <div class="space-y-2">
+                      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                        {group.title}
+                      </p>
+                      <NavigationMenu.Link href={group.href}>
+                        <span class="text-sm font-medium tracking-tight text-foreground hover:underline">
+                          {group.description}
+                        </span>
+                      </NavigationMenu.Link>
+                    </div>
+                  {/each}
+                </div>
+              </NavigationMenu.Content>
+            </NavigationMenu.Item>
+          </NavigationMenu.List>
+        </NavigationMenu.Root>
+        <Button href="/industries" variant="link" class="font-heading p-0 h-auto text-sm xl:text-base text-white transition-colors duration-300 hover:text-white/90">Industries</Button>
+        <Button href="/process" variant="link" class="font-heading p-0 h-auto text-sm xl:text-base text-white transition-colors duration-300 hover:text-white/90">Process</Button>
+        <Button href="/about" variant="link" class="font-heading p-0 h-auto text-sm xl:text-base text-white transition-colors duration-300 hover:text-white/90">About</Button>
+        <Button href="/contact" variant="link" class="font-heading p-0 h-auto text-sm xl:text-base text-white transition-colors duration-300 hover:text-white/90">Contact</Button>
         <Button
           href="/contact"
-          class="text-sm xl:text-base transition-colors duration-300 {navLight ? 'border-white text-white hover:bg-white/10 bg-transparent' : 'bg-primary hover:bg-primary/90'}"
+          class="text-sm xl:text-base border border-white/30 bg-transparent text-white transition-colors duration-300 hover:bg-white/10"
           data-cal-link="edmel-ednsy/enable-ai"
           data-cal-namespace="enable-ai"
           data-cal-config={JSON.stringify({ layout: "month_view" })}
@@ -161,11 +232,18 @@
         </Button>
       </nav>
 
-      <!-- Mobile: hamburger button. Light over hero on home. -->
-      <div class="flex lg:hidden items-center">
+      <!-- Mobile: same light-on-dark treatment as desktop solid bar -->
+      <div class="flex md:hidden items-center gap-1">
+        <Button
+          href="/contact"
+          variant="ghost"
+          class="h-10 px-3 text-sm font-heading text-white transition-colors duration-300 hover:bg-white/10 active:bg-white/20"
+        >
+          Contact
+        </Button>
         <button
           type="button"
-          class="inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-md transition-colors duration-300 {navLight ? 'text-white hover:bg-white/10 active:bg-white/20' : 'text-foreground hover:bg-muted active:bg-muted/80'} focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          class="inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-md text-white transition-colors duration-300 hover:bg-white/10 active:bg-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
           aria-label="Open menu"
           aria-expanded={mobileNavOpen}
           aria-controls="mobile-nav-sheet"
@@ -184,9 +262,21 @@
         <Sheet.Title>Menu</Sheet.Title>
       </Sheet.Header>
       <nav class="flex flex-col gap-1" aria-label="Mobile navigation">
-        <Button href="/voice-ai-for-business" variant="ghost" class="justify-start h-11 text-base font-heading">Voice AI</Button>
-        <Button href="/business-automation-services" variant="ghost" class="justify-start h-11 text-base font-heading">Automation</Button>
-        <Button href="/website-design-toronto" variant="ghost" class="justify-start h-11 text-base font-heading">Website & SEO</Button>
+        <Button
+          type="button"
+          variant="ghost"
+          class="justify-start h-11 text-base font-heading"
+          onclick={() => (mobileServicesOpen = !mobileServicesOpen)}
+        >
+          Services
+        </Button>
+        {#if mobileServicesOpen}
+          <div class="flex flex-col gap-1 pl-3">
+            <Button href="/voice-ai-for-business" variant="ghost" class="justify-start h-11 text-base font-heading">Voice AI</Button>
+            <Button href="/business-automation-services" variant="ghost" class="justify-start h-11 text-base font-heading">Automation</Button>
+            <Button href="/website-design-toronto" variant="ghost" class="justify-start h-11 text-base font-heading">Website & SEO</Button>
+          </div>
+        {/if}
         <Button href="/industries" variant="ghost" class="justify-start h-11 text-base font-heading">Industries</Button>
         <Button href="/process" variant="ghost" class="justify-start h-11 text-base font-heading">Process</Button>
         <Button href="/about" variant="ghost" class="justify-start h-11 text-base font-heading">About</Button>
@@ -207,24 +297,9 @@
   </Sheet.Root>
 {/if}
 
-{#if $page.url.pathname.startsWith("/demos")}
-  <!-- Demo Layout with Sidebar -->
-  <div class="[--header-height:calc(--spacing(14))]">
-    <Sidebar.Provider class="flex flex-col">
-      <ContentHeader />
-      <div class="flex flex-1">
-        <SidebarLayout />
-        <Sidebar.Inset>
-          {@render children()}
-        </Sidebar.Inset>
-      </div>
-    </Sidebar.Provider>
-  </div>
-{:else}
   <!-- Public Layout without Sidebar -->
   {@render children()}
 
-  {#if $page.url.pathname !== "/demos"}
   <!-- FOOTER - Local SEO: Ed & Sy, Toronto Ontario, contact (dark theme) -->
   <footer class="bg-slate-900 border-t border-slate-800 py-12 md:py-16 text-slate-100">
     <div class="max-w-6xl mx-auto px-6 lg:px-8">
@@ -284,17 +359,15 @@
       <p class="text-sm text-slate-500 mt-12">© 2026 Ed & Sy. All rights reserved.</p>
     </div>
   </footer>
-    <button
-      type="button"
-      data-tally-open="3NQ6pB"
-      data-tally-overlay="1"
-      data-tally-emoji-text="👋"
-      data-tally-emoji-animation="wave"
-      data-tally-auto-close="3000"
-      class="fixed bottom-6 right-6 z-50 bg-background text-primary border border-border text-lg font-bold px-6 py-4 rounded-full shadow-xl hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-300 cursor-pointer"
-    >
-      Hi!<span class={isAnimating ? 'animate-bounce' : ''}>👋</span>
-    </button>
-  {/if}
-{/if}
+  <button
+    type="button"
+    data-tally-open="3NQ6pB"
+    data-tally-overlay="1"
+    data-tally-emoji-text="👋"
+    data-tally-emoji-animation="wave"
+    data-tally-auto-close="3000"
+    class="fixed bottom-6 right-6 z-[115] bg-background text-primary border border-border text-lg font-bold px-6 py-4 rounded-full shadow-xl hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-300 cursor-pointer"
+  >
+    Hi!<span class={isAnimating ? 'animate-bounce' : ''}>👋</span>
+  </button>
 

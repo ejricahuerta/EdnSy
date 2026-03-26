@@ -20,52 +20,129 @@
 
 <section class="bg-background pt-32 md:pt-36 pb-12 md:pb-16">
   <div class="max-w-6xl mx-auto px-6 lg:px-8">
-    <nav class="text-sm text-muted-foreground mb-6" aria-label="Breadcrumb">
+    <nav class="mb-6 text-sm text-muted-foreground" aria-label="Breadcrumb">
       <a href="/" class="text-primary hover:underline">Home</a>
       <span class="mx-2">/</span>
       <a href="/case-studies" class="text-primary hover:underline">Case Studies</a>
       <span class="mx-2">/</span>
       <span class="text-foreground">{study.title}</span>
     </nav>
+
+    <div class="mb-6 flex flex-wrap gap-3">
+      <span class="inline-flex items-center rounded-full border border-border bg-muted/70 px-4 py-1.5 text-sm font-medium text-foreground">
+        {study.industry}
+      </span>
+      <span class="inline-flex items-center rounded-full border border-border bg-muted/70 px-4 py-1.5 text-sm font-medium text-foreground">
+        {study.location}
+      </span>
+    </div>
+
     <h1 class="typography-h1 mb-5 text-balance">{study.title}</h1>
-    <p class="text-sm text-muted-foreground mb-6">
-      <span class="font-medium text-foreground">{study.industry}</span> · {study.location}
-    </p>
-    <p class="text-lg font-medium text-foreground mb-4">Outcome: {study.outcome}</p>
+    <p class="max-w-3xl text-lg leading-8 text-muted-foreground">{study.outcome}</p>
+
+    <figure class="mt-10 overflow-hidden rounded-[2rem] border border-border bg-card shadow-sm">
+      <img
+        src={study.heroImage.src}
+        alt={study.heroImage.alt}
+        class="aspect-[16/9] w-full object-cover"
+        loading="lazy"
+        decoding="async"
+      />
+      <figcaption class="border-t border-border px-5 py-3 text-xs text-muted-foreground">
+        Source:
+        <a
+          href={study.heroImage.creditHref}
+          class="font-medium text-foreground hover:underline"
+          target="_blank"
+          rel="noreferrer"
+        >
+          {study.heroImage.credit}
+        </a>
+      </figcaption>
+    </figure>
   </div>
 </section>
 
-<section class="py-16 md:py-24 bg-muted/30">
+<section class="bg-muted/30 py-16 md:py-24">
   <div class="max-w-6xl mx-auto px-6 lg:px-8">
-    <article class="space-y-10">
-      <div>
-        <h2 class="text-lg font-semibold mb-2">Challenge</h2>
-        <p class="text-muted-foreground leading-7">{study.challenge}</p>
-      </div>
+    <article class="space-y-20">
+      <section class="space-y-5">
+        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-primary">01 · Challenge</p>
+        <h2 class="text-3xl font-semibold tracking-tight text-foreground md:text-4xl">The challenge</h2>
+        <p class="max-w-2xl leading-8 text-muted-foreground">{study.challenge}</p>
+      </section>
 
-      <div>
-        <h2 class="text-lg font-semibold mb-2">Solutions</h2>
-        <p class="text-muted-foreground leading-7">{study.solutions}</p>
-      </div>
+      <section class="space-y-8">
+        <div class="max-w-3xl space-y-4">
+          <p class="text-xs font-semibold uppercase tracking-[0.35em] text-primary">02 · Approach</p>
+          <h2 class="text-3xl font-semibold tracking-tight text-foreground md:text-4xl">Our approach</h2>
+          <p class="leading-8 text-muted-foreground">
+            We worked through the recovery in three deliberate phases so the business could get back online fast and rebuild on a stronger foundation.
+          </p>
+        </div>
 
-      <div>
-        <h2 class="text-lg font-semibold mb-2">Stats</h2>
-        <ul class="list-disc list-inside text-muted-foreground leading-7 space-y-2">
-          {#each study.stats as stat}
-            <li>{stat}</li>
+        <div class="grid gap-6 md:grid-cols-3">
+          {#each study.approachSteps as step}
+            <div class="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
+              <div class="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+                {step.step}
+              </div>
+              <h3 class="mt-6 text-xl font-semibold tracking-tight text-foreground">{step.title}</h3>
+              <p class="mt-3 text-sm leading-7 text-muted-foreground">{step.body}</p>
+            </div>
+          {/each}
+        </div>
+      </section>
+
+      <section class="space-y-5">
+        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-primary">03 · Results</p>
+        <h2 class="text-3xl font-semibold tracking-tight text-foreground md:text-4xl">Results</h2>
+        <p class="max-w-2xl leading-8 text-muted-foreground">{study.outcome}</p>
+
+        <ul class="grid gap-3 sm:grid-cols-2">
+          {#each study.resultsHighlights as highlight}
+            <li class="rounded-2xl border border-border bg-card px-4 py-4 text-sm leading-6 text-muted-foreground shadow-sm">
+              {highlight}
+            </li>
           {/each}
         </ul>
-      </div>
+      </section>
 
       {#if study.testimonial}
-        <blockquote class="border-l-4 border-primary pl-6 py-2 text-foreground italic">
-          {study.testimonial}
-        </blockquote>
+        <section class="rounded-[2rem] border border-border bg-background px-6 py-12 text-center shadow-sm md:px-10 md:py-16">
+          <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-4xl font-serif text-primary">
+            "
+          </div>
+          <blockquote class="mx-auto max-w-4xl text-2xl leading-relaxed tracking-tight text-foreground md:text-3xl">
+            {study.testimonial.quote}
+          </blockquote>
+          <p class="mt-6 text-sm font-medium uppercase tracking-[0.3em] text-muted-foreground">
+            {study.testimonial.attribution}
+          </p>
+        </section>
       {/if}
 
-      <div class="pt-8 mt-10 border-t border-border">
-        <p class="text-foreground font-medium mb-4">Ready to get similar results?</p>
-        <div class="flex flex-wrap gap-4">
+      <section class="space-y-8">
+        <div class="max-w-3xl space-y-4">
+          <p class="text-xs font-semibold uppercase tracking-[0.35em] text-primary">04 · Key takeaways</p>
+          <h2 class="text-3xl font-semibold tracking-tight text-foreground md:text-4xl">Key takeaways</h2>
+        </div>
+
+        <div class="grid gap-6 md:grid-cols-3">
+          {#each study.takeaways as takeaway}
+            <div class="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
+              <h3 class="text-xl font-semibold tracking-tight text-foreground">{takeaway.title}</h3>
+              <p class="mt-3 text-sm leading-7 text-muted-foreground">{takeaway.body}</p>
+            </div>
+          {/each}
+        </div>
+      </section>
+
+      <section class="rounded-[2rem] border border-border bg-card px-6 py-10 shadow-sm md:px-10 md:py-12">
+        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-primary">05 · Next step</p>
+        <h2 class="mt-3 text-3xl font-semibold tracking-tight text-foreground md:text-4xl">Ready to get similar results?</h2>
+        <p class="mt-4 max-w-2xl leading-7 text-muted-foreground">{study.ctaSubtitle}</p>
+        <div class="mt-8 flex flex-wrap gap-4">
           <Button
             href={study.href}
             class="bg-primary hover:bg-primary/90"
@@ -76,7 +153,7 @@
           </Button>
           <Button href="/case-studies" variant="outline">All case studies</Button>
         </div>
-      </div>
+      </section>
     </article>
   </div>
 </section>
@@ -91,7 +168,7 @@
             <a href="/case-studies/{other.slug}" class="text-primary hover:underline font-medium">
               {other.title}
             </a>
-            <span class="text-muted-foreground text-sm"> — {other.industry}</span>
+            <span class="text-muted-foreground text-sm"> · {other.industry}</span>
           </li>
         {/each}
       </ul>

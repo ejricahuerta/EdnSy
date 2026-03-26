@@ -53,7 +53,7 @@
       </Button>
       
       <Button
-        onclick={() => goto("/demos")}
+        onclick={() => goto("/case-studies")}
         variant="outline"
         size="lg"
         class="px-8 py-4 text-lg font-semibold border-white/30 text-white hover:bg-white/10 rounded-lg backdrop-blur-sm transition-all duration-200"
