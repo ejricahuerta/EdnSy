@@ -20,6 +20,7 @@ import { isValidDemoTrackingStatus, type DemoTrackingStatus } from '$lib/demo';
 import { gradeGbp } from '$lib/ai-agents';
 import { isOutOfScopeCompany } from '$lib/server/outOfScope';
 import { NO_FIT_BIG_CORP_REASON } from '$lib/server/qualify';
+import { PROSPECT_STATUS } from '$lib/prospectStatus';
 
 const ANALYSIS_PLACEHOLDER_LINK = 'https://leadrosetta.local/analysis-pending';
 
@@ -38,13 +39,13 @@ export async function processOneGbpJob(): Promise<ProcessGbpJobResult> {
 		if (!prospect) {
 			const errorMessage = 'Prospect not found';
 			await updateGbpJob(jobId, { status: 'failed', errorMessage });
-			await updateProspectStatus(prospectId, 'Prospect');
+			await updateProspectStatus(prospectId, PROSPECT_STATUS.NEW);
 			return { processed: true, prospectId, status: 'failed', errorMessage };
 		}
 		if (prospect.flagged) {
 			const errorMessage = 'Prospect is out of scope';
 			await updateGbpJob(jobId, { status: 'failed', errorMessage });
-			await updateProspectStatus(prospectId, 'Prospect');
+			await updateProspectStatus(prospectId, PROSPECT_STATUS.NEW);
 			return {
 				processed: true,
 				prospectId,
@@ -62,7 +63,7 @@ export async function processOneGbpJob(): Promise<ProcessGbpJobResult> {
 			await updateGbpJob(jobId, { status: 'failed', errorMessage: gbpResult.error });
 			// When GBP fails: move to next step (Generate Demo) so we can create a generic AI demo
 			// from business name and location (website is map-only or missing). Do not flag.
-			await updateProspectStatus(prospectId, 'Generate Demo');
+			await updateProspectStatus(prospectId, PROSPECT_STATUS.DEMO_PENDING);
 			return {
 				processed: true,
 				prospectId,
@@ -78,7 +79,7 @@ export async function processOneGbpJob(): Promise<ProcessGbpJobResult> {
 		if (isOutOfScopeCompany(prospect.companyName) || isOutOfScopeCompany(gbp.name)) {
 			await setProspectFlagged(userId, prospectId, true, NO_FIT_BIG_CORP_REASON);
 			await updateGbpJob(jobId, { status: 'failed', errorMessage: 'Big corporation – moved to No Fit' });
-			await updateProspectStatus(prospectId, 'Prospect');
+			await updateProspectStatus(prospectId, PROSPECT_STATUS.NEW);
 			return {
 				processed: true,
 				prospectId,
@@ -127,7 +128,7 @@ export async function processOneGbpJob(): Promise<ProcessGbpJobResult> {
 		if (!updateResult.ok) {
 			const errorMessage = updateResult.error ?? 'Failed to save GBP data';
 			await updateGbpJob(jobId, { status: 'failed', errorMessage });
-			await updateProspectStatus(prospectId, 'Prospect');
+			await updateProspectStatus(prospectId, PROSPECT_STATUS.NEW);
 			return {
 				processed: true,
 				prospectId,
@@ -138,7 +139,7 @@ export async function processOneGbpJob(): Promise<ProcessGbpJobResult> {
 		}
 
 		await updateGbpJob(jobId, { status: 'done' });
-		await updateProspectStatus(prospectId, 'Generate Demo');
+		await updateProspectStatus(prospectId, PROSPECT_STATUS.DEMO_PENDING);
 		return {
 			processed: true,
 			prospectId,
@@ -148,7 +149,7 @@ export async function processOneGbpJob(): Promise<ProcessGbpJobResult> {
 	} catch (e) {
 		const errorMessage = e instanceof Error ? e.message : String(e);
 		await updateGbpJob(jobId, { status: 'failed', errorMessage });
-		await updateProspectStatus(prospectId, 'Prospect');
+		await updateProspectStatus(prospectId, PROSPECT_STATUS.NEW);
 		return { processed: true, prospectId, status: 'failed', errorMessage };
 	}
 }

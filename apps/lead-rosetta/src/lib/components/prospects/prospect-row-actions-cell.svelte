@@ -20,6 +20,7 @@
 		detailHref = `/dashboard/prospects/${prospectId}`,
 		hasDemoLink = false,
 		demoJobStatus,
+		trackingStatus,
 		showDelete = false,
 		showRestore = false,
 		onRegenerateQueued,
@@ -35,6 +36,7 @@
 		detailHref?: string;
 		hasDemoLink?: boolean;
 		demoJobStatus?: 'pending' | 'creating' | 'done' | 'failed';
+		trackingStatus?: 'draft' | 'approved' | 'sent' | 'opened' | 'clicked' | 'replied';
 		showDelete?: boolean;
 		showRestore?: boolean;
 		onRegenerateQueued?: () => void;
@@ -161,6 +163,7 @@
 		{prospectId}
 		{hasDemoLink}
 		{demoJobStatus}
+		{trackingStatus}
 		detailHref={detailHref}
 		{showDelete}
 		{showRestore}

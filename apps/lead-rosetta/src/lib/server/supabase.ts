@@ -1068,6 +1068,35 @@ export async function updateInsightsJob(
 	await supabase.from('insights_jobs').update(payload).eq('id', jobId);
 }
 
+/** Reset insights jobs stuck in `running` so cron can reclaim them. */
+export async function resetStaleRunningInsightsJobs(staleAfterMinutes: number = 5): Promise<number> {
+	const supabase = getSupabaseAdmin();
+	if (!supabase) return 0;
+	const cutoff = new Date(Date.now() - staleAfterMinutes * 60 * 1000).toISOString();
+	const { data, error } = await supabase
+		.from('insights_jobs')
+		.update({ status: 'pending', updated_at: new Date().toISOString() })
+		.eq('status', 'running')
+		.lt('updated_at', cutoff)
+		.select('id');
+	if (error || !data?.length) return 0;
+	return data.length;
+}
+
+/** Pending / running counts for insights job queue (cron debug). */
+export async function getInsightsJobQueueCounts(): Promise<{ pending: number; running: number } | null> {
+	const supabase = getSupabaseAdmin();
+	if (!supabase) return null;
+	const [pendingRes, runningRes] = await Promise.all([
+		supabase.from('insights_jobs').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+		supabase.from('insights_jobs').select('id', { count: 'exact', head: true }).eq('status', 'running')
+	]);
+	return {
+		pending: pendingRes.count ?? 0,
+		running: runningRes.count ?? 0
+	};
+}
+
 /**
  * Record email open (pixel or demo page_view). Funnel: only advances sent → opened.
  * Sets opened_at. No-op if status is already opened, clicked, or replied.

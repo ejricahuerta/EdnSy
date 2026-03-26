@@ -1,6 +1,6 @@
 import { getSupabaseAdmin } from '$lib/server/supabase';
 
-export type CrmProvider = 'hubspot' | 'gohighlevel' | 'pipedrive' | 'notion';
+export type CrmProvider = 'notion';
 
 export type CrmConnectionMeta = {
 	databaseId?: string;
@@ -76,15 +76,6 @@ export async function listCrmConnections(userId: string): Promise<{ provider: Cr
 	const supabase = getSupabaseAdmin();
 	if (!supabase) return [];
 	const { data } = await supabase.from('crm_connections').select('provider').eq('user_id', userId);
-	const set = new Set((data ?? []).map((r) => r.provider as CrmProvider));
-	return [
-		{ provider: 'notion', connected: set.has('notion') },
-		{ provider: 'hubspot', connected: set.has('hubspot') },
-		{ provider: 'gohighlevel', connected: set.has('gohighlevel') },
-		{ provider: 'pipedrive', connected: set.has('pipedrive') }
-	];
+	const set = new Set((data ?? []).map((r) => r.provider as string));
+	return [{ provider: 'notion', connected: set.has('notion') }];
 }
-
-export { listHubSpotContacts } from './hubspot';
-export { listGoHighLevelContacts } from './gohighlevel';
-export { listPipedriveContacts } from './pipedrive';

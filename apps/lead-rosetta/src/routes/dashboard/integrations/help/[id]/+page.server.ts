@@ -5,9 +5,7 @@ import { INTEGRATION_HELP_DOCS, INTEGRATION_IDS } from '$lib/server/integrationH
 
 const TITLES: Record<(typeof INTEGRATION_IDS)[number], string> = {
 	notion: 'Notion setup',
-	hubspot: 'HubSpot setup',
-	gohighlevel: 'GoHighLevel setup',
-	pipedrive: 'Pipedrive setup'
+	'gbp-dental': 'GBP dental pull'
 };
 
 export const load: PageServerLoad = async ({ params }) => {

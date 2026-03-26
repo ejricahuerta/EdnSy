@@ -10,5 +10,7 @@ CRON_TARGET_URL = "https://leadrosetta.ednsy.com"
 PITCH_ROSETTA_URL = "https://pitch-rosetta.onrender.com"
 
 [triggers]
-# Demo: every 1 min. GBP: every 2 min. Pitch Rosetta: every 14 min (keep Render awake). Worker branches on controller.cron.
-crons = ["*/1 * * * *", "*/2 * * * *", "*/14 * * * *"]
+# Single trigger to stay within Cloudflare Free "Cron Triggers per account" (5). Handler runs every minute and
+# dispatches GBP (*/2), insights (*/3), batch (*/5), pitch ping (*/14) by UTC minute — same as separate crons.
+# See: https://developers.cloudflare.com/workers/platform/limits/#account-plan-limits
+crons = ["*/1 * * * *"]

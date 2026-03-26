@@ -39,7 +39,12 @@ Core engines (Demo, Insights, GBP, Prospects, Send, Auth, CRM, Billing, Supabase
    - **CRM / Integrations:** Connect one or more sources in Dashboard → Integrations (HubSpot, GoHighLevel, Pipedrive, or Notion). For Notion you need `NOTION_API_KEY` and `NOTION_DATABASE_ID` (create at [notion.so/my-integrations](https://www.notion.so/my-integrations); share the database with your integration). Prospects are synced into the dashboard keyed by **provider** and **provider_row_id**; status and tracking are stored on our side and synced back by id where supported.
    - **Resend (F4 email):** `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `RESEND_FROM_NAME`. Default (dev) is `onboarding@resend.dev`; for production set `RESEND_FROM_EMAIL=leadrosetta@ednsy.com` and `RESEND_FROM_NAME=Lead Rosetta`, then verify the domain in Resend. Required for the Send button.
    - **SITE_ORIGIN (production):** Set to your public app URL (e.g. `https://app.ednsy.com`) when deploying. Used for links in outgoing emails and stored demo URLs so recipients get a clickable link instead of localhost. If unset, the request origin is used (fine for local dev).
-   - **Cron (optional):** A [Cloudflare Worker](../cron-worker/README.md) calls `GET /api/cron/jobs/demo` every 1 minute and `GET /api/cron/jobs/gbp` every 2 minutes (avoids Vercel cron limits). Set **CRON_SECRET** (16+ chars) in both Vercel and the Worker; routes reject requests without `Authorization: Bearer <CRON_SECRET>`. Demo cron requires **SITE_ORIGIN** so demo links are correct. **Local:** Run `pnpm run cron:mock` (with dev server and `CRON_SECRET` in `.env`); see [scripts/README.md](../../scripts/README.md).
+   - **Cron (optional):** A [Cloudflare Worker](../cron-worker/README.md) calls:
+     - `GET /api/cron/jobs/demo` every 1 minute
+     - `GET /api/cron/jobs/gbp` every 2 minutes
+     - `GET /api/cron/jobs/insights` every 3 minutes
+     - `GET /api/cron/schedule/batch` every 5 minutes
+     (avoids Vercel cron limits). Set **CRON_SECRET** (16+ chars) in both Vercel and the Worker; routes reject requests without `Authorization: Bearer <CRON_SECRET>`. Demo cron requires **SITE_ORIGIN** so demo links are correct. **Local:** Run `pnpm run cron:mock` (with dev server and `CRON_SECRET` in `.env`); see [scripts/README.md](../../scripts/README.md).
    - **Twilio (F4 SMS):** Optional / backlogged (no budget, low traction). If you enable it: `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER` (E.164). When set, Send will also send SMS to prospects with a phone number.
    - `MARKETING_API_KEY` - optional, for protecting API routes
    - **Google login** (for `/dashboard` and auth):

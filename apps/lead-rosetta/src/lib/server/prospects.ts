@@ -1,11 +1,11 @@
 /**
  * Central prospects store in Supabase.
- * Dashboard list and demo tracking use this; data is synced from any connected integration
- * (Notion, HubSpot, GoHighLevel, Pipedrive). Each row tracks provider + provider_row_id.
- * New prospects get status "New" on sync; existing prospects keep their current status (see upsertProspect).
- * Flagged prospects (out of scope, e.g. large enterprises) cannot run demos, GBP, or send.
+ * Dashboard list and demo tracking use this. Notion sync and CSV import use insert-only (see insertProspectIfAbsent).
+ * Each row tracks provider + provider_row_id.
+ * Flagged prospects (out of scope) cannot run demos, GBP, or send.
  */
 
+import { PROSPECT_STATUS } from '$lib/prospectStatus';
 import { getSupabaseAdmin } from '$lib/server/supabase';
 import { isOutOfScopeCompany, getDefaultFlaggedReason } from '$lib/server/outOfScope';
 
@@ -54,7 +54,7 @@ function rowToProspect(r: {
 		website: r.website ?? '',
 		phone: r.phone ?? undefined,
 		industry: r.industry ?? '',
-		status: r.status ?? 'Prospect',
+		status: r.status ?? PROSPECT_STATUS.NEW,
 		demoLink: r.demo_link ?? undefined,
 		flagged: r.flagged === true,
 		flaggedReason: r.flagged_reason ?? undefined,
@@ -155,7 +155,7 @@ async function getProspectByProviderKey(
 		.eq('provider_row_id', providerRowId)
 		.maybeSingle();
 	if (error || !data) return null;
-	return { id: data.id, status: (data.status ?? 'Prospect').slice(0, 100) };
+	return { id: data.id, status: (data.status ?? PROSPECT_STATUS.NEW).slice(0, 100) };
 }
 
 /**
@@ -171,17 +171,57 @@ export async function insertManualProspect(
 		industry?: string;
 	}
 ): Promise<{ id: string; error?: string }> {
-	const supabase = getSupabaseAdmin();
-	if (!supabase) return { id: '', error: 'Database not configured' };
 	const providerRowId = crypto.randomUUID();
-	return upsertProspect(userId, 'manual', providerRowId, {
-		...fields,
-		status: 'Prospect'
-	});
+	const r = await insertProspectIfAbsent(userId, 'manual', providerRowId, fields);
+	return { id: r.id, error: r.error };
 }
 
 /**
- * Upsert a prospect from a provider. Used when syncing from Notion, HubSpot, GHL, or Pipedrive.
+ * Insert a prospect only if (user_id, provider, provider_row_id) does not exist.
+ * New rows get status `new`. Skips update for existing CRM rows (insert-only sync).
+ */
+export async function insertProspectIfAbsent(
+	userId: string,
+	provider: ProspectProvider,
+	providerRowId: string,
+	fields: {
+		companyName: string;
+		email: string;
+		website?: string;
+		phone?: string;
+		industry?: string;
+	}
+): Promise<{ id: string; inserted: boolean; error?: string }> {
+	const supabase = getSupabaseAdmin();
+	if (!supabase) return { id: '', inserted: false, error: 'Database not configured' };
+	const existing = await getProspectByProviderKey(userId, provider, providerRowId);
+	if (existing) {
+		return { id: existing.id, inserted: false };
+	}
+	const now = new Date().toISOString();
+	const companyName = (fields.companyName ?? '').slice(0, 500);
+	const outOfScope = isOutOfScopeCompany(companyName);
+	const row = {
+		user_id: userId,
+		provider,
+		provider_row_id: providerRowId,
+		company_name: companyName,
+		email: (fields.email ?? '').slice(0, 500),
+		website: fields.website?.slice(0, 500) ?? null,
+		phone: fields.phone?.slice(0, 100) ?? null,
+		industry: fields.industry?.slice(0, 200) ?? null,
+		status: PROSPECT_STATUS.NEW.slice(0, 100),
+		updated_at: now,
+		flagged: outOfScope,
+		flagged_reason: outOfScope ? getDefaultFlaggedReason() : null
+	};
+	const { data, error } = await supabase.from('prospects').insert(row).select('id').single();
+	if (error) return { id: '', inserted: false, error: error.message };
+	return { id: data?.id ?? '', inserted: true };
+}
+
+/**
+ * Upsert a prospect (e.g. GBP dental pull). New rows get `new`; existing rows keep status.
  */
 export async function upsertProspect(
 	userId: string,
@@ -200,7 +240,7 @@ export async function upsertProspect(
 	if (!supabase) return { id: '', error: 'Database not configured' };
 	const now = new Date().toISOString();
 	const existing = await getProspectByProviderKey(userId, provider, providerRowId);
-	const status = existing ? existing.status : 'New';
+	const status = existing ? existing.status : PROSPECT_STATUS.NEW;
 	const companyName = (fields.companyName ?? '').slice(0, 500);
 	const outOfScope = isOutOfScopeCompany(companyName);
 	const row = {
@@ -270,7 +310,7 @@ export async function updateProspectFromGbp(
 export async function updateProspectDemoLink(
 	prospectId: string,
 	demoUrl: string,
-	statusValue: string = 'Demo Created'
+	statusValue: string = PROSPECT_STATUS.REVIEW
 ): Promise<{ ok: boolean; error?: string }> {
 	const supabase = getSupabaseAdmin();
 	if (!supabase) return { ok: false, error: 'Database not configured' };
@@ -287,7 +327,27 @@ export async function updateProspectDemoLink(
 }
 
 /**
- * Update only the status field for a prospect (e.g. "In queue" when enqueueing, "Generate Demo" when job completes).
+ * Cron: up to `limit` prospects with exact status, not flagged, oldest `updated_at` first.
+ */
+export async function listProspectIdsForStatusBatch(
+	status: string,
+	limit: number
+): Promise<{ id: string; user_id: string }[]> {
+	const supabase = getSupabaseAdmin();
+	if (!supabase) return [];
+	const { data, error } = await supabase
+		.from('prospects')
+		.select('id, user_id')
+		.eq('status', status)
+		.or('flagged.is.null,flagged.eq.false')
+		.order('updated_at', { ascending: true })
+		.limit(Math.min(Math.max(1, limit), 50));
+	if (error || !data?.length) return [];
+	return data.map((r) => ({ id: r.id as string, user_id: r.user_id as string }));
+}
+
+/**
+ * Update only the status field for a prospect (queue states, demo pending, etc.).
  */
 export async function updateProspectStatus(
 	prospectId: string,

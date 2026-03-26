@@ -5,6 +5,7 @@
 
 import type { StatusVariant } from '$lib/statusDisplay';
 import { getStatusDisplay } from '$lib/statusDisplay';
+import { isProspectQueuedStatus } from '$lib/prospectStatus';
 import { getDemoFailureLabel } from '$lib/constants/demoErrors';
 
 /** Minimal row shape needed to compute next step (prospect + jobs + tracking). */
@@ -21,39 +22,29 @@ export interface ProspectNextStepInput {
 	hasGbpData?: boolean;
 }
 
-/** Simplified status (state only) for the Status column. Aligned with next-step label when action is "run AI/GBP" (Pull data). */
-export type SimplifiedStatusLabel =
-	| 'Out of scope'
-	| 'Loading'
-	| 'Queued'
-	| 'Pulling GBP'
-	| 'Pulling insights'
-	| 'Pull data'
-	| 'No demo'
-	| 'Draft'
-	| 'Approved'
-	| 'Send email'
-	| 'Sent'
-	| 'Engaged'
-	| 'Replied'
-	| 'Not contacted';
+/**
+ * Automation + outreach labels shown in the Status column.
+ * Lifecycle labels: New → GBP Queued → Processing GBP → Pending Demo → Demo Queued → Processing Demo → Ready to send → Demo Sent → Demo Opened → Follow-up (see getStatusDisplay + jobs).
+ */
+export type SimplifiedStatusLabel = string;
 
 export interface SimplifiedStatusResult {
-	label: SimplifiedStatusLabel;
+	label: string;
 	variant: StatusVariant | 'destructive';
 }
 
 /**
  * Returns a simple status (state) for a prospect. Use for the Status column.
  * Distinct from getNextStep() which is the recommended action.
- * Pass hasGbpData: true when scraped/GBP data exists for this prospect so we show "No demo" only when we have data but no demo.
+ * Pass hasGbpData: true when insights are usable (hasUsableInsight) so we show **Pending Demo** when there is no demo page yet.
+ * When hasGbpData is false and there is no active job, persisted CRM status is shown (see getStatusDisplay).
  */
 export function getSimplifiedStatus(
 	row: ProspectNextStepInput,
 	options?: {
 		optimisticGbpIds?: Set<string>;
 		optimisticInsightsIds?: Set<string>;
-		/** True when we have GBP/scraped data for this prospect. When false/undefined, status is "Pull data" (same as next step) instead of "No demo" when there's no demo. */
+		/** True when we have GBP/scraped data for this prospect. When false/undefined, show CRM sync status until insights exist. */
 		hasGbpData?: boolean;
 	}
 ): SimplifiedStatusResult {
@@ -72,55 +63,57 @@ export function getSimplifiedStatus(
 	const demoStatus = row.demoJob?.status;
 	const demoCreating = demoStatus === 'creating';
 	const demoPending = demoStatus === 'pending';
-	const inQueue = (row.status ?? '').trim() === 'In queue';
+	const inQueue = isProspectQueuedStatus(row.status);
 
-	// Insights running → Pulling insights
-	if (insightsRunning) {
-		return { label: 'Pulling insights', variant: 'warning' };
+	// Qualifying phase (GBP + insights jobs) — one label before Pending Demo
+	if (insightsRunning || gbpRunning) {
+		return { label: 'Processing GBP', variant: 'warning' };
 	}
-	// GBP running → Pulling GBP
-	if (gbpRunning) {
-		return { label: 'Pulling GBP', variant: 'warning' };
-	}
-	// GBP or Insights queued (pending) → Queued
 	if (gbpPending || insightsPending) {
-		return { label: 'Queued', variant: 'warning' };
+		return { label: 'GBP Queued', variant: 'warning' };
 	}
-	// Demo actively being generated → Loading (one row only)
 	if (demoCreating) {
-		return { label: 'Loading', variant: 'warning' };
+		return { label: 'Processing Demo', variant: 'warning' };
 	}
-	// Demo waiting in queue → Queued
-	if (demoPending || (inQueue && !hasDemo)) {
-		return { label: 'Queued', variant: 'warning' };
+	if (demoPending) {
+		return { label: 'Demo Queued', variant: 'warning' };
+	}
+	if (inQueue && !hasDemo) {
+		const st = (row.status ?? '').trim().toLowerCase();
+		if (st === 'demo queued') return { label: 'Demo Queued', variant: 'warning' };
+		return { label: 'GBP Queued', variant: 'warning' };
 	}
 
 	if (!hasDemo) {
-		// No GBP data yet → same as next step: "Pull data" (run AI/GBP). Have GBP but no demo → "No demo".
 		if (options?.hasGbpData !== true) {
-			return { label: 'Pull data', variant: 'default' };
+			const d = getStatusDisplay(row.status ?? '');
+			return { label: d.label, variant: d.variant };
 		}
-		return { label: 'No demo', variant: row.demoJob?.status === 'failed' ? 'destructive' : 'default' };
+		if (row.demoJob?.status === 'failed') {
+			return { label: getDemoFailureLabel(row.demoJob?.errorMessage ?? undefined), variant: 'destructive' };
+		}
+		return { label: 'Pending Demo', variant: 'warning' };
 	}
 
 	const trackingStatus = row.tracking?.status;
 	if (trackingStatus === 'draft') {
-		return { label: 'Draft', variant: 'default' };
+		return { label: 'Review', variant: 'warning' };
 	}
 	if (trackingStatus === 'approved') {
-		return { label: 'Approved', variant: 'success' };
+		return { label: 'Ready to send', variant: 'success' };
 	}
 	if (trackingStatus === 'sent') {
-		return { label: 'Sent', variant: 'muted' };
+		return { label: 'Demo Sent', variant: 'muted' };
 	}
 	if (trackingStatus === 'opened' || trackingStatus === 'clicked') {
-		return { label: 'Engaged', variant: 'success' };
+		return { label: 'Demo Opened', variant: 'success' };
 	}
 	if (trackingStatus === 'replied') {
-		return { label: 'Replied', variant: 'success' };
+		return { label: 'Follow-up', variant: 'success' };
 	}
 
-	return { label: 'Not contacted', variant: 'default' };
+	const d = getStatusDisplay(row.status ?? '');
+	return { label: d.label, variant: d.variant };
 }
 
 export interface NextStepResult {
@@ -145,8 +138,8 @@ export type NextStepFilterValue =
 	| 'other';
 
 /**
- * Returns the single next step for a prospect (priority order).
- * Used for the "Next step" column and for simplified filtering.
+ * Returns the recommended action for a prospect (priority order).
+ * Used for row actions and bulk "Process next step", not for the table column (Status uses getSimplifiedStatus).
  */
 export function getNextStep(
 	row: ProspectNextStepInput,
@@ -164,7 +157,7 @@ export function getNextStep(
 	const demoStatus = row.demoJob?.status;
 	const trackingStatus = row.tracking?.status;
 	const hasDemo = !!(row.demoLink ?? '').trim();
-	const inQueueStatus = (row.status ?? '').trim() === 'In queue';
+	const inQueueStatus = isProspectQueuedStatus(row.status);
 
 	if (gbpStatus === 'running') {
 		return { label: 'Wait (GBP)', variant: 'default', filterValue: 'pull_data' };
@@ -194,10 +187,11 @@ export function getNextStep(
 	}
 
 	if (inQueueStatus && !hasDemo) {
-		return { label: 'Processing…', variant: 'warning', filterValue: 'create_demo' };
+		const st = (row.status ?? '').trim().toLowerCase();
+		if (st === 'demo queued') return { label: 'Demo Queued', variant: 'warning', filterValue: 'create_demo' };
+		return { label: 'GBP Queued', variant: 'warning', filterValue: 'pull_data' };
 	}
 	if (!hasDemo) {
-		// Only suggest "Create demo" when we have GBP data; otherwise suggest pulling data first.
 		if (row.hasGbpData !== true) {
 			return { label: 'Pull data', variant: 'default', filterValue: 'pull_data' };
 		}
@@ -205,22 +199,22 @@ export function getNextStep(
 	}
 
 	if (trackingStatus === 'draft') {
-		return { label: 'Review draft', variant: 'default', filterValue: 'draft' };
+		return { label: 'Review', variant: 'default', filterValue: 'draft' };
 	}
 	if (trackingStatus === 'approved') {
-		return { label: 'Send Email', variant: 'default', filterValue: 'approved' };
+		return { label: 'Ready to send', variant: 'default', filterValue: 'approved' };
 	}
 	if (trackingStatus === 'sent') {
-		return { label: 'Sent', variant: 'muted', filterValue: 'sent' };
+		return { label: 'Demo Sent', variant: 'muted', filterValue: 'sent' };
 	}
 	if (trackingStatus === 'opened') {
-		return { label: 'Opened', variant: 'success', filterValue: 'engaged' };
+		return { label: 'Demo Opened', variant: 'success', filterValue: 'engaged' };
 	}
 	if (trackingStatus === 'clicked') {
-		return { label: 'Clicked', variant: 'success', filterValue: 'engaged' };
+		return { label: 'Demo Opened', variant: 'success', filterValue: 'engaged' };
 	}
 	if (trackingStatus === 'replied') {
-		return { label: 'Replied', variant: 'success', filterValue: 'replied' };
+		return { label: 'Follow-up', variant: 'success', filterValue: 'replied' };
 	}
 
 	const display = getStatusDisplay(row.status ?? '');
@@ -238,11 +232,11 @@ export const NEXT_STEP_FILTER_OPTIONS: { value: NextStepFilterValue; label: stri
 	{ value: 'pull_data', label: 'Pull data' },
 	{ value: 'create_demo', label: 'Create demo' },
 	{ value: 'retry_demo', label: 'Retry demo' },
-	{ value: 'draft', label: 'Draft' },
-	{ value: 'approved', label: 'Send email' },
-	{ value: 'sent', label: 'Sent' },
-	{ value: 'engaged', label: 'Engaged' },
-	{ value: 'replied', label: 'Replied' },
+	{ value: 'draft', label: 'Review' },
+	{ value: 'approved', label: 'Ready' },
+	{ value: 'sent', label: 'Demo Sent' },
+	{ value: 'engaged', label: 'Demo Opened' },
+	{ value: 'replied', label: 'Follow-up' },
 	{ value: 'other', label: 'Other' }
 ];
 
