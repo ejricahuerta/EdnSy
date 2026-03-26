@@ -74,6 +74,14 @@ import {
 } from '$lib/server/send';
 import { generateEmailCopy } from '$lib/server/generateEmailCopy';
 import { getTemplates } from '$lib/server/templates';
+import { PROSPECT_STATUS, isProspectQueuedStatus } from '$lib/prospectStatus';
+import { importProspectsFromCsv } from '$lib/server/csvImport';
+import {
+	runPullGbpDental,
+	getGbpDentalDailyStats,
+	getGbpDentalPullLock,
+	isPlacesConfiguredForGbp
+} from '$lib/server/pullGbpDental';
 
 export const load: PageServerLoad = async ({ cookies }) => {
 	const cookie = cookies.get(getSessionCookieName());
@@ -103,6 +111,10 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		getInsightsJobsForUser(user.id)
 	]);
 	const sendConfigured = await getSendConfigured(user.id);
+	const { todayCount: gbpDentalTodayCount, dailyCap: gbpDentalDailyCap } =
+		await getGbpDentalDailyStats(user.id);
+	const gbpDentalPullLock = await getGbpDentalPullLock(user.id);
+	const placesApiConfigured = isPlacesConfiguredForGbp();
 	return {
 		prospects,
 		prospectsError: 'error' in result ? result.error : undefined,
@@ -116,11 +128,23 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		demoJobsByProspectId,
 		gbpJobsByProspectId,
 		insightsJobsByProspectId,
-		sendConfigured
+		sendConfigured,
+		gbpDentalTodayCount,
+		gbpDentalDailyCap,
+		gbpDentalPullLock,
+		placesApiConfigured
 	};
 };
 
 export const actions: Actions = {
+	pullGbpDental: async ({ cookies }) => {
+		const cookie = cookies.get(getSessionCookieName());
+		const user = await getSessionFromCookie(cookie);
+		if (!user) return fail(401, { message: 'Sign in required' });
+		const result = await runPullGbpDental(user.id);
+		if (!result.ok) return fail(400, { message: result.message });
+		return { success: true, message: result.message, added: result.added };
+	},
 	/** Enqueue a demo creation job; processing runs in background via API. */
 	enqueueDemo: async ({ request, cookies }) => {
 		const cookie = cookies.get(getSessionCookieName());
@@ -168,7 +192,7 @@ export const actions: Actions = {
 		if (!result) {
 			return fail(503, { message: 'Could not enqueue job. Is Supabase configured?' });
 		}
-		await updateProspectStatus(prospectId, 'In queue');
+		await updateProspectStatus(prospectId, PROSPECT_STATUS.DEMO_QUEUED);
 		return {
 			queued: true,
 			jobId: result.jobId,
@@ -208,7 +232,7 @@ export const actions: Actions = {
 		if (needsPullData) {
 			const result = await enqueueInsightsJob(user.id, prospectId);
 			if (!result) return fail(503, { message: 'Could not enqueue. Try again.' });
-			await updateProspectStatus(prospectId, 'In queue');
+			await updateProspectStatus(prospectId, PROSPECT_STATUS.GBP_QUEUED);
 			return {
 				success: true,
 				step: 'insights',
@@ -232,7 +256,7 @@ export const actions: Actions = {
 			}
 			const result = await enqueueDemoJob(user.id, prospectId);
 			if (!result) return fail(503, { message: 'Could not enqueue demo job. Try again.' });
-			await updateProspectStatus(prospectId, 'In queue');
+			await updateProspectStatus(prospectId, PROSPECT_STATUS.DEMO_QUEUED);
 			return {
 				success: true,
 				step: 'demo',
@@ -323,7 +347,7 @@ export const actions: Actions = {
 		(scrapedData as Record<string, unknown>).demoSource = 'claude';
 		const origin = getOriginForOutgoingLinks(url.origin);
 		const demoUrl = `${origin}/demo/${prospectId}`;
-		const result = await updateProspectDemoLink(prospectId, demoUrl, 'Demo Created');
+		const result = await updateProspectDemoLink(prospectId, demoUrl, PROSPECT_STATUS.REVIEW);
 		if (!result.ok) {
 			return fail(502, { message: result.error ?? 'Failed to update prospect' });
 		}
@@ -463,7 +487,7 @@ export const actions: Actions = {
 				continue;
 			}
 			if (result.created) queued++;
-			await updateProspectStatus(prospectId, 'In queue');
+			await updateProspectStatus(prospectId, PROSPECT_STATUS.DEMO_QUEUED);
 		}
 		if (queued === 0 && errors.length > 0) {
 			return fail(502, { message: errors.slice(0, 3).join('; ') });
@@ -623,7 +647,7 @@ export const actions: Actions = {
 			const result = await enqueueGbpJob(user.id, prospectId);
 			if (result) {
 				if (result.created) queued++;
-				await updateProspectStatus(prospectId, 'In queue');
+				await updateProspectStatus(prospectId, PROSPECT_STATUS.GBP_QUEUED);
 			} else {
 				enqueueFailed++;
 			}
@@ -645,7 +669,7 @@ export const actions: Actions = {
 			const result = await enqueueInsightsJob(user.id, prospectId);
 			if (result) {
 				if (result.created) queued++;
-				await updateProspectStatus(prospectId, 'In queue');
+				await updateProspectStatus(prospectId, PROSPECT_STATUS.GBP_QUEUED);
 			}
 		}
 		return { success: true, queued, total: prospectIds.length };
@@ -727,7 +751,7 @@ export const actions: Actions = {
 			const result = await enqueueInsightsJob(user.id, prospectId);
 			if (result) {
 				if (result.created) pullDataQueued++;
-				await updateProspectStatus(prospectId, 'In queue');
+				await updateProspectStatus(prospectId, PROSPECT_STATUS.GBP_QUEUED);
 			} else {
 				pullDataEnqueueFailed++;
 			}
@@ -754,7 +778,7 @@ export const actions: Actions = {
 				continue;
 			}
 			if (result.created) demoQueued++;
-			await updateProspectStatus(prospectId, 'In queue');
+			await updateProspectStatus(prospectId, PROSPECT_STATUS.DEMO_QUEUED);
 		}
 
 		// Restore (unflag)
@@ -772,8 +796,8 @@ export const actions: Actions = {
 		};
 	},
 	/**
-	 * Clear "In queue" status for prospects that have no active job (demo, pull-data/insights, or legacy GBP).
-	 * Use when prospects appear stuck in queue (e.g. cron not running or jobs already finished).
+	 * Clear queued status for prospects that have no active job (demo, GBP, or insights).
+	 * Use when prospects appear stuck (e.g. cron not running or jobs already finished).
 	 */
 	clearStuckQueueStatus: async ({ cookies }) => {
 		const cookie = cookies.get(getSessionCookieName());
@@ -788,16 +812,47 @@ export const actions: Actions = {
 		]);
 		let cleared = 0;
 		for (const p of prospects) {
-			if ((p.status ?? '').trim() !== 'In queue') continue;
-			const hasDemoJob =
-				demoJobsByProspectId[p.id]?.status === 'pending' || demoJobsByProspectId[p.id]?.status === 'creating';
-			const hasGbpJob = gbpJobsByProspectId[p.id]?.status === 'pending';
-			const hasInsightsJob = insightsJobsByProspectId[p.id]?.status === 'pending';
+			if (!isProspectQueuedStatus(p.status)) continue;
+			const dj = demoJobsByProspectId[p.id];
+			const hasDemoJob = dj && (dj.status === 'pending' || dj.status === 'creating');
+			const hasGbpJob = Boolean(gbpJobsByProspectId[p.id]);
+			const hasInsightsJob = Boolean(insightsJobsByProspectId[p.id]);
 			if (!hasDemoJob && !hasGbpJob && !hasInsightsJob) {
-				await updateProspectStatus(p.id, 'Prospect');
+				await updateProspectStatus(p.id, PROSPECT_STATUS.NEW);
 				cleared++;
 			}
 		}
 		return { success: true, cleared };
+	},
+	/** Upload CSV: header row with company + email columns; optional website, phone, industry. Insert-only (skips existing). */
+	importCsv: async ({ request, cookies }) => {
+		const cookie = cookies.get(getSessionCookieName());
+		const user = await getSessionFromCookie(cookie);
+		if (!user) return fail(401, { message: 'Sign in required' });
+		const formData = await request.formData();
+		const file = formData.get('csvFile');
+		if (!file || !(file instanceof File)) {
+			return fail(400, { message: 'Choose a CSV file.' });
+		}
+		if (file.size > 2 * 1024 * 1024) {
+			return fail(400, { message: 'File too large (max 2 MB).' });
+		}
+		let text: string;
+		try {
+			text = await file.text();
+		} catch {
+			return fail(400, { message: 'Could not read file.' });
+		}
+		const result = await importProspectsFromCsv(user.id, text);
+		if (result.errors.length > 0 && result.inserted === 0 && result.skipped === 0 && result.failed === 0) {
+			return fail(400, { message: result.errors[0] ?? 'Import failed.' });
+		}
+		return {
+			success: true,
+			inserted: result.inserted,
+			skipped: result.skipped,
+			failed: result.failed,
+			errors: result.errors.length > 0 ? result.errors : undefined
+		};
 	}
 };

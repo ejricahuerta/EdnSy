@@ -15,19 +15,23 @@
 	import { goto } from '$app/navigation';
 	import * as Select from '$lib/components/ui/select';
 
-	type IntegrationId = 'notion' | 'hubspot' | 'gohighlevel' | 'pipedrive' | 'gbp-dental';
+	type IntegrationId = 'notion' | 'gbp-dental';
 
 	let { data, form } = $props<{
 		data: PageData;
 		form?: import('./$types').ActionFailure<{ message: string }> & { success?: boolean; message?: string };
 	}>();
-	const plan = $derived(data.plan ?? 'free');
 	const connections = $derived(data.connections ?? []);
-	const canConnect = $derived(data.canConnect ?? false);
 	const gmailConnected = $derived(data.gmailConnected ?? false);
 	const gmailEmail = $derived(data.gmailEmail ?? null);
 	const gbpDentalTodayCount = $derived(data.gbpDentalTodayCount ?? 0);
 	const gbpDentalDailyCap = $derived(data.gbpDentalDailyCap ?? 25);
+	const gbpDentalPullLock = $derived(
+		data.gbpDentalPullLock ?? { locked: false, remainingSeconds: 0, lockMinutes: 15 }
+	);
+	const gbpDentalLockMinutesRemaining = $derived(
+		Math.ceil((gbpDentalPullLock.remainingSeconds ?? 0) / 60)
+	);
 	const placesApiConfigured = $derived(data.placesApiConfigured ?? false);
 	const notionConnected = $derived(connections.find((c) => c.provider === 'notion')?.connected ?? false);
 	const notionDatabaseId = $derived(data.notionDatabaseId ?? null);
@@ -36,20 +40,10 @@
 		if (!id) return '—';
 		return id.length > 16 ? `${id.slice(0, 8)}…${id.slice(-4)}` : id;
 	}
-	const hubspotConnected = $derived(connections.find((c) => c.provider === 'hubspot')?.connected ?? false);
-	const ghlConnected = $derived(connections.find((c) => c.provider === 'gohighlevel')?.connected ?? false);
-	const pipedriveConnected = $derived(connections.find((c) => c.provider === 'pipedrive')?.connected ?? false);
-
 	let selectedId = $state<IntegrationId | null>(null);
-	let syncing = $state<'notion' | 'hubspot' | 'gohighlevel' | 'pipedrive' | 'gbp-dental' | null>(null);
+	let syncing = $state<'notion' | 'gbp-dental' | null>(null);
 	let disconnectNotionOpen = $state(false);
-	let disconnectHubSpotOpen = $state(false);
-	let disconnectGhlOpen = $state(false);
-	let disconnectPipedriveOpen = $state(false);
 	let notionDisconnectForm: HTMLFormElement | null = $state(null);
-	let hubspotDisconnectForm: HTMLFormElement | null = $state(null);
-	let ghlDisconnectForm: HTMLFormElement | null = $state(null);
-	let pipedriveDisconnectForm: HTMLFormElement | null = $state(null);
 	/** Toggle show/hide for masked credential fields when connected */
 	let showConnectedKeys = $state(false);
 	/** When true, credentials are loaded and form is in edit mode; eye reveals actual values */
@@ -141,18 +135,6 @@
 		disconnectNotionOpen = false;
 		notionDisconnectForm?.requestSubmit();
 	}
-	function submitHubSpotDisconnect() {
-		disconnectHubSpotOpen = false;
-		hubspotDisconnectForm?.requestSubmit();
-	}
-	function submitGhlDisconnect() {
-		disconnectGhlOpen = false;
-		ghlDisconnectForm?.requestSubmit();
-	}
-	function submitPipedriveDisconnect() {
-		disconnectPipedriveOpen = false;
-		pipedriveDisconnectForm?.requestSubmit();
-	}
 
 	const integrations = $derived([
 		{
@@ -164,33 +146,9 @@
 			locked: false
 		},
 		{
-			id: 'hubspot' as const,
-			name: 'HubSpot',
-			description: 'Sync contacts from HubSpot. Use a Private App token.',
-			logoSrc: '/integrations/hubspot.png',
-			connected: hubspotConnected,
-			locked: !canConnect
-		},
-		{
-			id: 'gohighlevel' as const,
-			name: 'GoHighLevel',
-			description: 'Sync contacts from GoHighLevel. Sub-Account or Location token.',
-			logoSrc: '/integrations/gohighlevel.jpeg',
-			connected: ghlConnected,
-			locked: !canConnect
-		},
-		{
-			id: 'pipedrive' as const,
-			name: 'Pipedrive',
-			description: 'Sync contacts from Pipedrive. Company domain + API token.',
-			logoSrc: '/integrations/pipedrive.png',
-			connected: pipedriveConnected,
-			locked: !canConnect
-		},
-		{
 			id: 'gbp-dental' as const,
 			name: 'Lead discovery (GBP)',
-			description: 'Pull dental leads from Toronto/GTA (no website, fewer reviews). Max 25 per day.',
+			description: 'Pull dental leads from Toronto/GTA (fewer reviews). Max 25 per day.',
 			logoSrc: '',
 			connected: placesApiConfigured,
 			locked: !placesApiConfigured
@@ -363,19 +321,9 @@
 				<div class="flex min-h-0 min-w-0 flex-1 flex-col lg:col-span-2">
 				{#if selected.locked}
 					<div class="flex flex-col gap-4">
-						{#if selected.id === 'gbp-dental'}
-							<p class="text-sm text-muted-foreground">
-								Google Places API is not configured. Set <code class="rounded bg-muted px-1 py-0.5 text-xs font-mono">GOOGLE_PLACES_API_KEY</code> (or <code class="rounded bg-muted px-1 py-0.5 text-xs font-mono">GOOGLE_MAPS_API_KEY</code>) in your server <code class="rounded bg-muted px-1 py-0.5 text-xs font-mono">.env</code> to pull dental leads.
-							</p>
-						{:else}
-							<p class="text-sm text-muted-foreground">
-								CRM integrations are available on Growth and Agency plans. Upgrade to connect {selected.name} and
-								sync contacts to your dashboard.
-							</p>
-							<div class="mt-auto pt-4">
-								<Button variant="default" href="/dashboard/billing">Upgrade plan</Button>
-							</div>
-						{/if}
+						<p class="text-sm text-muted-foreground">
+							Google Places API is not configured. Set <code class="rounded bg-muted px-1 py-0.5 text-xs font-mono">GOOGLE_PLACES_API_KEY</code> (or <code class="rounded bg-muted px-1 py-0.5 text-xs font-mono">GOOGLE_MAPS_API_KEY</code>) in your server <code class="rounded bg-muted px-1 py-0.5 text-xs font-mono">.env</code> to pull dental leads.
+						</p>
 					</div>
 				{:else if selected.id === 'gbp-dental'}
 					<div class="flex flex-col gap-4">
@@ -385,6 +333,11 @@
 						<p class="text-sm font-medium">
 							Today: {gbpDentalTodayCount} / {gbpDentalDailyCap} leads
 						</p>
+						{#if gbpDentalPullLock.locked}
+							<p class="text-sm text-muted-foreground">
+								Locked for {gbpDentalLockMinutesRemaining} more minute{gbpDentalLockMinutesRemaining === 1 ? '' : 's'}.
+							</p>
+						{/if}
 						<form
 							method="POST"
 							action="?/pullGbpDental"
@@ -407,7 +360,7 @@
 							<Button
 								type="submit"
 								size="sm"
-								disabled={syncing === 'gbp-dental' || gbpDentalTodayCount >= gbpDentalDailyCap}
+								disabled={syncing === 'gbp-dental' || gbpDentalTodayCount >= gbpDentalDailyCap || gbpDentalPullLock.locked}
 							>
 								{#if syncing === 'gbp-dental'}
 									<LoaderCircle class="mr-2 h-4 w-4 animate-spin" />
@@ -787,462 +740,6 @@
 							</div>
 							<div class="mt-auto flex flex-wrap gap-2 pt-2">
 								<Button type="submit" disabled={!notionDatabaseIdForSubmit.trim()}>Connect Notion</Button>
-							</div>
-						</form>
-					{/if}
-				{:else if selected.connected}
-					<!-- CRM connected -->
-					<div class="flex flex-1 flex-col gap-4">
-						{#if selected.id === 'hubspot'}
-							{#if editingCredentials}
-								<form method="POST" action="?/connectHubSpot" use:enhance={() => async ({ result }) => {
-									toastFromActionResult('Connect HubSpot', result, 'HubSpot connected.');
-								}} class="flex flex-col gap-4">
-									<div class="space-y-2">
-										<Label for="hubspot-token-edit">Private App token</Label>
-										<div class="flex gap-1">
-											<input
-												id="hubspot-token-edit"
-												name="apiKey"
-												type={showConnectedKeys ? 'text' : 'password'}
-												bind:value={editValues.apiKey}
-												class="border-input bg-background flex h-9 min-w-0 flex-1 rounded-md border px-3 py-1 font-mono text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-											/>
-											<button
-												type="button"
-												onclick={() => (showConnectedKeys = !showConnectedKeys)}
-												aria-label={showConnectedKeys ? 'Hide token' : 'Show token'}
-												class="inline-flex size-9 shrink-0 items-center justify-center rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground"
-											>
-												{#if showConnectedKeys}
-													<EyeOff class="h-4 w-4" />
-												{:else}
-													<Eye class="h-4 w-4" />
-												{/if}
-											</button>
-										</div>
-									</div>
-									<div class="mt-auto flex flex-wrap gap-2 pt-2">
-										<Button type="submit" size="sm">Save</Button>
-										<Button type="button" variant="ghost" size="sm" onclick={cancelEditingCredentials}>Cancel</Button>
-									</div>
-								</form>
-							{:else}
-								<div class="space-y-4">
-									<div class="space-y-2">
-										<Label for="hubspot-token-connected">Private App token</Label>
-										<div class="flex gap-1">
-											<input
-												id="hubspot-token-connected"
-												type={showConnectedKeys ? 'text' : 'password'}
-												value="••••••••••••••••••••"
-												disabled
-												readonly
-												class="border-input bg-background flex h-9 min-w-0 flex-1 rounded-md border px-3 py-1 font-mono text-sm outline-none disabled:cursor-not-allowed disabled:opacity-50"
-											/>
-											<button
-												type="button"
-												onclick={() => (showConnectedKeys = !showConnectedKeys)}
-												aria-label={showConnectedKeys ? 'Hide token' : 'Show token'}
-												class="inline-flex size-9 shrink-0 items-center justify-center rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground"
-											>
-												{#if showConnectedKeys}
-													<EyeOff class="h-4 w-4" />
-												{:else}
-													<Eye class="h-4 w-4" />
-												{/if}
-											</button>
-										</div>
-									</div>
-								</div>
-								<div class="mt-auto flex flex-wrap gap-2 pt-2">
-									<Button type="button" variant="outline" size="sm" disabled={loadingCredentials} onclick={startEditingCredentials}>
-										{#if loadingCredentials}<LoaderCircle class="mr-2 h-4 w-4 animate-spin" />{:else}<Pencil class="mr-2 h-4 w-4" />{/if}
-										Edit key
-									</Button>
-									<form method="POST" action="?/syncHubSpot" use:enhance={() => {
-									syncing = 'hubspot';
-									return async ({ result }) => {
-										syncing = null;
-										toastFromActionResult('Sync HubSpot', result, 'Contacts synced to dashboard.');
-									};
-								}} class="inline">
-										<Button type="submit" size="sm" disabled={syncing !== null}>
-											{#if syncing === 'hubspot'}<LoaderCircle class="mr-2 h-4 w-4 animate-spin" />{:else}<Link2 class="mr-2 h-4 w-4" />{/if}
-											Sync to dashboard
-										</Button>
-									</form>
-									<form bind:this={hubspotDisconnectForm} method="POST" action="?/disconnectHubSpot" use:enhance={() => async ({ result }) => {
-										if (result.type === 'success' && (result.data as { success?: boolean })?.success) {
-											await invalidateAll();
-											toastSuccess('HubSpot disconnected', 'You can reconnect from this page.');
-										} else if (result.type === 'failure') {
-											toastError('Disconnect HubSpot', (result.data as { message?: string })?.message);
-										}
-									}} class="inline">
-										<AlertDialog.Root bind:open={disconnectHubSpotOpen}>
-											<AlertDialog.Trigger><Button variant="ghost" size="sm">Disconnect</Button></AlertDialog.Trigger>
-											<AlertDialog.Content>
-												<AlertDialog.Header>
-													<AlertDialog.Title>Disconnect {selected.name}</AlertDialog.Title>
-													<AlertDialog.Description>Contacts will no longer sync from {selected.name}. You can reconnect at any time.</AlertDialog.Description>
-												</AlertDialog.Header>
-												<AlertDialog.Footer>
-													<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
-													<AlertDialog.Action onclick={submitHubSpotDisconnect}>Disconnect</AlertDialog.Action>
-												</AlertDialog.Footer>
-											</AlertDialog.Content>
-										</AlertDialog.Root>
-									</form>
-								</div>
-							{/if}
-						{:else if selected.id === 'gohighlevel'}
-							{#if editingCredentials}
-								<form
-									method="POST"
-									action="?/connectGoHighLevel"
-									use:enhance={() => async ({ result }) => {
-										if (result.type === 'success' && (result.data as { success?: boolean })?.success) {
-											editingCredentials = false;
-											editValues = {};
-											showConnectedKeys = false;
-											toastSuccess('Connect GoHighLevel', 'GoHighLevel connected.');
-										} else if (result.type === 'failure') {
-											toastError('Connect GoHighLevel', (result.data as { message?: string })?.message);
-										}
-									}}
-									class="flex flex-col gap-4"
-								>
-									<div class="space-y-2">
-										<Label for="ghl-token-edit">API token</Label>
-										<div class="flex gap-1">
-											<input
-												id="ghl-token-edit"
-												name="apiKey"
-												type={showConnectedKeys ? 'text' : 'password'}
-												bind:value={editValues.apiKey}
-												class="border-input bg-background flex h-9 min-w-0 flex-1 rounded-md border px-3 py-1 font-mono text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-											/>
-											<button
-												type="button"
-												onclick={() => (showConnectedKeys = !showConnectedKeys)}
-												aria-label={showConnectedKeys ? 'Hide token' : 'Show token'}
-												class="inline-flex size-9 shrink-0 items-center justify-center rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground"
-											>
-												{#if showConnectedKeys}<EyeOff class="h-4 w-4" />{:else}<Eye class="h-4 w-4" />{/if}
-											</button>
-										</div>
-									</div>
-									<div class="mt-auto flex flex-wrap gap-2 pt-2">
-										<Button type="submit" size="sm">Save</Button>
-										<Button type="button" variant="ghost" size="sm" onclick={cancelEditingCredentials}>Cancel</Button>
-									</div>
-								</form>
-							{:else}
-								<div class="space-y-4">
-									<div class="space-y-2">
-										<Label for="ghl-token-connected">API token</Label>
-										<div class="flex gap-1">
-											<input
-												id="ghl-token-connected"
-												type={showConnectedKeys ? 'text' : 'password'}
-												value="••••••••••••••••••••"
-												disabled
-												readonly
-												class="border-input bg-background flex h-9 min-w-0 flex-1 rounded-md border px-3 py-1 font-mono text-sm outline-none disabled:cursor-not-allowed disabled:opacity-50"
-											/>
-											<button
-												type="button"
-												onclick={() => (showConnectedKeys = !showConnectedKeys)}
-												aria-label={showConnectedKeys ? 'Hide token' : 'Show token'}
-												class="inline-flex size-9 shrink-0 items-center justify-center rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground"
-											>
-												{#if showConnectedKeys}
-													<EyeOff class="h-4 w-4" />
-												{:else}
-													<Eye class="h-4 w-4" />
-												{/if}
-											</button>
-										</div>
-									</div>
-								</div>
-							{/if}
-						{:else}
-							<!-- Pipedrive: domain + API token -->
-							{#if editingCredentials}
-								<form
-									method="POST"
-									action="?/connectPipedrive"
-									use:enhance={() => async ({ result }) => {
-										if (result.type === 'success' && (result.data as { success?: boolean })?.success) {
-											editingCredentials = false;
-											editValues = {};
-											showConnectedKeys = false;
-											toastSuccess('Connect Pipedrive', 'Pipedrive connected.');
-										} else if (result.type === 'failure') {
-											toastError('Connect Pipedrive', (result.data as { message?: string })?.message);
-										}
-									}}
-									class="flex flex-col gap-4"
-								>
-									<div class="space-y-4">
-										<div class="space-y-2">
-											<Label for="pipedrive-domain-edit">Company domain</Label>
-											<div class="flex gap-1">
-												<input
-													id="pipedrive-domain-edit"
-													name="domain"
-													type={showConnectedKeys ? 'text' : 'password'}
-													bind:value={editValues.domain}
-													class="border-input bg-background flex h-9 min-w-0 flex-1 rounded-md border px-3 py-1 font-mono text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-												/>
-												<button type="button" onclick={() => (showConnectedKeys = !showConnectedKeys)} aria-label={showConnectedKeys ? 'Hide domain' : 'Show domain'} class="inline-flex size-9 shrink-0 items-center justify-center rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground">
-													{#if showConnectedKeys}<EyeOff class="h-4 w-4" />{:else}<Eye class="h-4 w-4" />{/if}
-												</button>
-											</div>
-										</div>
-										<div class="space-y-2">
-											<Label for="pipedrive-token-edit">API token</Label>
-											<div class="flex gap-1">
-												<input
-													id="pipedrive-token-edit"
-													name="apiKey"
-													type={showConnectedKeys ? 'text' : 'password'}
-													bind:value={editValues.apiKey}
-													class="border-input bg-background flex h-9 min-w-0 flex-1 rounded-md border px-3 py-1 font-mono text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-												/>
-												<button type="button" onclick={() => (showConnectedKeys = !showConnectedKeys)} aria-label={showConnectedKeys ? 'Hide token' : 'Show token'} class="inline-flex size-9 shrink-0 items-center justify-center rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground">
-													{#if showConnectedKeys}<EyeOff class="h-4 w-4" />{:else}<Eye class="h-4 w-4" />{/if}
-												</button>
-											</div>
-										</div>
-									</div>
-									<div class="mt-auto flex flex-wrap gap-2 pt-2">
-										<Button type="submit" size="sm">Save</Button>
-										<Button type="button" variant="ghost" size="sm" onclick={cancelEditingCredentials}>Cancel</Button>
-									</div>
-								</form>
-							{:else}
-								<div class="space-y-4">
-									<div class="space-y-2">
-										<Label for="pipedrive-domain-connected">Company domain</Label>
-										<div class="flex gap-1">
-											<input
-												id="pipedrive-domain-connected"
-												type={showConnectedKeys ? 'text' : 'password'}
-												value="••••••••••••"
-												disabled
-												readonly
-												class="border-input bg-background flex h-9 min-w-0 flex-1 rounded-md border px-3 py-1 font-mono text-sm outline-none disabled:cursor-not-allowed disabled:opacity-50"
-											/>
-											<button
-												type="button"
-												onclick={() => (showConnectedKeys = !showConnectedKeys)}
-												aria-label={showConnectedKeys ? 'Hide domain' : 'Show domain'}
-												class="inline-flex size-9 shrink-0 items-center justify-center rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground"
-											>
-												{#if showConnectedKeys}
-													<EyeOff class="h-4 w-4" />
-												{:else}
-													<Eye class="h-4 w-4" />
-												{/if}
-											</button>
-										</div>
-									</div>
-									<div class="space-y-2">
-										<Label for="pipedrive-token-connected">API token</Label>
-										<div class="flex gap-1">
-											<input
-												id="pipedrive-token-connected"
-												type={showConnectedKeys ? 'text' : 'password'}
-												value="••••••••••••••••••••"
-												disabled
-												readonly
-												class="border-input bg-background flex h-9 min-w-0 flex-1 rounded-md border px-3 py-1 font-mono text-sm outline-none disabled:cursor-not-allowed disabled:opacity-50"
-											/>
-											<button
-												type="button"
-												onclick={() => (showConnectedKeys = !showConnectedKeys)}
-												aria-label={showConnectedKeys ? 'Hide token' : 'Show token'}
-												class="inline-flex size-9 shrink-0 items-center justify-center rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground"
-											>
-												{#if showConnectedKeys}
-													<EyeOff class="h-4 w-4" />
-												{:else}
-													<Eye class="h-4 w-4" />
-												{/if}
-											</button>
-										</div>
-									</div>
-								</div>
-							{/if}
-						{/if}
-						{#if selected.id !== 'hubspot' && !editingCredentials}
-						<div class="mt-auto flex flex-wrap gap-2 pt-2">
-							<Button type="button" variant="outline" size="sm" disabled={loadingCredentials} onclick={startEditingCredentials}>
-								{#if loadingCredentials}<LoaderCircle class="mr-2 h-4 w-4 animate-spin" />{:else}<Pencil class="mr-2 h-4 w-4" />{/if}
-								Edit key
-							</Button>
-							<form
-								method="POST"
-								action={selected.id === 'gohighlevel' ? '?/syncGoHighLevel' : '?/syncPipedrive'}
-								use:enhance={() => {
-									syncing = selected.id;
-									return async ({ result }) => {
-										syncing = null;
-										toastFromActionResult(
-											selected.id === 'gohighlevel' ? 'Sync GoHighLevel' : 'Sync Pipedrive',
-											result,
-											'Contacts synced to dashboard.'
-										);
-									};
-								}}
-								class="inline"
-							>
-								<Button type="submit" size="sm" disabled={syncing !== null}>
-									{#if syncing === selected.id}
-										<LoaderCircle class="mr-2 h-4 w-4 animate-spin" />
-									{:else}
-										<Link2 class="mr-2 h-4 w-4" />
-									{/if}
-									Sync to dashboard
-								</Button>
-							</form>
-							{#if selected.id === 'gohighlevel'}
-								<form bind:this={ghlDisconnectForm} method="POST" action="?/disconnectGoHighLevel" use:enhance={() => async ({ result }) => {
-									if (result.type === 'success' && (result.data as { success?: boolean })?.success) {
-										await invalidateAll();
-										toastSuccess('GoHighLevel disconnected', 'You can reconnect from this page.');
-									} else if (result.type === 'failure') {
-										toastError('Disconnect GoHighLevel', (result.data as { message?: string })?.message);
-									}
-								}} class="inline">
-									<AlertDialog.Root bind:open={disconnectGhlOpen}>
-										<AlertDialog.Trigger type="button" class="inline-flex h-8 items-center justify-center rounded-md px-3 text-sm hover:bg-accent hover:text-accent-foreground">
-											Disconnect
-										</AlertDialog.Trigger>
-										<AlertDialog.Content>
-											<AlertDialog.Header>
-												<AlertDialog.Title>Disconnect {selected.name}</AlertDialog.Title>
-												<AlertDialog.Description>
-													Contacts will no longer sync from {selected.name}. You can reconnect at any time.
-												</AlertDialog.Description>
-											</AlertDialog.Header>
-											<AlertDialog.Footer>
-												<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
-												<AlertDialog.Action onclick={submitGhlDisconnect}>Disconnect</AlertDialog.Action>
-											</AlertDialog.Footer>
-										</AlertDialog.Content>
-									</AlertDialog.Root>
-								</form>
-							{:else}
-								<form bind:this={pipedriveDisconnectForm} method="POST" action="?/disconnectPipedrive" use:enhance={() => async ({ result }) => {
-									if (result.type === 'success' && (result.data as { success?: boolean })?.success) {
-										await invalidateAll();
-										toastSuccess('Pipedrive disconnected', 'You can reconnect from this page.');
-									} else if (result.type === 'failure') {
-										toastError('Disconnect Pipedrive', (result.data as { message?: string })?.message);
-									}
-								}} class="inline">
-									<AlertDialog.Root bind:open={disconnectPipedriveOpen}>
-										<AlertDialog.Trigger>
-											<Button variant="ghost" size="sm">Disconnect</Button>
-										</AlertDialog.Trigger>
-										<AlertDialog.Content>
-											<AlertDialog.Header>
-												<AlertDialog.Title>Disconnect {selected.name}</AlertDialog.Title>
-												<AlertDialog.Description>
-													Contacts will no longer sync from {selected.name}. You can reconnect at any time.
-												</AlertDialog.Description>
-											</AlertDialog.Header>
-											<AlertDialog.Footer>
-												<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
-												<AlertDialog.Action onclick={submitPipedriveDisconnect}>Disconnect</AlertDialog.Action>
-											</AlertDialog.Footer>
-										</AlertDialog.Content>
-									</AlertDialog.Root>
-								</form>
-							{/if}
-						</div>
-						{/if}
-					</div>
-				{:else}
-					<!-- CRM connect form: labels above inputs, button bottom left -->
-					{#if selected.id === 'hubspot'}
-						<form method="POST" action="?/connectHubSpot" use:enhance={() => async ({ result }) => {
-							toastFromActionResult('Connect HubSpot', result, 'HubSpot connected. Sync contacts to see them on the dashboard.');
-						}} class="flex flex-col gap-4">
-							<div class="space-y-4">
-								<div class="space-y-2">
-									<Label for="hubspot-apiKey">Private App token</Label>
-									<Input
-										id="hubspot-apiKey"
-										name="apiKey"
-										type="password"
-										placeholder="pat-na1-..."
-										autocomplete="off"
-										class="font-mono text-sm"
-									/>
-									<p class="text-xs text-muted-foreground">HubSpot → Settings → Integrations → Private Apps</p>
-								</div>
-							</div>
-							<div class="mt-auto pt-2">
-								<Button type="submit">Connect HubSpot</Button>
-							</div>
-						</form>
-					{:else if selected.id === 'gohighlevel'}
-						<form method="POST" action="?/connectGoHighLevel" use:enhance={() => async ({ result }) => {
-							toastFromActionResult('Connect GoHighLevel', result, 'GoHighLevel connected. Sync contacts to see them on the dashboard.');
-						}} class="flex flex-col gap-4">
-							<div class="space-y-4">
-								<div class="space-y-2">
-									<Label for="ghl-apiKey">API token</Label>
-									<Input
-										id="ghl-apiKey"
-										name="apiKey"
-										type="password"
-										placeholder="Your token"
-										autocomplete="off"
-										class="font-mono text-sm"
-									/>
-									<p class="text-xs text-muted-foreground">Sub-Account or Location token with contacts.readonly</p>
-								</div>
-							</div>
-							<div class="mt-auto pt-2">
-								<Button type="submit">Connect GoHighLevel</Button>
-							</div>
-						</form>
-					{:else}
-						<form method="POST" action="?/connectPipedrive" use:enhance={() => async ({ result }) => {
-							toastFromActionResult('Connect Pipedrive', result, 'Pipedrive connected. Sync contacts to see them on the dashboard.');
-						}} class="flex flex-col gap-4">
-							<div class="space-y-4">
-								<div class="space-y-2">
-									<Label for="pipedrive-domain">Company domain</Label>
-									<Input
-										id="pipedrive-domain"
-										name="domain"
-										type="text"
-										placeholder="mycompany"
-										autocomplete="off"
-										class="font-mono text-sm"
-									/>
-								</div>
-								<div class="space-y-2">
-									<Label for="pipedrive-apiKey">API token</Label>
-									<Input
-										id="pipedrive-apiKey"
-										name="apiKey"
-										type="password"
-										placeholder="••••••••"
-										autocomplete="off"
-										class="font-mono text-sm"
-									/>
-									<p class="text-xs text-muted-foreground">Pipedrive → Settings → Personal preferences → API</p>
-								</div>
-							</div>
-							<div class="mt-auto pt-2">
-								<Button type="submit">Connect Pipedrive</Button>
 							</div>
 						</form>
 					{/if}

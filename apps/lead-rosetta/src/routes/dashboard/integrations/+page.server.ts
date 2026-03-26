@@ -4,16 +4,7 @@ import { markdownToHtml } from '$lib/markdown';
 import { INTEGRATION_HELP_DOCS, INTEGRATION_IDS } from '$lib/server/integrationHelpDocs';
 import { getSessionFromCookie, getSessionCookieName } from '$lib/server/session';
 import { getPlanForUser } from '$lib/server/stripe';
-import { canConnectCrm } from '$lib/plans';
-import {
-	listCrmConnections,
-	saveCrmConnection,
-	deleteCrmConnection,
-	getCrmConnection,
-	listHubSpotContacts,
-	listGoHighLevelContacts,
-	listPipedriveContacts
-} from '$lib/server/crm';
+import { listCrmConnections, saveCrmConnection, deleteCrmConnection, getCrmConnection } from '$lib/server/crm';
 import { getGmailTokens, deleteGmailTokens } from '$lib/server/gmail';
 import {
 	listProspects as listNotionProspects,
@@ -22,11 +13,12 @@ import {
 	getNotionDatabaseTitle,
 	NOTION_FIELD_KEYS
 } from '$lib/server/notion';
-import { upsertProspect } from '$lib/server/prospects';
+import { insertProspectIfAbsent } from '$lib/server/prospects';
 import {
 	getGbpDentalDailyStats,
 	runPullGbpDental,
-	isPlacesConfiguredForGbp
+	isPlacesConfiguredForGbp,
+	getGbpDentalPullLock
 } from '$lib/server/pullGbpDental';
 
 function loadHelpDocs(): Record<string, string> {
@@ -51,6 +43,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 	const notionFieldKeys = NOTION_FIELD_KEYS;
 	const { todayCount: gbpDentalTodayCount, dailyCap: gbpDentalDailyCap } =
 		await getGbpDentalDailyStats(user.id);
+	const gbpDentalPullLock = await getGbpDentalPullLock(user.id);
 	const placesApiConfigured = isPlacesConfiguredForGbp();
 
 	let notionDatabaseId: string | null = null;
@@ -65,7 +58,6 @@ export const load: PageServerLoad = async ({ cookies }) => {
 	return {
 		plan,
 		connections,
-		canConnect: canConnectCrm(plan),
 		helpDocs,
 		gmailConnected,
 		gmailEmail,
@@ -74,99 +66,12 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		notionDatabaseTitle,
 		gbpDentalTodayCount,
 		gbpDentalDailyCap,
+		gbpDentalPullLock,
 		placesApiConfigured
 	};
 };
 
 export const actions: Actions = {
-	connectHubSpot: async ({ request, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
-		if (!user) return fail(401, { message: 'Sign in required' });
-		const plan = await getPlanForUser(user);
-		if (!canConnectCrm(plan)) return fail(403, { message: 'CRM connection is available on Growth and Agency plans.' });
-		const formData = await request.formData();
-		const apiKey = (formData.get('apiKey') as string)?.trim();
-		if (!apiKey) return fail(400, { message: 'API key required' });
-		const result = await saveCrmConnection(user.id, 'hubspot', apiKey);
-		if (!result.ok) return fail(502, { message: result.error ?? 'Failed to save' });
-		return { success: true, message: 'HubSpot connected.' };
-	},
-	connectGoHighLevel: async ({ request, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
-		if (!user) return fail(401, { message: 'Sign in required' });
-		const plan = await getPlanForUser(user);
-		if (!canConnectCrm(plan)) return fail(403, { message: 'CRM connection is available on Growth and Agency plans.' });
-		const formData = await request.formData();
-		const apiKey = (formData.get('apiKey') as string)?.trim();
-		if (!apiKey) return fail(400, { message: 'API key required' });
-		const result = await saveCrmConnection(user.id, 'gohighlevel', apiKey);
-		if (!result.ok) return fail(502, { message: result.error ?? 'Failed to save' });
-		return { success: true, message: 'GoHighLevel connected.' };
-	},
-	disconnectHubSpot: async ({ cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
-		if (!user) return fail(401, { message: 'Sign in required' });
-		const result = await deleteCrmConnection(user.id, 'hubspot');
-		if (!result.ok) return fail(502, { message: result.error ?? 'Failed to disconnect' });
-		return { success: true, message: 'HubSpot disconnected.' };
-	},
-	disconnectGoHighLevel: async ({ cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
-		if (!user) return fail(401, { message: 'Sign in required' });
-		const result = await deleteCrmConnection(user.id, 'gohighlevel');
-		if (!result.ok) return fail(502, { message: result.error ?? 'Failed to disconnect' });
-		return { success: true, message: 'GoHighLevel disconnected.' };
-	},
-	syncHubSpot: async ({ cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
-		if (!user) return fail(401, { message: 'Sign in required' });
-		const plan = await getPlanForUser(user);
-		if (!canConnectCrm(plan)) return fail(403, { message: 'CRM sync is available on Growth and Agency plans.' });
-		const conn = await getCrmConnection(user.id, 'hubspot');
-		if (!conn) return fail(400, { message: 'HubSpot not connected' });
-		const { contacts, error } = await listHubSpotContacts(conn.access_token);
-		if (error) return fail(502, { message: error });
-		let synced = 0;
-		for (const c of contacts) {
-			const { id, error: err } = await upsertProspect(user.id, 'hubspot', c.id, {
-				companyName: c.companyName,
-				email: c.email,
-				website: c.website || undefined,
-				phone: c.phone || undefined,
-				status: 'Prospect'
-			});
-			if (id && !err) synced++;
-		}
-		return { success: true, message: `Synced ${synced} of ${contacts.length} contacts to your dashboard.` };
-	},
-	syncGoHighLevel: async ({ cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
-		if (!user) return fail(401, { message: 'Sign in required' });
-		const plan = await getPlanForUser(user);
-		if (!canConnectCrm(plan)) return fail(403, { message: 'CRM sync is available on Growth and Agency plans.' });
-		const conn = await getCrmConnection(user.id, 'gohighlevel');
-		if (!conn) return fail(400, { message: 'GoHighLevel not connected' });
-		const { contacts, error } = await listGoHighLevelContacts(conn.access_token);
-		if (error) return fail(502, { message: error });
-		let synced = 0;
-		for (const c of contacts) {
-			const { id, error: err } = await upsertProspect(user.id, 'gohighlevel', c.id, {
-				companyName: c.companyName,
-				email: c.email,
-				website: c.website || undefined,
-				phone: c.phone || undefined,
-				status: 'Prospect'
-			});
-			if (id && !err) synced++;
-		}
-		return { success: true, message: `Synced ${synced} of ${contacts.length} contacts to your dashboard.` };
-	},
 	getNotionDatabases: async ({ request, cookies }) => {
 		const cookie = cookies.get(getSessionCookieName());
 		const user = await getSessionFromCookie(cookie);
@@ -232,52 +137,6 @@ export const actions: Actions = {
 		if (!result.ok) return fail(502, { message: result.error ?? 'Failed to save mapping' });
 		return { success: true, message: 'Field mapping saved.' };
 	},
-	connectPipedrive: async ({ request, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
-		if (!user) return fail(401, { message: 'Sign in required' });
-		const plan = await getPlanForUser(user);
-		if (!canConnectCrm(plan)) return fail(403, { message: 'CRM connection is available on Growth and Agency plans.' });
-		const formData = await request.formData();
-		const domain = (formData.get('domain') as string)?.trim();
-		const apiKey = (formData.get('apiKey') as string)?.trim();
-		if (!domain || !apiKey) return fail(400, { message: 'Company domain and API token required' });
-		const stored = `${domain}:${apiKey}`;
-		const result = await saveCrmConnection(user.id, 'pipedrive', stored);
-		if (!result.ok) return fail(502, { message: result.error ?? 'Failed to save' });
-		return { success: true, message: 'Pipedrive connected.' };
-	},
-	disconnectPipedrive: async ({ cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
-		if (!user) return fail(401, { message: 'Sign in required' });
-		const result = await deleteCrmConnection(user.id, 'pipedrive');
-		if (!result.ok) return fail(502, { message: result.error ?? 'Failed to disconnect' });
-		return { success: true, message: 'Pipedrive disconnected.' };
-	},
-	syncPipedrive: async ({ cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
-		if (!user) return fail(401, { message: 'Sign in required' });
-		const plan = await getPlanForUser(user);
-		if (!canConnectCrm(plan)) return fail(403, { message: 'CRM sync is available on Growth and Agency plans.' });
-		const conn = await getCrmConnection(user.id, 'pipedrive');
-		if (!conn) return fail(400, { message: 'Pipedrive not connected' });
-		const { contacts, error } = await listPipedriveContacts(conn.access_token);
-		if (error) return fail(502, { message: error });
-		let synced = 0;
-		for (const c of contacts) {
-			const { id, error: err } = await upsertProspect(user.id, 'pipedrive', c.id, {
-				companyName: c.companyName,
-				email: c.email,
-				website: c.website || undefined,
-				phone: c.phone || undefined,
-				status: 'Prospect'
-			});
-			if (id && !err) synced++;
-		}
-		return { success: true, message: `Synced ${synced} of ${contacts.length} contacts to your dashboard.` };
-	},
 	syncNotion: async ({ cookies }) => {
 		const cookie = cookies.get(getSessionCookieName());
 		const user = await getSessionFromCookie(cookie);
@@ -286,18 +145,24 @@ export const actions: Actions = {
 		if (!conn?.databaseId) return fail(400, { message: 'Notion not connected' });
 		const result = await listNotionProspects(user.id);
 		if (result.error) return fail(502, { message: result.message ?? 'Failed to load from Notion' });
-		let synced = 0;
+		let inserted = 0;
+		let skipped = 0;
 		for (const p of result.prospects) {
-			const { id, error: err } = await upsertProspect(user.id, 'notion', p.id, {
+			const r = await insertProspectIfAbsent(user.id, 'notion', p.id, {
 				companyName: p.companyName,
 				email: p.email,
 				website: p.website || undefined,
 				phone: p.phone || undefined,
-				status: p.status || 'Prospect'
+				industry: p.industry || undefined
 			});
-			if (id && !err) synced++;
+			if (r.error) continue;
+			if (r.inserted) inserted++;
+			else skipped++;
 		}
-		return { success: true, message: `Synced ${synced} of ${result.prospects.length} rows from Notion to your dashboard.` };
+		return {
+			success: true,
+			message: `Inserted ${inserted} new row(s); skipped ${skipped} already in your dashboard (${result.prospects.length} total from Notion).`
+		};
 	},
 	/** Save current mapping from form then run sync (single action for the Map headers popup). */
 	syncNotionWithMapping: async ({ request, cookies }) => {
@@ -320,18 +185,24 @@ export const actions: Actions = {
 		if (!saveResult.ok) return fail(502, { message: saveResult.error ?? 'Failed to save mapping' });
 		const result = await listNotionProspects(user.id);
 		if (result.error) return fail(502, { message: result.message ?? 'Failed to load from Notion' });
-		let synced = 0;
+		let inserted = 0;
+		let skipped = 0;
 		for (const p of result.prospects) {
-			const { id, error: err } = await upsertProspect(user.id, 'notion', p.id, {
+			const r = await insertProspectIfAbsent(user.id, 'notion', p.id, {
 				companyName: p.companyName,
 				email: p.email,
 				website: p.website || undefined,
 				phone: p.phone || undefined,
-				status: p.status || 'Prospect'
+				industry: p.industry || undefined
 			});
-			if (id && !err) synced++;
+			if (r.error) continue;
+			if (r.inserted) inserted++;
+			else skipped++;
 		}
-		return { success: true, message: `Synced ${synced} of ${result.prospects.length} rows from Notion to your dashboard.` };
+		return {
+			success: true,
+			message: `Inserted ${inserted} new row(s); skipped ${skipped} already in your dashboard (${result.prospects.length} total from Notion).`
+		};
 	},
 	disconnectGmail: async ({ cookies }) => {
 		const cookie = cookies.get(getSessionCookieName());

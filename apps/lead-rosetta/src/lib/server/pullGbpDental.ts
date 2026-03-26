@@ -9,10 +9,12 @@ import { upsertProspect } from '$lib/server/prospects';
 
 const PLACES_BASE = 'https://places.googleapis.com/v1';
 export const GBP_DENTAL_DAILY_CAP = 25;
+export const GBP_DENTAL_PULL_LOCK_MINUTES = 15;
 /** Only add businesses with fewer than this many reviews (need the most help). */
 const MAX_REVIEWS = 50;
 const TARGET_COUNT = 5;
 const PAGE_SIZE = 20;
+const LAST_PULL_AT_KEY = 'gbp_dental_last_pull_at';
 const GTA_RECT = {
 	rectangle: {
 		low: { latitude: 43.4, longitude: -79.8 },
@@ -40,6 +42,13 @@ export type GbpDentalDailyStats = {
 	dailyCap: number;
 };
 
+export type GbpDentalPullLock = {
+	locked: boolean;
+	remainingSeconds: number;
+	lastPullAt: string | null;
+	lockMinutes: number;
+};
+
 /** How many GBP prospects this user has added today (UTC) and the cap. */
 export async function getGbpDentalDailyStats(userId: string): Promise<GbpDentalDailyStats> {
 	const supabase = getSupabaseAdmin();
@@ -54,6 +63,50 @@ export async function getGbpDentalDailyStats(userId: string): Promise<GbpDentalD
 	return {
 		todayCount: error ? 0 : (count ?? 0),
 		dailyCap: GBP_DENTAL_DAILY_CAP
+	};
+}
+
+export async function getGbpDentalPullLock(userId: string): Promise<GbpDentalPullLock> {
+	const supabase = getSupabaseAdmin();
+	if (!supabase) {
+		return {
+			locked: false,
+			remainingSeconds: 0,
+			lastPullAt: null,
+			lockMinutes: GBP_DENTAL_PULL_LOCK_MINUTES
+		};
+	}
+	const { data, error } = await supabase
+		.from('user_settings')
+		.select('value')
+		.eq('user_id', userId)
+		.eq('key', LAST_PULL_AT_KEY)
+		.maybeSingle();
+	if (error || !data?.value || typeof data.value !== 'string') {
+		return {
+			locked: false,
+			remainingSeconds: 0,
+			lastPullAt: null,
+			lockMinutes: GBP_DENTAL_PULL_LOCK_MINUTES
+		};
+	}
+	const lastPullAt = new Date(data.value as string);
+	if (Number.isNaN(lastPullAt.getTime())) {
+		return {
+			locked: false,
+			remainingSeconds: 0,
+			lastPullAt: null,
+			lockMinutes: GBP_DENTAL_PULL_LOCK_MINUTES
+		};
+	}
+	const lockMs = GBP_DENTAL_PULL_LOCK_MINUTES * 60 * 1000;
+	const elapsedMs = Date.now() - lastPullAt.getTime();
+	const remainingSeconds = Math.max(0, Math.ceil((lockMs - elapsedMs) / 1000));
+	return {
+		locked: remainingSeconds > 0,
+		remainingSeconds,
+		lastPullAt: lastPullAt.toISOString(),
+		lockMinutes: GBP_DENTAL_PULL_LOCK_MINUTES
 	};
 }
 
@@ -172,7 +225,7 @@ export type RunPullGbpDentalResult =
 	| { ok: false; message: string };
 
 /**
- * Run one pull: search dental in GTA, filter no website + fewer reviews, add up to 5 as prospects.
+ * Run one pull: search dental in GTA, filter fewer reviews, add up to 5 as prospects.
  * Respects daily cap and Places API monthly usage.
  */
 export async function runPullGbpDental(userId: string): Promise<RunPullGbpDentalResult> {
@@ -184,6 +237,11 @@ export async function runPullGbpDental(userId: string): Promise<RunPullGbpDental
 	const supabase = getSupabaseAdmin();
 	if (!supabase) {
 		return { ok: false, message: 'Database not configured.' };
+	}
+	const pullLock = await getGbpDentalPullLock(userId);
+	if (pullLock.locked) {
+		const minutes = Math.ceil(pullLock.remainingSeconds / 60);
+		return { ok: false, message: `Lead discovery is locked. Try again in ${minutes} minute${minutes === 1 ? '' : 's'}.` };
 	}
 
 	const { todayCount, dailyCap } = await getGbpDentalDailyStats(userId);
@@ -265,6 +323,15 @@ export async function runPullGbpDental(userId: string): Promise<RunPullGbpDental
 		});
 		if (id && !error) added++;
 	}
+	await supabase.from('user_settings').upsert(
+		{
+			user_id: userId,
+			key: LAST_PULL_AT_KEY,
+			value: new Date().toISOString(),
+			updated_at: new Date().toISOString()
+		},
+		{ onConflict: 'user_id,key' }
+	);
 
 	if (added === 0) {
 		return {
