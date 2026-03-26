@@ -9,9 +9,11 @@ This Worker runs on a schedule:
 
 - **Demo jobs:** `GET /api/cron/jobs/demo` every 1 minute
 - **GBP jobs:** `GET /api/cron/jobs/gbp` every 2 minutes
+- **Insights jobs:** `GET /api/cron/jobs/insights` every 3 minutes
+- **Batch enqueue:** `GET /api/cron/schedule/batch` every 5 minutes (up to 10× `new` → insights queue, 10× `demo pending` → demo queue)
 - **Pitch Rosetta:** `GET /api/health` every 14 minutes (keeps [pitch-rosetta.onrender.com](https://pitch-rosetta.onrender.com) warm)
 
-The same `CRON_SECRET` used by the lead-rosetta app must be set here so the app accepts the demo/GBP requests. Pitch Rosetta health check does not require auth.
+The same `CRON_SECRET` used by the lead-rosetta app must be set here so the app accepts the Lead Rosetta cron requests. Pitch Rosetta health check does not require auth.
 
 ## Setup
 
@@ -58,17 +60,10 @@ The same `CRON_SECRET` used by the lead-rosetta app must be set here so the app 
 npx wrangler dev --test-scheduled
 ```
 
-Then in another terminal:
+Then in another terminal, fire the single scheduled handler (runs all minute-modulo branches; at UTC minute 0 you get demo + GBP + insights + batch + pitch):
 
 ```bash
-# Simulate demo cron (every 1 min)
 curl "http://localhost:8787/__scheduled?cron=*%2F1+*+*+*+*"
-
-# Simulate GBP cron (every 2 min)
-curl "http://localhost:8787/__scheduled?cron=*%2F2+*+*+*+*"
-
-# Simulate Pitch Rosetta ping (every 14 min)
-curl "http://localhost:8787/__scheduled?cron=*%2F14+*+*+*+*"
 ```
 
 Your app must be reachable (e.g. Vercel preview or ngrok) and `CRON_TARGET_URL` / `CRON_SECRET` must be set in `.dev.vars` for local dev:
@@ -85,8 +80,14 @@ CRON_TARGET_URL=https://your-app.vercel.app
 npx wrangler tail
 ```
 
-Watch for `[cron-worker] demo:`, `[cron-worker] gbp:`, and `[cron-worker] pitch-rosetta:` lines.
+Watch for `[cron-worker] demo:`, `gbp:`, `insights:`, `schedule/batch:`, and `pitch-rosetta:` lines.
 
-## Limits
+## Limits (Cloudflare Workers)
 
-Cloudflare Workers free tier: 100,000 requests/day. At 1/min + 1 every 2 min + 1 every 14 min you stay well under that.
+Per [account plan limits](https://developers.cloudflare.com/workers/platform/limits/#account-plan-limits):
+
+- **Cron Triggers per account:** Free 5, Paid 250. This worker uses **one** trigger (`*/1 * * * *`) and dispatches 1/2/3/5/14‑minute jobs inside the handler, so it leaves room for other Workers on the same account.
+- **Daily requests (Free):** 100,000/day. One invocation per minute is ~1,440/day, far below the cap.
+- **CPU time (cron, Free):** 10 ms per invocation; this worker only awaits small HTTP calls (network wait does not count toward CPU time).
+
+If you add more scheduled Workers, stay within the Cron Trigger cap or upgrade.

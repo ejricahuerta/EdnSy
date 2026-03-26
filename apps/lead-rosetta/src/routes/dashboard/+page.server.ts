@@ -25,7 +25,6 @@ import { env } from '$env/dynamic/private';
 import { getCrmIndustryFilter, getGbpDefaultLocation, getEffectiveEmailSenderName, getEmailSignatureOverride } from '$lib/server/userSettings';
 import { isValidDemoTrackingStatus } from '$lib/demo';
 import { getPlanForUser, getUpcomingInvoiceForUser } from '$lib/server/stripe';
-import { listCrmConnections } from '$lib/server/crm';
 import { getDemoCreationLimit, canSendAutomated } from '$lib/plans';
 import { serverInfo, serverError } from '$lib/server/logger';
 import {
@@ -41,6 +40,7 @@ import {
 } from '$lib/server/send';
 import { generateEmailCopy } from '$lib/server/generateEmailCopy';
 import { getTemplates } from '$lib/server/templates';
+import { PROSPECT_STATUS } from '$lib/prospectStatus';
 
 export const load: PageServerLoad = async ({ cookies }) => {
 	const cookie = cookies.get(getSessionCookieName());
@@ -110,7 +110,7 @@ export const actions: Actions = {
 		const scrapedData = scrapedResult.data;
 		const origin = url.origin;
 		const demoUrl = `${origin}/demo/${prospectId}`;
-		const result = await updateProspectDemoLink(prospectId, demoUrl, 'Demo Created');
+		const result = await updateProspectDemoLink(prospectId, demoUrl, PROSPECT_STATUS.REVIEW);
 		if (!result.ok) {
 			return fail(502, { message: result.error ?? 'Failed to update prospect' });
 		}
@@ -236,7 +236,7 @@ export const actions: Actions = {
 				errors.push(`${prospect.companyName || prospectId}: Could not enqueue job`);
 				continue;
 			}
-			await updateProspectStatus(prospectId, 'In queue');
+			await updateProspectStatus(prospectId, PROSPECT_STATUS.DEMO_QUEUED);
 			enqueued++;
 			countThisMonth++;
 		}

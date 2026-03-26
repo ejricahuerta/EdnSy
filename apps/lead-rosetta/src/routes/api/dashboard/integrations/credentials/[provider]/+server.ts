@@ -3,7 +3,7 @@ import { getSessionFromCookie, getSessionCookieName } from '$lib/server/session'
 import { getCrmConnection } from '$lib/server/crm';
 import { apiError, apiSuccess } from '$lib/server/apiResponse';
 
-const ALLOWED = ['notion', 'hubspot', 'gohighlevel', 'pipedrive'] as const;
+const ALLOWED = ['notion'] as const;
 
 export const GET: RequestHandler = async ({ cookies, params }) => {
 	const cookie = cookies.get(getSessionCookieName());
@@ -24,10 +24,6 @@ export const GET: RequestHandler = async ({ cookies, params }) => {
 			apiKey: conn.access_token,
 			databaseId: conn.databaseId ?? ''
 		});
-	}
-	if (provider === 'pipedrive') {
-		const [domain = '', apiKey = ''] = conn.access_token.split(':');
-		return apiSuccess({ domain, apiKey });
 	}
 	return apiSuccess({ apiKey: conn.access_token });
 };

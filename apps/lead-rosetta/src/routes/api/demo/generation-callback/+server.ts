@@ -15,6 +15,7 @@ import {
 	upsertDemoTrackingForProspect
 } from '$lib/server/supabase';
 import { updateProspectDemoLink, updateProspectStatus } from '$lib/server/prospects';
+import { PROSPECT_STATUS } from '$lib/prospectStatus';
 import { uploadDemoHtml } from '$lib/server/demo';
 import { apiError, apiSuccess } from '$lib/server/apiResponse';
 
@@ -57,14 +58,14 @@ export const POST: RequestHandler = async ({ request, url }) => {
 
 	if (errorMessage != null && errorMessage !== '') {
 		await updateDemoJob(jobId, { status: 'failed', errorMessage });
-		await updateProspectStatus(prospectId, 'Prospect');
+		await updateProspectStatus(prospectId, PROSPECT_STATUS.NEW);
 		return apiSuccess({ ok: true });
 	}
 
 	const origin = SITE_ORIGIN || (url.origin ?? '');
 	if (!origin) {
 		await updateDemoJob(jobId, { status: 'failed', errorMessage: 'SITE_ORIGIN not set' });
-		await updateProspectStatus(prospectId, 'Prospect');
+		await updateProspectStatus(prospectId, PROSPECT_STATUS.NEW);
 		return apiError(500, 'Server misconfiguration: SITE_ORIGIN not set');
 	}
 
@@ -75,15 +76,15 @@ export const POST: RequestHandler = async ({ request, url }) => {
 		const uploadResult = await uploadDemoHtml(prospectId, callbackHtml.trim());
 		if (!uploadResult.ok) {
 			await updateDemoJob(jobId, { status: 'failed', errorMessage: uploadResult.error ?? 'Failed to store demo HTML' });
-			await updateProspectStatus(prospectId, 'Prospect');
+			await updateProspectStatus(prospectId, PROSPECT_STATUS.NEW);
 			return apiError(500, uploadResult.error ?? 'Failed to store demo HTML');
 		}
 	}
 
-	const updateResult = await updateProspectDemoLink(prospectId, demoLink, 'Demo Created');
+	const updateResult = await updateProspectDemoLink(prospectId, demoLink, PROSPECT_STATUS.REVIEW);
 	if (!updateResult.ok) {
 		await updateDemoJob(jobId, { status: 'failed', errorMessage: updateResult.error ?? 'Failed to update prospect' });
-		await updateProspectStatus(prospectId, 'Prospect');
+		await updateProspectStatus(prospectId, PROSPECT_STATUS.NEW);
 		return apiError(500, updateResult.error ?? 'Failed to update prospect');
 	}
 

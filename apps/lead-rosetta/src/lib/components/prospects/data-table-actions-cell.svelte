@@ -11,6 +11,7 @@
 		prospectId,
 		hasDemoLink = false,
 		demoJobStatus,
+		trackingStatus,
 		detailHref = `/dashboard/prospects/${prospectId}`,
 		showDelete = false,
 		showRestore = false,
@@ -20,6 +21,7 @@
 		prospectId: string;
 		hasDemoLink?: boolean;
 		demoJobStatus?: 'pending' | 'creating' | 'done' | 'failed';
+		trackingStatus?: 'draft' | 'approved' | 'sent' | 'opened' | 'clicked' | 'replied';
 		detailHref?: string;
 		/** Show soft-delete icon (set flagged = true). */
 		showDelete?: boolean;
@@ -36,13 +38,16 @@
 	let restoring = $state(false);
 
 	const demoJobActive = $derived(demoJobStatus === 'pending' || demoJobStatus === 'creating');
+	const canRegenerate = $derived(
+		hasDemoLink && !['approved', 'sent', 'opened', 'clicked', 'replied'].includes(trackingStatus ?? '')
+	);
 	/** When in queue, allow all actions except undo (restore). */
 	const regenerateDisabled = $derived(false);
 	const restoreDisabled = $derived(restoring || processing);
 </script>
 
 <div class="flex items-center justify-end gap-1">
-	{#if hasDemoLink}
+	{#if canRegenerate}
 		<form
 			method="POST"
 			action="?/regenerateDemo"

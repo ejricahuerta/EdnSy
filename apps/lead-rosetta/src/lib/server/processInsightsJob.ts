@@ -24,6 +24,7 @@ import { NO_FIT_GBP_REASON } from '$lib/server/qualify';
 import { analyzeWebsiteAndProduceDemoJson } from '$lib/ai-agents';
 import { notionIndustryToSlug } from '$lib/industryMapping';
 import { INDUSTRY_LABELS } from '$lib/industries';
+import { PROSPECT_STATUS } from '$lib/prospectStatus';
 
 const ANALYSIS_PLACEHOLDER_LINK = 'https://leadrosetta.local/analysis-pending';
 
@@ -60,14 +61,14 @@ export async function processOneInsightsJob(): Promise<ProcessInsightsJobResult>
 		if (!prospect) {
 			const errorMessage = 'Prospect not found';
 			await updateInsightsJob(jobId, { status: 'failed', errorMessage });
-			await updateProspectStatus(prospectId, 'Prospect');
+			await updateProspectStatus(prospectId, PROSPECT_STATUS.NEW);
 			return { processed: true, prospectId, status: 'failed', errorMessage };
 		}
 		// Allow "no online presence" (GBP failed, no valid website): we create name-based insight and demo.
 		if (prospect.flagged && prospect.flaggedReason !== NO_FIT_GBP_REASON) {
 			const errorMessage = 'Prospect is out of scope';
 			await updateInsightsJob(jobId, { status: 'failed', errorMessage });
-			await updateProspectStatus(prospectId, 'Prospect');
+			await updateProspectStatus(prospectId, PROSPECT_STATUS.NEW);
 			return {
 				processed: true,
 				prospectId,
@@ -137,7 +138,7 @@ export async function processOneInsightsJob(): Promise<ProcessInsightsJobResult>
 			if (!insightResult.ok) {
 				const errorMessage = insightResult.error ?? 'AI insight failed';
 				await updateInsightsJob(jobId, { status: 'failed', errorMessage });
-				await updateProspectStatus(prospectId, 'Prospect');
+				await updateProspectStatus(prospectId, PROSPECT_STATUS.NEW);
 				return {
 					processed: true,
 					prospectId,
@@ -171,7 +172,7 @@ export async function processOneInsightsJob(): Promise<ProcessInsightsJobResult>
 			if (!scrapedResult.ok) {
 				const errorMessage = formatScrapedDataErrorMessage(scrapedResult.errors);
 				await updateInsightsJob(jobId, { status: 'failed', errorMessage });
-				await updateProspectStatus(prospectId, 'Prospect');
+				await updateProspectStatus(prospectId, PROSPECT_STATUS.NEW);
 				return {
 					processed: true,
 					prospectId,
@@ -238,7 +239,7 @@ export async function processOneInsightsJob(): Promise<ProcessInsightsJobResult>
 			if (!insightResult.ok) {
 				const errorMessage = insightResult.error ?? 'AI insight failed';
 				await updateInsightsJob(jobId, { status: 'failed', errorMessage });
-				await updateProspectStatus(prospectId, 'Prospect');
+				await updateProspectStatus(prospectId, PROSPECT_STATUS.NEW);
 				return {
 					processed: true,
 					prospectId,
@@ -282,7 +283,7 @@ export async function processOneInsightsJob(): Promise<ProcessInsightsJobResult>
 		}
 
 		await updateInsightsJob(jobId, { status: 'done' });
-		await updateProspectStatus(prospectId, 'Generate Demo');
+		await updateProspectStatus(prospectId, PROSPECT_STATUS.DEMO_PENDING);
 		return {
 			processed: true,
 			prospectId,
@@ -292,7 +293,7 @@ export async function processOneInsightsJob(): Promise<ProcessInsightsJobResult>
 	} catch (e) {
 		const errorMessage = e instanceof Error ? e.message : String(e);
 		await updateInsightsJob(jobId, { status: 'failed', errorMessage });
-		await updateProspectStatus(prospectId, 'Prospect');
+		await updateProspectStatus(prospectId, PROSPECT_STATUS.NEW);
 		return { processed: true, prospectId, status: 'failed', errorMessage };
 	}
 }

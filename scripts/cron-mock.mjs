@@ -1,19 +1,19 @@
 #!/usr/bin/env node
 /**
- * Local mock for Vercel Cron: calls all cron endpoints on an interval so background jobs
- * run when the dev server is up (no Vercel Cron locally).
+ * Local mock for production cron: matches apps/cron-worker (single schedule, UTC minute branches).
  *
- * Endpoints (same order as production):
- *   1. GET /api/cron/jobs/demo  (paid demo first, then free try demos)
- *   2. GET /api/cron/jobs/gbp   (GBP fetch for prospects)
+ * Each tick: demo every time; GBP / insights / batch / pitch when UTC minute matches the same
+ * modulo rules as the Worker (2, 3, 5, 14). Pitch pings GET /api/health (no auth).
  *
  * Usage (from repo root or apps/lead-rosetta):
  *   node scripts/cron-mock.mjs
- *   CRON_INTERVAL_MS=60000 node scripts/cron-mock.mjs   # default 60s
+ *   CRON_INTERVAL_MS=60000 node scripts/cron-mock.mjs   # default 60s — use 60s for parity with Cloudflare
  *   BASE_URL=http://localhost:5173 node scripts/cron-mock.mjs
  *
+ * Optional:
+ *   PITCH_ROSETTA_URL — default https://pitch-rosetta.onrender.com
+ *
  * Requires in .env or .env.local (apps/lead-rosetta): CRON_SECRET
- * Optional: BASE_URL (default http://localhost:5173), CRON_INTERVAL_MS (default 60000)
  */
 
 import { readFileSync, existsSync } from 'fs';
@@ -43,23 +43,24 @@ function loadEnvFromDir(dir) {
 	}
 }
 
-// Load from apps/lead-rosetta, then cwd so either works
 loadEnvFromDir(leadRosettaRoot);
 if (!process.env.CRON_SECRET) loadEnvFromDir(process.cwd());
 
 const CRON_SECRET = (process.env.CRON_SECRET ?? '').trim();
 const BASE_URL = (process.env.BASE_URL ?? 'http://localhost:5173').replace(/\/$/, '');
-const CRON_INTERVAL_MS = Math.max(10000, parseInt(process.env.CRON_INTERVAL_MS || '60000', 10));
+const TICK_MS = Math.max(10000, parseInt(process.env.CRON_INTERVAL_MS || '60000', 10));
+const PITCH_BASE = (process.env.PITCH_ROSETTA_URL ?? 'https://pitch-rosetta.onrender.com').replace(/\/$/, '');
 
 if (!CRON_SECRET) {
 	console.error('Missing CRON_SECRET. Set it in apps/lead-rosetta/.env or .env.local (e.g. CRON_SECRET=my-local-cron-secret-16chars)');
 	process.exit(1);
 }
 
-const CRON_ENDPOINTS = [
-	{ path: '/api/cron/jobs/demo', label: 'demo' },
-	{ path: '/api/cron/jobs/gbp', label: 'gbp' }
-];
+if (TICK_MS !== 60000) {
+	console.warn(
+		`[cron-mock] CRON_INTERVAL_MS=${TICK_MS} — production Worker uses one trigger per 60s; sub-minute ticks will run Lead Rosetta jobs multiple times per UTC minute. Set CRON_INTERVAL_MS=60000 for parity.`
+	);
+}
 
 const authHeader = { Authorization: `Bearer ${CRON_SECRET}` };
 
@@ -78,6 +79,17 @@ async function callCron(path, label) {
 	}
 }
 
+async function pingPitch() {
+	const url = `${PITCH_BASE}/api/health`;
+	try {
+		const res = await fetch(url, { method: 'GET' });
+		const text = await res.text().catch(() => '');
+		return { ok: res.ok, status: res.status, text: text.slice(0, 200) };
+	} catch (err) {
+		return { ok: false, error: err.message };
+	}
+}
+
 function formatResult(r) {
 	const time = new Date().toISOString();
 	if (!r.ok) {
@@ -90,19 +102,48 @@ function formatResult(r) {
 		return `[${time}] ${r.label}: processed, status=${status}${extra ? ` (${extra})` : ''}`;
 	}
 	const q = r.body?.queueStatus;
-	const qStr = typeof q === 'object' && q !== null
-		? `pending=${q.pending ?? '?'} running=${q.running ?? '?'}`
-		: q ? String(q) : 'idle';
+	const qStr =
+		typeof q === 'object' && q !== null
+			? `pending=${q.pending ?? '?'} running=${q.running ?? '?'}`
+			: q
+				? String(q)
+				: 'idle';
 	return `[${time}] ${r.label}: queue ${qStr}`;
 }
 
-async function runAll() {
-	for (const { path, label } of CRON_ENDPOINTS) {
-		const result = await callCron(path, label);
-		console.log(formatResult(result));
+function formatPitch(r) {
+	const time = new Date().toISOString();
+	if (r.ok) return `[${time}] pitch-rosetta: ${r.status} ok`;
+	return `[${time}] pitch-rosetta: ${r.status ?? ''} ${r.error ?? r.text ?? 'failed'}`;
+}
+
+async function tick() {
+	const minute = new Date().getUTCMinutes();
+
+	const rDemo = await callCron('/api/cron/jobs/demo', 'demo');
+	console.log(formatResult(rDemo));
+
+	if (minute % 2 === 0) {
+		const r = await callCron('/api/cron/jobs/gbp', 'gbp');
+		console.log(formatResult(r));
+	}
+	if (minute % 3 === 0) {
+		const r = await callCron('/api/cron/jobs/insights', 'insights');
+		console.log(formatResult(r));
+	}
+	if (minute % 5 === 0) {
+		const r = await callCron('/api/cron/schedule/batch', 'schedule/batch');
+		console.log(formatResult(r));
+	}
+	if (minute % 14 === 0) {
+		const r = await pingPitch();
+		console.log(formatPitch(r));
 	}
 }
 
-console.log(`Mock cron: ${CRON_ENDPOINTS.map((e) => e.path).join(', ')} every ${CRON_INTERVAL_MS / 1000}s (Ctrl+C to stop)`);
-await runAll();
-setInterval(runAll, CRON_INTERVAL_MS);
+console.log(
+	`Mock cron (Worker parity): BASE_URL=${BASE_URL} | tick=${Math.round(TICK_MS / 1000)}s | pitch=${PITCH_BASE} (Ctrl+C to stop)`
+);
+
+await tick();
+setInterval(tick, TICK_MS);

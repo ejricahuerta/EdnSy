@@ -5,18 +5,22 @@ These scripts live at repo root and operate on `apps/lead-rosetta`. Run from rep
 ## Local mock cron (all processes)
 
 - **Script:** `scripts/cron-mock.mjs`
-- **Purpose:** Mimics Vercel Cron locally: calls both cron endpoints on an interval so demo and GBP jobs run when the dev server is up (no Vercel Cron locally).
+- **Purpose:** Mimics the [Cloudflare cron worker](../apps/cron-worker/README.md) locally: one tick (default every 60s) and the same UTC minute rules as production — demo every tick; GBP / insights / batch when `minute % 2 / 3 / 5 === 0`; Pitch Rosetta `GET /api/health` when `minute % 14 === 0`.
   - `GET /api/cron/jobs/demo` — paid demo first, then free try demos (same as production)
   - `GET /api/cron/jobs/gbp` — GBP fetch for prospects
+  - `GET /api/cron/jobs/insights` — insights agent for pending scraped/GBP prospects
+  - `GET /api/cron/schedule/batch` — batch enqueue up to 10× `new` → insights and 10× `demo pending` → demo queue
+  - `GET {PITCH_ROSETTA_URL}/api/health` — keep Render warm (no auth)
 - **Env (in `apps/lead-rosetta/.env` or `.env.local`):**
   - `CRON_SECRET` — required (e.g. `my-local-cron-secret-16chars`)
   - `BASE_URL` — optional (default `http://localhost:5173`)
-  - `CRON_INTERVAL_MS` — optional (default `60000` = 60s, min 10000)
+  - `CRON_INTERVAL_MS` — optional (default `60000`; use 60s to match the Worker — shorter values repeat Lead Rosetta calls within the same UTC minute)
+  - `PITCH_ROSETTA_URL` — optional (default `https://pitch-rosetta.onrender.com`)
 - **Run (from repo root or apps/lead-rosetta):**
   - From lead-rosetta: `pnpm run cron:mock`
   - From repo root: `node scripts/cron-mock.mjs`
 - **Legacy:** `pnpm run cron:mock-gbp` runs the same script (all crons).
-- **Production:** A cron (e.g. [Cloudflare Worker](../apps/cron-worker/README.md) or Vercel Cron) hits these paths on schedule (demo every 1 min, GBP every 2 min). Set `CRON_SECRET` and `SITE_ORIGIN` in the app env.
+- **Production:** The [Cloudflare Worker](../apps/cron-worker/README.md) uses one Cron Trigger per minute and the same minute-modulo branching. Set `CRON_SECRET` and `SITE_ORIGIN` in the app env.
 
 ## Sync keys to env
 

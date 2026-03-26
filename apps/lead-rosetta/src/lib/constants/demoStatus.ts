@@ -23,14 +23,14 @@ export function isValidDemoTrackingStatus(value: unknown): value is DemoTracking
 	return typeof value === 'string' && (VALID_DEMO_TRACKING_STATUSES as readonly string[]).includes(value);
 }
 
-/** Options for the demo status dropdown (client detail page). */
+/** Options for the demo status dropdown (client detail page). Each label must be unique. */
 export const DEMO_TRACKING_OPTIONS: { value: DemoTrackingStatus; label: string }[] = [
-	{ value: 'draft', label: 'Draft' },
-	{ value: 'approved', label: 'Approved' },
-	{ value: 'sent', label: 'Sent' },
-	{ value: 'opened', label: 'Opened' },
-	{ value: 'clicked', label: 'Clicked' },
-	{ value: 'replied', label: 'Replied' }
+	{ value: 'draft', label: 'Review' },
+	{ value: 'approved', label: 'Ready' },
+	{ value: 'sent', label: 'Demo Sent' },
+	{ value: 'opened', label: 'Demo Opened · Email' },
+	{ value: 'clicked', label: 'Demo Opened · Link' },
+	{ value: 'replied', label: 'Follow-up' }
 ];
 
 /** Label for a stored demo tracking status (fallback: capitalize first letter). */
@@ -78,18 +78,18 @@ export const STATUS_FILTER_OPTIONS: StatusFilterOption[] = [
 	{ value: 'processing_gbp', label: 'Processing (GBP) · Wait', group: 'gbp_queue' },
 	{ value: 'processing_insights', label: 'Processing (Insights) · Wait', group: 'gbp_queue' },
 	// Demo: [what] · [action]
-	{ value: 'no_demo', label: 'No demo yet', group: 'demo' },
-	{ value: 'demo_queued', label: 'Queued · Wait', group: 'demo' },
-	{ value: 'demo_creating', label: 'Creating · Wait', group: 'demo' },
+	{ value: 'no_demo', label: 'Pending Demo · No page', group: 'demo' },
+	{ value: 'demo_queued', label: 'Demo Queued · Wait', group: 'demo' },
+	{ value: 'demo_creating', label: 'Processing Demo · Wait', group: 'demo' },
 	{ value: 'demo_failed', label: 'Failed · Retry', group: 'demo' },
-	{ value: 'in_queue', label: 'Processing · Wait', group: 'demo' },
-	{ value: 'draft', label: 'Draft', group: 'demo' },
-	{ value: 'approved', label: 'Approved', group: 'demo' },
-	{ value: 'sent', label: 'Sent', group: 'demo' },
-	{ value: 'opened', label: 'Opened', group: 'engagement' },
-	{ value: 'clicked', label: 'Clicked', group: 'engagement' },
-	{ value: 'engaged', label: 'Engaged (opened or clicked)', group: 'engagement' },
-	{ value: 'replied', label: 'Replied', group: 'engagement' },
+	{ value: 'in_queue', label: 'GBP Queued · Wait', group: 'demo' },
+	{ value: 'draft', label: 'Review', group: 'demo' },
+	{ value: 'approved', label: 'Ready', group: 'demo' },
+	{ value: 'sent', label: 'Demo Sent', group: 'demo' },
+	{ value: 'opened', label: 'Demo Opened · Email', group: 'engagement' },
+	{ value: 'clicked', label: 'Demo Opened · Link', group: 'engagement' },
+	{ value: 'engaged', label: 'Demo Opened (email or link)', group: 'engagement' },
+	{ value: 'replied', label: 'Follow-up', group: 'engagement' },
 	{ value: 'flagged', label: 'Out of scope', group: 'other' }
 ];
 

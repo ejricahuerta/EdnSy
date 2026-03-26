@@ -1,7 +1,9 @@
 /**
- * Single status system: app statuses (demo workflow + synced CRM).
- * CRM statuses are mapped to app display on sync; one "Status" column everywhere.
+ * Human-facing labels for persisted `prospects.status` (see PROSPECT_STATUS).
+ * CRM import uses `mapProviderStatusToApp`; the Status column also layers demo_tracking + jobs via getSimplifiedStatus.
  */
+
+import { PROSPECT_STATUS } from '$lib/prospectStatus';
 
 export type StatusVariant = 'default' | 'warning' | 'success' | 'muted';
 
@@ -11,19 +13,28 @@ export interface StatusDisplay {
 }
 
 /**
- * App canonical statuses (prospects.status from CRM sync).
- * Used when there is no demo_tracking row or for display in the Status column.
+ * Display map for each canonical stored status string (case-sensitive keys match DB values).
  */
 const APP_STATUS_TO_DISPLAY: Record<string, StatusDisplay> = {
+	[PROSPECT_STATUS.NEW]: { label: 'New', variant: 'default' },
+	[PROSPECT_STATUS.GBP_QUEUED]: { label: 'GBP Queued', variant: 'warning' },
+	[PROSPECT_STATUS.DEMO_PENDING]: { label: 'Pending Demo', variant: 'warning' },
+	[PROSPECT_STATUS.DEMO_QUEUED]: { label: 'Demo Queued', variant: 'warning' },
+	[PROSPECT_STATUS.REVIEW]: { label: 'Ready to send', variant: 'success' },
+	[PROSPECT_STATUS.READY_TO_SEND]: { label: 'Ready to send', variant: 'success' },
+	[PROSPECT_STATUS.EMAIL_SENT]: { label: 'Demo Sent', variant: 'muted' },
+	[PROSPECT_STATUS.DEMO_OPENED]: { label: 'Demo Opened', variant: 'success' },
+	[PROSPECT_STATUS.FOLLOW_UP]: { label: 'Follow-up', variant: 'muted' },
+	// Legacy CRM / migration
 	Prospect: { label: 'Not contacted', variant: 'default' },
 	New: { label: 'New', variant: 'default' },
-	'In queue': { label: 'Processing…', variant: 'warning' },
-	'Generate Demo': { label: 'Needs demo', variant: 'warning' },
+	'In queue': { label: 'GBP Queued', variant: 'warning' },
+	'Generate Demo': { label: 'Pending Demo', variant: 'warning' },
 	'Demo Created': { label: 'Ready to send', variant: 'success' },
-	'Demo Sent': { label: 'Demo sent', variant: 'muted' },
-	Converting: { label: 'Engaged', variant: 'success' },
-	Contacted: { label: 'Demo sent', variant: 'muted' },
-	Complete: { label: 'Closed', variant: 'muted' },
+	'Demo Sent': { label: 'Demo Sent', variant: 'muted' },
+	Converting: { label: 'Demo Opened', variant: 'success' },
+	Contacted: { label: 'Demo Sent', variant: 'muted' },
+	Complete: { label: 'Follow-up', variant: 'muted' },
 	Flagged: { label: 'Out of scope', variant: 'muted' }
 };
 
@@ -33,20 +44,21 @@ const APP_STATUS_TO_DISPLAY: Record<string, StatusDisplay> = {
  */
 export function mapProviderStatusToApp(providerStatus: string): string {
 	const raw = (providerStatus ?? '').trim();
-	if (!raw) return 'Prospect';
+	if (!raw) return PROSPECT_STATUS.NEW;
 	const lower = raw.toLowerCase();
-	// Not contacted / early stage
-	if (lower === 'new') return 'New';
-	if (lower === 'prospect' || lower === 'lead' || lower === 'not contacted') return 'Prospect';
-	if (lower === 'generate demo' || lower === 'follow up needed') return 'Generate Demo';
-	// Ready to send (has demo or similar)
-	if (lower === 'demo created' || lower === 'ready to send') return 'Demo Created';
-	// Already sent / later stage
-	if (lower === 'demo sent' || lower === 'contacted' || lower === 'sent') return 'Demo Sent';
-	if (lower === 'converting' || lower === 'replied') return 'Converting';
-	if (lower === 'complete' || lower === 'closed') return 'Complete';
-	// Fallback: use known key if exact match
-	return APP_STATUS_TO_DISPLAY[raw] ? raw : 'Prospect';
+	if (lower === 'new') return PROSPECT_STATUS.NEW;
+	if (lower === 'prospect' || lower === 'lead' || lower === 'not contacted') return PROSPECT_STATUS.NEW;
+	if (lower === 'generate demo' || lower === 'follow up needed' || lower === 'demo pending')
+		return PROSPECT_STATUS.DEMO_PENDING;
+	if (lower === 'ready to send') return PROSPECT_STATUS.READY_TO_SEND;
+	if (lower === 'demo created' || lower === 'review') return PROSPECT_STATUS.REVIEW;
+	if (lower === 'demo sent' || lower === 'contacted' || lower === 'sent' || lower === 'email sent')
+		return PROSPECT_STATUS.EMAIL_SENT;
+	if (lower === 'converting' || lower === 'replied' || lower === 'demo opened') return PROSPECT_STATUS.DEMO_OPENED;
+	if (lower === 'complete' || lower === 'closed') return PROSPECT_STATUS.FOLLOW_UP;
+	if (lower === 'gbp queued' || lower === 'in queue') return PROSPECT_STATUS.GBP_QUEUED;
+	if (lower === 'demo queued') return PROSPECT_STATUS.DEMO_QUEUED;
+	return APP_STATUS_TO_DISPLAY[raw] ? raw : PROSPECT_STATUS.NEW;
 }
 
 /**

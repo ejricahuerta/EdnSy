@@ -23,6 +23,7 @@ import {
 	getPrimaryIndustrySlugFromMultiValue,
 	type IndustrySlug
 } from '$lib/industries';
+import { PROSPECT_STATUS } from '$lib/prospectStatus';
 
 /** Pitch-rosetta industry endpoints. Dental uses template render (/api/dental-async); others use generic AI generate. */
 const DEMO_GENERATOR_ENDPOINT_BY_INDUSTRY: Partial<Record<IndustrySlug, string>> = {
@@ -71,7 +72,7 @@ export async function processOneDemoJob(origin: string): Promise<ProcessJobResul
 		if (!prospect) {
 			const errorMessage = DEMO_ERROR.PROSPECT_NOT_FOUND;
 			await updateDemoJob(jobId, { status: 'failed', errorMessage });
-			await updateProspectStatus(prospectId, 'Prospect');
+			await updateProspectStatus(prospectId, PROSPECT_STATUS.NEW);
 			serverError('processDemoJob', 'failed', { jobId, prospectId, errorCode: 'PROSPECT_NOT_FOUND', errorMessage });
 			return { processed: true, jobId, prospectId, status: 'failed', errorMessage };
 		}
@@ -79,7 +80,7 @@ export async function processOneDemoJob(origin: string): Promise<ProcessJobResul
 		if (prospect.flagged && prospect.flaggedReason !== NO_FIT_GBP_REASON) {
 			const errorMessage = DEMO_ERROR.CLIENT_OUT_OF_SCOPE;
 			await updateDemoJob(jobId, { status: 'failed', errorMessage });
-			await updateProspectStatus(prospectId, 'Prospect');
+			await updateProspectStatus(prospectId, PROSPECT_STATUS.NEW);
 			serverError('processDemoJob', 'failed', { jobId, prospectId, companyName: prospect.companyName, errorCode: 'CLIENT_OUT_OF_SCOPE', errorMessage });
 			return {
 				processed: true,
@@ -104,7 +105,7 @@ export async function processOneDemoJob(origin: string): Promise<ProcessJobResul
 			const errorMessage =
 				'Scraped data required. Complete the qualifying (GBP) step first, then generate the demo.';
 			await updateDemoJob(jobId, { status: 'failed', errorMessage });
-			await updateProspectStatus(prospectId, 'Prospect');
+			await updateProspectStatus(prospectId, PROSPECT_STATUS.NEW);
 			serverError('processDemoJob', 'failed', { jobId, prospectId, companyName: prospect.companyName, errorMessage });
 			return {
 				processed: true,
@@ -146,7 +147,7 @@ export async function processOneDemoJob(origin: string): Promise<ProcessJobResul
 		if (!gbpRaw) {
 			const errorMessage = DEMO_ERROR.GBP_DATA_REQUIRED;
 			await updateDemoJob(jobId, { status: 'failed', errorMessage });
-			await updateProspectStatus(prospectId, 'Prospect');
+			await updateProspectStatus(prospectId, PROSPECT_STATUS.NEW);
 			serverError('processDemoJob', 'failed', { jobId, prospectId, companyName: prospect.companyName, errorCode: 'GBP_DATA_REQUIRED', errorMessage });
 			return {
 				processed: true,
@@ -166,7 +167,7 @@ export async function processOneDemoJob(origin: string): Promise<ProcessJobResul
 			const errorMessage =
 				'Demo generator not configured. Set DEMO_GENERATOR_URL, DEMO_GENERATOR_API_KEY, and DEMO_CALLBACK_SECRET.';
 			await updateDemoJob(jobId, { status: 'failed', errorMessage });
-			await updateProspectStatus(prospectId, 'Prospect');
+			await updateProspectStatus(prospectId, PROSPECT_STATUS.NEW);
 			serverError('processDemoJob', 'missing demo generator config', { jobId, prospectId });
 			return {
 				processed: true,
@@ -274,7 +275,7 @@ export async function processOneDemoJob(origin: string): Promise<ProcessJobResul
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : String(err);
 			await updateDemoJob(jobId, { status: 'failed', errorMessage });
-			await updateProspectStatus(prospectId, 'Prospect');
+			await updateProspectStatus(prospectId, PROSPECT_STATUS.NEW);
 			serverError('processDemoJob', 'demo generator request failed', { jobId, prospectId, endpoint, errorMessage });
 			return {
 				processed: true,
@@ -290,7 +291,7 @@ export async function processOneDemoJob(origin: string): Promise<ProcessJobResul
 			const text = await res.text().catch(() => '');
 			const errorMessage = `Demo generator returned ${res.status}: ${text.slice(0, 200)}`;
 			await updateDemoJob(jobId, { status: 'failed', errorMessage });
-			await updateProspectStatus(prospectId, 'Prospect');
+			await updateProspectStatus(prospectId, PROSPECT_STATUS.NEW);
 			serverError('processDemoJob', 'demo generator not 202', { jobId, prospectId, endpoint, status: res.status });
 			return {
 				processed: true,
@@ -312,7 +313,7 @@ export async function processOneDemoJob(origin: string): Promise<ProcessJobResul
 	} catch (e) {
 		const errorMessage = e instanceof Error ? e.message : String(e);
 		await updateDemoJob(jobId, { status: 'failed', errorMessage });
-		await updateProspectStatus(prospectId, 'Prospect');
+		await updateProspectStatus(prospectId, PROSPECT_STATUS.NEW);
 		serverError('processDemoJob', 'uncaught error', { jobId, prospectId, errorCode: 'UNCAUGHT', errorMessage, error: e });
 		return { processed: true, jobId, prospectId, status: 'failed', errorMessage };
 	}

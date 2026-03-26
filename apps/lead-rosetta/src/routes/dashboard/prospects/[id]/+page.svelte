@@ -2,7 +2,7 @@
 	import { applyAction, enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
 	import { getStatusDisplay } from '$lib/statusDisplay';
-	import { DEMO_TRACKING_OPTIONS, type DemoTrackingStatus, auditFromScrapedData } from '$lib/demo';
+	import { DEMO_TRACKING_OPTIONS, getDemoTrackingLabel, type DemoTrackingStatus, auditFromScrapedData } from '$lib/demo';
 	import { getDemoFailureLabel } from '$lib/constants/demoErrors';
 	import type { PageData } from './$types';
 	import {
@@ -105,61 +105,79 @@
 		if (gbpJob && !gbpJobPollingActive) startGbpJobPolling();
 	});
 
-	type HistoryEntry = { key: string; label: string; at: string | null; done: boolean };
-	const historyEntries = $derived.by((): HistoryEntry[] => {
-		const entries: HistoryEntry[] = [];
-		entries.push({
-			key: 'synced',
-			label: 'Synced',
-			at: prospect.createdAt ?? null,
-			done: true
-		});
-		if (demoTracking) {
-			if (prospect.demoLink) {
-				entries.push(
-					{ key: 'demo_created', label: 'Demo created', at: demoTracking.created_at ?? null, done: true }
-				);
-			}
-			entries.push(
-				{
-					key: 'draft',
-					label: 'Draft',
-					at: null,
-					done: ['draft', 'approved', 'sent', 'opened', 'clicked', 'replied'].includes(demoTracking.status)
-				},
-				{
-					key: 'approved',
-					label: 'Approved',
-					at: null,
-					done: ['approved', 'sent', 'opened', 'clicked', 'replied'].includes(demoTracking.status)
-				},
-				{
-					key: 'sent',
-					label: 'Sent',
-					at: demoTracking.send_time ?? null,
-					done: ['sent', 'opened', 'clicked', 'replied'].includes(demoTracking.status)
-				},
-				{
-					key: 'opened',
-					label: 'Opened',
-					at: demoTracking.opened_at ?? null,
-					done: ['opened', 'clicked', 'replied'].includes(demoTracking.status)
-				},
-				{
-					key: 'clicked',
-					label: 'Clicked',
-					at: demoTracking.clicked_at ?? null,
-					done: ['clicked', 'replied'].includes(demoTracking.status)
-				},
-				{
-					key: 'replied',
-					label: 'Replied',
-					at: demoTracking.status === 'replied' ? demoTracking.updated_at : null,
-					done: demoTracking.status === 'replied'
-				}
+	type ProspectEventEntry = { key: string; label: string; at: string | null; seq: number };
+	/** Activity history: what happened to this prospect (newest first). */
+	const prospectEvents = $derived.by((): ProspectEventEntry[] => {
+		const events: ProspectEventEntry[] = [];
+		let seq = 0;
+		const pushEvent = (key: string, label: string, at: string | null) => {
+			events.push({ key, label, at, seq: seq++ });
+		};
+
+		pushEvent('added', 'Added to CRM', prospect.createdAt ?? null);
+		if (prospect.flagged) {
+			pushEvent('out_of_scope', 'Marked out of scope', null);
+		}
+		if (gbpJob?.status === 'pending') {
+			pushEvent('gbp_queued', 'GBP queued', null);
+		}
+		if (gbpJob?.status === 'running') {
+			pushEvent('gbp_processing', 'Processing GBP', null);
+		}
+		if (insightsJob?.status === 'pending') {
+			pushEvent('insights_queued', 'Insights queued', null);
+		}
+		if (insightsJob?.status === 'running') {
+			pushEvent('insights_processing', 'Processing insights', null);
+		}
+		if (hasAnalysis) {
+			pushEvent('insights_ready', 'Insights ready', demoTracking?.updated_at ?? null);
+		}
+		if (demoJob?.status === 'pending') {
+			pushEvent('demo_queued', 'Demo queued', null);
+		}
+		if (demoJob?.status === 'creating') {
+			pushEvent('demo_processing', 'Processing demo', null);
+		}
+		if (demoJob?.status === 'failed') {
+			pushEvent(
+				'demo_failed',
+				`Demo failed${demoJob.errorMessage ? `: ${getDemoFailureLabel(demoJob.errorMessage)}` : ''}`,
+				null
 			);
 		}
-		return entries;
+		if ((prospect.demoLink ?? '').trim()) {
+			pushEvent('demo_created', 'Demo created', demoTracking?.created_at ?? null);
+		}
+		if (demoTracking?.status) {
+			pushEvent(
+				`stage_${demoTracking.status}`,
+				`Stage set to ${getDemoTrackingLabel(demoTracking.status)}`,
+				demoTracking.updated_at ?? null
+			);
+		}
+		if (demoTracking?.send_time) {
+			pushEvent('sent', 'Demo sent', demoTracking.send_time);
+		}
+		if (demoTracking?.opened_at) {
+			pushEvent('opened', 'Demo opened (email)', demoTracking.opened_at);
+		}
+		if (demoTracking?.clicked_at) {
+			pushEvent('clicked', 'Demo opened (link click)', demoTracking.clicked_at);
+		}
+		if (demoTracking?.status === 'replied') {
+			pushEvent('follow_up', 'Follow-up / replied', demoTracking.updated_at ?? null);
+		}
+		return events
+			.slice()
+			.sort((a, b) => {
+				const aMs = a.at ? new Date(a.at).getTime() : -1;
+				const bMs = b.at ? new Date(b.at).getTime() : -1;
+				// Newest timestamp first when available.
+				if (aMs !== bMs) return bMs - aMs;
+				// For same/missing timestamps, use event insertion order (latest step first).
+				return b.seq - a.seq;
+			});
 	});
 
 	/** One clear next step for the user. Drives header CTA and in-content emphasis. */
@@ -207,21 +225,41 @@
 	}
 
 	function statusLabel(): string {
-		if (demoJob?.status === 'pending') return 'Queued';
-		if (demoJob?.status === 'creating') return 'Creating…';
+		if (demoJob?.status === 'pending') return 'Demo Queued';
+		if (demoJob?.status === 'creating') return 'Processing Demo';
 		if (demoJob?.status === 'failed') return failedDemoBadgeLabel();
 		if (demoTracking?.status) {
+			if (demoTracking.status === 'draft') return getDemoTrackingLabel('draft');
+			if (demoTracking.status === 'approved') return getDemoTrackingLabel('approved');
 			if (demoTracking.status === 'sent' && demoTracking.send_time) {
 				try {
 					const d = new Date(demoTracking.send_time);
-					return `Sent ${d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
+					return `${getDemoTrackingLabel('sent')} ${d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
 				} catch {
-					return 'Sent';
+					return getDemoTrackingLabel('sent');
 				}
 			}
-			if (demoTracking.status === 'opened' && demoTracking.opened_at) return 'Opened';
-			if (demoTracking.status === 'clicked' && demoTracking.clicked_at) return 'Clicked';
-			return demoTracking.status.charAt(0).toUpperCase() + demoTracking.status.slice(1);
+			if (demoTracking.status === 'sent') return getDemoTrackingLabel('sent');
+			if (demoTracking.status === 'opened' && demoTracking.opened_at) {
+				try {
+					const d = new Date(demoTracking.opened_at);
+					return `${getDemoTrackingLabel('opened')} ${d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
+				} catch {
+					return getDemoTrackingLabel('opened');
+				}
+			}
+			if (demoTracking.status === 'opened') return getDemoTrackingLabel('opened');
+			if (demoTracking.status === 'clicked' && demoTracking.clicked_at) {
+				try {
+					const d = new Date(demoTracking.clicked_at);
+					return `${getDemoTrackingLabel('clicked')} ${d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
+				} catch {
+					return getDemoTrackingLabel('clicked');
+				}
+			}
+			if (demoTracking.status === 'clicked') return getDemoTrackingLabel('clicked');
+			if (demoTracking.status === 'replied') return getDemoTrackingLabel('replied');
+			return getStatusDisplay(prospect.status).label;
 		}
 		return getStatusDisplay(prospect.status).label;
 	}
@@ -1033,7 +1071,7 @@
 						<div class="flex items-center gap-3 rounded-lg border bg-muted/30 px-4 py-3">
 							<LoaderCircle class="size-5 shrink-0 animate-spin text-muted-foreground" />
 							<div>
-								<p class="text-sm font-medium">{demoJob?.status === 'creating' ? 'Generating demo…' : 'Processing…'}</p>
+								<p class="text-sm font-medium">{demoJob?.status === 'creating' ? 'Processing Demo' : 'Demo Queued'}</p>
 								<p class="text-xs text-muted-foreground">Usually ready in under a minute.</p>
 							</div>
 						</div>
@@ -1098,43 +1136,42 @@
 							</div>
 						</div>
 
-						<!-- Pipeline: timeline then update status at bottom -->
 						{#if demoTracking}
+							<form method="POST" action="?/updateDemoStatus" use:enhance={() => async ({ result }) => {
+								if (result.type === 'success') { toastSuccess('Status updated'); await invalidateAll(); }
+								else if (result.type === 'failure' && result.data?.message) { toastError('Update status', result.data.message); await applyAction(result); }
+							}} class="flex w-full items-center gap-2 pt-1">
+								<input type="hidden" name="prospectId" value={prospect.id} />
+								<input type="hidden" name="status" value={demoStatus} />
+								<div class="min-w-0 flex-1">
+									<p class="mb-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">Stage</p>
+									<Select.Root type="single" bind:value={demoStatus}>
+										<Select.Trigger class="h-9 w-full" id="demo-status" aria-label="Stage">{(DEMO_TRACKING_OPTIONS.find((o) => o.value === demoStatus)?.label ?? demoStatus) || 'Stage'}</Select.Trigger>
+										<Select.Content>
+											{#each DEMO_TRACKING_OPTIONS as opt (opt.value)}<Select.Item value={opt.value}>{opt.label}</Select.Item>{/each}
+										</Select.Content>
+									</Select.Root>
+								</div>
+								<Button type="submit" variant="secondary" size="sm" class="shrink-0 mt-6">Update</Button>
+							</form>
+						{/if}
+
+						<!-- Prospect history: what happened -->
+						{#if prospectEvents.length > 0}
 							<Separator />
 							<div class="space-y-4">
-								<p class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Pipeline</p>
-								<ul class="relative space-y-0 min-w-0">
-									{#each historyEntries as entry, i}
-										<li class="relative flex gap-3 pb-4 last:pb-0">
-											{#if i < historyEntries.length - 1}
-												<span class="absolute left-[7px] top-5 bottom-0 w-px bg-border" aria-hidden="true"></span>
-											{/if}
-											<span class={cn('relative z-10 flex size-4 shrink-0 items-center justify-center rounded-full mt-0.5', entry.done ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground')}>
-												{#if entry.done}<Check class="size-2.5" strokeWidth={3} />{:else}<Circle class="size-2.5" />{/if}
-											</span>
+								<p class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Prospect history</p>
+								<ul class="space-y-2 min-w-0">
+									{#each prospectEvents as event}
+										<li class="flex items-start gap-2 text-sm">
+											<span class="mt-1 inline-block size-1.5 rounded-full bg-muted-foreground/60" aria-hidden="true"></span>
 											<div class="min-w-0">
-												<p class="text-sm font-medium">{entry.label}</p>
-												{#if entry.at}<p class="text-xs text-muted-foreground">{formatDate(entry.at)}</p>{/if}
+												<p class="font-medium break-words">{event.label}</p>
+												{#if event.at}<p class="text-xs text-muted-foreground">{formatDate(event.at)}</p>{/if}
 											</div>
 										</li>
 									{/each}
 								</ul>
-								<form method="POST" action="?/updateDemoStatus" use:enhance={() => async ({ result }) => {
-									if (result.type === 'success') { toastSuccess('Status updated'); await invalidateAll(); }
-									else if (result.type === 'failure' && result.data?.message) { toastError('Update status', result.data.message); await applyAction(result); }
-								}} class="flex w-full items-center gap-2 pt-1">
-									<input type="hidden" name="prospectId" value={prospect.id} />
-									<input type="hidden" name="status" value={demoStatus} />
-									<div class="min-w-0 flex-1">
-										<Select.Root type="single" bind:value={demoStatus}>
-											<Select.Trigger class="h-9 w-full" id="demo-status" aria-label="Stage">{(DEMO_TRACKING_OPTIONS.find((o) => o.value === demoStatus)?.label ?? demoStatus) || 'Stage'}</Select.Trigger>
-											<Select.Content>
-												{#each DEMO_TRACKING_OPTIONS as opt (opt.value)}<Select.Item value={opt.value}>{opt.label}</Select.Item>{/each}
-											</Select.Content>
-										</Select.Root>
-									</div>
-									<Button type="submit" variant="secondary" size="sm" class="shrink-0">Update</Button>
-								</form>
 							</div>
 						{/if}
 					{/if}
