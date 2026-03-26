@@ -343,6 +343,7 @@
 	function startDemoJobPolling() {
 		if (demoJobPollingActive) return;
 		demoJobPollingActive = true;
+		toastInfo('Demo', 'Processing demo job…');
 		const maxAttempts = 50;
 		let attempts = 0;
 		const run = async () => {
@@ -463,6 +464,7 @@
 	function startGbpJobPolling() {
 		if (gbpJobPollingActive) return;
 		gbpJobPollingActive = true;
+		toastInfo('GBP', 'Processing GBP and insights…');
 		const prospectId = prospect.id;
 		const maxAttempts = 80;
 		let attempts = 0;
@@ -515,6 +517,7 @@
 	function startInsightsJobPolling() {
 		if (insightsJobPollingActive) return;
 		insightsJobPollingActive = true;
+		toastInfo('Insights', 'Processing insights job…');
 		const prospectId = prospect.id;
 		const maxAttempts = 80;
 		let attempts = 0;

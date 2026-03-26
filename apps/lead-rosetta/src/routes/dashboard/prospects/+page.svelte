@@ -159,6 +159,19 @@ import { clientError } from '$lib/log';
 	);
 	/** Count of prospects in a queued automation status (may be stuck if no active job). */
 	const prospectsInQueueCount = $derived(prospects.filter((p) => isProspectQueuedStatus(p.status)).length);
+	const processingSummary = $derived.by(() => {
+		const gbpJobs = Object.values(data.gbpJobsByProspectId ?? {});
+		const insightsJobs = Object.values(data.insightsJobsByProspectId ?? {});
+		const demoJobs = Object.values(data.demoJobsByProspectId ?? {});
+		const gbpCount = gbpJobs.filter((j) => j.status === 'pending' || j.status === 'running').length;
+		const insightsCount = insightsJobs.filter((j) => j.status === 'pending' || j.status === 'running').length;
+		const demoCount = demoJobs.filter((j) => j.status === 'pending' || j.status === 'creating').length;
+		const parts: string[] = [];
+		if (gbpCount > 0) parts.push(`GBP ${gbpCount}`);
+		if (insightsCount > 0) parts.push(`Insights ${insightsCount}`);
+		if (demoCount > 0) parts.push(`Demo ${demoCount}`);
+		return parts.join(' · ');
+	});
 
 	let generatingDemo = $state(false);
 	type ScrapedSummary = {
@@ -1268,6 +1281,15 @@ import { clientError } from '$lib/log';
 							{/if}
 						</div>
 					</div>
+
+					{#if processingSummary}
+						<div class="flex items-center">
+							<Badge variant="outline" class="h-8 px-2 text-xs">
+								<LoaderCircle class="mr-1.5 size-3 animate-spin" aria-hidden="true" />
+								Now processing: {processingSummary}
+							</Badge>
+						</div>
+					{/if}
 
 					{#if prospectsInQueueCount > 0}
 						<div class="flex flex-wrap items-center gap-3 sm:gap-4">

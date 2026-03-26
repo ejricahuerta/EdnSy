@@ -29,6 +29,9 @@
 		{ metric: 'Demos', count: demoCount },
 		{ metric: 'Places API', count: placesCount }
 	]);
+	const prospectStatusChartData = $derived(
+		(data.statusChartData as Array<{ status: string; count: number }> | undefined) ?? []
+	);
 
 	const chartConfig = {
 		count: { label: 'This month', color: 'var(--primary)' }
@@ -91,6 +94,39 @@
 						{
 							key: 'count',
 							label: chartConfig.count.label,
+							color: chartConfig.count.color
+						}
+					]}
+					props={{
+						xAxis: { format: (d: string) => d },
+						yAxis: { format: (v: number) => String(v) }
+					}}
+				>
+					{#snippet tooltip()}
+						<Chart.Tooltip />
+					{/snippet}
+				</BarChart>
+			</Chart.Container>
+		</Card.Content>
+	</Card.Root>
+
+	<Card.Root>
+		<Card.Header class="pb-2">
+			<Card.Title class="text-base font-semibold">Prospect status pipeline</Card.Title>
+			<Card.Description class="text-sm">Current prospect counts by status</Card.Description>
+		</Card.Header>
+		<Card.Content class="px-2 pt-4 sm:px-6 sm:pt-6">
+			<Chart.Container config={chartConfig} class="min-h-[240px] w-full">
+				<BarChart
+					data={prospectStatusChartData}
+					xScale={scaleBand().padding(0.2)}
+					x="status"
+					axis="x"
+					seriesLayout="group"
+					series={[
+						{
+							key: 'count',
+							label: 'Prospects',
 							color: chartConfig.count.color
 						}
 					]}
