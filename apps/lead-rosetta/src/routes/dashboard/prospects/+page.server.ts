@@ -550,15 +550,23 @@ export const actions: Actions = {
 			let anySent = false;
 			if (prospect.email?.trim()) {
 				const linkOrigin = getOriginForOutgoingLinks(url.origin);
-				const aiCopy = await generateEmailCopy(prospect, senderName);
-				const subject = aiCopy?.subject ?? getDefaultEmailSubject(prospect.companyName || 'your business');
-				const html = aiCopy
+				const ai = await generateEmailCopy(prospect, senderName);
+				if (!ai.copy && ai.promptSource === 'override') {
+					const reason =
+						ai.error ??
+						'AI email generation failed while a custom Email AI prompt override is active.';
+					errors.push(`${prospect.companyName || id}: ${reason} Email not sent.`);
+					serverError('sendDemos', reason, { prospectId: id, to: prospect.email.trim() });
+					continue;
+				}
+				const subject = ai.copy?.subject ?? getDefaultEmailSubject(prospect.companyName || 'your business');
+				const html = ai.copy
 					? buildEmailBodyFromAiIntro(
 							prospect,
 							demoLink,
 							senderName,
 							linkOrigin,
-							aiCopy.bodyIntro,
+							ai.copy.bodyIntro,
 							emailSignatureOverride
 						)
 					: buildEmailBodyForUser(

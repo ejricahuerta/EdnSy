@@ -8,6 +8,11 @@ const GEMINI_MODEL = 'gemini-2.5-flash';
 
 /** AI-generated subject and body intro in "Prospects Receive" style: cheeky, fun, not too serious. */
 export type EmailCopy = { subject: string; bodyIntro: string };
+export type GenerateEmailCopyResult = {
+	copy: EmailCopy | null;
+	promptSource: 'override' | 'default';
+	error?: string;
+};
 
 const EMAIL_COPY_JSON_SCHEMA_INLINE = `
 Return ONLY a single JSON object (no markdown, no explanation) with these exact keys:
@@ -84,8 +89,10 @@ function repairJsonNewlines(raw: string): string {
 export async function generateEmailCopy(
 	prospect: Prospect,
 	senderName: string
-): Promise<EmailCopy | null> {
-	if (!GEMINI_API_KEY) return null;
+): Promise<GenerateEmailCopyResult> {
+	if (!GEMINI_API_KEY) {
+		return { copy: null, promptSource: 'default', error: 'GEMINI_API_KEY is not configured' };
+	}
 
 	const company = prospect.companyName || 'the business';
 	const industry = prospect.industry || 'professional';
@@ -121,14 +128,14 @@ export async function generateEmailCopy(
 		if (!res.ok) {
 			const err = await res.text();
 			serverError('generateEmailCopy', 'Gemini error', { status: res.status, body: err.slice(0, 200) });
-			return null;
+			return { copy: null, promptSource: resolved.source, error: `Gemini API error (${res.status})` };
 		}
 
 		const data = (await res.json()) as {
 			candidates?: { content?: { parts?: { text?: string }[] } }[];
 		};
 		const text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-		if (!text) return null;
+		if (!text) return { copy: null, promptSource: resolved.source, error: 'Gemini returned empty content' };
 
 		const raw = text.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
 		let parsed: unknown;
@@ -143,20 +150,33 @@ export async function generateEmailCopy(
 					serverError('generateEmailCopy', 'JSON parse failed after repair', {
 						message: parseErr instanceof Error ? parseErr.message : String(parseErr)
 					});
-					return null;
+					return { copy: null, promptSource: resolved.source, error: 'Could not parse Gemini JSON response' };
 				}
 			} else {
 				throw parseErr;
 			}
 		}
-		if (typeof parsed !== 'object' || parsed === null) return null;
+		if (typeof parsed !== 'object' || parsed === null) {
+			return { copy: null, promptSource: resolved.source, error: 'Gemini response was not a JSON object' };
+		}
 		const { subject, bodyIntro } = parsed as { subject?: string; bodyIntro?: string };
-		if (typeof subject !== 'string' || typeof bodyIntro !== 'string') return null;
-		if (!subject.trim() || !bodyIntro.trim()) return null;
+		if (typeof subject !== 'string' || typeof bodyIntro !== 'string') {
+			return { copy: null, promptSource: resolved.source, error: 'Gemini response missed subject or bodyIntro' };
+		}
+		if (!subject.trim() || !bodyIntro.trim()) {
+			return { copy: null, promptSource: resolved.source, error: 'Gemini response had empty fields' };
+		}
 
-		return { subject: subject.trim(), bodyIntro: bodyIntro.trim() };
+		return {
+			copy: { subject: subject.trim(), bodyIntro: bodyIntro.trim() },
+			promptSource: resolved.source
+		};
 	} catch (e) {
 		serverError('generateEmailCopy', 'uncaught', { error: e });
-		return null;
+		return {
+			copy: null,
+			promptSource: resolved.source,
+			error: e instanceof Error ? e.message : 'Unknown error'
+		};
 	}
 }
