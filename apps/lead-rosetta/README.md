@@ -92,6 +92,8 @@ Core engines (Demo, Insights, GBP, Prospects, Send, Auth, CRM, Billing, Supabase
    - `supabase/migrations/20260303100000_consolidated_prospects_user_settings_crm_flagged.sql`
    - `supabase/migrations/20260303120000_prospects_add_address.sql`
    - `supabase/migrations/20260304120000_demo_jobs.sql`
+   - `supabase/migrations/20260310120000_agent_content_versions.sql`
+   - `supabase/migrations/20260313120000_agent_content_versions_add_email_gbp.sql`
 
    Copy each file's contents into the editor and run it.
 

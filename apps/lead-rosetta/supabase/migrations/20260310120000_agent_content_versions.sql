@@ -19,10 +19,22 @@ comment on column public.agent_content_versions.content_type is 'prompt | knowle
 comment on column public.agent_content_versions.key is 'E.g. tone_selection, system_instruction, audit, audit_modal_copy, tone_guidance, chat_kb, demo_kb';
 comment on column public.agent_content_versions.version is 'Incrementing version per (agent_id, content_type, key).';
 
-create index idx_agent_content_versions_latest
+create index if not exists idx_agent_content_versions_latest
   on public.agent_content_versions (agent_id, content_type, key, version desc);
 
 alter table public.agent_content_versions enable row level security;
 
-create policy "Service role full access to agent_content_versions"
-  on public.agent_content_versions for all using (true) with check (true);
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_policies
+    where schemaname = 'public'
+      and tablename = 'agent_content_versions'
+      and policyname = 'Service role full access to agent_content_versions'
+  ) then
+    create policy "Service role full access to agent_content_versions"
+      on public.agent_content_versions for all using (true) with check (true);
+  end if;
+end
+$$;
