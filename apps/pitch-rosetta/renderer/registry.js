@@ -1,13 +1,14 @@
 /**
  * Dental-only style registry: section order per style. Four styles (v1–v4).
  */
-export const DENTAL_STYLES = ["dental-v1", "dental-v2", "dental-v3", "dental-v4"];
+export const DENTAL_STYLES = ["dental-v1", "dental-v2", "dental-v3", "dental-v4", "dental-v6"];
 
 const SECTION_ORDER = {
   "dental-v1": ["nav", "hero", "services", "process", "testimonials", "cta", "contact", "footer"],
   "dental-v2": ["nav", "hero", "stats", "services", "testimonials", "cta", "contact", "footer"],
   "dental-v3": ["nav", "hero", "services", "about", "testimonials", "cta", "contact", "footer"],
   "dental-v4": ["nav", "hero", "services", "experience", "testimonials", "cta", "contact", "footer"],
+  "dental-v6": ["nav", "hero", "trust", "services", "about", "testimonials", "cta", "footer"],
 };
 
 export function getSectionOrder(styleId) {

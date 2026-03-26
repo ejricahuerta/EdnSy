@@ -7,11 +7,11 @@ export const RESPONSIVE_CSS = `
 main { overflow-x: hidden; }
 img, iframe { max-width: 100%; height: auto; }
 /* Anchor scroll: leave room for fixed nav (larger on mobile when nav stacks) */
-[id="services"], [id="about"], [id="testimonials"], [id="contact"], [id="experience"], [id="cta"], [id="process"], [id="cta-section"] {
+[id="services"], [id="about"], [id="testimonials"], [id="contact"], [id="experience"], [id="cta"], [id="process"], [id="cta-section"], [id="book"] {
   scroll-margin-top: 100px;
 }
 @media (max-width: 599px) {
-  [id="services"], [id="about"], [id="testimonials"], [id="contact"], [id="experience"], [id="cta"], [id="process"], [id="cta-section"] {
+  [id="services"], [id="about"], [id="testimonials"], [id="contact"], [id="experience"], [id="cta"], [id="process"], [id="cta-section"], [id="book"] {
     scroll-margin-top: 140px;
   }
 }
@@ -148,9 +148,9 @@ img, iframe { max-width: 100%; height: auto; }
   padding: 140px 20px 48px !important;
   display: block !important;
 }
-/* v3 (Aurum): ensure hero content clears fixed nav on mobile */
+/* dental-v3 only: ensure hero content clears fixed nav on mobile */
 @media (max-width: 768px) {
-  .hero .hero-content { padding-top: 140px !important; }
+  [data-style-id="dental-v3"] .hero .hero-content { padding-top: 140px !important; }
 }
 .lp-hero .hero-content { max-width: none; }
 .lp-hero .hero-visual {
@@ -180,11 +180,33 @@ img, iframe { max-width: 100%; height: auto; }
 .process,
 .testimonial-section,
 .cta-section,
-.testi-section {
+.testi-section,
+.services,
+.experience,
+.testimonials,
+.cta,
+.contact-section {
   padding: 48px 20px !important;
 }
-.lp-section-header, .section-header { margin-bottom: 32px !important; }
+.lp-section-header, .section-header { margin-bottom: 28px !important; }
 .section-title, .section-h2 { font-size: clamp(28px, 6vw, 48px) !important; }
+
+/* Normalize text rhythm across dental styles */
+.lbl,
+.section-eyebrow {
+  margin-bottom: 10px !important;
+}
+.sec-title,
+.section-title,
+.section-h2 {
+  margin-bottom: 12px !important;
+  line-height: 1.15 !important;
+}
+.sec-sub,
+.section-sub {
+  margin-bottom: 32px !important;
+  line-height: 1.65 !important;
+}
 
 /* Card grids: ensure display grid, center, prevent overflow */
 .services-grid,
@@ -212,7 +234,7 @@ img, iframe { max-width: 100%; height: auto; }
 }
 .service-card, .service-item { padding: 24px 20px !important; }
 .svc-card, .svc-tile { padding: 24px 20px !important; }
-.tcard, .testimonial-card { padding: 24px 20px !important; }
+.tcard, .testimonial-card, .test-card { padding: 24px 20px !important; }
 
 /* Flex children inside cards: allow shrinking so text can wrap */
 .svc-body,
@@ -354,13 +376,14 @@ footer:not(.lp-footer) {
 
 /* ═══ DESKTOP: 900px+ ═══ */
 @media (min-width: 900px) {
-  .lp-section, .process-section, .process, .testimonial-section, .cta-section, .testi-section {
-    padding: 80px 48px !important;
+  .lp-section, .process-section, .process, .testimonial-section, .cta-section, .testi-section,
+  .services, .experience, .testimonials, .cta, .contact-section {
+    padding: 72px 48px !important;
   }
   .lp-hero {
     display: grid !important;
     grid-template-columns: 1fr auto;
-    padding: 120px 48px 80px !important;
+    padding: 108px 48px 72px !important;
     min-height: 100vh !important;
   }
   .lp-hero .hero-visual {
@@ -372,15 +395,18 @@ footer:not(.lp-footer) {
     height: 440px;
     margin: 0;
   }
-  .services-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) !important; gap: 2px !important; max-width: 1100px !important; }
+  .services-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) !important; gap: 14px !important; max-width: 1100px !important; }
   .services-2col { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 20px !important; max-width: 1100px !important; }
-  .svc-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 2px !important; max-width: 1100px !important; }
+  .svc-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 14px !important; max-width: 1100px !important; }
   .process-section .process-steps { display: flex !important; flex-direction: row !important; grid-template-columns: unset !important; margin-top: 64px !important; }
   .process-section .process-steps::before { display: block !important; }
   .process-section .process-step { padding: 0 20px !important; }
   .process .process-steps { grid-template-columns: repeat(4, 1fr) !important; margin-top: 64px !important; }
   .process .step { padding: 40px 32px !important; }
   .testimonial-grid, .testi-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 24px !important; max-width: 1100px !important; }
+  .test-grid, .testimonials-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 18px !important; }
+  .service-card, .svc-card, .svc-tile, .service-item { padding: 28px 24px !important; }
+  .tcard, .testimonial-card, .test-card { padding: 28px 24px !important; }
   .stats-strip { flex-direction: row !important; }
   .stat-box { border-right: 1px solid rgba(255,255,255,.2) !important; border-bottom: none !important; }
   .footer-inner { grid-template-columns: 2fr 1fr 1fr 1fr !important; gap: 48px !important; }
@@ -392,10 +418,11 @@ footer:not(.lp-footer) {
 
 /* ═══ LARGE: 1100px+ ═══ */
 @media (min-width: 1100px) {
-  .lp-section, .process-section, .process, .testimonial-section, .cta-section, .testi-section {
-    padding: 100px 60px !important;
+  .lp-section, .process-section, .process, .testimonial-section, .cta-section, .testi-section,
+  .services, .experience, .testimonials, .cta, .contact-section {
+    padding: 84px 60px !important;
   }
-  .lp-hero { padding: 120px 60px 80px !important; }
+  .lp-hero { padding: 112px 60px 76px !important; }
   .lp-hero .hero-visual { right: 60px !important; width: 420px !important; height: 520px; }
   .lp-nav { padding: 24px 60px !important; flex-wrap: nowrap; }
   footer { padding: 60px 60px !important; }

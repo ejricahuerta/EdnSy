@@ -18,6 +18,7 @@ export function documentShell(options) {
   const css = loadStyleCss(styleId);
   const desc = escapeHtml(description);
   const titleSafe = escapeHtml(title);
+  const styleIdSafe = escapeHtml(styleId);
 
   const jsonLdBlock =
     jsonLd != null
@@ -42,7 +43,7 @@ export function documentShell(options) {
 <style>${RESPONSIVE_CSS}</style>
 ${jsonLdBlock}
 </head>
-<body>
+<body data-style-id="${styleIdSafe}">
 <main>${bodyHtml}</main>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <script>function toggleMenu(){var m=document.getElementById('mobileMenu');var h=document.getElementById('hamburger');if(m){m.classList.toggle('open');m.setAttribute('aria-hidden',!m.classList.contains('open'));}if(h){h.classList.toggle('open');h.setAttribute('aria-expanded',h.classList.contains('open'));}}if(typeof lucide!=='undefined'){lucide.createIcons();}</script>

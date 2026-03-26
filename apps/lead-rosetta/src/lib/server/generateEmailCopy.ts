@@ -81,6 +81,126 @@ function repairJsonNewlines(raw: string): string {
 	return result;
 }
 
+/** Accept common field variants Gemini may return for body intro content. */
+function normalizeEmailCopyShape(input: unknown): { subject?: string; bodyIntro?: string } {
+	if (typeof input !== 'object' || input === null) return {};
+	const obj = input as Record<string, unknown>;
+	const subjectCandidates: unknown[] = [
+		obj.subject,
+		obj.subject_line,
+		obj.subjectLine,
+		obj.title,
+		obj.headline
+	];
+	const subject = subjectCandidates.find((v) => typeof v === 'string') as string | undefined;
+	const bodyIntroCandidates: unknown[] = [
+		obj.bodyIntro,
+		obj.body_intro,
+		obj.body,
+		obj.intro,
+		obj.message,
+		obj.emailBody,
+		obj.email_body,
+		obj.copy
+	];
+	let bodyIntro = bodyIntroCandidates.find((v) => typeof v === 'string') as string | undefined;
+	if (!bodyIntro) {
+		const paragraphs = obj.paragraphs;
+		if (Array.isArray(paragraphs)) {
+			const textParts = paragraphs.filter((p) => typeof p === 'string') as string[];
+			if (textParts.length > 0) bodyIntro = textParts.join('\n\n');
+		}
+	}
+	if (!subject || !bodyIntro) {
+		const nestedCandidates = [obj.data, obj.result, obj.output, obj.email, obj.response];
+		for (const candidate of nestedCandidates) {
+			const nested = normalizeEmailCopyShape(candidate);
+			if (!bodyIntro && nested.bodyIntro) bodyIntro = nested.bodyIntro;
+			if (!subject && nested.subject) {
+				return { subject: nested.subject, bodyIntro };
+			}
+		}
+	}
+	return { subject, bodyIntro };
+}
+
+function parsePlainTextEmailCopy(text: string): { subject?: string; bodyIntro?: string } {
+	const cleaned = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+	if (!cleaned) return {};
+	const lines = cleaned.split('\n').map((line) => line.trim()).filter(Boolean);
+	if (lines.length === 0) return {};
+	const subjectLine = lines.find((line) => /^subject\s*:/i.test(line));
+	let subject = subjectLine?.replace(/^subject\s*:/i, '').trim();
+	let bodyLines = lines;
+	if (subjectLine) {
+		const idx = lines.indexOf(subjectLine);
+		bodyLines = lines.slice(0, idx).concat(lines.slice(idx + 1));
+	}
+	const bodyIntro = bodyLines.join('\n');
+	if (!subject && bodyIntro) subject = lines[0].slice(0, 90);
+	return { subject, bodyIntro: bodyIntro || undefined };
+}
+
+function sanitizeSubject(raw: string): string {
+	let s = raw.replace(/\r/g, '').trim();
+	// Subject must be one line; keep only first non-empty line.
+	s = s.split('\n').map((line) => line.trim()).find(Boolean) ?? '';
+	// Strip common leaked tokens and markdown noise.
+	s = s.replace(/^subject\s*:\s*/i, '').replace(/^["']|["']$/g, '').trim();
+	// If still obviously a body/CTA artifact, reject.
+	const lower = s.toLowerCase();
+	if (
+		!s ||
+		lower.includes('view your demo') ||
+		lower.includes('take a look') ||
+		lower.includes('ednsy.com') ||
+		lower.includes('http://') ||
+		lower.includes('https://')
+	) {
+		return '';
+	}
+	return s.slice(0, 110).trim();
+}
+
+function sanitizeBodyIntro(raw: string): string {
+	let text = raw.replace(/\r/g, '').trim();
+	// Remove CTA/signature/footer fragments that must be appended by send.ts only.
+	const bannedLine = /(view your demo|take a look and let us know|ednsy\.com|^-\s|http:\/\/|https:\/\/)/i;
+	const kept = text
+		.split('\n')
+		.map((line) => line.trim())
+		.filter((line) => line.length > 0 && !bannedLine.test(line));
+	text = kept.join('\n');
+	// Normalize excessive blank lines.
+	text = text.replace(/\n{3,}/g, '\n\n').trim();
+	return text;
+}
+
+function looksLikeBrokenModelOutput(subject: string, bodyIntro: string): boolean {
+	const combined = `${subject}\n${bodyIntro}`.toLowerCase();
+	// Reject obvious JSON fragments or leaked schema/output wrappers.
+	if (
+		combined.includes('"subject"') ||
+		combined.includes('"bodyintro"') ||
+		combined.includes('"body_intro"') ||
+		combined.includes('return only a single json object')
+	) {
+		return true;
+	}
+	// Reject braces-heavy fragments that usually indicate partial JSON.
+	const braceCount = (combined.match(/[{}]/g) ?? []).length;
+	if (braceCount >= 2) return true;
+	return false;
+}
+
+function buildDeterministicBodyIntro(company: string): string {
+	return [
+		`Hey ${company},`,
+		`We built a free demo site for ${company} using your Google listing — your services, your location, and your reviews.`,
+		`We also added an AI agent that handles inquiries and books consultations automatically.`
+	].join('\n\n');
+}
+
 /**
  * Generate subject line and email body intro for a prospect. Structure: greeting, demo-from-Google
  * message, AI-agent message. CTA link, closing line, and signature are added in send.ts.
@@ -159,16 +279,28 @@ export async function generateEmailCopy(
 		if (typeof parsed !== 'object' || parsed === null) {
 			return { copy: null, promptSource: resolved.source, error: 'Gemini response was not a JSON object' };
 		}
-		const { subject, bodyIntro } = parsed as { subject?: string; bodyIntro?: string };
+		let { subject, bodyIntro } = normalizeEmailCopyShape(parsed);
+		if (!subject || !bodyIntro) {
+			const plainTextParsed = parsePlainTextEmailCopy(text);
+			if (!subject && plainTextParsed.subject) subject = plainTextParsed.subject;
+			if (!bodyIntro && plainTextParsed.bodyIntro) bodyIntro = plainTextParsed.bodyIntro;
+		}
 		if (typeof subject !== 'string' || typeof bodyIntro !== 'string') {
 			return { copy: null, promptSource: resolved.source, error: 'Gemini response missed subject or bodyIntro' };
 		}
-		if (!subject.trim() || !bodyIntro.trim()) {
+		const cleanSubject = sanitizeSubject(subject);
+		const cleanBodyIntro = sanitizeBodyIntro(bodyIntro);
+		if (!cleanBodyIntro) {
 			return { copy: null, promptSource: resolved.source, error: 'Gemini response had empty fields' };
+		}
+		const finalSubject = cleanSubject || `I built something for ${company}`;
+		let finalBodyIntro = cleanBodyIntro;
+		if (looksLikeBrokenModelOutput(finalSubject, finalBodyIntro)) {
+			finalBodyIntro = buildDeterministicBodyIntro(company);
 		}
 
 		return {
-			copy: { subject: subject.trim(), bodyIntro: bodyIntro.trim() },
+			copy: { subject: finalSubject, bodyIntro: finalBodyIntro },
 			promptSource: resolved.source
 		};
 	} catch (e) {

@@ -12,6 +12,7 @@ const STYLE_FILES = {
   "dental-v2": "dental-v2.html",
   "dental-v3": "dental-v3.html",
   "dental-v4": "dental-v4.html",
+  "dental-v6": "dental-v6.html",
 };
 
 /** Extract all <style> block contents and concatenate (so multi-block style guides are fully loaded). */

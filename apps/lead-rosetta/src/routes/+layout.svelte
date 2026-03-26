@@ -135,13 +135,28 @@ import { isEdnsyUser } from '$lib/plans';
 {#if isDemoRoute}
 	<div class="demo-route" data-demo-theme={demoTheme}>
 		<div class="demo-lr-banner lr-brand" role="banner">
-			<a href="/" class="demo-lr-banner-home" aria-label="Lead Rosetta – create your demo">
-				<img src="/images/logo.png" alt="" class="demo-lr-banner-logo" width="28" height="28" />
-				<span class="demo-lr-banner-brand">Lead <span>Rosetta</span></span>
+			<a
+				href="https://cal.com/edmel-ednsy/enable-ai"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="demo-lr-banner-home"
+				aria-label="Ed & Sy — book a call (opens in a new tab)"
+			>
+				<img
+					src="/images/ed-sy-logo.png"
+					alt=""
+					class="demo-lr-banner-logo"
+					width="80"
+					height="80"
+				/>
 			</a>
-			<span class="demo-lr-banner-urgency">{bannerText}</span>
-			<div class="demo-lr-banner-actions">
-				<a href={bannerCtaHref} class="demo-lr-banner-cta">{bannerCtaLabel}</a>
+			<div class="demo-lr-banner-right">
+				<div class="demo-lr-banner-right-stack">
+					<span class="demo-lr-banner-urgency">{bannerText}</span>
+					<div class="demo-lr-banner-actions">
+						<a href={bannerCtaHref} class="demo-lr-banner-cta">{bannerCtaLabel}</a>
+					</div>
+				</div>
 			</div>
 		</div>
 		{@render children()}

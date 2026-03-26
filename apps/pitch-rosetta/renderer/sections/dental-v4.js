@@ -35,8 +35,8 @@ function nav(data) {
 function hero(data) {
   const b = data.business || {};
   const h = data.hero || {};
-  // Generic hero copy only — no business name or business-specific headline in headings
-  const headline = "Quality Care, Every Visit.";
+  const rawHeadline = typeof h.headline === "string" ? h.headline.trim() : "";
+  const headline = escapeHtml(rawHeadline || "Quality Care, Every Visit.");
   const sub = escapeHtml(h.subheadline || "Modern dentistry with a caring team. From checkups to cosmetic and restorative care.");
   const cta = h.cta || { label: "Book My Appointment", href: "#cta" };
   const heroImg = data.images?.hero || data.hero?.image;

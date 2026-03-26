@@ -221,8 +221,15 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 export type RunPullGbpDentalResult =
-	| { ok: true; added: number; message: string }
+	| { ok: true; added: number; message: string; leads: GbpPulledLead[] }
 	| { ok: false; message: string };
+
+export type GbpPulledLead = {
+	name: string;
+	website: string | null;
+	phone: string | null;
+	email: string;
+};
 
 /**
  * Run one pull: search dental in GTA, filter fewer reviews, add up to 5 as prospects.
@@ -307,11 +314,17 @@ export async function runPullGbpDental(userId: string): Promise<RunPullGbpDental
 	} while (nextPageToken);
 
 	if (totalSearched === 0) {
-		return { ok: true, added: 0, message: 'No dental places found in Toronto/GTA. Check API key and Places API (New) is enabled.' };
+		return {
+			ok: true,
+			added: 0,
+			leads: [],
+			message: 'No dental places found in Toronto/GTA. Check API key and Places API (New) is enabled.'
+		};
 	}
 
 	const picked = shuffle(candidates).slice(0, toAdd);
 	let added = 0;
+	const insertedProspectIds: string[] = [];
 	for (const c of picked) {
 		const { id, error } = await upsertProspect(userId, 'gbp', c.placeId, {
 			companyName: c.name,
@@ -321,7 +334,10 @@ export async function runPullGbpDental(userId: string): Promise<RunPullGbpDental
 			industry: 'Dental',
 			status: 'New'
 		});
-		if (id && !error) added++;
+		if (id && !error) {
+			added++;
+			insertedProspectIds.push(id);
+		}
 	}
 	await supabase.from('user_settings').upsert(
 		{
@@ -337,12 +353,27 @@ export async function runPullGbpDental(userId: string): Promise<RunPullGbpDental
 		return {
 			ok: true,
 			added: 0,
+			leads: [],
 			message: `Searched ${totalSearched} place(s); none had fewer than ${MAX_REVIEWS} reviews. Try again later or in a different region.`
 		};
 	}
+
+	const { data: insertedRows } = await supabase
+		.from('prospects')
+		.select('company_name, website, phone, email')
+		.eq('user_id', userId)
+		.in('id', insertedProspectIds);
+	const leads: GbpPulledLead[] = (insertedRows ?? []).map((r) => ({
+		name: (r.company_name ?? '').trim(),
+		website: (r.website ?? null) as string | null,
+		phone: (r.phone ?? null) as string | null,
+		email: (r.email ?? '').trim()
+	}));
+
 	return {
 		ok: true,
 		added,
+		leads,
 		message: `Added ${added} dental prospect(s). Today: ${todayCount + added}/${dailyCap}.`
 	};
 }
