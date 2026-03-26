@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button";
   import * as Card from "$lib/components/ui/card";
-  import { Check } from "lucide-svelte";
+  import Check from "@lucide/svelte/icons/check";
   import { getIndustryIcon } from "$lib/content/industry-icons";
   import type { PageData } from "./$types";
 

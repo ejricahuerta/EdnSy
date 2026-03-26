@@ -1,7 +1,9 @@
 <script lang="ts">
   import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "$lib/components/ui/dialog";
   import { Button } from "$lib/components/ui/button";
-  import { Coins, AlertCircle, Calendar } from "lucide-svelte";
+  import AlertCircle from "@lucide/svelte/icons/alert-circle";
+  import Calendar from "@lucide/svelte/icons/calendar";
+  import Coins from "@lucide/svelte/icons/coins";
   import { goto } from "$app/navigation";
 
   let { open, currentCredits } = $props();

@@ -2,7 +2,10 @@
   import { Button } from "$lib/components/ui/button";
   import * as Card from "$lib/components/ui/card";
   import { RosettaSuiteCta } from "$lib/components/landing";
-  import { Phone, Workflow, Globe, Puzzle } from "lucide-svelte";
+  import Globe from "@lucide/svelte/icons/globe";
+  import Phone from "@lucide/svelte/icons/phone";
+  import Puzzle from "@lucide/svelte/icons/puzzle";
+  import Workflow from "@lucide/svelte/icons/workflow";
   import { site, services, servicesIntro, ctaBlock } from "$lib/content/site";
 
   const serviceIcons: Record<string, typeof Phone> = {

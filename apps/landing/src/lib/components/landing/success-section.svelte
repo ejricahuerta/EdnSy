@@ -1,6 +1,10 @@
 <script>
   import { Button } from "$lib/components/ui/button";
-  import { MessageCircle, ArrowRight, Wrench, Calendar, Users } from "lucide-svelte";
+  import ArrowRight from "@lucide/svelte/icons/arrow-right";
+  import Calendar from "@lucide/svelte/icons/calendar";
+  import MessageCircle from "@lucide/svelte/icons/message-circle";
+  import Users from "@lucide/svelte/icons/users";
+  import Wrench from "@lucide/svelte/icons/wrench";
 
   export let title = "How We Help Business Owners Get Their Time Back";
   export let subtitle = "One Client, Real Results";

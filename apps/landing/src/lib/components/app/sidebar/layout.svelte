@@ -2,7 +2,10 @@
 	import type { ComponentProps } from "svelte";
 	import * as Sidebar from "$lib/components/ui/sidebar/index.js";
 	import Nav from "./nav.svelte";
-	import { Bot, Calendar, ChartLine, BotIcon, LifeBuoyIcon, SendIcon, CommandIcon, HomeIcon } from "@lucide/svelte";
+	import Bot from "@lucide/svelte/icons/bot";
+	import Calendar from "@lucide/svelte/icons/calendar";
+	import ChartLine from "@lucide/svelte/icons/chart-line";
+	import House from "@lucide/svelte/icons/house";
 	let { ref = $bindable(null), ...restProps }: ComponentProps<typeof Sidebar.Root> = $props();
 
 	const data = $derived({
@@ -10,7 +13,7 @@
 			{
 				title: "Demos",
 				url: "/demos",
-				icon: HomeIcon,
+				icon: House,
 			},
 			{
 				title: "AI Assistant",

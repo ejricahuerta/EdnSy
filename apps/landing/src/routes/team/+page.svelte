@@ -1,16 +1,14 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button";
   import * as Card from "$lib/components/ui/card";
-  import {
-    Cpu,
-    Sparkles,
-    Clock,
-    Handshake,
-    Target,
-    Phone,
-    Award,
-    MapPin,
-  } from "lucide-svelte";
+  import Award from "@lucide/svelte/icons/award";
+  import Clock from "@lucide/svelte/icons/clock";
+  import Cpu from "@lucide/svelte/icons/cpu";
+  import Handshake from "@lucide/svelte/icons/handshake";
+  import MapPin from "@lucide/svelte/icons/map-pin";
+  import Phone from "@lucide/svelte/icons/phone";
+  import Sparkles from "@lucide/svelte/icons/sparkles";
+  import Target from "@lucide/svelte/icons/target";
   import { teamIntro, teamMembers, teamValues, teamStats, ctaBlock } from "$lib/content/site";
 
   const teamMemberIcons = [Cpu, Sparkles];

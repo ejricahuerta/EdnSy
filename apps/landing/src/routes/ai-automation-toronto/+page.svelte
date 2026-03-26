@@ -1,7 +1,9 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button";
   import * as Card from "$lib/components/ui/card";
-  import { Phone, Workflow, Globe } from "lucide-svelte";
+  import Globe from "@lucide/svelte/icons/globe";
+  import Phone from "@lucide/svelte/icons/phone";
+  import Workflow from "@lucide/svelte/icons/workflow";
   import { services } from "$lib/content/site";
 
   const serviceIcons: Record<string, typeof Phone> = {

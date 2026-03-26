@@ -2,7 +2,10 @@
   import { onMount } from 'svelte';
   import { CreditService, type ServiceInfo } from '$lib/services/creditService';
   import { Skeleton } from '$lib/components/ui/skeleton';
-  import { Coins, Clock, TrendingUp, Zap } from 'lucide-svelte';
+  import Clock from "@lucide/svelte/icons/clock";
+  import Coins from "@lucide/svelte/icons/coins";
+  import TrendingUp from "@lucide/svelte/icons/trending-up";
+  import Zap from "@lucide/svelte/icons/zap";
 
   let { demoId, title, description, industry, estimatedTime, difficulty, benefits } = $props<{
     demoId: string;

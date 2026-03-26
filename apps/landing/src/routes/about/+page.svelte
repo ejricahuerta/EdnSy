@@ -2,7 +2,11 @@
   import { Button } from "$lib/components/ui/button";
   import * as Card from "$lib/components/ui/card";
   import { RosettaSuiteCta } from "$lib/components/landing";
-  import { Cpu, Sparkles, Clock, Handshake, Target } from "lucide-svelte";
+  import Clock from "@lucide/svelte/icons/clock";
+  import Cpu from "@lucide/svelte/icons/cpu";
+  import Handshake from "@lucide/svelte/icons/handshake";
+  import Sparkles from "@lucide/svelte/icons/sparkles";
+  import Target from "@lucide/svelte/icons/target";
   import { teamIntro, teamMembers, teamValues, teamStats, ctaBlock } from "$lib/content/site";
   const teamMemberIcons = [Cpu, Sparkles];
   const teamValueIcons = [Clock, Handshake, Target];

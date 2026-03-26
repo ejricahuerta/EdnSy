@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { Cookie, ArrowLeft } from "@lucide/svelte";
+  import ArrowLeft from "@lucide/svelte/icons/arrow-left";
+  import Cookie from "@lucide/svelte/icons/cookie";
   import { Button } from "$lib/components/ui/button";
   import * as Card from "$lib/components/ui/card";
 </script>

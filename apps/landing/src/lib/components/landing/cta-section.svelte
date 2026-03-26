@@ -1,6 +1,7 @@
 <script>
   import { Button } from "$lib/components/ui/button";
-  import { Zap, ArrowRight } from "lucide-svelte";
+  import ArrowRight from "@lucide/svelte/icons/arrow-right";
+  import Zap from "@lucide/svelte/icons/zap";
   import { goto } from "$app/navigation";
 </script>
 

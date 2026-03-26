@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { Shield, ArrowLeft } from "@lucide/svelte";
+  import ArrowLeft from "@lucide/svelte/icons/arrow-left";
+  import Shield from "@lucide/svelte/icons/shield";
   import { Button } from "$lib/components/ui/button";
   import * as Card from "$lib/components/ui/card";
 </script>

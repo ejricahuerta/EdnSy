@@ -3,7 +3,7 @@
   import * as Card from "$lib/components/ui/card";
   import { RosettaSuiteCta } from "$lib/components/landing";
   import { buildBreadcrumbSchema } from "$lib/content/seo";
-  import { ExternalLink } from "lucide-svelte";
+  import ExternalLink from "@lucide/svelte/icons/external-link";
 
   const breadcrumbSchema = buildBreadcrumbSchema([
     { name: "Home", url: "/" },

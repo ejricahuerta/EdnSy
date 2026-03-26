@@ -2,17 +2,15 @@
   import { Button } from "$lib/components/ui/button";
   import * as Card from "$lib/components/ui/card";
   import * as Accordion from "$lib/components/ui/accordion";
-  import {
-    AlertCircle,
-    Sparkles,
-    Layout,
-    Target,
-    Search,
-    Mail,
-    Gauge,
-    HelpCircle,
-    Briefcase,
-  } from "lucide-svelte";
+  import AlertCircle from "@lucide/svelte/icons/alert-circle";
+  import Briefcase from "@lucide/svelte/icons/briefcase";
+  import Gauge from "@lucide/svelte/icons/gauge";
+  import HelpCircle from "@lucide/svelte/icons/help-circle";
+  import Layout from "@lucide/svelte/icons/layout";
+  import Mail from "@lucide/svelte/icons/mail";
+  import Search from "@lucide/svelte/icons/search";
+  import Sparkles from "@lucide/svelte/icons/sparkles";
+  import Target from "@lucide/svelte/icons/target";
   import { websitePage } from "$lib/content/service-pages";
   import { buildServiceSchema, buildFAQSchema, buildBreadcrumbSchema } from "$lib/content/seo";
 

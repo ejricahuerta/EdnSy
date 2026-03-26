@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { FileText, ArrowLeft } from "@lucide/svelte";
+  import ArrowLeft from "@lucide/svelte/icons/arrow-left";
+  import FileText from "@lucide/svelte/icons/file-text";
   import { Button } from "$lib/components/ui/button";
   import * as Card from "$lib/components/ui/card";
 </script>

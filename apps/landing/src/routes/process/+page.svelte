@@ -2,16 +2,14 @@
   import { Button } from "$lib/components/ui/button";
   import * as Card from "$lib/components/ui/card";
   import * as Accordion from "$lib/components/ui/accordion";
-  import {
-    Phone,
-    Palette,
-    Wrench,
-    Headphones,
-    Gift,
-    Sliders,
-    TrendingUp,
-    MapPin,
-  } from "lucide-svelte";
+  import Gift from "@lucide/svelte/icons/gift";
+  import Headphones from "@lucide/svelte/icons/headphones";
+  import MapPin from "@lucide/svelte/icons/map-pin";
+  import Palette from "@lucide/svelte/icons/palette";
+  import Phone from "@lucide/svelte/icons/phone";
+  import Sliders from "@lucide/svelte/icons/sliders-horizontal";
+  import TrendingUp from "@lucide/svelte/icons/trending-up";
+  import Wrench from "@lucide/svelte/icons/wrench";
   import { processSteps, processStats, faqItems, ctaBlock } from "$lib/content/site";
 
   const processStepIcons = [Phone, Palette, Wrench, Headphones];

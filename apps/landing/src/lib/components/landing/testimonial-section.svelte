@@ -1,6 +1,9 @@
 <script>
   import { Button } from "$lib/components/ui/button";
-  import { Star, Wrench, Calendar, MessageSquare } from "lucide-svelte";
+  import Calendar from "@lucide/svelte/icons/calendar";
+  import MessageSquare from "@lucide/svelte/icons/message-square";
+  import Star from "@lucide/svelte/icons/star";
+  import Wrench from "@lucide/svelte/icons/wrench";
   import * as Avatar from "$lib/components/ui/avatar";
   import { AvatarImage, AvatarFallback } from "$lib/components/ui/avatar";
 

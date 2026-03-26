@@ -1,6 +1,7 @@
 <script lang="ts">
   import "../app.css";
-  import { Instagram, Linkedin } from "@lucide/svelte";
+  import Instagram from "@lucide/svelte/icons/instagram";
+  import Linkedin from "@lucide/svelte/icons/linkedin";
 
   import posthog from "posthog-js";
   import { browser } from "$app/environment";
@@ -13,7 +14,7 @@
   import { getSeoForPath, buildCanonical, buildOrganizationSchema, buildLocalBusinessSchema, buildWebSiteSchema } from "$lib/content/seo";
   import { services as coreServices } from "$lib/content/site";
   import { refreshScrollTrigger } from "$lib/animations/gsap.js";
-  import { Menu } from "lucide-svelte";
+  import Menu from "@lucide/svelte/icons/menu";
 
   let { children } = $props<{ data: LayoutData }>();
   let scrolled = $state(false);

@@ -3,7 +3,12 @@
   import * as Card from "$lib/components/ui/card";
   import * as Accordion from "$lib/components/ui/accordion";
   import { RosettaSuiteCta } from "$lib/components/landing";
-  import { Zap, Clock, GitBranch, Link2, Building2, HelpCircle } from "lucide-svelte";
+  import Building2 from "@lucide/svelte/icons/building-2";
+  import Clock from "@lucide/svelte/icons/clock";
+  import GitBranch from "@lucide/svelte/icons/git-branch";
+  import HelpCircle from "@lucide/svelte/icons/help-circle";
+  import Link2 from "@lucide/svelte/icons/link-2";
+  import Zap from "@lucide/svelte/icons/zap";
   import { automationPage } from "$lib/content/service-pages";
   import { buildServiceSchema, buildFAQSchema, buildBreadcrumbSchema } from "$lib/content/seo";
 

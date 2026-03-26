@@ -2,7 +2,12 @@
   import { Button } from "$lib/components/ui/button";
   import * as Card from "$lib/components/ui/card";
   import * as Accordion from "$lib/components/ui/accordion";
-  import { Phone, PhoneOff, Settings, Building2, TrendingUp, HelpCircle } from "lucide-svelte";
+  import Building2 from "@lucide/svelte/icons/building-2";
+  import HelpCircle from "@lucide/svelte/icons/help-circle";
+  import Phone from "@lucide/svelte/icons/phone";
+  import PhoneOff from "@lucide/svelte/icons/phone-off";
+  import Settings from "@lucide/svelte/icons/settings";
+  import TrendingUp from "@lucide/svelte/icons/trending-up";
   import { voiceAiPage } from "$lib/content/service-pages";
   import { buildServiceSchema, buildFAQSchema, buildBreadcrumbSchema } from "$lib/content/seo";
 

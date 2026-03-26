@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button";
   import * as Card from "$lib/components/ui/card";
-  import { ChevronRight } from "lucide-svelte";
+  import ChevronRight from "@lucide/svelte/icons/chevron-right";
   import { industries, ctaBlock, industriesPageHero } from "$lib/content/site";
   import { industryIcons, industryFallbackIcon } from "$lib/content/industry-icons";
 </script>

@@ -1,7 +1,8 @@
 <script>
   import { Button } from "$lib/components/ui/button";
   import { goto } from "$app/navigation";
-  import { ArrowRight, Play } from "lucide-svelte";
+  import ArrowRight from "@lucide/svelte/icons/arrow-right";
+  import Play from "@lucide/svelte/icons/play";
 
   export let title = "Get Your Time Back";
   export let subtitle = "Stop working nights and weekends";
