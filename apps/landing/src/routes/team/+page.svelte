@@ -22,7 +22,7 @@
   <title>Meet the Team | Ed & Sy | Tech Implementation & AI for Toronto Businesses</title>
   <meta
     name="description"
-    content="Ed & Sy: Toronto entrepreneurs on a mission to help local businesses reclaim their time through tech implementation and AI."
+    content="Ed & Sy | Toronto entrepreneurs on a mission to help local businesses reclaim their time through tech implementation and AI."
   />
 </svelte:head>
 

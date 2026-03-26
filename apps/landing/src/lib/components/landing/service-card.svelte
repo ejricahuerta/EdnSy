@@ -1,4 +1,6 @@
-<script>
+<script lang="ts">
+  type Feature = { title: string; description: string };
+
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
   import { Button } from "$lib/components/ui/button";
@@ -6,7 +8,7 @@
   export let icon;
   export let title;
   export let description;
-  export let features = [];
+  export let features: Feature[] = [];
   export let primaryCta = "See It In Action";
   export let secondaryCta = "Learn More";
 </script>
@@ -44,7 +46,7 @@
     <!-- CTA buttons -->
     <div class="flex flex-col sm:flex-row gap-3">
       <Button
-        onclick={() => goto("/demos")}
+        onclick={() => goto("/case-studies")}
         size="sm"
         class="flex-1"
       >
@@ -52,7 +54,7 @@
       </Button>
       
       <Button
-        onclick={() => goto("/demos")}
+        onclick={() => goto("/case-studies")}
         variant="outline"
         size="sm"
         class="flex-1"

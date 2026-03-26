@@ -97,7 +97,7 @@
 
   <div class="mt-4">
     <a
-      href="/demos/{demoId === 'ai-assistant' ? 'ai-assistant' : demoId === 'automation-tasks' ? 'automation-tasks' : demoId === 'data-insights' ? 'data-insights' : 'business-operations'}"
+      href="/case-studies"
       class="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-2 px-4 rounded-lg transition-colors text-center block"
     >
       Try Demo

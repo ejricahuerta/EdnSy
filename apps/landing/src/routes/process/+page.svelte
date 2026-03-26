@@ -22,7 +22,7 @@
   <title>Our Process | Ed & Sy | Tech Implementation & AI for Toronto Businesses</title>
   <meta
     name="description"
-    content="From first call to full automation. Our 4-step process: Free consultation, custom strategy, implementation, training and support."
+    content="From first call to full automation. Our four-step process covers free consultation, custom strategy, implementation, and training and support."
   />
 </svelte:head>
 

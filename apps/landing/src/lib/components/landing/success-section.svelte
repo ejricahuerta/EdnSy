@@ -40,8 +40,8 @@
     <!-- Hero Stories Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-20">
       {#each heroStories as story, index}
-        <div class="group">
-          <div class="bg-white rounded-3xl p-8 border border-slate-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+        <div class="group h-full">
+          <div class="bg-white rounded-3xl p-8 border border-slate-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 flex flex-col h-full">
             <!-- Icon -->
             <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-emerald-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
               <svelte:component this={story.icon} class="w-8 h-8 text-white" />
@@ -75,7 +75,7 @@
             <Button 
               variant="outline" 
               size="sm" 
-              class="w-full border-slate-200 text-slate-700 hover:bg-slate-50 group-hover:border-blue-300 group-hover:text-blue-700 transition-all duration-300"
+              class="mt-auto w-full border-slate-200 text-slate-700 hover:bg-slate-50 group-hover:border-blue-300 group-hover:text-blue-700 transition-all duration-300"
             >
               See how it works
               <ArrowRight class="w-4 h-4 ml-2" />

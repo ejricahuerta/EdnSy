@@ -8,6 +8,10 @@ export default defineConfig(({ mode }) => {
 	const env = loadEnv(mode, process.cwd(), '');
 	
 	return {
-		plugins: [tailwindcss(), sveltekit()]
+		plugins: [tailwindcss(), sveltekit()],
+		// Avoid ENOENT when a transitive/cached dep references @vercel/analytics but the package is not installed
+		optimizeDeps: {
+			exclude: ['@vercel/analytics']
+		}
 	};
 });
