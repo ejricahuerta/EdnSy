@@ -2,17 +2,11 @@
 	import { applyAction, enhance } from '$app/forms';
 	import { invalidateAll, invalidate, goto } from '$app/navigation';
 	import { page } from '$app/stores';
-	import {
-		getNextStep,
-		getSimplifiedStatus,
-		NEXT_STEP_FILTER_OPTIONS,
-		getNextStepFilterLabel,
-		prospectMatchesNextStepFilter,
-		type NextStepFilterValue
-	} from '$lib/nextStep';
+	import { getNextStep, getSimplifiedStatus } from '$lib/nextStep';
 	import type { PageData } from './$types';
 	// Prospects page: full CRM table; no overview
 	import type { Prospect } from '$lib/server/prospects';
+	import { isProspectQueuedStatus } from '$lib/prospectStatus';
 
 	/** Prospect plus job/tracking status for table row so status column reacts to load updates. */
 	type ProspectRow = Prospect & {
@@ -23,7 +17,7 @@
 		/** True when scraped/GBP data exists; required for "Create demo" next step. */
 		hasGbpData?: boolean;
 	};
-	import { X, ExternalLink, Mail, MessageSquare, Copy, Link2, Send, Eye, Globe, Phone, MapPin, Star, ListChecks, Briefcase, LoaderCircle, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-svelte';
+	import { X, ExternalLink, Mail, MessageSquare, Copy, Link2, Send, Eye, Globe, Phone, MapPin, Star, ListChecks, Briefcase, LoaderCircle, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Upload } from 'lucide-svelte';
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
 	import {
@@ -59,6 +53,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
+	import * as Dialog from '$lib/components/ui/dialog';
 	import * as Drawer from '$lib/components/ui/drawer';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import * as Select from '$lib/components/ui/select';
@@ -84,6 +79,15 @@ import { clientError } from '$lib/log';
 	);
 	const demoUsageLabel = $derived(
 		demoLimit === null ? 'Unlimited demos' : `${demoCountThisMonth} / ${demoLimit} demos this month`
+	);
+	const gbpDentalTodayCount = $derived(data.gbpDentalTodayCount ?? 0);
+	const gbpDentalDailyCap = $derived(data.gbpDentalDailyCap ?? 25);
+	const placesApiConfigured = $derived(data.placesApiConfigured ?? false);
+	const gbpDentalPullLock = $derived(
+		data.gbpDentalPullLock ?? { locked: false, remainingSeconds: 0, lockMinutes: 15 }
+	);
+	const gbpDentalLockMinutesRemaining = $derived(
+		Math.ceil((gbpDentalPullLock.remainingSeconds ?? 0) / 60)
 	);
 	const trackingCounts = $derived.by(() => {
 		const map = data.demoTrackingByProspectId ?? {};
@@ -153,10 +157,8 @@ import { clientError } from '$lib/log';
 			return s === 'opened' || s === 'clicked';
 		})
 	);
-	/** Count of prospects with status "In queue" (may be stuck if no active job). */
-	const prospectsInQueueCount = $derived(
-		prospects.filter((p) => (p.status ?? '').trim() === 'In queue').length
-	);
+	/** Count of prospects in a queued automation status (may be stuck if no active job). */
+	const prospectsInQueueCount = $derived(prospects.filter((p) => isProspectQueuedStatus(p.status)).length);
 
 	let generatingDemo = $state(false);
 	type ScrapedSummary = {
@@ -226,28 +228,6 @@ import { clientError } from '$lib/log';
 		httpCallLogs = [logEntry, ...httpCallLogs].slice(0, HTTP_CALL_LOGS_MAX);
 	}
 
-	/** Sort key for Next step column (order matches priority). */
-	function nextStepSortKey(p: ProspectRow): string {
-		const step = getNextStep(p, {
-			optimisticGbpIds: optimisticGbpProspectIds,
-			optimisticInsightsIds: optimisticInsightsProspectIds
-		});
-		const order: Record<NextStepFilterValue, string> = {
-			'': '12',
-			flagged: '00',
-			pull_data: '01',
-			create_demo: '02',
-			retry_demo: '03',
-			draft: '04',
-			approved: '05',
-			sent: '06',
-			engaged: '07',
-			replied: '08',
-			other: '11'
-		};
-		return `${order[step.filterValue] ?? '08'}_${step.label.toLowerCase().replace(/\s+/g, '_')}`;
-	}
-
 	/** True when the row is in a processing state (GBP, Insights, or demo creation). Rows with a demo or with a failed demo are selectable so they can be retried after running qualifier. */
 	function isRowProcessing(p: ProspectRow): boolean {
 		if ((p.demoLink ?? '').trim()) return false; // Already has demo -> selectable
@@ -258,7 +238,7 @@ import { clientError } from '$lib/log';
 		if (p.insightsJob) return true;
 		if (job?.status === 'pending' || job?.status === 'creating') return true;
 		// Persisted status so we treat as processing after refresh when job maps are empty
-		return (p.status ?? '').trim() === 'In queue';
+		return isProspectQueuedStatus(p.status);
 	}
 
 	/** Build a short user-facing alert for demo job failure: "Error - Description." */
@@ -312,19 +292,12 @@ import { clientError } from '$lib/log';
 	});
 
 	let filterQuery = $state('');
-	let nextStepFilter = $state<NextStepFilterValue>('');
-	const nextStepFilterLabel = $derived(getNextStepFilterLabel(nextStepFilter));
 
-	const hasActiveFilters = $derived(
-		filterQuery.trim() !== '' || nextStepFilter !== ''
-	);
-	const activeFilterCount = $derived(
-		(filterQuery.trim() ? 1 : 0) + (nextStepFilter ? 1 : 0)
-	);
+	const hasActiveFilters = $derived(filterQuery.trim() !== '');
+	const activeFilterCount = $derived(filterQuery.trim() ? 1 : 0);
 
 	function clearFilters() {
 		filterQuery = '';
-		nextStepFilter = '';
 	}
 
 	const filteredProspects = $derived.by((): ProspectRow[] => {
@@ -333,17 +306,17 @@ import { clientError } from '$lib/log';
 		const nextStepOpts = { optimisticGbpIds: optimisticGbpProspectIds, optimisticInsightsIds: optimisticInsightsProspectIds };
 		if (q) {
 			list = list.filter((p) => {
-				const nextStepLabel = getNextStep(p, nextStepOpts).label.toLowerCase();
+				const statusLabel = getSimplifiedStatus(p, {
+					...nextStepOpts,
+					hasGbpData: p.hasGbpData
+				}).label.toLowerCase();
 				return (
 					(p.companyName ?? '').toLowerCase().includes(q) ||
 					(p.email ?? '').toLowerCase().includes(q) ||
 					(p.website ?? '').toLowerCase().includes(q) ||
-					nextStepLabel.includes(q)
+					statusLabel.includes(q)
 				);
 			});
-		}
-		if (nextStepFilter !== '') {
-			list = list.filter((p) => prospectMatchesNextStepFilter(p, nextStepFilter, nextStepOpts));
 		}
 		return list;
 	});
@@ -371,6 +344,9 @@ import { clientError } from '$lib/log';
 	let sendDemosDialogOpen = $state(false);
 	let sendDemosForm: HTMLFormElement | null = $state(null);
 	let sendDemosSubmitting = $state(false);
+	let importCsvOpen = $state(false);
+	let importCsvSubmitting = $state(false);
+	let pullGbpDentalSubmitting = $state(false);
 	/** Prospect IDs we've just submitted for GBP/Insights so status updates immediately before server responds. */
 	let optimisticGbpProspectIds = $state<Set<string>>(new Set());
 	let optimisticInsightsProspectIds = $state<Set<string>>(new Set());
@@ -694,10 +670,10 @@ import { clientError } from '$lib/log';
 	$effect(() => {
 		const jobs = data.demoJobsByProspectId ?? {};
 		const hasPending = Object.values(jobs).some((j) => j.status === 'pending' || j.status === 'creating');
-		// Also poll when some prospects have no demo and "In queue" (demo may have completed or failed; refresh will update state)
+		// Also poll when some prospects have no demo and queued status (demo may have completed or failed; refresh will update state)
 		const prospects = data.prospects ?? [];
 		const inQueueNoDemo = prospects.some(
-			(p: Prospect) => !(p.demoLink ?? '').trim() && (p.status ?? '').trim() === 'In queue'
+			(p: Prospect) => !(p.demoLink ?? '').trim() && isProspectQueuedStatus(p.status)
 		);
 		if ((hasPending || inQueueNoDemo) && !demoJobPollingActive) startDemoJobPolling();
 	});
@@ -710,10 +686,10 @@ import { clientError } from '$lib/log';
 	$effect(() => {
 		const insightsJobs = data.insightsJobsByProspectId ?? {};
 		const hasInsightsJobs = Object.keys(insightsJobs).length > 0;
-		// Also poll when some prospects have no demo and "In queue" (insights may have completed; refresh will update state)
+		// Also poll when some prospects have no demo and queued status (insights may have completed; refresh will update state)
 		const prospects = data.prospects ?? [];
 		const inQueueNoDemo = prospects.some(
-			(p: Prospect) => !(p.demoLink ?? '').trim() && (p.status ?? '').trim() === 'In queue'
+			(p: Prospect) => !(p.demoLink ?? '').trim() && isProspectQueuedStatus(p.status)
 		);
 		if ((hasInsightsJobs || inQueueNoDemo) && !insightsJobPollingActive) startInsightsJobPolling();
 	});
@@ -871,11 +847,18 @@ import { clientError } from '$lib/log';
 			},
 			cell: ({ row }) => {
 				const p = row.original;
+				const scraped = data.scrapedDataByProspectId?.[p.id] as Record<string, unknown> | undefined;
+				const audit = auditFromScrapedData(scraped ?? null);
+				const hasGbpData = audit ? hasUsableInsight(audit) : false;
 				const status = getSimplifiedStatus(p, {
 					optimisticGbpIds: optimisticGbpProspectIds,
 					optimisticInsightsIds: optimisticInsightsProspectIds,
-					hasGbpData: p.hasGbpData
+					hasGbpData
 				});
+				const statusSpinner =
+					status.label === 'Processing GBP' ||
+					status.label === 'Processing Demo' ||
+					status.label === 'Processing…';
 				// Map to distinct badge styles: success=primary, warning=secondary, destructive=red, muted=outline, default=secondary
 				const badgeVariant =
 					status.variant === 'success'
@@ -889,39 +872,8 @@ import { clientError } from '$lib/log';
 									: 'secondary';
 				return renderComponent(DataTableStatusBadge, {
 					label: status.label,
-					variant: badgeVariant
-				});
-			}
-		},
-		{
-			id: 'nextStep',
-			accessorFn: (row) => nextStepSortKey(row as ProspectRow),
-			header: ({ column }) =>
-				renderComponent(DataTableSortHeader, { column, label: 'Next step' }),
-			meta: { label: 'Next step' },
-			cell: ({ row }) => {
-				const p = row.original;
-				const step = getNextStep(p, {
-					optimisticGbpIds: optimisticGbpProspectIds,
-					optimisticInsightsIds: optimisticInsightsProspectIds
-				});
-				const showSpinner =
-					step.label === 'Wait (GBP)' || step.label === 'Wait (Insights)' || step.label === 'Creating demo…';
-				// Map to distinct badge styles: success=primary, warning=secondary, destructive=red, muted=outline, default=secondary
-				const badgeVariant =
-					step.variant === 'success'
-						? 'default'
-						: step.variant === 'warning'
-							? 'secondary'
-							: step.variant === 'destructive'
-								? 'destructive'
-								: step.variant === 'muted'
-									? 'outline'
-									: 'secondary';
-				return renderComponent(DataTableStatusBadge, {
-					label: step.label,
 					variant: badgeVariant,
-					showSpinner
+					showSpinner: statusSpinner
 				});
 			}
 		},
@@ -955,6 +907,14 @@ import { clientError } from '$lib/log';
 					onProcessNextStep: handleProcessNextStep,
 					hasDemoLink: !!(p.demoLink ?? '').trim(),
 					demoJobStatus: demoStatus,
+					trackingStatus: p.tracking?.status as
+						| 'draft'
+						| 'approved'
+						| 'sent'
+						| 'opened'
+						| 'clicked'
+						| 'replied'
+						| undefined,
 					showDelete: !p.flagged,
 					showRestore: !!p.flagged,
 					onRegenerateQueued: () => startDemoJobPolling(),
@@ -1103,9 +1063,109 @@ import { clientError } from '$lib/log';
 		<Card.Header class="space-y-1 pb-6">
 			<Card.Title class="text-2xl font-semibold tracking-tight">Welcome back!</Card.Title>
 			<Card.Description class="text-muted-foreground">
-				Here's a list of your prospects. Search, filter by next step, and manage demos from the table.
+				Here's a list of your prospects. Search and manage demos from the table.
 			</Card.Description>
 		</Card.Header>
+		<Dialog.Root bind:open={importCsvOpen}>
+			<Dialog.Content class="sm:max-w-md">
+				<Dialog.Header>
+					<Dialog.Title>Import prospects from CSV</Dialog.Title>
+					<Dialog.Description>
+						Include a header row with <strong>company</strong> (or name) and <strong>email</strong>. Optional:
+						website, phone, industry. Up to 500 rows per file. Rows already in your list (same
+						company and email) are skipped.
+					</Dialog.Description>
+				</Dialog.Header>
+				<form
+					method="POST"
+					action="?/importCsv"
+					enctype="multipart/form-data"
+					use:enhance={() => {
+						importCsvSubmitting = true;
+						return async ({ result }) => {
+							importCsvSubmitting = false;
+							if (
+								result.type === 'success' &&
+								result.data &&
+								typeof result.data === 'object' &&
+								'success' in result.data &&
+								(result.data as { success?: boolean }).success
+							) {
+								const d = result.data as {
+									inserted?: number;
+									skipped?: number;
+									failed?: number;
+									errors?: string[];
+								};
+								const parts = [
+									`Added ${d.inserted ?? 0}`,
+									`skipped ${d.skipped ?? 0}`
+								];
+								if ((d.failed ?? 0) > 0) parts.push(`failed ${d.failed}`);
+								toastSuccess('Import CSV', parts.join(', ') + '.');
+								if (d.errors?.length) {
+									toastInfo('Import', d.errors.slice(0, 5).join(' '));
+								}
+								importCsvOpen = false;
+								await invalidateAll();
+							} else if (result.type === 'failure' && result.data?.message) {
+								toastError('Import CSV', (result.data as { message?: string }).message);
+							}
+						};
+					}}
+					class="space-y-4"
+				>
+					<div class="space-y-2">
+						<Label for="lr-import-csv">CSV file</Label>
+						<Input
+							id="lr-import-csv"
+							name="csvFile"
+							type="file"
+							accept=".csv,text/csv"
+							required
+							class="cursor-pointer"
+						/>
+					</div>
+					<Dialog.Footer class="gap-2 sm:gap-2">
+						<Button
+							type="button"
+							variant="outline"
+							disabled={importCsvSubmitting}
+							onclick={() => (importCsvOpen = false)}
+						>
+							Cancel
+						</Button>
+						<Button type="submit" disabled={importCsvSubmitting}>
+							{#if importCsvSubmitting}
+								<LoaderCircle class="mr-2 size-4 animate-spin" aria-hidden="true" />
+							{/if}
+							{importCsvSubmitting ? 'Importing…' : 'Import'}
+						</Button>
+					</Dialog.Footer>
+				</form>
+			</Dialog.Content>
+		</Dialog.Root>
+		{#if prospects.length === 0}
+			<div class="mx-4 mb-4 sm:mx-6">
+				<div
+					class="flex flex-col gap-4 rounded-lg border border-border/50 bg-muted/30 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6"
+				>
+					<p class="text-sm text-muted-foreground">
+						No prospects yet. Import a CSV to add rows, or connect an integration and sync.
+					</p>
+					<Button
+						type="button"
+						variant="outline"
+						size="sm"
+						class="h-9 shrink-0 bg-background"
+						onclick={() => (importCsvOpen = true)}
+					>
+						<Upload class="mr-2 size-4" aria-hidden="true" />
+						Import CSV
+					</Button>
+				</div>
+			</div>
+		{/if}
 		{#if prospects.length > 0}
 			<div class="mx-4 mb-4 sm:mx-6">
 				<div
@@ -1182,7 +1242,7 @@ import { clientError } from '$lib/log';
 						<Input
 							id="lr-dash-filter"
 							type="search"
-							placeholder="Search by company, email, website..."
+							placeholder="Search by company, email, website, status…"
 							bind:value={filterQuery}
 							aria-label="Search prospects"
 							autocomplete="off"
@@ -1209,25 +1269,8 @@ import { clientError } from '$lib/log';
 						</div>
 					</div>
 
-					<!-- Next step filter -->
-					<div class="flex flex-wrap items-center gap-3 sm:gap-4">
-						<Select.Root type="single" bind:value={nextStepFilter}>
-							<Select.Trigger
-								id="lr-dash-next-step"
-								class="min-w-[11rem] h-9 bg-background font-normal border-border/50"
-								aria-label="Filter by next step"
-							>
-								<span class="text-muted-foreground mr-1.5 text-xs">Next step:</span>
-								{nextStepFilterLabel}
-							</Select.Trigger>
-							<Select.Content>
-								{#each NEXT_STEP_FILTER_OPTIONS as opt (opt.value)}
-									<Select.Item value={opt.value}>{opt.label}</Select.Item>
-								{/each}
-							</Select.Content>
-						</Select.Root>
-
-						{#if prospectsInQueueCount > 0}
+					{#if prospectsInQueueCount > 0}
+						<div class="flex flex-wrap items-center gap-3 sm:gap-4">
 							<form
 								method="POST"
 								action="?/clearStuckQueueStatus"
@@ -1249,7 +1292,7 @@ import { clientError } from '$lib/log';
 											} else {
 												toastInfo(
 													'Queue status',
-													'No stuck prospects found. All Processing… have an active job.'
+													'No stuck prospects found. All queue rows have an active job.'
 												);
 												await invalidateAll();
 											}
@@ -1266,19 +1309,71 @@ import { clientError } from '$lib/log';
 									size="sm"
 									class="h-9"
 									disabled={clearStuckSubmitting}
-									title="Clear Processing… status for prospects with no active job (demo, GBP, or insights)"
+									title="Clear stuck gbp queued / demo queued when no active job"
 								>
 									{#if clearStuckSubmitting}
 										<LoaderCircle class="mr-1.5 size-4 animate-spin" aria-hidden="true" />
 									{/if}
-									{clearStuckSubmitting ? 'Clearing…' : 'Clear stuck Processing…'}
+									{clearStuckSubmitting ? 'Clearing…' : 'Clear stuck queue'}
 								</Button>
 							</form>
-						{/if}
-					</div>
+						</div>
+					{/if}
 
-					<!-- Clear filters + Columns -->
+					<!-- Clear filters + Import + Columns -->
 					<div class="flex shrink-0 items-center gap-2 border-t border-border/50 pt-4 sm:ms-auto sm:border-0 sm:pt-0">
+						<form
+							method="POST"
+							action="?/pullGbpDental"
+							use:enhance={() => {
+								pullGbpDentalSubmitting = true;
+								return async ({ result }) => {
+									pullGbpDentalSubmitting = false;
+									if (result.type === 'success' && result.data && typeof result.data === 'object') {
+										const d = result.data as { message?: string; added?: number };
+										toastSuccess('Lead discovery', d.message ?? `Added ${d.added ?? 0} prospect(s).`);
+										await invalidateAll();
+									} else if (result.type === 'failure' && result.data?.message) {
+										toastError('Lead discovery', (result.data as { message?: string }).message);
+										await applyAction(result);
+									}
+								};
+							}}
+						>
+							<Button
+								type="submit"
+								variant="outline"
+								size="sm"
+								class="h-9 bg-background"
+								disabled={pullGbpDentalSubmitting || !placesApiConfigured || gbpDentalTodayCount >= gbpDentalDailyCap || gbpDentalPullLock.locked}
+								title={!placesApiConfigured
+									? 'Set GOOGLE_PLACES_API_KEY in .env'
+									: gbpDentalPullLock.locked
+										? `Locked for ${gbpDentalLockMinutesRemaining} more minute${gbpDentalLockMinutesRemaining === 1 ? '' : 's'}`
+										: `Today: ${gbpDentalTodayCount}/${gbpDentalDailyCap}`}
+							>
+								{#if pullGbpDentalSubmitting}
+									<LoaderCircle class="mr-2 size-4 animate-spin" aria-hidden="true" />
+								{:else}
+									<MapPin class="mr-2 size-4" aria-hidden="true" />
+								{/if}
+								{#if gbpDentalPullLock.locked}
+									Lead discovery locked
+								{:else}
+									Lead discovery (GBP)
+								{/if}
+							</Button>
+						</form>
+						<Button
+							type="button"
+							variant="outline"
+							size="sm"
+							class="h-9 bg-background"
+							onclick={() => (importCsvOpen = true)}
+						>
+							<Upload class="mr-2 size-4" aria-hidden="true" />
+							Import CSV
+						</Button>
 						{#if hasActiveFilters}
 							<Button
 								type="button"
@@ -1430,7 +1525,7 @@ import { clientError } from '$lib/log';
 										<input type="hidden" name="demoIds" value={JSON.stringify(partition.demo)} />
 										<input type="hidden" name="flaggedIds" value={JSON.stringify(partition.flagged)} />
 										<div class="flex flex-wrap items-center gap-2">
-											<span class="text-muted-foreground text-sm" title="Next step for each selected row">{nextStepSummary}</span>
+											<span class="text-muted-foreground text-sm" title="Queued action per selected row">{nextStepSummary}</span>
 											<Button type="submit" size="sm" disabled={bulkProcessNextStepSubmitting}>
 												{#if bulkProcessNextStepSubmitting}
 													<LoaderCircle class="mr-2 size-4 animate-spin" aria-hidden="true" />
@@ -1440,7 +1535,7 @@ import { clientError } from '$lib/log';
 										</div>
 									</form>
 								{:else}
-									<span class="text-muted-foreground text-sm">Selected rows have no queueable next step (e.g. Review &amp; send or already sent).</span>
+									<span class="text-muted-foreground text-sm">Selected rows have no queueable action (e.g. review &amp; send or already sent).</span>
 								{/if}
 							{/if}
 						</div>
@@ -1575,7 +1670,7 @@ import { clientError } from '$lib/log';
 							{#if createDemosSubmitting}
 								Usually 1–2 minutes per prospect. The list will update as each finishes.
 							{:else}
-								Demo pages will be generated for the selected prospects that don't have a demo yet. Each will be set to Draft. This usually takes 1–2 minutes per prospect; the list will update as each finishes.
+								Demo pages will be generated for the selected prospects that don't have a demo yet. Each moves to Review when ready. This usually takes 1–2 minutes per prospect; the list will update as each finishes.
 							{/if}
 						</AlertDialog.Description>
 					</AlertDialog.Header>
@@ -1818,9 +1913,7 @@ import { clientError } from '$lib/log';
 		</Card.Content>
 	</Card.Root>
 
-	{#if prospects.length === 0}
-		<p class="py-8 text-sm text-muted-foreground">No prospects yet. Connect an integration and sync, or add from your CRM.</p>
-	{:else if filteredProspects.length === 0}
+	{#if prospects.length > 0 && filteredProspects.length === 0}
 		<p class="py-8 text-sm text-muted-foreground">No prospects match your filter. Try a different search.</p>
 	{/if}
 </div>
