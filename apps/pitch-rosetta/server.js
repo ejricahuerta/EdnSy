@@ -4,8 +4,8 @@
  *
  * POST /api/generate      — body: business data (JSON); returns { id, publicUrl?, plan?, branding? } (no html). Requires API key.
  * POST /api/generate-async — body: business data + jobId, prospectId, userId?, callbackUrl, callbackToken; returns 202; runs generate in background and POSTs result to callbackUrl. Requires API key.
- * POST /api/dental        — body: dental business data (JSON, index.json shape); returns rendered HTML (style randomized). Requires API key.
- * POST /api/dental-async  — body: dental data + jobId, prospectId, userId?, callbackUrl, callbackToken; returns 202; renders in background and POSTs html to callbackUrl. Requires API key.
+ * POST /api/dental        — body: dental JSON (index.json shape); HTML from a random dental style guide (dental-v1..v6). Optional: styleId or dentalStyleId, leadRosettaLayout. Requires API key.
+ * POST /api/dental-async  — same render rules as /api/dental + callback meta; 202 + callback with html. Requires API key.
  * GET  /api/health       — 200 OK (readiness)
  * GET  /api-docs         — Swagger UI (OpenAPI 3)
  *
@@ -97,10 +97,34 @@ function isCallbackUrlAllowed(url) {
   }
 }
 
-/** Strip meta fields from payload so only business data is passed to generate(). Keeps id for Supabase filename. */
+/** Strip meta and render-control fields so templates only receive business/content data. */
 function stripMetaForGenerate(payload) {
-  const { callbackUrl, callbackToken, jobId, prospectId, userId, ...rest } = payload;
+  const {
+    callbackUrl,
+    callbackToken,
+    jobId,
+    prospectId,
+    userId,
+    styleId,
+    dentalStyleId,
+    leadRosettaLayout,
+    ...rest
+  } = payload;
   return rest;
+}
+
+/** Optional render hints on the JSON body (not passed to section renderers). */
+function getRenderOptionsFromPayload(payload) {
+  if (!payload || typeof payload !== "object") {
+    return {};
+  }
+  const raw =
+    (typeof payload.styleId === "string" && payload.styleId.trim()) ||
+    (typeof payload.dentalStyleId === "string" && payload.dentalStyleId.trim()) ||
+    "";
+  const styleId = raw && isValidDentalStyle(raw) ? raw : undefined;
+  const leadRosettaLayout = payload.leadRosettaLayout === true;
+  return { styleId, leadRosettaLayout };
 }
 
 async function postCallback(callbackUrl, callbackToken, body) {
@@ -191,7 +215,8 @@ function loadIndexJson(jsonParam) {
 
 /** GET /api/render-test — render HTML. Mix/match JSON and style via query.
  *  ?json=index.json|index-dental-riverside.json|index-dental-downtown.json (optional; omit for random JSON)
- *  ?style=dental-v1|dental-v2|dental-v3|dental-v4|dental-v6 (optional; omit for random style)
+ *  ?style=dental-v1|dental-v2|dental-v3|dental-v4|dental-v6 (optional; omit for random dental style guide)
+ *  ?layout=lead-rosetta — use Lead Rosetta single layout instead of style guides (only when ?style is omitted)
  */
 app.get("/api/render-test", (req, res) => {
   const loaded = loadIndexJson(req.query.json);
@@ -205,7 +230,9 @@ app.get("/api/render-test", (req, res) => {
   }
   const styleParam = (req.query.style ?? "").trim();
   const styleId = styleParam && isValidDentalStyle(styleParam) ? styleParam : undefined;
-  let html = renderPage(loaded.data, { styleId });
+  const leadRosettaLayout =
+    !styleId && (req.query.layout ?? "").trim().toLowerCase() === "lead-rosetta";
+  let html = renderPage(loaded.data, { styleId, leadRosettaLayout });
   html = obfuscateHtml(html);
   res.set({ "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" });
   res.send(html);
@@ -223,7 +250,9 @@ app.post("/api/dental", requireApiKey, (req, res) => {
     });
   }
   try {
-    let html = renderPage(data);
+    const renderOpts = getRenderOptionsFromPayload(data);
+    const dataClean = stripMetaForGenerate(data);
+    let html = renderPage(dataClean, renderOpts);
     html = obfuscateHtml(html);
     res.set({ "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" });
     res.send(html);
@@ -269,13 +298,14 @@ app.post("/api/dental-async", requireApiKey, (req, res) => {
   log("info", "POST /api/dental-async 202 accepted", { jobId, prospectId });
   res.status(202).json({ id: jobId, status: "accepted" });
 
-  const data = stripMetaForGenerate(payload);
   const token = String(callbackToken);
   const url = String(callbackUrl);
 
   Promise.resolve()
     .then(() => {
-      const html = obfuscateHtml(renderPage(data));
+      const renderOpts = getRenderOptionsFromPayload(payload);
+      const data = stripMetaForGenerate(payload);
+      const html = obfuscateHtml(renderPage(data, renderOpts));
       return postCallback(url, token, {
         jobId,
         prospectId,

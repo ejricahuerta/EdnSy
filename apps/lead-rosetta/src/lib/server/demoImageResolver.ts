@@ -18,61 +18,22 @@ const CANDIDATES_PER_PAGE = 5;
 const UNSPLASH_TIMEOUT_MS = 8000;
 const GEMINI_TIMEOUT_MS = 15000;
 
-/** Construction trade keywords -> profile suffix (e.g. painter -> construction.painter). */
-const CONSTRUCTION_TRADE_MAP: Array<{ pattern: RegExp; profile: string }> = [
-	{ pattern: /\b(painter|painting|paint\s*contractor|house\s*painter|interior\s*painter)\b/i, profile: 'construction.painter' },
-	{ pattern: /\b(plumb(er|ing)|plumbers)\b/i, profile: 'construction.plumber' },
-	{ pattern: /\b(hvac|heating|cooling)\b/i, profile: 'construction.hvac' },
-	{ pattern: /\b(electric(ian|al)|electricians)\b/i, profile: 'construction.electrician' },
-	{ pattern: /\b(locksmith|locksmiths)\b/i, profile: 'construction.locksmith' },
-	{ pattern: /\b(roof(er|ing))\b/i, profile: 'construction.roofing' },
-	{ pattern: /\b(landscap(e|ing|er))\b/i, profile: 'construction.landscaping' },
-	{ pattern: /\b(carpent(er|ry))\b/i, profile: 'construction.carpenter' },
-	{ pattern: /\b(flooring)\b/i, profile: 'construction.flooring' }
-];
-
 /**
- * Resolve image profile key from industry slug and display string (e.g. "Painter" -> construction.painter).
+ * Resolve image profile key from industry slug and display string.
  */
 export function getDemoImageProfile(
 	industrySlug: IndustrySlug,
-	industryDisplay: string | null | undefined
+	_industryDisplay: string | null | undefined
 ): string {
-	const display = (industryDisplay ?? '').trim();
-	if (industrySlug !== 'construction' || !display) {
-		return industrySlug;
-	}
-	const lower = display.toLowerCase();
-	for (const { pattern, profile } of CONSTRUCTION_TRADE_MAP) {
-		if (pattern.test(lower)) return profile;
-	}
-	return 'construction';
+	return industrySlug;
 }
 
 /**
- * Human-readable description for validation prompt (all industries).
+ * Human-readable description for validation prompt.
  */
 export function getProfileDescription(profile: string): string {
-	const descriptions: Record<string, string> = {
-		'construction.painter': 'house painting / painting contractor (walls, interior/exterior painting, rollers, ladders)',
-		'construction.plumber': 'plumbing / plumber business (pipes, repairs, technician)',
-		'construction.hvac': 'HVAC / heating and cooling business',
-		'construction.electrician': 'electrical / electrician business',
-		'construction.locksmith': 'locksmith / security locks business',
-		'construction.roofing': 'roofing contractor business',
-		'construction.landscaping': 'landscaping business',
-		'construction.carpenter': 'carpentry / carpenter business',
-		'construction.flooring': 'flooring contractor business',
-		construction: 'construction or trade business (building, renovation, workers, tools)',
-		healthcare: 'healthcare or medical practice',
-		dental: 'dental practice',
-		salons: 'salon or beauty business',
-		professional: 'professional services business',
-		'real-estate': 'real estate business',
-		legal: 'law firm or legal services',
-		fitness: 'fitness or gym business'
-	};
-	return descriptions[profile] ?? 'professional small business';
+	if (profile === 'dental') return 'dental practice';
+	return 'dental practice';
 }
 
 /**
@@ -123,12 +84,7 @@ Reply with ONLY the search query, 2-4 words, nothing else.`;
 }
 
 function getFallbackQueryForProfile(profile: string, slot: 'hero' | 'about'): string {
-	if (profile.startsWith('construction')) {
-		if (profile === 'construction.painter') return slot === 'hero' ? 'interior wall painting' : 'painting contractor';
-		if (profile === 'construction.plumber') return slot === 'hero' ? 'plumber repair' : 'plumbing technician';
-		return slot === 'hero' ? 'construction worker' : 'home renovation';
-	}
-	const base = profile === 'dental' ? 'dental clinic' : profile === 'healthcare' ? 'medical clinic' : profile;
+	const base = profile === 'dental' ? 'dental clinic' : 'dental clinic';
 	return slot === 'hero' ? `${base} professional` : `${base} team`;
 }
 

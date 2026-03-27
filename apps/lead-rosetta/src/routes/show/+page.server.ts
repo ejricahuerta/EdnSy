@@ -101,7 +101,7 @@ export const actions: Actions = {
 			const email = (formData.get('email') as string)?.trim() ?? '';
 			const businessName = (formData.get('businessName') as string)?.trim() ?? '';
 			const website = (formData.get('website') as string)?.trim() ?? '';
-			const industry = (formData.get('industry') as string)?.trim() || 'professional';
+			const industry = (formData.get('industry') as string)?.trim() || 'dental';
 
 			if (!email) {
 				return fail(400, { createDemoError: 'Email is required to send the demo link.' });
@@ -110,7 +110,7 @@ export const actions: Actions = {
 				return fail(400, { createDemoError: 'Business name is required. Run a lookup first.' });
 			}
 
-			const validSlug = INDUSTRY_SLUGS.includes(industry as IndustrySlug) ? industry : 'professional';
+			const validSlug = INDUSTRY_SLUGS.includes(industry as IndustrySlug) ? industry : 'dental';
 			const row = await insertFreeDemoRequest({
 				email,
 				companyName: businessName,

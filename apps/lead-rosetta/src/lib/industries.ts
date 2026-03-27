@@ -1,85 +1,80 @@
 /**
- * Single source of truth for demo industries. Used by:
- * - Demo routes (/demo/[slug]), try/upload forms, dashboard demo generation
- * - industryMapping.ts (Notion/CRM industry → slug), chatContext (content by slug)
- * Keep INDUSTRY_SLUGS, INDUSTRY_STYLE_GUIDES, INDUSTRY_LABELS, INDUSTRY_THEMES in sync.
+ * Single source of truth for demo industries. Product scope: dental only.
+ * Used by demo routes, try/upload forms, dashboard demo generation, chatContext.
  */
-export const INDUSTRY_SLUGS = [
-	'healthcare',
-	'dental',
-	'construction',
-	'salons',
-	'professional',
-	'real-estate',
-	'legal',
-	'fitness'
-] as const;
+export const INDUSTRY_SLUGS = ['dental'] as const;
 
 export type IndustrySlug = (typeof INDUSTRY_SLUGS)[number];
 
 /**
+ * CRM/Notion industry values for dental. Unknown values still resolve to `dental`.
+ */
+export const NOTION_INDUSTRY_TO_SLUG: Record<IndustrySlug, readonly string[]> = {
+	dental: [
+		'dental',
+		'dentist',
+		'dentistry',
+		'dental care',
+		'dental clinic',
+		'orthodontics',
+		'orthodontist',
+		'oral health',
+		'periodontist',
+		'endodontist',
+		'oral surgeon',
+		'dental hygienist',
+		'cosmetic dentistry',
+		'teeth whitening',
+		'implants',
+		'pediatric dentist'
+	]
+};
+
+function normalizeIndustryValue(value: string): string {
+	return value.toLowerCase().trim().replace(/\s+/g, '-');
+}
+
+let _notionIndustryLookup: Map<string, IndustrySlug> | null = null;
+
+function buildNotionIndustryLookup(): Map<string, IndustrySlug> {
+	if (_notionIndustryLookup) return _notionIndustryLookup;
+	_notionIndustryLookup = new Map();
+	for (const v of NOTION_INDUSTRY_TO_SLUG.dental) {
+		_notionIndustryLookup.set(normalizeIndustryValue(v), 'dental');
+	}
+	return _notionIndustryLookup;
+}
+
+/**
+ * Map a Notion Industry select value to the demo URL slug. Defaults to `dental`.
+ */
+export function notionIndustryToSlug(notionValue: string): IndustrySlug {
+	if (!notionValue?.trim()) return 'dental';
+	const key = normalizeIndustryValue(notionValue);
+	return buildNotionIndustryLookup().get(key) ?? 'dental';
+}
+
+/**
  * Style guide file (under docs/style-guides/industries/) per industry.
- * File name without .html; each industry maps to one style guide for demo theming.
  */
 export const INDUSTRY_STYLE_GUIDES: Record<IndustrySlug, string> = {
-	healthcare: 'health-and-wellness',
-	dental: 'health-and-wellness',
-	construction: 'construction',
-	salons: 'salon-and-spa',
-	professional: 'professional',
-	'real-estate': 'real-estate',
-	legal: 'legal',
-	fitness: 'fitness'
+	dental: 'health-and-wellness'
 };
 
 /** Human-readable labels for industry dropdowns (e.g. try-free form). */
 export const INDUSTRY_LABELS: Record<IndustrySlug, string> = {
-	healthcare: 'Healthcare',
-	dental: 'Dental',
-	construction: 'Construction',
-	salons: 'Salons & beauty',
-	professional: 'Professional',
-	'real-estate': 'Real estate',
-	legal: 'Legal',
-	fitness: 'Fitness'
+	dental: 'Dental'
 };
 
 /**
- * Custom theme per industry (healthcare, construction, salons, etc.);
- * built-ins (aqua, forest, luxury, business, sunset) for the rest.
- */
-export const INDUSTRY_THEMES: Record<IndustrySlug, string> = {
-	healthcare: 'healthcare',
-	dental: 'aqua',
-	construction: 'construction',
-	salons: 'salons',
-	professional: 'forest',
-	'real-estate': 'luxury',
-	legal: 'business',
-	fitness: 'sunset'
-};
-
-export function getThemeForIndustry(slug: string): string | undefined {
-	return INDUSTRY_THEMES[slug as IndustrySlug];
-}
-
-export function getThemeForPath(pathname: string): string | undefined {
-	const segment = pathname.split('/').filter(Boolean)[0];
-	return segment ? getThemeForIndustry(segment) : undefined;
-}
-
-import { notionIndustryToSlug as mapNotionToSlug } from '$lib/industryMapping';
-
-/**
- * Map Notion Industry select value to demo URL slug.
- * Delegates to the canonical mapping in industryMapping.ts.
+ * Map a Notion Industry select value to demo URL slug.
  */
 export function industryDisplayToSlug(display: string): IndustrySlug {
-	return mapNotionToSlug(display);
+	return notionIndustryToSlug(display);
 }
 
 /**
- * Parse a multi-value industry string (e.g. "Dental" or "Legal, Dental") into trimmed parts.
+ * Parse a multi-value industry string (e.g. "Dental") into trimmed parts.
  */
 export function parseIndustryValues(industryString: string): string[] {
 	if (!(industryString ?? '').trim()) return [];
@@ -90,9 +85,7 @@ export function parseIndustryValues(industryString: string): string[] {
 }
 
 /**
- * From a multi-value industry string, return the best slug for demo endpoint selection:
- * - If preferredSlugs are given (e.g. ['dental']), return the first value that maps to one of them.
- * - Otherwise return the first value's slug, or 'professional' if none.
+ * From a multi-value industry string, return the slug for demo endpoint selection.
  */
 export function getPrimaryIndustrySlugFromMultiValue(
 	industryString: string,
@@ -101,10 +94,10 @@ export function getPrimaryIndustrySlugFromMultiValue(
 	const values = parseIndustryValues(industryString);
 	if (preferredSlugs?.length) {
 		for (const v of values) {
-			const slug = mapNotionToSlug(v);
+			const slug = notionIndustryToSlug(v);
 			if (preferredSlugs.includes(slug)) return slug;
 		}
 	}
-	if (values.length > 0) return mapNotionToSlug(values[0]);
-	return 'professional';
+	if (values.length > 0) return notionIndustryToSlug(values[0]);
+	return 'dental';
 }

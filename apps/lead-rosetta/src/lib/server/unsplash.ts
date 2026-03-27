@@ -85,7 +85,7 @@ export async function getPexelsImageUrl(
 	query: string,
 	options: { width?: number; industrySlug?: IndustrySlug; type?: 'hero' | 'about' } = {}
 ): Promise<string> {
-	const { width = 1200, industrySlug = 'construction', type = 'hero' } = options;
+	const { width = 1200, industrySlug = 'dental', type = 'hero' } = options;
 	const registry = getRegistryImages(industrySlug);
 	const fallback = type === 'hero' ? registry.hero : registry.about;
 	if (!isPexelsConfigured() || !query.trim()) return fallback;
@@ -107,7 +107,7 @@ export async function getUnsplashImageUrl(
 	query: string,
 	options: { width?: number; industrySlug?: IndustrySlug; type?: 'hero' | 'about' } = {}
 ): Promise<string> {
-	const { width = 1200, industrySlug = 'construction', type = 'hero' } = options;
+	const { width = 1200, industrySlug = 'dental', type = 'hero' } = options;
 	const registry = getRegistryImages(industrySlug);
 	const fallback = type === 'hero' ? registry.hero : registry.about;
 

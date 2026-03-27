@@ -34,7 +34,7 @@ function prospectFromFreeDemoRow(row: {
 	website: string | null;
 	industry: string;
 }): Prospect {
-	const industrySlug = (row.industry?.trim() || 'professional') as IndustrySlug;
+	const industrySlug = (row.industry?.trim() || 'dental') as IndustrySlug;
 	return {
 		id: row.id,
 		companyName: row.company_name?.trim() ?? '',

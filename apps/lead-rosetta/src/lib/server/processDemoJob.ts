@@ -25,16 +25,13 @@ import {
 } from '$lib/industries';
 import { PROSPECT_STATUS } from '$lib/prospectStatus';
 
-/** Pitch-rosetta industry endpoints. Dental uses template render (/api/dental-async); others use generic AI generate. */
-const DEMO_GENERATOR_ENDPOINT_BY_INDUSTRY: Partial<Record<IndustrySlug, string>> = {
-	dental: '/api/dental-async'
-};
-function getDemoGeneratorEndpoint(industrySlug: IndustrySlug): string {
-	return DEMO_GENERATOR_ENDPOINT_BY_INDUSTRY[industrySlug] ?? '/api/generate-async';
+/** Pitch Rosetta dental template render (single product scope). */
+function getDemoGeneratorEndpoint(_industrySlug: IndustrySlug): string {
+	return '/api/dental-async';
 }
 
-/** Slugs that have a dedicated demo endpoint (e.g. dental). Used to prefer them from multi-value industry. */
-const DEDICATED_INDUSTRY_SLUGS = Object.keys(DEMO_GENERATOR_ENDPOINT_BY_INDUSTRY) as IndustrySlug[];
+/** Prefer dental when resolving multi-value industry (compat). */
+const DEDICATED_INDUSTRY_SLUGS: IndustrySlug[] = ['dental'];
 
 /** Merge an inferred industry into current (e.g. "" + "Dental" → "Dental", or "Legal, Dental" + "Dental" → "Legal, Dental"). Dedupes and trims. */
 function mergeIndustryValues(current: string, toAdd: string): string {

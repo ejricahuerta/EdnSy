@@ -1,8 +1,7 @@
 /**
  * Orchestrate section order, run section renderers, wrap in document shell.
  *
- * Default render path is Lead Rosetta Health & Wellness to match the docs reference.
- * Legacy dental-v1..v6 render path remains available when explicitly requested.
+ * Default: random dental style guide (dental-v1..v6). Optional explicit styleId or Lead Rosetta layout.
  */
 import { getSectionOrder, isValidDentalStyle, pickRandomDentalStyle } from "./registry.js";
 import { documentShell } from "./documentShell.js";
@@ -21,23 +20,7 @@ const SECTION_RENDERERS = {
   "dental-v6": v6Sections,
 };
 
-/**
- * Render full HTML from index.json-shaped data.
- * @param {object} data - Business/content (index.json shape)
- * @param {{ styleId?: string }} [options] - Optional styleId for legacy dental-v1..v6 rendering. Omit to use the Lead Rosetta layout.
- * @returns {string} Full HTML document
- */
-export function renderPage(data, options = {}) {
-  const requestedStyleId = options.styleId;
-  const shouldUseDentalStyle = requestedStyleId && isValidDentalStyle(requestedStyleId);
-
-  // Default: Lead Rosetta layout (health-and-wellness industry) to match docs reference.
-  if (!shouldUseDentalStyle) {
-    return renderLeadRosettaHealthWellnessPage(data);
-  }
-
-  // Dental-v1..v6 legacy render path (kept for explicit testing).
-  const styleId = requestedStyleId || pickRandomDentalStyle();
+function renderDentalStyleGuidePage(data, styleId) {
   const order = getSectionOrder(styleId);
   const sections = SECTION_RENDERERS[styleId] || v2Sections;
   const parts = [];
@@ -55,4 +38,27 @@ export function renderPage(data, options = {}) {
     bodyHtml,
     jsonLd: null,
   });
+}
+
+/**
+ * Render full HTML from index.json-shaped data.
+ * @param {object} data - Business/content (index.json shape)
+ * @param {{ styleId?: string, leadRosettaLayout?: boolean }} [options]
+ *   - styleId: force a dental style guide (dental-v1..v6)
+ *   - leadRosettaLayout: use Lead Rosetta health & wellness single layout (no random)
+ *   - Default: pick a random dental style guide
+ * @returns {string} Full HTML document
+ */
+export function renderPage(data, options = {}) {
+  if (options.leadRosettaLayout === true) {
+    return renderLeadRosettaHealthWellnessPage(data);
+  }
+
+  const requestedStyleId = options.styleId;
+  const styleId =
+    requestedStyleId && isValidDentalStyle(requestedStyleId)
+      ? requestedStyleId
+      : pickRandomDentalStyle();
+
+  return renderDentalStyleGuidePage(data, styleId);
 }

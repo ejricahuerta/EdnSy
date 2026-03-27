@@ -35,7 +35,7 @@ export const actions: Actions = {
 			const companyName = (formData.get('companyName') as string)?.trim() ?? '';
 			const email = (formData.get('email') as string)?.trim() ?? '';
 			const website = (formData.get('website') as string)?.trim() ?? '';
-			const industry = (formData.get('industry') as string)?.trim() || 'professional';
+			const industry = (formData.get('industry') as string)?.trim() || 'dental';
 			const complianceConfirm = formData.get('complianceConfirm') === 'on';
 
 			if (!complianceConfirm) {
@@ -60,7 +60,7 @@ export const actions: Actions = {
 				}
 			}
 
-			const validSlug = INDUSTRY_SLUGS.includes(industry as IndustrySlug) ? industry : 'professional';
+			const validSlug = INDUSTRY_SLUGS.includes(industry as IndustrySlug) ? industry : 'dental';
 			const row = await insertFreeDemoRequest({
 				email,
 				companyName: companyName || 'Your business',

@@ -26,220 +26,6 @@ const DEFAULT_SERVICES = [
 	{ icon: 'calendar', title: 'Get in Touch', description: 'Book a consultation or request a quote.', cta: { label: 'Contact Us', href: '#contact' } }
 ];
 
-type ConstructionTradeDefaults = Partial<{
-	meta: { title: string; description: string };
-	hero: { headline: string; subheadline: string; body: string; imageUrl: string; imageAlt: string };
-	problem: { headline: string; items: string[] };
-	solution: { headline: string; body: string; imageUrl: string; imageAlt: string };
-	services: { headline: string; subheadline: string; items: typeof DEFAULT_SERVICES };
-	stats: { items: Array<{ value: string; label: string }> };
-	testimonials: { items: Array<{ name: string; location: string; rating: number; text: string }> };
-	faq: { items: Array<{ question: string; answer: string }> };
-	cta: { headline: string; body: string };
-}>;
-
-/** Detect trade from prospect industry display (e.g. "Plumbing" -> plumbing, "Locksmith" -> locksmith). */
-function getConstructionTradeFromIndustry(industryDisplay: string | null | undefined): 'plumbing' | 'locksmith' | 'construction' {
-	const raw = (industryDisplay ?? '').toLowerCase().trim();
-	if (/\bplumb(er|ing)?s?\b/.test(raw)) return 'plumbing';
-	if (/\blocksmith(s)?\b/.test(raw)) return 'locksmith';
-	return 'construction';
-}
-
-/** Industry-specific fallback copy for trades (construction: plumbing, locksmith, or generic). */
-function getConstructionTradeDefaults(name: string, area: string, industryDisplay?: string | null): ConstructionTradeDefaults {
-	const location = area ? ` in ${area}` : '';
-	const trade = getConstructionTradeFromIndustry(industryDisplay);
-
-	if (trade === 'plumbing') {
-		return {
-			meta: {
-				title: `${name} — Plumbing${location}`,
-				description: `Licensed plumbing services${location}. Repairs, installations, 24/7 emergency service.`
-			},
-			hero: {
-				headline: `Plumbing you can count on.`,
-				subheadline: 'Repairs • Installations • 24/7 emergency • Licensed and insured.',
-				body: `${name} provides plumbing repairs, installations, and emergency service${location}. We show up on time and get the job done right.`,
-				imageUrl: 'https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=1200&q=80',
-				imageAlt: 'Professional plumber at work'
-			},
-			problem: {
-				headline: 'Need a plumber?',
-				items: [
-					'Leaks, clogged drains, or broken fixtures',
-					'Water heater or pipe installation and repair',
-					'You want a licensed, reliable plumber — not a handyman'
-				]
-			},
-			solution: {
-				headline: "Here's how we help",
-				body: `We offer upfront pricing and clear communication. Our technicians are licensed and insured. From emergency repairs to new installations, we get it done right.`,
-				imageUrl: 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=600&q=80',
-				imageAlt: `${name} — plumbing services`
-			},
-			services: {
-				headline: 'Our Services',
-				subheadline: 'Residential and commercial plumbing.',
-				items: [
-					{ icon: 'wrench', title: 'Emergency Repairs', description: '24/7 response for leaks, burst pipes, and no-heat calls. We get there fast.', cta: { label: 'Learn More', href: '#contact' } },
-					{ icon: 'wrench', title: 'Drains & Fixtures', description: 'Clogged drains, faucet and toilet repairs, and fixture installation.', cta: { label: 'Learn More', href: '#contact' } },
-					{ icon: 'wrench', title: 'Installations', description: 'Water heaters, pipe work, and plumbing for renovations and new builds.', cta: { label: 'Contact Us', href: '#contact' } }
-				]
-			},
-			stats: {
-				items: [
-					{ value: '24/7', label: 'Emergency Service' },
-					{ value: '15+', label: 'Years Experience' },
-					{ value: '500+', label: 'Happy Clients' }
-				]
-			},
-			testimonials: {
-				items: [
-					{ name: 'Sarah M.', location: area || 'Local', rating: 5, text: 'Had a burst pipe on a Sunday. They came out within an hour and fixed it. Fair price.' },
-					{ name: 'James K.', location: area || 'GTA', rating: 5, text: 'Replaced our water heater. Clear quote, done on time. Would recommend.' }
-				]
-			},
-			faq: {
-				items: [
-					{ question: 'Do you offer emergency plumbing service?', answer: 'Yes. We offer 24/7 emergency plumbing. Call us anytime.' },
-					{ question: 'What areas do you serve?', answer: `We serve ${area || 'the local area'} and surrounding communities.` },
-					{ question: 'Are you licensed and insured?', answer: 'Yes. We are licensed and insured for your protection.' }
-				]
-			},
-			cta: {
-				headline: 'Need a plumber?',
-				body: 'Call for emergency service or request a quote. We respond quickly.'
-			}
-		};
-	}
-
-	if (trade === 'locksmith') {
-		return {
-			meta: {
-				title: `${name} — Locks & Security${location}`,
-				description: `Professional locksmith and security services${location}. 24/7 emergency lockout, rekeying, and commercial locks.`
-			},
-			hero: {
-				headline: `Locks and security you can count on.`,
-				subheadline: '24/7 emergency lockout • Residential & commercial • Licensed and insured.',
-				body: `${name} provides locksmith services, lock repairs, rekeying, and security upgrades${location}. Fast response when you need it.`,
-				imageUrl: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=80',
-				imageAlt: 'Professional locksmith at work'
-			},
-			problem: {
-				headline: 'Need a locksmith?',
-				items: [
-					'Locked out of your home, car, or office',
-					'Need new locks, rekeying, or a security upgrade',
-					'You want a licensed, reliable pro — not a fly-by-night'
-				]
-			},
-			solution: {
-				headline: "Here's how we help",
-				body: `We offer upfront pricing and clear communication. Our technicians are trained and insured. Whether it's an emergency lockout or a planned lock change, we get the job done right.`,
-				imageUrl: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=600&q=80',
-				imageAlt: `${name} — locksmith and security`
-			},
-			services: {
-				headline: 'Our Services',
-				subheadline: 'Residential, commercial, and emergency.',
-				items: [
-					{ icon: 'wrench', title: 'Emergency Lockout', description: '24/7 response for lockouts. We get you back in quickly and safely.', cta: { label: 'Learn More', href: '#contact' } },
-					{ icon: 'wrench', title: 'Residential & Commercial', description: 'New locks, rekeying, and lock repairs for homes and businesses.', cta: { label: 'Learn More', href: '#contact' } },
-					{ icon: 'wrench', title: 'Keys & Security', description: 'Key duplication, high-security locks, and security assessments.', cta: { label: 'Contact Us', href: '#contact' } }
-				]
-			},
-			stats: {
-				items: [
-					{ value: '24/7', label: 'Emergency Service' },
-					{ value: '15+', label: 'Years Experience' },
-					{ value: '500+', label: 'Happy Clients' }
-				]
-			},
-			testimonials: {
-				items: [
-					{ name: 'Sarah M.', location: area || 'Local', rating: 5, text: 'Called after being locked out. They showed up fast and were professional. Fair price.' },
-					{ name: 'James K.', location: area || 'GTA', rating: 5, text: 'Had the whole house rekeyed. Clear quote, done on time. Would use again.' }
-				]
-			},
-			faq: {
-				items: [
-					{ question: 'Do you offer emergency lockout service?', answer: 'Yes. We offer 24/7 emergency lockout service. Call us anytime.' },
-					{ question: 'What areas do you serve?', answer: `We serve ${area || 'the local area'} and surrounding communities.` },
-					{ question: 'Are you licensed and insured?', answer: 'Yes. We are licensed and insured for your protection.' }
-				]
-			},
-			cta: {
-				headline: 'Need a locksmith?',
-				body: 'Call for emergency service or request a quote. We respond quickly.'
-			}
-		};
-	}
-
-	// Generic construction / contractor
-	return {
-		meta: {
-			title: `${name} — Construction & Renovation${location}`,
-			description: `Quality construction and renovation services${location}. Renovations, repairs, and new builds.`
-		},
-		hero: {
-			headline: `Quality construction in your community.`,
-			subheadline: 'Renovations • Repairs • New construction • Licensed and insured.',
-			body: `${name} delivers construction and renovation services${location}. From small repairs to full renovations, we show up and get the job done right.`,
-			imageUrl: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1200&q=80',
-			imageAlt: 'Construction and renovation'
-		},
-		problem: {
-			headline: 'Looking for a reliable contractor?',
-			items: [
-				'You need repairs, renovations, or new construction',
-				'You want clear quotes and on-time completion',
-				'You value quality work and good communication'
-			]
-		},
-		solution: {
-			headline: "Here's how we help",
-			body: `We offer upfront pricing and clear communication. Our team is licensed and insured. From small repairs to large renovations, we get it done right.`,
-			imageUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&q=80',
-			imageAlt: `${name} — construction and renovation`
-		},
-		services: {
-			headline: 'Our Services',
-			subheadline: 'Residential and commercial.',
-			items: [
-				{ icon: 'wrench', title: 'Renovations', description: 'Kitchens, bathrooms, and full home renovations. We handle the whole project.', cta: { label: 'Learn More', href: '#contact' } },
-				{ icon: 'wrench', title: 'Repairs & Maintenance', description: 'Repairs, maintenance, and small jobs. No project too small.', cta: { label: 'Learn More', href: '#contact' } },
-				{ icon: 'wrench', title: 'New Construction', description: 'Additions and new builds. From foundation to finish.', cta: { label: 'Contact Us', href: '#contact' } }
-			]
-		},
-		stats: {
-			items: [
-				{ value: '100+', label: 'Projects Done' },
-				{ value: '15+', label: 'Years Experience' },
-				{ value: '500+', label: 'Happy Clients' }
-			]
-		},
-		testimonials: {
-			items: [
-				{ name: 'Sarah M.', location: area || 'Local', rating: 5, text: 'Had our kitchen renovated. They were on time, on budget, and the quality was great.' },
-				{ name: 'James K.', location: area || 'GTA', rating: 5, text: 'Needed a bathroom repair. Quick quote, done properly. Will use again.' }
-			]
-		},
-		faq: {
-			items: [
-				{ question: 'Do you do small jobs?', answer: 'Yes. We take on everything from small repairs to large renovations. No project is too small for a professional quote.' },
-				{ question: 'What areas do you serve?', answer: `We serve ${area || 'the local area'} and surrounding communities.` },
-				{ question: 'Are you licensed and insured?', answer: 'Yes. We are licensed and insured for your protection.' }
-			]
-		},
-		cta: {
-			headline: 'Ready to get started?',
-			body: 'Request a quote or give us a call. We respond quickly.'
-		}
-	};
-}
-
 /** Derive a short area name from address (e.g. "Concord", "North York") for copy. */
 function getAreaFromAddress(address: string): string {
 	if (!address?.trim()) return '';
@@ -311,57 +97,18 @@ export function mapGbpReviewsToTestimonials(
 	}));
 }
 
-/** Industry-specific fallback review templates: 2 short testimonials based on business type. */
-const FALLBACK_BY_INDUSTRY: Record<string, Array<{ name: string; location: string; text: string }>> = {
-	healthcare: [
-		{ name: 'Sarah M.', location: 'Local', text: 'Professional and caring. They took time to answer all my questions. Highly recommend.' },
-		{ name: 'James K.', location: 'Downtown', text: 'Clean office, friendly staff, and I was in and out without a long wait. Great experience.' }
-	],
-	dental: [
-		{ name: 'Priya M.', location: 'East Side', text: 'Best dental visit I\'ve had. Gentle and thorough. My whole family comes here now.' },
-		{ name: 'David R.', location: 'Local', text: 'Fixed my issue quickly and explained everything. The team is kind and very professional.' }
-	],
-	construction: [
-		{ name: 'Mike T.', location: 'Local', text: 'Showed up on time, gave a fair quote, and did quality work. Will use again.' },
-		{ name: 'Lisa W.', location: 'GTA', text: 'Professional from start to finish. Clear communication and the job was done right.' }
-	],
-	salons: [
-		{ name: 'Emma L.', location: 'Downtown', text: 'Love this place. Always leave feeling refreshed and looking great. Staff is amazing.' },
-		{ name: 'Alex P.', location: 'Local', text: 'Consistent quality every visit. They listen to what you want and deliver. Highly recommend.' }
-	],
-	professional: [
-		{ name: 'Chris N.', location: 'Local', text: 'Knowledgeable and responsive. They delivered exactly what we needed on time.' },
-		{ name: 'Jordan S.', location: 'Downtown', text: 'Professional and easy to work with. Would definitely use their services again.' }
-	],
-	'real-estate': [
-		{ name: 'Sam and Jess', location: 'Local', text: 'Made buying our first home smooth and stress-free. Great communication throughout.' },
-		{ name: 'Maria G.', location: 'Downtown', text: 'Sold our condo in no time. They know the market and got us a fair price.' }
-	],
-	legal: [
-		{ name: 'Robert H.', location: 'Local', text: 'Clear advice and handled my case with care. I felt informed every step of the way.' },
-		{ name: 'Jennifer L.', location: 'Downtown', text: 'Professional and straightforward. They got the outcome I needed. Thank you.' }
-	],
-	fitness: [
-		{ name: 'Tom B.', location: 'Local', text: 'Best gym in the area. Clean, great equipment, and the trainers actually know their stuff.' },
-		{ name: 'Nina K.', location: 'Downtown', text: 'Motivating environment and supportive staff. I\'ve seen real results since joining.' }
-	]
-};
-
-const GENERIC_FALLBACK: Array<{ name: string; location: string; text: string }> = [
-	{ name: 'Happy Customer', location: 'Local', text: 'Professional and reliable. Would recommend to anyone.' },
-	{ name: 'Satisfied Client', location: 'Downtown', text: 'Great experience from start to finish. Highly recommend.' }
+const DENTAL_FALLBACK_TESTIMONIALS: Array<{ name: string; location: string; text: string }> = [
+	{ name: 'Priya M.', location: 'East Side', text: 'Best dental visit I\'ve had. Gentle and thorough. My whole family comes here now.' },
+	{ name: 'David R.', location: 'Local', text: 'Fixed my issue quickly and explained everything. The team is kind and very professional.' }
 ];
 
 /** Return 2 testimonial items (name, location, rating, text) tailored to industry; add avatarUrl when rendering. */
 export function getFallbackTestimonialsForBusiness(
 	prospect: Prospect,
-	industrySlug?: string
+	_industrySlug?: string
 ): Array<Omit<TestimonialItem, 'avatarUrl'>> {
 	const name = prospect.companyName?.trim() || 'They';
-	const templates =
-		industrySlug && FALLBACK_BY_INDUSTRY[industrySlug]
-			? FALLBACK_BY_INDUSTRY[industrySlug]
-			: GENERIC_FALLBACK;
+	const templates = DENTAL_FALLBACK_TESTIMONIALS;
 	return templates.slice(0, MIN_TESTIMONIALS).map((t) => ({
 		name: t.name,
 		location: t.location,
@@ -417,8 +164,7 @@ export function buildDemoPageJson(
 	const email = '';
 	const area = getAreaFromAddress(address);
 
-	const industryDefaults =
-		industrySlug === 'construction' ? getConstructionTradeDefaults(name, area, prospect.industry) : null;
+	const industryDefaults = null;
 
 	const hero = landingContent?.hero;
 	const cta = landingContent?.cta;

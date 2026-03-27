@@ -46,11 +46,12 @@
         "operationId": "getRenderTest",
         "tags": ["Test"],
         "summary": "Render test (dental HTML)",
-        "description": "Returns rendered dental HTML. Optional query: json (filename), style (dental-v1..dental-v4). Omit for random.",
+        "description": "Returns rendered dental HTML. Optional: json (fixture filename), style (dental-v1..dental-v6). Omit style for a random style guide. Optional layout=lead-rosetta for the Lead Rosetta single layout (only when style is omitted).",
         "security": [],
         "parameters": [
           { "name": "json", "in": "query", "description": "index.json | index-dental-riverside.json | index-dental-downtown.json", "schema": { "type": "string" } },
-          { "name": "style", "in": "query", "description": "dental-v1 | dental-v2 | dental-v3 | dental-v4", "schema": { "type": "string" } }
+          { "name": "style", "in": "query", "description": "dental-v1 | dental-v2 | dental-v3 | dental-v4 | dental-v6", "schema": { "type": "string" } },
+          { "name": "layout", "in": "query", "description": "lead-rosetta — use Lead Rosetta layout instead of style guides (ignored if style is set)", "schema": { "type": "string" } }
         ],
         "responses": {
           "200": { "description": "HTML", "content": { "text/html": { "schema": { "type": "string" } } } },
@@ -150,14 +151,14 @@
         "operationId": "postDental",
         "tags": ["Dental"],
         "summary": "Dental render (sync)",
-        "description": "Renders dental HTML from JSON body. Style is randomized.",
+        "description": "Renders dental HTML from JSON body. Picks a random dental style guide (dental-v1..dental-v6) unless optional styleId or dentalStyleId is set, or leadRosettaLayout is true.",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "description": "Dental business data (index.json shape)"
+                "description": "Dental business data (index.json shape). Optional render hints: styleId, dentalStyleId (dental-v1..dental-v6), leadRosettaLayout (boolean). These are stripped before render."
               }
             }
           }
@@ -175,7 +176,7 @@
         "operationId": "postDentalAsync",
         "tags": ["Dental"],
         "summary": "Dental render (async + callback)",
-        "description": "Accepts job, returns 202. Renders dental HTML in background and POSTs { jobId, prospectId, userId?, html } or { ..., error } to callbackUrl.",
+        "description": "Accepts job, returns 202. Renders dental HTML (random style guide unless styleId/dentalStyleId/leadRosettaLayout in body) and POSTs { jobId, prospectId, userId?, html } or { ..., error } to callbackUrl.",
         "requestBody": {
           "required": true,
           "content": {

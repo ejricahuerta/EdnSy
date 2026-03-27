@@ -32,7 +32,7 @@ export const load: PageServerLoad = async ({ params }) => {
 					freeDemoPending: true,
 					freeDemoId: slug,
 					freeDemoCompanyName: freeDemo.company_name ?? 'Your business',
-					freeDemoIndustry: freeDemo.industry ?? 'professional',
+					freeDemoIndustry: freeDemo.industry ?? 'dental',
 					freeDemoEmail: freeDemo.email ?? ''
 				};
 			}
@@ -46,7 +46,7 @@ export const load: PageServerLoad = async ({ params }) => {
 				const hasDemoHtml = await downloadDemoHtml(slug).then((html) => !!html?.trim());
 				if (hasDemoHtml) {
 					await recordFreeDemoViewed(slug);
-					const industrySlug = (freeDemo.industry?.trim() || 'professional') as IndustrySlug;
+					const industrySlug = (freeDemo.industry?.trim() || 'dental') as IndustrySlug;
 					return {
 						useCinematicDemo: true,
 						prospectId: slug,

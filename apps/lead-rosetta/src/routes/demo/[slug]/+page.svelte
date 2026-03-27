@@ -10,7 +10,7 @@
 	let { data } = $props();
 	const freeDemoPending = $derived(data.freeDemoPending === true);
 	const freeDemoCompanyName = $derived((data.freeDemoCompanyName as string) ?? 'Your business');
-	const freeDemoIndustry = $derived((data.freeDemoIndustry as string) ?? 'professional');
+	const freeDemoIndustry = $derived((data.freeDemoIndustry as string) ?? 'dental');
 	const freeDemoEmail = $derived((data.freeDemoEmail as string) ?? '');
 	const freeDemoFailed = $derived(data.freeDemoFailed === true);
 	const freeDemoErrorMessage = $derived((data.errorMessage as string) ?? '');

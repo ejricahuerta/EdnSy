@@ -239,7 +239,7 @@
 				<form method="POST" action="?/createDemo" class="show-demo-form" use:enhance={enhanceCreateDemo()}>
 					<input type="hidden" name="businessName" value={lookupData.businessName} />
 					<input type="hidden" name="website" value={lookupData.gbp?.website ?? ''} />
-					<input type="hidden" name="industry" value="professional" />
+					<input type="hidden" name="industry" value="dental" />
 					<div class="form-group max-w-full">
 						<label for="show-email" class="form-label">Client email</label>
 						<input

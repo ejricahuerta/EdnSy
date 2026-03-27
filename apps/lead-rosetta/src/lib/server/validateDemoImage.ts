@@ -46,29 +46,16 @@ export type ImageValidationContext = {
 
 /**
  * Build a short description for the validation prompt from profile key or context.
- * Used so validation works for all industries (dental, healthcare, construction.painter, etc.).
  */
 export function getValidationPromptDescription(context: ImageValidationContext): string {
 	if (context.profileDescription?.trim()) {
 		return context.profileDescription.trim();
 	}
-	const { industrySlug, businessType } = context;
-	if (industrySlug === 'construction' && businessType?.toLowerCase().includes('paint')) {
-		return 'house painting / painting contractor business (walls, interior/exterior painting, contractor with tools)';
+	const { industrySlug } = context;
+	if (industrySlug === 'dental') {
+		return 'dental practice';
 	}
-	if (industrySlug === 'construction') {
-		return 'construction or trade business (building, renovation, workers, tools)';
-	}
-	const labels: Partial<Record<IndustrySlug, string>> = {
-		healthcare: 'healthcare or medical practice',
-		dental: 'dental practice',
-		salons: 'salon or beauty business',
-		professional: 'professional services business',
-		'real-estate': 'real estate business',
-		legal: 'law firm or legal services',
-		fitness: 'fitness or gym business'
-	};
-	return labels[industrySlug] ?? 'professional small business';
+	return 'dental practice';
 }
 
 /**

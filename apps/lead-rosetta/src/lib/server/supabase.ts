@@ -574,7 +574,7 @@ export async function insertFreeDemoRequest(params: {
 			email: params.email.trim(),
 			company_name: params.companyName.trim(),
 			website: params.website?.trim() ?? '',
-			industry: params.industry?.trim() ?? 'professional',
+			industry: params.industry?.trim() ?? 'dental',
 			status: 'pending'
 		})
 		.select(FREE_DEMO_BASE_COLUMNS)

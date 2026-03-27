@@ -23,14 +23,14 @@ export const actions: Actions = {
 		const email = (formData.get('email') as string)?.trim() ?? '';
 		const phone = (formData.get('phone') as string)?.trim() ?? '';
 		const website = (formData.get('website') as string)?.trim() ?? '';
-		const industry = (formData.get('industry') as string)?.trim() || 'professional';
+		const industry = (formData.get('industry') as string)?.trim() || 'dental';
 		if (!companyName) {
 			return fail(400, { message: 'Company name is required.' });
 		}
 		if (!email && !phone) {
 			return fail(400, { message: 'Email or phone is required.' });
 		}
-		const validSlug = INDUSTRY_SLUGS.includes(industry as IndustrySlug) ? industry : 'professional';
+		const validSlug = INDUSTRY_SLUGS.includes(industry as IndustrySlug) ? industry : 'dental';
 		setFreeDemoCookie(cookies, { companyName, email, website, industry: validSlug });
 		incrementFreeDemos(cookies);
 		throw redirect(303, `/${validSlug}/demo`);

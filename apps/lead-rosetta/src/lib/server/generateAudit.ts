@@ -4,7 +4,7 @@ import { serverError, serverInfo } from '$lib/server/logger';
 import { isDemoAuditShape } from '$lib/types/demo';
 import type { DemoAudit, GeminiInsight, AuditModalCopy, WebsiteInsight } from '$lib/types/demo';
 import type { GbpData } from '$lib/server/gbp';
-import { INDUSTRY_LABELS, INDUSTRY_SLUGS } from '$lib/industries';
+import { INDUSTRY_LABELS } from '$lib/industries';
 import { getResolvedContent } from '$lib/server/agentContent';
 import { parseJsonFromResponse } from '$lib/ai-agents/shared/parseJson';
 import { fetchWebsiteContent } from '$lib/ai-agents';
@@ -522,86 +522,14 @@ export async function generateAuditModalCopy(
 	}
 }
 
-/** Allowed industry display labels for Gemini inference (must match INDUSTRY_LABELS). */
-const ALLOWED_INDUSTRY_LABELS = new Set(Object.values(INDUSTRY_LABELS));
-
 /**
- * Infer industry from business name, website, and optional GBP category using Gemini.
- * Maps the business to one of our industry demos so we can show the correct demo page.
- * Returns one of our INDUSTRY_LABELS (e.g. "Healthcare", "Construction") or null if Gemini is not configured or fails.
- * Used when GBP category is missing or uncategorized so demo routing and content use a sensible industry.
+ * Product scope is dental-only; inferred label is always Dental when Gemini is configured.
  */
 export async function inferIndustryWithGemini(
 	prospect: Prospect,
-	gbpCategory?: string | null
+	_gbpCategory?: string | null
 ): Promise<string | null> {
 	if (!GEMINI_API_KEY) return null;
-
-	const context = [
-		`Business name: ${(prospect.companyName ?? '').trim() || 'Unknown'}`,
-		prospect.website ? `Website: ${prospect.website}` : null,
-		gbpCategory && gbpCategory !== 'General' ? `Google Business category: ${gbpCategory}` : null,
-		gbpCategory === 'General' || !gbpCategory
-			? 'Note: GBP category is missing or uncategorized; infer the real industry from the business name and the nature of the business.'
-			: null
-	]
-		.filter(Boolean)
-		.join('\n');
-
-	// Single source of truth: our demo industries (INDUSTRY_SLUGS) and their labels
-	const labelsList = INDUSTRY_SLUGS.map((slug) => INDUSTRY_LABELS[slug]).join(', ');
-	const prompt = `We have demo pages for these industries only: ${labelsList}.
-
-Your task: classify this local business into exactly one of the above industries so we can show them the right demo page. Use the business name and the nature of the business (e.g. a dental practice, orthodontist, or "Smile Dental" should be "Dental"; a plumbing company should be "Construction"). Do not rely only on the GBP category—it may be missing or uncategorized. Reply with exactly one label from the list, exactly as written (e.g. "Dental" or "Construction" or "Salons & beauty"). No other text.
-
-${context}
-
-Reply with exactly one line containing only that label.`;
-
-	const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
-
-	try {
-		const res = await fetch(apiUrl, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				contents: [{ role: 'user', parts: [{ text: prompt }] }],
-				generationConfig: {
-					maxOutputTokens: 64,
-					temperature: 0.2
-				}
-			}),
-			signal: AbortSignal.timeout(10000)
-		});
-
-		if (!res.ok) return null;
-
-		const data = (await res.json()) as {
-			candidates?: { content?: { parts?: { text?: string }[] } }[];
-		};
-		const raw = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-		if (!raw) return null;
-
-		const label = raw.replace(/\s*\.\s*$/, '').trim();
-		if (ALLOWED_INDUSTRY_LABELS.has(label)) {
-			serverInfo('inferIndustryWithGemini', 'Inferred industry', {
-				companyName: prospect.companyName,
-				label
-			});
-			return label;
-		}
-		// Fallback: try to match any of our labels case-insensitively
-		const lower = label.toLowerCase();
-		for (const allowed of ALLOWED_INDUSTRY_LABELS) {
-			if (allowed.toLowerCase() === lower) return allowed;
-		}
-		serverInfo('inferIndustryWithGemini', 'Gemini returned unknown label, using Professional', {
-			companyName: prospect.companyName,
-			raw: label
-		});
-		return INDUSTRY_LABELS.professional;
-	} catch (e) {
-		serverError('inferIndustryWithGemini', e instanceof Error ? e.message : String(e), e);
-		return null;
-	}
+	serverInfo('inferIndustryWithGemini', 'Dental-only scope', { companyName: prospect.companyName });
+	return INDUSTRY_LABELS.dental;
 }

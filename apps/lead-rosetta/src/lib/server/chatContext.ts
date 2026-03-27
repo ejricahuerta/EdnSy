@@ -1,22 +1,8 @@
 import type { IndustrySlug } from '$lib/industries';
-import { healthcareDemoContent } from '$lib/content/healthcare';
 import { dentalDemoContent } from '$lib/content/dental';
-import { constructionDemoContent } from '$lib/content/construction';
-import { salonsDemoContent } from '$lib/content/salons';
-import { professionalDemoContent } from '$lib/content/professional';
-import { realEstateDemoContent } from '$lib/content/realEstate';
-import { legalDemoContent } from '$lib/content/legal';
-import { fitnessDemoContent } from '$lib/content/fitness';
 
 const CONTENT_BY_SLUG: Record<IndustrySlug, Record<string, unknown>> = {
-	healthcare: healthcareDemoContent as Record<string, unknown>,
-	dental: dentalDemoContent as Record<string, unknown>,
-	construction: constructionDemoContent as Record<string, unknown>,
-	salons: salonsDemoContent as Record<string, unknown>,
-	professional: professionalDemoContent as Record<string, unknown>,
-	'real-estate': realEstateDemoContent as Record<string, unknown>,
-	legal: legalDemoContent as Record<string, unknown>,
-	fitness: fitnessDemoContent as Record<string, unknown>
+	dental: dentalDemoContent as Record<string, unknown>
 };
 
 /** Default system instruction for demo chat; can be overridden via agent content. */
@@ -27,7 +13,6 @@ If asked about booking or appointments, suggest they use the "Book" button or li
 /**
  * Build a text summary of the current page content for the AI chat context.
  * Used as system/context for the assistant so answers stay on-topic.
- * If instructionOverride is provided (e.g. from agent content DB), it is used as the instruction block; use {{businessName}} in the override.
  */
 export function getPageContextForIndustry(
 	industrySlug: IndustrySlug,

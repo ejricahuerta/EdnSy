@@ -6,8 +6,6 @@
 import type { Prospect } from '$lib/server/prospects';
 import type { GbpData, GbpReview } from '$lib/server/gbp';
 import type { ToneSlug } from '$lib/tones';
-import type { IndustrySlug } from '$lib/industries';
-import { industryDisplayToSlug } from '$lib/industries';
 import type { LandingPageIndexJson } from '$lib/types/landingPageIndexJson';
 import type { LandingContentFromAi } from '$lib/server/generateLandingPageContentFromGbp';
 
@@ -34,56 +32,13 @@ function getThemeForTone(tone: ToneSlug): {
 	return map[tone] ?? map.professional;
 }
 
-/** Default services by industry (3 items; name, description, price). */
-function getDefaultServices(name: string, industryLabel: string, area: string): LandingPageIndexJson['services'] {
+/** Default services (3 items; name, description, price). Dental-only product scope. */
+function getDefaultServices(_name: string, _industryLabel: string, area: string): LandingPageIndexJson['services'] {
 	const loc = area ? ` in ${area}` : '';
-	const slug = industryDisplayToSlug(industryLabel) as IndustrySlug;
-	const defaults: Record<string, LandingPageIndexJson['services']> = {
-		healthcare: [
-			{ name: 'Consultations', description: `In-person and virtual consultations${loc}. We take time to understand your needs.`, price: '—' },
-			{ name: 'Ongoing Care', description: 'Follow-up visits, care plans, and coordination with specialists.', price: '—' },
-			{ name: 'Preventive Care', description: 'Check-ups, screenings, and wellness programs to keep you healthy.', price: '—' }
-		],
-		dental: [
-			{ name: 'General Dentistry', description: `Cleanings, exams, and preventive care${loc}.`, price: '—' },
-			{ name: 'Restorative Care', description: 'Fillings, crowns, and repairs to restore your smile.', price: '—' },
-			{ name: 'Cosmetic & Whitening', description: 'Teeth whitening and cosmetic procedures.', price: 'Contact us' }
-		],
-		construction: [
-			{ name: 'Renovations', description: `Kitchens, bathrooms, and full renovations${loc}.`, price: 'Quote' },
-			{ name: 'Repairs & Maintenance', description: 'Repairs and small jobs. No project too small.', price: 'Quote' },
-			{ name: 'New Construction', description: 'Additions and new builds from foundation to finish.', price: 'Quote' }
-		],
-		salons: [
-			{ name: 'Hair', description: `Cuts, color, and styling${loc}.`, price: '—' },
-			{ name: 'Skin & Nails', description: 'Facials, manicures, pedicures, and treatments.', price: '—' },
-			{ name: 'Special Events', description: 'Bridal and event styling. Book in advance.', price: '—' }
-		],
-		professional: [
-			{ name: 'Consulting', description: `Expert advice and strategy${loc}.`, price: '—' },
-			{ name: 'Implementation', description: 'Hands-on delivery and project management.', price: '—' },
-			{ name: 'Ongoing Support', description: 'Retainers and follow-up to ensure results.', price: '—' }
-		],
-		'real-estate': [
-			{ name: 'Buying', description: `Find your next home${loc}. We guide you through every step.`, price: '—' },
-			{ name: 'Selling', description: 'List, market, and sell with confidence.', price: '—' },
-			{ name: 'Investments', description: 'Investment properties and portfolio advice.', price: '—' }
-		],
-		legal: [
-			{ name: 'Consultation', description: `Initial review and strategy${loc}.`, price: '—' },
-			{ name: 'Representation', description: 'Full representation and advocacy.', price: '—' },
-			{ name: 'Document Review', description: 'Contracts, agreements, and legal documents.', price: '—' }
-		],
-		fitness: [
-			{ name: 'Membership', description: `Access to facilities and classes${loc}.`, price: '—' },
-			{ name: 'Personal Training', description: 'One-on-one sessions tailored to your goals.', price: '—' },
-			{ name: 'Group Classes', description: 'Yoga, HIIT, and specialty classes.', price: '—' }
-		]
-	};
-	return defaults[slug] ?? [
-		{ name: 'Our Services', description: `Quality service${loc}. We're here to help.`, price: '—' },
-		{ name: 'Consultation', description: 'Get in touch for a quote or to discuss your needs.', price: '—' },
-		{ name: 'Ongoing Support', description: 'We stand behind our work.', price: '—' }
+	return [
+		{ name: 'General Dentistry', description: `Cleanings, exams, and preventive care${loc}.`, price: '—' },
+		{ name: 'Restorative Care', description: 'Fillings, crowns, and repairs to restore your smile.', price: '—' },
+		{ name: 'Cosmetic & Whitening', description: 'Teeth whitening and cosmetic procedures.', price: 'Contact us' }
 	];
 }
 
@@ -147,20 +102,9 @@ function getFallbackTestimonials(industryLabel: string, area: string, avatarUrl:
 	];
 }
 
-/** Unsplash keywords by industry for image fallbacks. */
+/** Unsplash keywords for image fallbacks. */
 function getUnsplashKeywords(industryLabel: string): string[] {
-	const slug = industryDisplayToSlug(industryLabel) as IndustrySlug;
-	const map: Record<string, string[]> = {
-		healthcare: ['clinic', 'healthcare', 'medical', 'doctor'],
-		dental: ['dental', 'dentist', 'clinic', 'smile'],
-		construction: ['construction', 'renovation', 'tools', 'building'],
-		salons: ['salon', 'beauty', 'hair', 'spa'],
-		professional: ['office', 'business', 'professional', 'meeting'],
-		'real-estate': ['real estate', 'house', 'home', 'keys'],
-		legal: ['law', 'legal', 'office', 'professional'],
-		fitness: ['gym', 'fitness', 'workout', 'exercise']
-	};
-	return map[slug] ?? [industryLabel.toLowerCase(), 'business', 'local', 'service'];
+	return ['dental', 'dentist', 'clinic', 'smile', industryLabel.toLowerCase()];
 }
 
 const DEFAULT_AVATAR = 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&q=80';
