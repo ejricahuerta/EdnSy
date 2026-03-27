@@ -45,17 +45,7 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
-/* Hero: 800px height, centered copy, inverted (dark bg, light text). Width matches nav (max-w-6xl + px-4 sm:px-6 lg:px-8). */
-/* Hero bg uses same blue gradient as logo in node graph (primary #3a00ff). */
-/* Glow: soft radial bloom on ::before, heartbeat pulse. */
-@keyframes hero-glow-heartbeat {
-  0%, 100% { opacity: 0.65; }
-  14% { opacity: 1; }   /* first beat */
-  28% { opacity: 0.65; }
-  42% { opacity: 1; }   /* second beat */
-  56%, 100% { opacity: 0.65; }
-}
-
+/* Hero: 800px height, centered copy, inverted (dark bg, light text). */
 .hero-block {
   position: relative;
   width: 100%;
@@ -94,7 +84,7 @@
     rgba(40, 0, 102, 0.08) 50%,
     transparent 70%
   );
-  animation: hero-glow-heartbeat 1.5s ease-in-out infinite;
+  opacity: 0.85;
 }
 @media (min-width: 640px) {
   .hero-block {
@@ -156,7 +146,7 @@
   letter-spacing: 0.01em;
 }
 
-/* Cursive underline animation for links */
+/* Heading link underline (width transition only) */
 .font-heading {
   position: relative;
   text-decoration: none;
@@ -176,25 +166,6 @@
 
 .font-heading:hover::after {
   width: 100%;
-}
-
-/* Cursive-style wavy underline effect */
-@keyframes cursive-underline {
-  0% {
-    width: 0;
-    opacity: 0;
-  }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    width: 100%;
-    opacity: 1;
-  }
-}
-
-.font-heading:hover::after {
-  animation: cursive-underline 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 /* Base typography improvements */

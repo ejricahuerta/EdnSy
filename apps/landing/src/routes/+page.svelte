@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from "svelte";
   import { Button } from "$lib/components/ui/button";
   import { Badge } from "$lib/components/ui/badge";
   import {
@@ -18,7 +17,6 @@
   } from "$lib/content/site";
   import { websitePage } from "$lib/content/service-pages";
   import { buildFAQSchema } from "$lib/content/seo";
-  import { gsap, prefersReduced, fadeUp, staggerIn, floatLoop, hoverLift } from "$lib/animations/gsap.js";
   import { industryIcons } from "$lib/content/industry-icons";
 
   const faqSchema = buildFAQSchema(faqItems);
@@ -31,19 +29,17 @@
 
   const featuredIndustries = industries.slice(0, 4);
 
-  let heroRoot: HTMLElement | null = $state(null);
-
-  onMount(() => {
-    if (prefersReduced || !heroRoot) return;
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ delay: 0.2 });
-      tl.from(".hp-eyebrow", { opacity: 0, y: 16, duration: 0.5, ease: "power2.out" })
-        .from(".hp-headline", { opacity: 0, y: 28, duration: 0.75, ease: "power3.out" }, "-=0.1")
-        .from(".hp-sub", { opacity: 0, y: 24, duration: 0.6, ease: "power2.out" }, "-=0.35")
-        .from(".hp-ctas", { opacity: 0, y: 16, duration: 0.5, ease: "power2.out" }, "-=0.25");
-    }, heroRoot);
-    return () => ctx.revert();
-  });
+  const tickerItems = [
+    "Voice AI",
+    "Business Automation",
+    "Lead Capture",
+    "Appointment Booking",
+    "CRM Integration",
+    "Toronto & GTA",
+    "24/7 Answering",
+    "Workflow Automation",
+    "Website & SEO",
+  ] as const;
 
 </script>
 
@@ -51,9 +47,9 @@
   {@html `<script type="application/ld+json">${JSON.stringify(faqSchema)}</script>`}
 </svelte:head>
 
-<!-- Hero: headline + CTA + hourglass art (fades left into gradient) -->
+<!-- Hero: headline + CTA + hourglass (overflow-x only so tall content is not clipped vertically) -->
 <section
-  class="relative flex min-h-[100svh] items-center overflow-hidden text-white lg:min-h-0"
+  class="relative flex min-h-[100svh] items-center overflow-x-hidden text-white lg:min-h-0"
   style="background: radial-gradient(ellipse 80% 70% at 50% 100%, #3a00ff 0%, #280066 25%, #1e004d 50%, #150033 75%, #0a0015 100%);"
 >
   <div class="absolute inset-0 bg-[radial-gradient(ellipse_140%_120%_at_50%_100%,rgba(58,0,255,0.25)_0%,transparent_50%)]"></div>
@@ -76,7 +72,7 @@
   </div>
 
   <div class="relative z-10 mx-auto w-full max-w-6xl px-6 py-24 md:py-32 lg:px-8 lg:pt-44 lg:pb-32">
-    <div class="max-w-2xl" bind:this={heroRoot}>
+    <div class="max-w-2xl">
       <p class="hp-eyebrow text-xs font-medium uppercase tracking-[0.25em] text-white/50">
         {hero.eyebrow}
       </p>
@@ -139,18 +135,6 @@
     }
   }
 
-  @keyframes ednsy-ticker {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
-  }
-  .ednsy-ticker-track {
-    animation: ednsy-ticker 38s linear infinite;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .ednsy-ticker-track {
-      animation: none;
-    }
-  }
 </style>
 
 <section
@@ -159,29 +143,9 @@
 >
   <div class="absolute inset-x-0 top-0 h-px bg-white/10" aria-hidden="true"></div>
   <div class="relative mx-auto w-full max-w-6xl px-6 lg:px-8">
-    <!-- Ticker -->
-    <div class="overflow-hidden border-y border-white/10 py-3" role="presentation">
-      <div class="ednsy-ticker-track flex w-max gap-x-8">
-        {#each [
-          "Voice AI",
-          "Business Automation",
-          "Lead Capture",
-          "Appointment Booking",
-          "CRM Integration",
-          "Toronto & GTA",
-          "24/7 Answering",
-          "Workflow Automation",
-          "Website & SEO",
-          "Voice AI",
-          "Business Automation",
-          "Lead Capture",
-          "Appointment Booking",
-          "CRM Integration",
-          "Toronto & GTA",
-          "24/7 Answering",
-          "Workflow Automation",
-          "Website & SEO"
-        ] as item (item)}
+    <div class="border-y border-white/10 py-3" role="presentation">
+      <div class="flex flex-wrap justify-center gap-x-8 gap-y-2">
+        {#each tickerItems as item (item)}
           <span class="whitespace-nowrap text-[11px] font-semibold tracking-[0.12em] uppercase text-white/60">
             {item}
           </span>
@@ -222,19 +186,19 @@
 
 <section id="services" class="bg-white py-16 md:py-24">
   <div class="mx-auto max-w-6xl px-6 lg:px-8">
-    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-primary" use:fadeUp>Services</p>
+    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Services</p>
 
-    <h2 class="mt-4 text-4xl font-medium tracking-tight md:text-5xl" use:fadeUp={{ delay: 0.06 }}>
+    <h2 class="mt-4 text-4xl font-medium tracking-tight md:text-5xl">
       Three solutions.<br />
       One leaky bucket <span class="italic">fixed.</span>
     </h2>
 
-    <p class="mt-4 max-w-2xl text-lg leading-7 text-muted-foreground" use:fadeUp={{ delay: 0.12 }}>
+    <p class="mt-4 max-w-2xl text-lg leading-7 text-muted-foreground">
       {servicesIntro}
     </p>
 
-    <div class="mt-10 grid gap-6 grid-cols-1" use:staggerIn={{ stagger: 0.12, y: 28, duration: 0.55 }}>
-      {#each services as service, sIdx}
+    <div class="mt-10 grid gap-6 grid-cols-1">
+      {#each services as service}
         <div
           id={service.slug}
           class="scroll-mt-24 flex flex-col md:grid md:grid-cols-[3fr_1fr] md:items-center gap-6 md:gap-8 rounded-2xl border border-border/60 bg-white p-6 shadow-sm"
@@ -277,8 +241,7 @@
               width="128"
               height="128"
               loading="lazy"
-              class="h-24 w-24 md:h-32 md:w-32 object-contain will-change-transform"
-              use:floatLoop={{ y: 6, duration: 2.8, delay: sIdx * 0.45 }}
+              class="h-24 w-24 md:h-32 md:w-32 object-contain"
             />
           </div>
         </div>
@@ -322,11 +285,11 @@
     <div class="rounded-2xl border border-border/60 bg-white p-6 shadow-sm md:p-8">
       <div class="grid gap-8 md:grid-cols-[3fr_1.6fr] md:items-center">
         <div class="min-w-0">
-          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-primary" use:fadeUp>Case study</p>
-          <h2 class="mt-4 text-2xl font-semibold tracking-tight text-foreground md:text-3xl" use:fadeUp={{ delay: 0.06 }}>
+          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Case study</p>
+          <h2 class="mt-4 text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
             {caseStudies[0].title}
           </h2>
-          <p class="mt-4 text-lg leading-7 text-muted-foreground" use:fadeUp={{ delay: 0.12 }}>
+          <p class="mt-4 text-lg leading-7 text-muted-foreground">
             {caseStudies[0].outcome}
           </p>
           <div class="mt-6 flex flex-wrap items-center gap-4 text-sm font-medium">
@@ -343,8 +306,7 @@
             width="800"
             height="520"
             loading="lazy"
-            class="h-56 w-full rounded-xl object-cover md:h-72 md:w-auto md:max-w-[420px] will-change-transform"
-            use:fadeUp={{ y: 32, duration: 0.75 }}
+            class="h-56 w-full rounded-xl object-cover md:h-72 md:w-auto md:max-w-[420px]"
           />
         </div>
       </div>
@@ -413,13 +375,12 @@
 <!-- Industries -->
 <section id="industries" class="bg-zinc-50 py-16 md:py-24">
   <div class="mx-auto max-w-6xl px-6 lg:px-8">
-    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-primary" use:fadeUp>Related</p>
-    <div class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4" use:staggerIn={{ stagger: 0.08, y: 22, duration: 0.5 }}>
+    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Related</p>
+    <div class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
       {#each featuredIndustries.slice(0, 4) as ind}
         <a
           href={ind.href}
-          class="block rounded-xl border border-border/60 bg-white p-5 transition-colors hover:border-primary/30 will-change-transform"
-          use:hoverLift={{ y: -4, scale: 1.02, duration: 0.22 }}
+          class="block rounded-xl border border-border/60 bg-white p-5 hover:border-primary/30"
         >
           {#if industryIcons[ind.slug]}
             {@const Icon = industryIcons[ind.slug]}
