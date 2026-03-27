@@ -4,13 +4,10 @@
  * - Fixes "images not loading" by emitting real <img> tags with onerror fallbacks.
  */
 import { escapeHtml } from "../escape.js";
+import { resolveDentalImage } from "../randomDentalImages.js";
 
 function toTelDigits(phone) {
   return String(phone ?? "").replace(/\D/g, "");
-}
-
-function isStyleGuideImageUrl(value) {
-  return typeof value === "string" && value.startsWith("/style-guides/dental/images/");
 }
 
 function imgWithFallback({
@@ -129,10 +126,7 @@ function hero(data) {
       ? bookCta.label.trim()
       : "Book a Consultation";
 
-  // Prefer style-guide imagery. If caller provides an override, only accept it
-  // when it's actually from the style-guide image folder.
-  const candidateHeroSrc = data.images?.hero || h.image;
-  const heroSrc = isStyleGuideImageUrl(candidateHeroSrc) ? candidateHeroSrc : "/style-guides/dental/images/hero.jpg";
+  const heroSrc = resolveDentalImage(data.images?.hero || h.image, "3x2", data.__dentalImageAllocator);
 
   const stats = data.stats || [];
   const patientsStat = pickStat(stats, /patient|review|smile|served/i, { value: "5,200+", label: "Patients Served" });
@@ -142,7 +136,7 @@ function hero(data) {
   return `<section class="hero" id="home">
   ${imgWithFallback({
     src: heroSrc,
-    fallbackSrc: "/images/dental/hero.jpg",
+    fallbackSrc: resolveDentalImage(undefined, "3x2", data.__dentalImageAllocator),
     alt: "Modern dental studio interior",
     className: "hero-bg",
     loading: "eager",
@@ -239,10 +233,7 @@ function about(data) {
   const body1 = body ? body.slice(0, 220) : "Lumina Dental Studio was founded on a simple belief: that going to the dentist should feel like a visit with someone who truly knows you.";
   const body2 = body ? body.slice(220).trim() : "We invest in the finest materials, the most current techniques, and — above all — the people who walk through our door. Whether you're here for a routine cleaning or a complete smile transformation, you'll find the same standard of warmth and precision every single time.";
 
-  // If caller provides an explicit image, only accept it when it's from the style-guide folder.
-  // Otherwise, leave it to the style-guide CSS default.
-  const candidateAboutImg = data.images?.about;
-  const aboutImg = isStyleGuideImageUrl(candidateAboutImg) ? candidateAboutImg : undefined;
+  const aboutImg = resolveDentalImage(data.images?.about, "3x2", data.__dentalImageAllocator);
 
   const signatureName = typeof about.signatureName === "string" && about.signatureName.trim()
     ? about.signatureName.trim()
@@ -309,8 +300,7 @@ function cta(data) {
     ? hero.cta.href.trim()
     : "#contact";
 
-  const candidateCtaSrc = data.images?.cta || hero?.image;
-  const heroImg = isStyleGuideImageUrl(candidateCtaSrc) ? candidateCtaSrc : "/style-guides/dental/images/dental-smile-asian-3x2.jpg";
+  const heroImg = resolveDentalImage(data.images?.cta || hero?.image, "9x16", data.__dentalImageAllocator);
 
   const phoneDigits = data.business?.phone ? toTelDigits(data.business.phone) : "18005550199";
   const callLabel = data.business?.phone ? `Call ${data.business.phone}` : "Call (800) 555-0199";
@@ -318,7 +308,7 @@ function cta(data) {
   return `<section class="cta-section" id="book">
   ${imgWithFallback({
     src: heroImg,
-    fallbackSrc: "/images/dental/dental-smile-asian-3x2.jpg",
+    fallbackSrc: resolveDentalImage(undefined, "9x16", data.__dentalImageAllocator),
     alt: "Woman with a beautiful, confident smile",
     className: "cta-bg",
     loading: "lazy",

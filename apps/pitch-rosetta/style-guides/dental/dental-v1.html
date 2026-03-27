@@ -26,13 +26,14 @@
   .nav-cta:hover { background: var(--teal); transform: translateY(-1px); }
 
   /* HERO */
-  .hero { padding: 160px 60px 100px; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; min-height: 100vh; position: relative; overflow: hidden; }
+  .hero { padding: 160px 60px 100px; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; min-height: 100vh; position: relative; overflow: hidden; background: radial-gradient(1200px 700px at 80% -8%, rgba(62,207,178,0.12), transparent 65%), linear-gradient(180deg, #ffffff 0%, #f8fffd 100%); }
   .hero::before { content: ''; position: absolute; right: -200px; top: -200px; width: 700px; height: 700px; background: radial-gradient(circle, rgba(62,207,178,0.12) 0%, transparent 70%); border-radius: 50%; pointer-events: none; }
-  .hero-eyebrow { display: inline-flex; align-items: center; gap: 8px; background: var(--frost); color: var(--teal); padding: 8px 16px; border-radius: 50px; font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 32px; border: 1px solid rgba(62,207,178,0.3); }
+  .hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(115deg, rgba(26,46,42,0.14) 0%, rgba(26,46,42,0.03) 45%, transparent 72%); pointer-events: none; }
+  .hero-eyebrow { display: inline-flex; align-items: center; gap: 8px; background: rgba(240,250,248,0.72); color: var(--teal); padding: 9px 18px; border-radius: 50px; font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 32px; border: 1px solid rgba(62,207,178,0.38); backdrop-filter: blur(6px); box-shadow: 0 10px 28px rgba(26,46,42,0.08); }
   .hero-eyebrow::before { content: '✦'; font-size: 10px; }
-  .hero h1 { font-family: 'Cormorant Garamond', serif; font-size: 72px; font-weight: 300; line-height: 1.05; letter-spacing: -2px; color: var(--abyss); margin-bottom: 28px; }
+  .hero h1 { font-family: 'Cormorant Garamond', serif; font-size: 72px; font-weight: 300; line-height: 1.03; letter-spacing: -2px; color: var(--abyss); margin-bottom: 28px; text-shadow: 0 14px 36px rgba(26,46,42,0.12); }
   .hero h1 em { font-style: italic; color: var(--mint); }
-  .hero-desc { font-size: 17px; color: var(--muted); line-height: 1.8; max-width: 460px; margin-bottom: 44px; }
+  .hero-desc { font-size: 17px; color: #4f6b66; line-height: 1.8; max-width: 460px; margin-bottom: 44px; }
   .hero-actions { display: flex; gap: 16px; align-items: center; }
   .btn-primary { background: var(--mint); color: white; padding: 16px 36px; border-radius: 50px; font-size: 14px; font-weight: 600; text-decoration: none; transition: all 0.25s; display: inline-flex; align-items: center; gap: 8px; }
   .btn-primary:hover { background: var(--teal); transform: translateY(-2px); box-shadow: 0 12px 32px rgba(62,207,178,0.4); }
@@ -45,15 +46,18 @@
 
   /* Hero Visual */
   .hero-visual { position: relative; }
-  .hero-card-main { background: var(--abyss); border-radius: 24px; padding: 40px; color: white; position: relative; overflow: hidden; aspect-ratio: 4/3; display: flex; flex-direction: column; justify-content: flex-end; }
-  .hero-card-main::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(62,207,178,0.2), transparent 60%); }
+  .hero-card-main { background: var(--abyss); border-radius: 24px; padding: 40px; color: white; position: relative; overflow: hidden; aspect-ratio: 4/3; display: flex; flex-direction: column; justify-content: flex-end; box-shadow: 0 30px 80px rgba(10,46,39,0.34); }
+  .hero-card-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 30%; filter: saturate(1.08) contrast(1.06); }
+  .hero-card-main::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(62,207,178,0.25), rgba(26,46,42,0.72) 70%); }
+  .hero-card-main::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 78% 20%, rgba(255,255,255,0.16), transparent 50%); }
+  .hero-card-main > * { position: relative; z-index: 2; }
   .smile-graphic { position: absolute; top: 40px; right: 40px; font-size: 80px; opacity: 0.15; }
   .hero-badge { position: absolute; top: 24px; left: 24px; background: rgba(62,207,178,0.2); backdrop-filter: blur(10px); border: 1px solid rgba(62,207,178,0.3); border-radius: 12px; padding: 12px 16px; }
   .hero-badge .rating { font-size: 20px; font-weight: 700; color: var(--mint); }
   .hero-badge .label { font-size: 11px; color: rgba(255,255,255,0.6); }
   .patient-text { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-style: italic; color: rgba(255,255,255,0.85); line-height: 1.4; margin-bottom: 8px; }
   .patient-meta { font-size: 12px; color: rgba(255,255,255,0.4); letter-spacing: 1px; text-transform: uppercase; }
-  .hero-card-float { position: absolute; bottom: -24px; right: -24px; background: white; border-radius: 16px; padding: 20px 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.12); display: flex; align-items: center; gap: 16px; min-width: 200px; }
+  .hero-card-float { position: absolute; bottom: -24px; right: -24px; background: white; border-radius: 16px; padding: 20px 24px; box-shadow: 0 24px 70px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 16px; min-width: 200px; }
   .float-icon { width: 44px; height: 44px; background: var(--frost); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
   .float-label { font-size: 13px; font-weight: 600; color: var(--abyss); }
   .float-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
@@ -152,6 +156,7 @@
   </div>
   <div class="hero-visual">
     <div class="hero-card-main">
+      <img class="hero-card-image" src="/images/3x2/dental-cleaning-woman-3x2.jpg" alt="Dentist and patient during a comfortable cleaning appointment" loading="lazy">
       <div class="smile-graphic"><i data-lucide="smile"></i></div>
       <div class="hero-badge">
         <div class="rating">4.9 ★</div>

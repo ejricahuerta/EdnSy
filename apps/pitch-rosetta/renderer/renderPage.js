@@ -6,6 +6,7 @@
 import { getSectionOrder, isValidDentalStyle, pickRandomDentalStyle } from "./registry.js";
 import { documentShell } from "./documentShell.js";
 import { renderLeadRosettaHealthWellnessPage } from "./leadRosettaHealthWellnessPage.js";
+import { createPageDentalImageAllocator } from "./randomDentalImages.js";
 import { sections as v1Sections } from "./sections/dental-v1.js";
 import { sections as v2Sections } from "./sections/dental-v2.js";
 import { sections as v3Sections } from "./sections/dental-v3.js";
@@ -23,14 +24,18 @@ const SECTION_RENDERERS = {
 function renderDentalStyleGuidePage(data, styleId) {
   const order = getSectionOrder(styleId);
   const sections = SECTION_RENDERERS[styleId] || v2Sections;
+  const renderData = {
+    ...data,
+    __dentalImageAllocator: createPageDentalImageAllocator(),
+  };
   const parts = [];
   for (const name of order) {
     const fn = sections[name];
-    if (typeof fn === "function") parts.push(fn(data));
+    if (typeof fn === "function") parts.push(fn(renderData));
   }
   const bodyHtml = parts.join("\n");
-  const title = data.seo?.title || data.business?.name || "Dental";
-  const description = data.seo?.description || data.business?.description || "";
+  const title = renderData.seo?.title || renderData.business?.name || "Dental";
+  const description = renderData.seo?.description || renderData.business?.description || "";
   return documentShell({
     title,
     description,

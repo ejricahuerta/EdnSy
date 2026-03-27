@@ -5,6 +5,7 @@
 import { escapeHtml } from "../escape.js";
 import { mapsQuery } from "../mapUtils.js";
 import { serviceIcon } from "../icons.js";
+import { resolveDentalImage } from "../randomDentalImages.js";
 
 function nav(data) {
   const b = data.business || {};
@@ -33,28 +34,23 @@ function nav(data) {
 }
 
 function hero(data) {
-  const b = data.business || {};
   const h = data.hero || {};
   const rawHeadline = typeof h.headline === "string" ? h.headline.trim() : "";
-  const headline = escapeHtml(rawHeadline || "Quality Care, Every Visit.");
-  const sub = escapeHtml(h.subheadline || "Modern dentistry with a caring team. From checkups to cosmetic and restorative care.");
+  const headline = escapeHtml(rawHeadline || "Gentle Care, Every Single Visit.");
+  const sub = escapeHtml(h.subheadline || "We believe dental care should feel calm, comforting, and kind. Our serene environment and gentle approach make every appointment a truly pleasant experience.");
   const cta = h.cta || { label: "Book My Appointment", href: "#cta" };
-  const heroImg = data.images?.hero || data.hero?.image;
-  const heroBgStyle = heroImg
-    ? ` style="position:absolute;inset:0;z-index:0;background-image:linear-gradient(135deg, rgba(245,242,255,0.92) 0%, rgba(255,255,255,0.88) 50%, rgba(255,242,250,0.9) 100%),url('${escapeHtml(heroImg)}');background-size:cover;background-position:center;pointer-events:none"`
-    : "";
+  const heroCardImg = resolveDentalImage(data.images?.about, "3x2", data.__dentalImageAllocator);
   const stats = data.stats || [];
   const ratingStat = stats.find((s) => /rating|★|star/i.test(String(s.label))) || stats[2];
   const ratingVal = ratingStat ? escapeHtml(String(ratingStat.value)) : "4.9";
   const reviewCount = stats.find((s) => /patient|review|smile/i.test(String(s.label)));
   const reviewLabel = reviewCount ? `${ratingVal}★ from ${escapeHtml(String(reviewCount.value))}+ reviews` : `${ratingVal}★ from 400+ reviews`;
   return `<section class="hero">
-  ${heroImg ? `<div class="hero-bg"${heroBgStyle}></div>` : ""}
   <div class="hero-orb-1"></div>
   <div class="hero-orb-2"></div>
   <div class="hero-inner">
     <div>
-      <div class="hero-pill">Quality dental care</div>
+      <div class="hero-pill">Anxiety-free dental care</div>
       <h1>${headline}</h1>
       <p class="hero-desc">${sub}</p>
       <div class="hero-actions">
@@ -62,19 +58,20 @@ function hero(data) {
         <a href="#services" class="btn-out">Learn About Us</a>
       </div>
       <div class="trust-row">
-        <div class="trust-item"><span class="trust-icon">✦</span> Modern technology</div>
-        <div class="trust-item"><span class="trust-icon">✦</span> Family friendly</div>
+        <div class="trust-item"><span class="trust-icon">✦</span> Sedation available</div>
+        <div class="trust-item"><span class="trust-icon">✦</span> Anxiety-friendly</div>
         <div class="trust-item"><span class="trust-icon">✦</span> ${reviewLabel}</div>
       </div>
     </div>
     <div class="hero-visual">
       <div class="vis-main">
+        <img class="vis-photo" src="${escapeHtml(heroCardImg)}" alt="Patient smiling during a calm and gentle dental visit" loading="lazy">
         <span class="vis-emoji" aria-hidden="true"></span>
-        <h3>Care That Puts You First</h3>
-        <p>A welcoming environment, modern technology, and a team dedicated to your oral health and smile goals.</p>
+        <h3>Your Comfort Comes First</h3>
+        <p>Heated chairs, noise-cancelling headphones, lavender aromatherapy, and a team that truly listens.</p>
       </div>
       <div class="review-badge">${ratingVal} stars · "Best dentist ever!"</div>
-      <div class="calm-badge">Quality<br>guaranteed</div>
+      <div class="calm-badge">Anxiety-free<br>guaranteed</div>
     </div>
   </div>
 </section>`;
@@ -83,12 +80,12 @@ function hero(data) {
 function services(data) {
   const list = data.services || [];
   const defaultServices = [
-    { name: "Preventive Care", description: "Regular cleanings, exams, and screenings to keep your smile healthy and catch issues early.", price: "From $89" },
-    { name: "Teeth Whitening", description: "Our gentle whitening system delivers beautiful results without the sensitivity associated with other methods.", price: "From $279" },
-    { name: "Porcelain Veneers", description: "Custom-crafted ultra-thin veneers designed to complement your natural features and express your true smile.", price: "From $1,150/tooth" },
-    { name: "Invisalign®", description: "Comfortable, discreet clear aligners with monthly progress checks in our calming practice environment.", price: "From $3,400" },
-    { name: "Dental Implants", description: "Permanent tooth restoration with optional sedation and a step-by-step guided process at a comfortable pace.", price: "From $1,850" },
-    { name: "Sedation Dentistry", description: "Oral and IV sedation options for nervous patients or complex procedures. Wake up with your treatment done.", price: "From $299" },
+    { name: "Preventive Care", description: "Regular cleanings, exams, and screenings to keep your smile healthy and catch issues early." },
+    { name: "Teeth Whitening", description: "Our gentle whitening system delivers beautiful results without the sensitivity associated with other methods." },
+    { name: "Porcelain Veneers", description: "Custom-crafted ultra-thin veneers designed to complement your natural features and express your true smile." },
+    { name: "Invisalign®", description: "Comfortable, discreet clear aligners with monthly progress checks in our calming practice environment." },
+    { name: "Dental Implants", description: "Permanent tooth restoration with optional sedation and a step-by-step guided process at a comfortable pace." },
+    { name: "Sedation Dentistry", description: "Oral and IV sedation options for nervous patients or complex procedures. Wake up with your treatment done." },
   ];
   const items = list.length ? list : defaultServices;
   return `<section class="services" id="services">
@@ -100,7 +97,6 @@ function services(data) {
       <div class="svc-icon-wrap">${serviceIcon(i, 24)}</div>
       <h3>${escapeHtml(s.name)}</h3>
       <p>${escapeHtml(s.description || "")}</p>
-      <div class="price">${escapeHtml(s.price || s.coverage || "")}</div>
     </div>`).join("\n    ")}
   </div>
 </section>`;

@@ -4,6 +4,7 @@
 import { escapeHtml } from "../escape.js";
 import { mapsQuery } from "../mapUtils.js";
 import { serviceIcon, processIcon } from "../icons.js";
+import { resolveDentalImage } from "../randomDentalImages.js";
 
 const SVC_ICON_BGS = ["#e0f5f0", "#fdf8e0", "#fde8ed", "#e8eef8", "#f0ffe0", "#fff0e0", "#f5e0ff", "#ffe0f0"];
 
@@ -52,7 +53,8 @@ function hero(data) {
   const patientMeta = testimonial?.author ? `— ${escapeHtml(testimonial.author)}, Patient since ${new Date().getFullYear() - 1}` : "— Emily K., Patient since 2021";
   const ratingStat = stats.find((s) => /rating|★/i.test(String(s.label))) || stats[2];
   const ratingVal = ratingStat ? escapeHtml(String(ratingStat.value)) : "4.9 ★";
-  const heroImg = data.images?.hero || data.hero?.image;
+  const heroImg = resolveDentalImage(data.images?.hero || data.hero?.image, "3x2", data.__dentalImageAllocator);
+  const heroCardImg = resolveDentalImage(data.images?.about, "3x2", data.__dentalImageAllocator);
   const heroBgStyle = heroImg
     ? ` style="position:absolute;inset:0;z-index:0;background-image:linear-gradient(90deg, rgba(240,250,248,0.95) 0%, rgba(255,255,255,0.9) 45%, transparent 70%),url('${escapeHtml(heroImg)}');background-size:cover;background-position:center;pointer-events:none"`
     : "";
@@ -72,7 +74,8 @@ function hero(data) {
   </div>
   <div class="hero-visual" style="position:relative;z-index:2;">
     <div class="hero-card-main">
-      <div class="smile-graphic" aria-hidden="true"></div>
+      <img class="hero-card-image" src="${escapeHtml(heroCardImg)}" alt="Dentist and patient during a comfortable cleaning appointment" loading="lazy">
+      <div class="smile-graphic" aria-hidden="true"><i data-lucide="smile"></i></div>
       <div class="hero-badge">
         <div class="rating">${ratingVal}</div>
         <div class="label">Google Reviews</div>
@@ -81,7 +84,7 @@ function hero(data) {
       <div class="patient-meta">${patientMeta}</div>
     </div>
     <div class="hero-card-float">
-      <div class="float-icon" aria-hidden="true"></div>
+      <div class="float-icon" aria-hidden="true"><i data-lucide="calendar"></i></div>
       <div>
         <div class="float-label">Next Opening</div>
         <div class="float-sub">Tomorrow · 10:00 AM</div>

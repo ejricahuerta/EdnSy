@@ -4,6 +4,7 @@
 import { escapeHtml } from "../escape.js";
 import { mapsQuery } from "../mapUtils.js";
 import { serviceIcon } from "../icons.js";
+import { resolveDentalImage } from "../randomDentalImages.js";
 
 function nav(data) {
   const b = data.business || {};
@@ -48,7 +49,7 @@ function hero(data) {
     { value: "18yr", label: "Of Excellence" },
     { value: "100%", label: "Satisfaction" },
   ];
-  const heroImg = data.images?.hero || data.hero?.image;
+  const heroImg = resolveDentalImage(data.images?.hero || data.hero?.image, "9x16", data.__dentalImageAllocator);
   const heroInnerStyle = heroImg
     ? ` style="background: linear-gradient(180deg, rgba(10,22,40,0.3) 0%, transparent 40%), url('${escapeHtml(heroImg)}') center/cover;"`
     : "";
@@ -94,7 +95,7 @@ function about(data) {
   const aboutData = data.about || {};
   const quote = aboutData.headline || "dentistry should be as personal as your fingerprint";
   const body = aboutData.body || "We believe that exceptional dental care goes beyond technical mastery. It requires listening, understanding, and crafting treatments that align with each patient's unique needs and aspirations.";
-  const aboutImg = data.images?.about;
+  const aboutImg = resolveDentalImage(data.images?.about, "3x2", data.__dentalImageAllocator);
   const aboutImageStyle = aboutImg ? ` style="background-image: url('${escapeHtml(aboutImg)}');"` : "";
   const signature = aboutData.signature || data.business?.name || "Our Team";
   const sigTitle = aboutData.sigTitle || "Principal Dentist";

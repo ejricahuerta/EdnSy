@@ -4,6 +4,7 @@
 import { escapeHtml } from "../escape.js";
 import { mapsQuery } from "../mapUtils.js";
 import { serviceIcon } from "../icons.js";
+import { resolveDentalImage } from "../randomDentalImages.js";
 
 function nav(data) {
   const b = data.business || {};
@@ -37,42 +38,52 @@ function nav(data) {
 }
 
 function hero(data) {
-  const b = data.business || {};
   const h = data.hero || {};
   const rawHeadline = typeof h.headline === "string" ? h.headline.trim() : "";
   const headlineMarkup = rawHeadline
     ? escapeHtml(rawHeadline)
-    : `Your Smile Deserves Expert Care<br><span class="wave">Every Smile</span>`;
-  const sub = escapeHtml(h.subheadline || "Comprehensive dentistry in a comfortable, modern setting. From checkups to cosmetic and restorative treatments.");
+    : `Caring for<br><span class="wave">Every Smile</span><br>in the Family`;
+  const sub = escapeHtml(h.subheadline || "Gentle, modern dentistry for all ages. From routine checkups to complete smile transformations — we make every visit comfortable and stress-free.");
   const cta = h.cta || { label: "Book an Appointment", href: "#contact" };
-  const heroImg = data.images?.hero || data.hero?.image;
+  const heroImg = resolveDentalImage(data.images?.hero || data.hero?.image, "3x2", data.__dentalImageAllocator);
   const bgStyle = heroImg ? ` style="background-image:linear-gradient(160deg, rgba(253,248,243,.92) 0%, rgba(247,251,250,.9) 50%, rgba(237,245,243,.9) 100%),url('${escapeHtml(heroImg)}');background-size:cover;background-position:center"` : "";
+  const coverSrc = resolveDentalImage(data.images?.about, "3x2", data.__dentalImageAllocator);
+  const serviceDefaults = [
+    { name: "Checkup & Clean", coverage: "45 mins" },
+    { name: "Teeth Whitening", coverage: "60 mins" },
+    { name: "Braces Consult", coverage: "30 mins" },
+    { name: "Emergency Visit", coverage: "Same day" },
+    { name: "Child's First Visit", coverage: "30 mins" },
+  ];
+  const serviceItems = (data.services && data.services.length ? data.services : serviceDefaults).slice(0, 5);
+  const phoneLabel = data.business?.phone ? `Call ${escapeHtml(data.business.phone)}` : "Call (416) 555-0182";
+  const phoneHref = data.business?.phone ? `tel:${escapeHtml(data.business.phone.replace(/\D/g, ""))}` : "tel:4165550182";
   return `<section class="lp-hero"${bgStyle}>
   <div class="hero-content">
-    <div class="hero-pill"><span class="dot"></span> Family Dental Care</div>
-    <span class="badge badge-teal badge-dot" style="margin-left:12px;margin-bottom:28px;display:inline-flex">Accepting New Patients</span>
+    <div class="hero-pill"><span class="dot"></span> Now accepting new patients</div>
     <h1 class="hero-h1">${headlineMarkup}</h1>
     <p class="hero-sub">${sub}</p>
     <div class="hero-actions">
       <a class="btn btn-primary" href="${escapeHtml(cta.href)}">${escapeHtml(cta.label)}</a>
-      <a class="btn btn-outline" href="#services">View Services</a>
+      <a class="btn btn-soft" href="${phoneHref}">${phoneLabel}</a>
     </div>
     <div class="hero-trust">
       <div class="trust-avatars">
-        <div class="avatar">★</div><div class="avatar">★</div><div class="avatar">★</div>
+        <div class="avatar">1</div><div class="avatar">2</div><div class="avatar">3</div><div class="avatar">+</div>
       </div>
-      <span>Rated 4.9 by 500+ patients</span>
+      <span>Join <strong style="color:var(--ink)">3,200+</strong> happy patients</span>
     </div>
   </div>
   <div class="hero-visual-panel">
+    <img class="hvp-cover" src="${escapeHtml(coverSrc)}" alt="Modern dental clinic room prepared for a checkup" loading="lazy">
     <div class="hvp-header">
-      <h3>Our Services</h3>
-      <p>What we offer</p>
+      <h3>Book Your Visit</h3>
+      <p>Select a service to get started</p>
     </div>
     <div class="hvp-services">
-      ${(data.services || []).slice(0, 4).map((s) => `<div class="hvp-item"><div class="hvp-icon"></div><div><div class="hvp-name">${escapeHtml(s.name)}</div><div class="hvp-time">${escapeHtml(s.coverage || s.price || "")}</div></div><div class="hvp-price">→</div></div>`).join("\n      ")}
+      ${serviceItems.map((s, i) => `<div class="hvp-item"><div class="hvp-icon">${serviceIcon(i, 16)}</div><div><div class="hvp-name">${escapeHtml(s.name)}</div><div class="hvp-time">${escapeHtml(s.coverage || "")}</div></div></div>`).join("\n      ")}
     </div>
-    <div class="hvp-cta"><a class="btn btn-primary" href="#contact">Book Now</a></div>
+    <div class="hvp-cta"><a class="btn btn-primary" href="#contact">Continue Booking →</a></div>
   </div>
 </section>`;
 }

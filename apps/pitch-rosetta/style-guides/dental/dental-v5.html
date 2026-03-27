@@ -120,10 +120,11 @@
     .hero-bg {
       position: absolute;
       inset: 0;
-      background-image: url('images/hero.jpg');
+      background-image: url('/images/9x16/dental-machine-backdrop-9x16.jpg');
       background-size: cover;
-      background-position: center 25%;
+      background-position: center 18%;
       animation: hero-zoom 14s ease-out forwards;
+      filter: saturate(1.08) contrast(1.08);
     }
 
     @keyframes hero-zoom {
@@ -136,11 +137,17 @@
       inset: 0;
       background: linear-gradient(
         160deg,
-        rgba(20,38,30,0.25) 0%,
-        rgba(20,38,30,0.15) 30%,
-        rgba(20,38,30,0.52) 68%,
-        rgba(20,38,30,0.82) 100%
+        rgba(15,32,25,0.34) 0%,
+        rgba(15,32,25,0.22) 32%,
+        rgba(15,32,25,0.66) 68%,
+        rgba(15,32,25,0.9) 100%
       );
+    }
+    .hero-overlay::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 78% 12%, rgba(201,169,110,0.22) 0%, transparent 48%);
     }
 
     .hero-content {
@@ -180,6 +187,7 @@
       color: #fff;
       margin-bottom: 32px;
       max-width: 860px;
+      text-shadow: 0 22px 54px rgba(0,0,0,0.38);
     }
 
     .hero-headline em { font-style: italic; color: var(--gold); }
@@ -189,7 +197,7 @@
       font-weight: 300;
       font-size: 17px;
       line-height: 1.75;
-      color: rgba(255,255,255,0.6);
+      color: rgba(255,255,255,0.78);
       max-width: 420px;
       margin-bottom: 52px;
     }
@@ -930,7 +938,7 @@
       <a href="#" class="btn-text">Meet the team &nbsp;→</a>
     </div>
     <div class="about-image">
-      <img src="images/about.jpg" alt="Our dental team" />
+      <img src="/images/3x2/dental-asian-man-3x2.jpg" alt="Our dental team" />
       <div class="about-badge">
         <span class="badge-num">15+</span>
         <span class="badge-label">Years serving Toronto</span>
@@ -949,7 +957,7 @@
     </div>
     <div class="services-grid">
       <div class="service-card">
-        <img class="service-card-img" src="images/dental-cleaning-smile-3x2.jpg" alt="General dentistry" />
+        <img class="service-card-img" src="/images/3x2/dental-cleaning-smile-3x2.jpg" alt="General dentistry" />
         <div class="service-card-body">
           <span class="service-num">01</span>
           <h3 class="service-title">General Dentistry</h3>
@@ -958,7 +966,7 @@
         </div>
       </div>
       <div class="service-card">
-        <img class="service-card-img" src="images/dental-cleaning-woman-3x2.jpg" alt="Cosmetic dentistry" />
+        <img class="service-card-img" src="/images/3x2/dental-cleaning-woman-3x2.jpg" alt="Cosmetic dentistry" />
         <div class="service-card-body">
           <span class="service-num">02</span>
           <h3 class="service-title">Cosmetic Dentistry</h3>
@@ -967,7 +975,7 @@
         </div>
       </div>
       <div class="service-card">
-        <img class="service-card-img" src="images/dental-eye-protector-3x2.jpg" alt="Dental implants" />
+        <img class="service-card-img" src="/images/3x2/dental-eye-protector-3x2.jpg" alt="Dental implants" />
         <div class="service-card-body">
           <span class="service-num">03</span>
           <h3 class="service-title">Dental Implants</h3>
@@ -1005,16 +1013,16 @@
   <!-- PHOTO STRIP -->
   <div class="photo-strip">
     <div class="photo-strip-item">
-      <img src="images/dental-checkup-smile-3x2.jpg" alt="Patient checkup" />
+      <img src="/images/3x2/dental-checkup-smile-3x2.jpg" alt="Patient checkup" />
     </div>
     <div class="photo-strip-item">
-      <img src="images/dental-asian-man-3x2.jpg" alt="Patient care" />
+      <img src="/images/3x2/dental-asian-man-3x2.jpg" alt="Patient care" />
     </div>
     <div class="photo-strip-item">
-      <img src="images/dental-smile-asian-3x2.jpg" alt="Happy patient" />
+      <img src="/images/3x2/dental-smile-asian-3x2.jpg" alt="Happy patient" />
     </div>
     <div class="photo-strip-item">
-      <img src="images/dental-cleaning-3x2.jpg" alt="Dental cleaning" />
+      <img src="/images/3x2/dental-cleaning-3x2.jpg" alt="Dental cleaning" />
     </div>
   </div>
 
@@ -1087,7 +1095,7 @@
         <p class="t-text">"I've always been anxious about dental visits, but the team here made me feel completely at ease. The space is beautiful and the care is exceptional."</p>
         <div class="t-author">
           <div class="t-avatar">
-            <img src="images/dental-smile-asian-3x2.jpg" alt="Sarah M." />
+            <img src="/images/3x2/dental-smile-asian-3x2.jpg" alt="Sarah M." />
           </div>
           <div>
             <span class="t-name">Sarah M.</span>
@@ -1100,7 +1108,7 @@
         <p class="t-text">"My veneers look completely natural. I finally feel confident smiling in photos. Worth every penny — the whole experience was world-class."</p>
         <div class="t-author">
           <div class="t-avatar">
-            <img src="images/dental-asian-man-3x2.jpg" alt="James R." />
+            <img src="/images/3x2/dental-asian-man-3x2.jpg" alt="James R." />
           </div>
           <div>
             <span class="t-name">James R.</span>
@@ -1113,7 +1121,7 @@
         <p class="t-text">"They direct-billed my Sun Life plan seamlessly and were upfront about every cost. No surprises — just genuine, attentive care from start to finish."</p>
         <div class="t-author">
           <div class="t-avatar">
-            <img src="images/dental-checkup-smile-3x2.jpg" alt="Priya K." />
+            <img src="/images/3x2/dental-checkup-smile-3x2.jpg" alt="Priya K." />
           </div>
           <div>
             <span class="t-name">Priya K.</span>
@@ -1127,7 +1135,7 @@
   <!-- CTA -->
   <section class="cta-section">
     <div class="cta-image">
-      <img src="images/dental-chair-9x16.jpg" alt="Our dental studio" />
+      <img src="/images/9x16/dental-chair-9x16.jpg" alt="Our dental studio" />
     </div>
     <div class="cta-content">
       <span class="section-label">Ready to Begin?</span>

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
+	import { EDNSY_PRIVACY_LINK, EDNSY_TERMS_LINK } from '$lib/constants';
 
 	let {
 		open = $bindable(false),
@@ -163,9 +164,9 @@
 							<input type="checkbox" bind:checked={agreeToTerms} />
 							<span class="retell-dialog-terms-text">
 								I agree to be contacted by phone and to the
-								<a href="/terms" target="_blank" rel="noopener noreferrer" class="retell-dialog-link">Terms of Service</a>
+								<a href={EDNSY_TERMS_LINK} target="_blank" rel="noopener noreferrer" class="retell-dialog-link">Terms of Service</a>
 								and
-								<a href="/privacy" target="_blank" rel="noopener noreferrer" class="retell-dialog-link">Privacy Policy</a>.
+								<a href={EDNSY_PRIVACY_LINK} target="_blank" rel="noopener noreferrer" class="retell-dialog-link">Privacy Policy</a>.
 							</span>
 						</label>
 					</div>
@@ -185,7 +186,7 @@
 {/if}
 
 <style>
-	/* Lead Rosetta brand: minimal, same palette as chat widget */
+	/* Landing light-blue palette for demo callback modal */
 	.retell-dialog-overlay {
 		position: fixed;
 		inset: 0;
@@ -193,18 +194,18 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background: rgba(26, 26, 20, 0.4);
+		background: rgba(10, 0, 21, 0.4);
 		padding: 1rem;
 	}
 	.retell-dialog {
 		position: relative;
 		background: #ffffff;
-		border: 1px solid #d8d0bf;
+		border: 1px solid rgba(37, 99, 235, 0.2);
 		border-radius: 12px;
 		padding: 1.25rem 1.5rem;
 		width: 100%;
 		max-width: 22rem;
-		box-shadow: 0 4px 24px rgba(26, 26, 20, 0.1);
+		box-shadow: 0 10px 36px rgba(10, 0, 21, 0.22);
 	}
 	.retell-dialog-header {
 		display: flex;
@@ -217,7 +218,7 @@
 		font-size: 1.125rem;
 		font-weight: 600;
 		margin: 0;
-		color: #1a1a14;
+		color: #0a0015;
 	}
 	.retell-dialog-close {
 		width: 32px;
@@ -227,24 +228,24 @@
 		justify-content: center;
 		font-size: 1.35rem;
 		line-height: 1;
-		border: 1px solid #d8d0bf;
+		border: 1px solid rgba(37, 99, 235, 0.22);
 		border-radius: 8px;
 		background: #ffffff;
-		color: #1a1a14;
+		color: #0a0015;
 		cursor: pointer;
 		transition: background 0.15s, border-color 0.15s;
 	}
 	.retell-dialog-close:hover {
-		background: #f5f0e8;
-		border-color: #7a7566;
+		background: rgba(37, 99, 235, 0.08);
+		border-color: rgba(37, 99, 235, 0.4);
 	}
 	.retell-dialog-desc {
 		font-size: 0.875rem;
-		color: #7a7566;
+		color: #615a74;
 		margin: 0 0 1.25rem 0;
 	}
 	.retell-dialog-success {
-		color: #2d6a4f;
+		color: #2563eb;
 		font-weight: 500;
 		margin: 0 0 1rem 0;
 	}
@@ -261,21 +262,21 @@
 	.retell-dialog-field label {
 		font-size: 0.875rem;
 		font-weight: 500;
-		color: #1a1a14;
+		color: #0a0015;
 	}
 	.retell-dialog-field input[type='text'],
 	.retell-dialog-field input[type='tel'] {
 		padding: 8px 12px;
 		font-size: 0.875rem;
 		border-radius: 8px;
-		border: 1px solid #d8d0bf;
-		background: #ffffff;
-		color: #1a1a14;
+		border: 1px solid rgba(37, 99, 235, 0.2);
+		background: #f8faff;
+		color: #0a0015;
 	}
 	.retell-dialog-field input:focus {
 		outline: none;
-		border-color: #2d6a4f;
-		box-shadow: 0 0 0 2px rgba(45, 106, 79, 0.2);
+		border-color: rgba(37, 99, 235, 0.55);
+		box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.18);
 	}
 	.retell-dialog-field.checkbox label {
 		display: flex;
@@ -283,7 +284,7 @@
 		gap: 0.5rem;
 		font-weight: 400;
 		cursor: pointer;
-		color: #1a1a14;
+		color: #0a0015;
 		font-size: 0.875rem;
 	}
 	.retell-dialog-field.checkbox input {
@@ -296,7 +297,7 @@
 		line-height: 1.4;
 	}
 	.retell-dialog-link {
-		color: #2d6a4f;
+		color: #2563eb;
 		text-decoration: underline;
 	}
 	.retell-dialog-link:hover {
@@ -319,8 +320,8 @@
 		font-weight: 500;
 		border-radius: 8px;
 		border: none;
-		background: #2d6a4f;
-		color: #fafaf9;
+		background: #2563eb;
+		color: #ffffff;
 		cursor: pointer;
 		transition: filter 0.15s;
 		width: 100%;
@@ -337,14 +338,14 @@
 		font-size: 0.875rem;
 		font-weight: 500;
 		border-radius: 8px;
-		border: 1px solid #d8d0bf;
+		border: 1px solid rgba(37, 99, 235, 0.2);
 		background: #ffffff;
-		color: #1a1a14;
+		color: #0a0015;
 		cursor: pointer;
 		transition: background 0.15s, border-color 0.15s;
 	}
 	.retell-dialog-btn-secondary:hover {
-		background: #f5f0e8;
-		border-color: #7a7566;
+		background: rgba(37, 99, 235, 0.08);
+		border-color: rgba(37, 99, 235, 0.4);
 	}
 </style>
