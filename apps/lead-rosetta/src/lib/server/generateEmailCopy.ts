@@ -18,14 +18,14 @@ const EMAIL_COPY_JSON_SCHEMA_INLINE = `
 Return ONLY a single JSON object (no markdown, no explanation) with these exact keys:
 {
   "subject": "string (one short line, friendly subject line for the email)",
-  "bodyIntro": "string (exactly 3 parts, plain text, separated by double newlines. Part 1: Greeting only, e.g. 'Hey [Name],' or 'Hey there,' (use company name if no first name). Part 2: One short paragraph: we built a free demo site for [company] using their Google listing — their services, their location, their reviews. Part 3: One short paragraph: we also added an AI agent that handles inquiries and books consultations automatically. Do NOT include the demo link, 'Take a look...', or signature; we add those. Use the business/company name naturally.)"
+  "bodyIntro": "string (exactly 3 parts, plain text, separated by double newlines. Part 1: Greeting only, e.g. 'Hey there,' or 'Hi there,'. Do NOT use company name in the greeting. Part 2: One short paragraph: we built a free demo site for [company] using their Google listing — their services, their location, their reviews. Part 3: One short paragraph: we also added an AI agent that handles inquiries and books consultations automatically. Do NOT include the demo link, 'Take a look...', or signature; we add those. Use the business/company name naturally in paragraph 2/3.)"
 }`.trim();
 
 /** Default prompt template for email copy. Use {{company}}, {{industry}}, {{senderName}}. */
 export const DEFAULT_EMAIL_COPY_PROMPT = `You are writing a short cold outreach email for Lead Rosetta. The sender has already built a personalized demo website for this prospect using their Google Business Profile. Your job is to write a subject line and the body intro only. Tone: friendly, clear, confident. Not corporate.
 
 Required structure for bodyIntro (3 parts, separate with double newlines):
-1. Greeting: "Hey [Name]," or "Hey there," — use the company name if you don't have a first name (e.g. "Hey," or "Hi,").
+1. Greeting: "Hey there," or "Hi there,". Do NOT use company name in the greeting.
 2. One short paragraph: We built a free demo site for [company] using their Google listing — their services, their location, their reviews. Keep it natural and specific to the business.
 3. One short paragraph: We also added an AI agent that handles inquiries and books consultations automatically.
 
@@ -159,6 +159,10 @@ function sanitizeSubject(raw: string): string {
 	) {
 		return '';
 	}
+	// Very short/weak subject lines (e.g. "A") look broken in inboxes.
+	if (s.length < 8) return '';
+	const wordCount = s.split(/\s+/).filter(Boolean).length;
+	if (wordCount < 2) return '';
 	return s.slice(0, 110).trim();
 }
 
@@ -195,7 +199,7 @@ function looksLikeBrokenModelOutput(subject: string, bodyIntro: string): boolean
 
 function buildDeterministicBodyIntro(company: string): string {
 	return [
-		`Hey ${company},`,
+		`Hi there,`,
 		`We built a free demo site for ${company} using your Google listing — your services, your location, and your reviews.`,
 		`We also added an AI agent that handles inquiries and books consultations automatically.`
 	].join('\n\n');
