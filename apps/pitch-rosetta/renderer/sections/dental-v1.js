@@ -58,7 +58,7 @@ function hero(data) {
     : "";
   return `<section class="hero">
   ${heroImg ? `<div class="hero-bg"${heroBgStyle}></div>` : ""}
-  <div class="hero-content">
+  <div class="hero-content" style="position:relative;z-index:2;">
     <div class="hero-eyebrow">${escapeHtml(b.acceptingNewPatients !== false ? "Now Accepting New Patients" : "Welcome")}</div>
     <h1>${headline}</h1>
     <p class="hero-desc">${sub}</p>
@@ -70,7 +70,7 @@ function hero(data) {
       ${stats.slice(0, 3).map((s) => `<div class="trust-item"><span class="trust-num">${escapeHtml(String(s.value))}</span><span class="trust-label">${escapeHtml(s.label)}</span></div>`).join("\n      ")}
     </div>
   </div>
-  <div class="hero-visual">
+  <div class="hero-visual" style="position:relative;z-index:2;">
     <div class="hero-card-main">
       <div class="smile-graphic" aria-hidden="true"></div>
       <div class="hero-badge">
