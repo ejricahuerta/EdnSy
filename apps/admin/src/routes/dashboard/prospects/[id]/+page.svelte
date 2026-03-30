@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { applyAction, enhance } from '$app/forms';
+	import { browser } from '$app/environment';
 	import { invalidateAll } from '$app/navigation';
 	import { getStatusDisplay } from '$lib/statusDisplay';
 	import { DEMO_TRACKING_OPTIONS, getDemoTrackingLabel, type DemoTrackingStatus, auditFromScrapedData } from '$lib/demo';
@@ -98,10 +99,12 @@
 	});
 
 	$effect(() => {
+		if (!browser) return;
 		if (insightsJob && !insightsJobPollingActive) startInsightsJobPolling();
 	});
 
 	$effect(() => {
+		if (!browser) return;
 		if (gbpJob && !gbpJobPollingActive) startGbpJobPolling();
 	});
 
@@ -371,6 +374,7 @@
 	}
 
 	$effect(() => {
+		if (!browser) return;
 		const s = demoJob?.status;
 		if ((s === 'pending' || s === 'creating') && !demoJobPollingActive) startDemoJobPolling();
 	});
