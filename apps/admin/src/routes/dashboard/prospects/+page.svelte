@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { applyAction, enhance } from '$app/forms';
+	import { browser } from '$app/environment';
 	import { invalidateAll, invalidate, goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { getNextStep, getSimplifiedStatus } from '$lib/nextStep';
@@ -681,6 +682,7 @@ import { clientError } from '$lib/log';
 	}
 
 	$effect(() => {
+		if (!browser) return;
 		const jobs = data.demoJobsByProspectId ?? {};
 		const hasPending = Object.values(jobs).some((j) => j.status === 'pending' || j.status === 'creating');
 		// Also poll when some prospects have no demo and queued status (demo may have completed or failed; refresh will update state)
@@ -692,11 +694,13 @@ import { clientError } from '$lib/log';
 	});
 
 	$effect(() => {
+		if (!browser) return;
 		const gbpJobs = data.gbpJobsByProspectId ?? {};
 		if (Object.keys(gbpJobs).length > 0 && !gbpJobPollingActive) startGbpJobPolling();
 	});
 
 	$effect(() => {
+		if (!browser) return;
 		const insightsJobs = data.insightsJobsByProspectId ?? {};
 		const hasInsightsJobs = Object.keys(insightsJobs).length > 0;
 		// Also poll when some prospects have no demo and queued status (insights may have completed; refresh will update state)

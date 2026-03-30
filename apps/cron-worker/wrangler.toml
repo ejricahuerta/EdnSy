@@ -5,9 +5,9 @@ compatibility_date = "2024-01-01"
 # Admin app: set CRON_TARGET_URL and CRON_SECRET (secret).
 # Website Template: set WEBSITE_TEMPLATE_URL to ping GET /api/health (keeps service warm).
 [vars]
-CRON_TARGET_URL = "https://leadrosetta.ednsy.com"
+CRON_TARGET_URL = "https://admin.ednsy.com"
 # Website Template base URL (GET /api/health), no trailing slash.
-WEBSITE_TEMPLATE_URL = "https://website-template.ednsy.com"
+WEBSITE_TEMPLATE_URL = "https://website-template-68wq.onrender.com"
 
 [triggers]
 # Single trigger to stay within Cloudflare Free "Cron Triggers per account" (5). Handler runs every minute and
