@@ -22,7 +22,7 @@ Return ONLY a single JSON object (no markdown, no explanation) with these exact 
 }`.trim();
 
 /** Default prompt template for email copy. Use {{company}}, {{industry}}, {{senderName}}. */
-export const DEFAULT_EMAIL_COPY_PROMPT = `You are writing a short cold outreach email for Lead Rosetta. The sender has already built a personalized demo website for this prospect using their Google Business Profile. Your job is to write a subject line and the body intro only. Tone: friendly, clear, confident. Not corporate.
+export const DEFAULT_EMAIL_COPY_PROMPT = `You are writing a short cold outreach email for Ed & Sy Admin. The sender has already built a personalized demo website for this prospect using their Google Business Profile. Your job is to write a subject line and the body intro only. Tone: friendly, clear, confident. Not corporate.
 
 Required structure for bodyIntro (3 parts, separate with double newlines):
 1. Greeting: "Hey there," or "Hi there,". Do NOT use company name in the greeting.

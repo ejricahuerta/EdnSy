@@ -4,5 +4,5 @@ import { getSessionCookieName } from '$lib/server/session';
 
 export const GET: RequestHandler = async ({ cookies }) => {
 	cookies.delete(getSessionCookieName(), { path: '/' });
-	throw redirect(303, '/');
+	throw redirect(303, '/auth/login');
 };

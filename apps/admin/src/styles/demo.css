@@ -353,7 +353,7 @@ body.lr-scope-demo {
 }
 
 /* Demo bottom banner: slide in from left → right after 2s (see prefers-reduced-motion below) */
-@keyframes demo-lr-banner-slide-in {
+@keyframes demo-admin-banner-slide-in {
   from {
     transform: translateX(-105%);
     opacity: 0;
@@ -364,8 +364,8 @@ body.lr-scope-demo {
   }
 }
 
-/* Floating Lead Rosetta banner on all demo pages – distinct from dark UI (e.g. Crisp) */
-.demo-lr-banner {
+/* Floating Ed & Sy Admin banner on all demo pages – distinct from dark UI (e.g. Crisp) */
+.demo-admin-banner {
   position: fixed;
   top: auto;
   bottom: 0;
@@ -383,7 +383,7 @@ body.lr-scope-demo {
   /* Flush left; square left edge so ~30% of the bottom stays clear for the floating chat */
   margin: 0 0.5rem 0.85rem 0;
   border-radius: 0 1.25rem 1.25rem 0;
-  animation: demo-lr-banner-slide-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) 2s both;
+  animation: demo-admin-banner-slide-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) 2s both;
   /* Landing theme: violet brand gradient with glassy backdrop. */
   background: linear-gradient(
     90deg,
@@ -408,14 +408,14 @@ body.lr-scope-demo {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .demo-lr-banner {
+  .demo-admin-banner {
     animation: none;
     opacity: 1;
     transform: none;
   }
 }
 
-.demo-lr-banner-right {
+.demo-admin-banner-right {
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
@@ -424,7 +424,7 @@ body.lr-scope-demo {
   min-width: 0;
 }
 /* Same column width for headline + CTA: shrink-wrap to the wider line, cap at banner */
-.demo-lr-banner-right-stack {
+.demo-admin-banner-right-stack {
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -436,7 +436,7 @@ body.lr-scope-demo {
   /* Extra right inset (headline + CTA) so the button clears the banner edge */
   padding-right: 0.5rem;
 }
-.demo-lr-banner-home {
+.demo-admin-banner-home {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -453,10 +453,10 @@ body.lr-scope-demo {
   transition: opacity 0.2s;
   box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.1);
 }
-.demo-lr-banner-home:hover {
+.demo-admin-banner-home:hover {
   opacity: 0.92;
 }
-.demo-lr-banner-logo {
+.demo-admin-banner-logo {
   flex-shrink: 0;
   width: 100%;
   height: 100%;
@@ -467,7 +467,7 @@ body.lr-scope-demo {
   transform: scale(1.08);
   transform-origin: center center;
 }
-.demo-lr-banner-urgency {
+.demo-admin-banner-urgency {
   display: block;
   font-weight: 600;
   font-size: 0.95rem;
@@ -476,14 +476,14 @@ body.lr-scope-demo {
   min-width: 0;
   text-align: right;
 }
-.demo-lr-banner-actions {
+.demo-admin-banner-actions {
   display: flex;
   align-items: stretch;
   gap: 0.5rem;
   flex-shrink: 0;
   width: 100%;
 }
-.demo-lr-banner-link {
+.demo-admin-banner-link {
   color: var(--color-base-content);
   text-decoration: none;
   font-size: 0.95rem;
@@ -492,11 +492,11 @@ body.lr-scope-demo {
   border: 1px solid rgba(58, 0, 255, 0.25);
   transition: background 0.2s, border-color 0.2s;
 }
-.demo-lr-banner-link:hover {
+.demo-admin-banner-link:hover {
   background: rgba(58, 0, 255, 0.12);
   border-color: rgba(58, 0, 255, 0.4);
 }
-.demo-lr-banner-cta {
+.demo-admin-banner-cta {
   display: block;
   width: 100%;
   box-sizing: border-box;
@@ -514,7 +514,7 @@ body.lr-scope-demo {
 
 @media (max-width: 640px) {
   /* Same 70% width; logo left, copy + CTA right */
-  .demo-lr-banner {
+  .demo-admin-banner {
     width: 70%;
     max-width: 70vw;
     left: 0;
@@ -528,24 +528,24 @@ body.lr-scope-demo {
     border-radius: 0 1rem 1rem 0;
     box-sizing: border-box;
   }
-  .demo-lr-banner-right-stack {
+  .demo-admin-banner-right-stack {
     gap: 0.4rem;
   }
-  .demo-lr-banner-home {
+  .demo-admin-banner-home {
     align-self: center;
     width: 3.5rem;
     height: 3.5rem;
     padding: 0.08rem;
   }
-  .demo-lr-banner-logo {
+  .demo-admin-banner-logo {
     transform: scale(1.06);
   }
-  .demo-lr-banner-urgency {
+  .demo-admin-banner-urgency {
     font-size: 0.8rem;
     line-height: 1.3;
   }
-  .demo-lr-banner-cta,
-  .demo-lr-banner-link {
+  .demo-admin-banner-cta,
+  .demo-admin-banner-link {
     font-size: 0.8125rem;
     padding: 0.45rem 0.65rem;
     box-sizing: border-box;
@@ -554,11 +554,11 @@ body.lr-scope-demo {
     padding-bottom: 0;
   }
 }
-.demo-lr-banner-cta:hover {
+.demo-admin-banner-cta:hover {
   filter: brightness(1.1);
 }
 
-/* Lead Rosetta vs demo: clearly mark platform (LR) sections so they’re distinct from the business demo content */
+/* Platform vs demo: clearly mark Ed & Sy Admin sections so they’re distinct from the business demo content */
 .demo-route .lr-from-platform {
   position: relative;
   border-left: 3px solid var(--color-primary);
@@ -720,9 +720,9 @@ body.lr-scope-demo {
   --radius-box: 0.5rem;
 }
 
-/* Lead Rosetta style guide – MUST come after industry themes. LR platform
-   components (banner, modal, sticky CTA, footer) always use LR branding. */
-.demo-route .lr-brand {
+/* Ed & Sy Admin demo shell – MUST come after industry themes. Platform
+   components (banner, modal, sticky CTA, footer) always use Ed & Sy Admin branding. */
+.demo-route .admin-demo-brand {
   /* Landing theme tokens */
   --color-primary: #3a00ff !important;
   --color-primary-content: #ffffff !important;
@@ -739,54 +739,54 @@ body.lr-scope-demo {
   --color-error: #dc2626 !important;
   font-family: var(--font-body) !important;
 }
-.demo-route .lr-brand h1,
-.demo-route .lr-brand h2,
-.demo-route .lr-brand h3,
-.demo-route .lr-brand h4,
-.demo-route .lr-brand .font-display {
+.demo-route .admin-demo-brand h1,
+.demo-route .admin-demo-brand h2,
+.demo-route .admin-demo-brand h3,
+.demo-route .admin-demo-brand h4,
+.demo-route .admin-demo-brand .font-display {
   font-family: var(--font-display) !important;
 }
-/* Ensure buttons inside .lr-brand use LR theme (variables may not apply to pseudo-classes) */
-.demo-route .lr-brand .btn-primary {
+/* Ensure buttons inside .admin-demo-brand use LR theme (variables may not apply to pseudo-classes) */
+.demo-route .admin-demo-brand .btn-primary {
   background-color: #2D6A4F !important;
   color: #fafaf9 !important;
 }
-.demo-route .lr-brand .btn-primary:hover {
+.demo-route .admin-demo-brand .btn-primary:hover {
   filter: brightness(1.1);
 }
-.demo-route .lr-brand .btn-ghost:hover {
+.demo-route .admin-demo-brand .btn-ghost:hover {
   background-color: #292524 !important;
   color: #e7e5e4 !important;
 }
-.demo-route .lr-brand .btn-neutral {
+.demo-route .admin-demo-brand .btn-neutral {
   background-color: #3f3f46 !important;
   color: #d4d4d8 !important;
 }
-/* Force LR background/text on .lr-brand and descendants (Tailwind utilities use vars) */
-.demo-route .lr-brand.bg-base-100,
-.demo-route .lr-brand .bg-base-100 {
+/* Force LR background/text on .admin-demo-brand and descendants (Tailwind utilities use vars) */
+.demo-route .admin-demo-brand.bg-base-100,
+.demo-route .admin-demo-brand .bg-base-100 {
   background-color: #1c1917 !important;
 }
-.demo-route .lr-brand.bg-base-100/98 {
+.demo-route .admin-demo-brand.bg-base-100/98 {
   background-color: rgb(28 25 23 / 0.98) !important;
 }
-.demo-route .lr-brand .bg-base-200/60 {
+.demo-route .admin-demo-brand .bg-base-200/60 {
   background-color: rgb(41 37 36 / 0.6) !important;
 }
-.demo-route .lr-brand .border-base-300/80 {
+.demo-route .admin-demo-brand .border-base-300/80 {
   border-color: rgb(68 64 60 / 0.8) !important;
 }
-.demo-route .lr-brand .text-base-content,
-.demo-route .lr-brand .text-base-content/70,
-.demo-route .lr-brand .text-base-content/80 {
+.demo-route .admin-demo-brand .text-base-content,
+.demo-route .admin-demo-brand .text-base-content/70,
+.demo-route .admin-demo-brand .text-base-content/80 {
   color: #e7e5e4 !important;
 }
-.demo-route .lr-brand .text-base-content/70 { color: rgb(231 229 228 / 0.7) !important; }
-.demo-route .lr-brand .text-base-content/80 { color: rgb(231 229 228 / 0.8) !important; }
-.demo-route .lr-brand .text-primary { color: #2D6A4F !important; }
-.demo-route .lr-brand .bg-primary/10 { background-color: rgb(45 106 79 / 0.1) !important; }
-/* Top banner (fixed) always Lead Rosetta brand */
-.demo-route .demo-lr-banner.lr-brand {
+.demo-route .admin-demo-brand .text-base-content/70 { color: rgb(231 229 228 / 0.7) !important; }
+.demo-route .admin-demo-brand .text-base-content/80 { color: rgb(231 229 228 / 0.8) !important; }
+.demo-route .admin-demo-brand .text-primary { color: #2D6A4F !important; }
+.demo-route .admin-demo-brand .bg-primary/10 { background-color: rgb(45 106 79 / 0.1) !important; }
+/* Top banner (fixed) always Ed & Sy Admin brand */
+.demo-route .demo-admin-banner.admin-demo-brand {
   /* Landing footer surface: bg-slate-900 + border-slate-800 */
   background: #0f172a !important;
   border: 1px solid #1e293b !important;
@@ -804,24 +804,24 @@ body.lr-scope-demo {
     0 8px 22px rgba(15, 23, 42, 0.12),
     inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
 }
-.demo-route .demo-lr-banner.lr-brand .demo-lr-banner-link {
+.demo-route .demo-admin-banner.admin-demo-brand .demo-admin-banner-link {
   color: #e7e5e4 !important;
   border-color: #1e293b !important;
 }
-.demo-route .demo-lr-banner.lr-brand .demo-lr-banner-link:hover {
+.demo-route .demo-admin-banner.admin-demo-brand .demo-admin-banner-link:hover {
   background: rgba(58, 0, 255, 0.14) !important;
   border-color: rgba(58, 0, 255, 0.35) !important;
 }
-.demo-route .demo-lr-banner.lr-brand .demo-lr-banner-cta {
+.demo-route .demo-admin-banner.admin-demo-brand .demo-admin-banner-cta {
   background: #3a00ff !important;
   color: #ffffff !important;
 }
-.demo-route .demo-lr-banner.lr-brand .demo-lr-banner-cta:hover {
+.demo-route .demo-admin-banner.admin-demo-brand .demo-admin-banner-cta:hover {
   filter: brightness(1.1);
 }
 
 /* Demo banner and audit modal: use the same fonts as the landing page (theme), not LR brand fonts. */
-.demo-route .demo-lr-banner {
+.demo-route .demo-admin-banner {
   --font-display: inherit;
   --font-body: inherit;
   font-family: var(--font-body) !important;

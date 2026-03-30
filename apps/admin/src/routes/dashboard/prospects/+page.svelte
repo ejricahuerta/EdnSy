@@ -1245,7 +1245,7 @@ import { clientError } from '$lib/log';
 							</AlertDialog.Root>
 						</form>
 					{/if}
-					<!-- Search: theme colors only (no Lead Rosetta overrides) -->
+					<!-- Search: theme colors only (no marketing-shell overrides) -->
 					<div class="prospects-search relative min-w-0 flex-1 basis-64 sm:max-w-xs">
 						<label for="lr-dash-filter" class="sr-only">Search prospects</label>
 						<SearchIcon

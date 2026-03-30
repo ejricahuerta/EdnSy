@@ -1,10 +1,10 @@
 <script lang="ts">
-	// Security Overview – Ed & Sy Inc. / Lead Rosetta
+	// Security Overview – Ed & Sy Inc. / Ed & Sy Admin
 </script>
 
 <svelte:head>
-	<title>Security Overview – Lead Rosetta</title>
-	<meta name="description" content="Security overview for Lead Rosetta. Encryption, payment security, AI privacy, and infrastructure." />
+	<title>Security Overview – Ed & Sy Admin</title>
+	<meta name="description" content="Security overview for Ed & Sy Admin. Encryption, payment security, AI privacy, and infrastructure." />
 	<meta name="robots" content="index, follow" />
 </svelte:head>
 
@@ -15,7 +15,7 @@
 
 		<div class="prose prose-base text-base-content/90 max-w-none">
 			<p>
-				<strong>Lead Rosetta</strong> is built by <strong>Ed & Sy Inc.</strong> with a commitment to enterprise-grade security.
+				<strong>Ed & Sy Admin</strong> is built by <strong>Ed & Sy Inc.</strong> with a commitment to enterprise-grade security.
 			</p>
 
 			<ul class="list-disc pl-6 space-y-2 mt-6">
@@ -27,7 +27,7 @@
 		</div>
 
 		<p class="mt-10">
-			<a href="/" class="link link-hover text-primary">← Back to Lead Rosetta</a>
+			<a href="/auth/login" class="link link-hover text-primary">← Back to Ed & Sy Admin</a>
 		</p>
 	</main>
 </div>

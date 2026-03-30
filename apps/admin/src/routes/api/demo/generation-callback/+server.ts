@@ -2,7 +2,7 @@
  * POST /api/demo/generation-callback — Called by the website-template demo generator when async demo generation finishes.
  * Secured by DEMO_CALLBACK_SECRET (Authorization: Bearer <secret>).
  * Body: { jobId, prospectId, userId?, publicUrl?, html? } on success, or { jobId, prospectId, userId?, error } on failure.
- * When `html` is present, lead-rosetta uploads it to Supabase (demo-html/{prospectId}.html) so the demo page loads.
+ * When `html` is present, admin app uploads it to Supabase (demo-html/{prospectId}.html) so the demo page loads.
  */
 
 import type { RequestHandler } from './$types';
@@ -18,9 +18,9 @@ import { updateProspectDemoLink, updateProspectStatus } from '$lib/server/prospe
 import { PROSPECT_STATUS } from '$lib/prospectStatus';
 import { uploadDemoHtml } from '$lib/server/demo';
 import { apiError, apiSuccess } from '$lib/server/apiResponse';
+import { getDemoPublicOrigin } from '$lib/server/send';
 
 const CALLBACK_SECRET = (env.DEMO_CALLBACK_SECRET ?? '').trim();
-const SITE_ORIGIN = (env.SITE_ORIGIN ?? '').trim();
 
 export const POST: RequestHandler = async ({ request, url }) => {
 	const authHeader = request.headers.get('authorization');
@@ -62,14 +62,8 @@ export const POST: RequestHandler = async ({ request, url }) => {
 		return apiSuccess({ ok: true });
 	}
 
-	const origin = SITE_ORIGIN || (url.origin ?? '');
-	if (!origin) {
-		await updateDemoJob(jobId, { status: 'failed', errorMessage: 'SITE_ORIGIN not set' });
-		await updateProspectStatus(prospectId, PROSPECT_STATUS.NEW);
-		return apiError(500, 'Server misconfiguration: SITE_ORIGIN not set');
-	}
-
-	const demoLink = `${origin.replace(/\/$/, '')}/demo/${prospectId}`;
+	const demoBase = getDemoPublicOrigin((env.SITE_ORIGIN ?? '').trim() || (url.origin ?? ''));
+	const demoLink = `${demoBase}/demo/${prospectId}`;
 
 	// When the generator sends HTML in the callback, upload it so /demo/[slug]/page.html can serve it.
 	if (typeof callbackHtml === 'string' && callbackHtml.trim().length > 0) {

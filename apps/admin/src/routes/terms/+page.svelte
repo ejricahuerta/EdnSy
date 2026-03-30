@@ -1,10 +1,10 @@
 <script lang="ts">
-	// Terms of Service – Ed & Sy Inc. / Lead Rosetta
+	// Terms of Service – Ed & Sy Inc. / Ed & Sy Admin
 </script>
 
 <svelte:head>
-	<title>Terms of Service – Lead Rosetta</title>
-	<meta name="description" content="Terms of Service for Lead Rosetta. Subscriptions, acceptable use, and governing law." />
+	<title>Terms of Service – Ed & Sy Admin</title>
+	<meta name="description" content="Terms of Service for Ed & Sy Admin. Subscriptions, acceptable use, and governing law." />
 	<meta name="robots" content="index, follow" />
 </svelte:head>
 
@@ -15,7 +15,7 @@
 
 		<div class="prose prose-base text-base-content/90 max-w-none">
 			<p>
-				By using <strong>Lead Rosetta</strong>, a product of <strong>Ed & Sy Inc.</strong>, you agree to these Terms.
+				By using <strong>Ed & Sy Admin</strong>, a product of <strong>Ed & Sy Inc.</strong>, you agree to these Terms.
 			</p>
 
 			<h2 class="text-xl font-semibold mt-8 mb-3">1. Subscriptions &amp; Billing</h2>
@@ -49,7 +49,7 @@
 		</div>
 
 		<p class="mt-10">
-			<a href="/" class="link link-hover text-primary">← Back to Lead Rosetta</a>
+			<a href="/auth/login" class="link link-hover text-primary">← Back to Ed & Sy Admin</a>
 		</p>
 	</main>
 </div>

@@ -1,4 +1,4 @@
-# Lead Rosetta — Product Requirements Document
+# Ed & Sy Admin — Product Requirements Document
 
 **Version:** 0.2 (Pre-launch, Updated)
 **Owner:** Ed (Ed & Sy Inc.)
@@ -12,13 +12,13 @@
 
 ### 1.1 Product Summary
 
-Lead Rosetta is a personalized cold outreach page builder for web agencies, freelancers, and B2B sales teams. It scrapes a prospect's Google Business Profile, reviews, and social media presence — then instantly generates a personalized outreach page that proves the sender did their homework before asking for anything.
+Ed & Sy Admin is a personalized cold outreach page builder for web agencies, freelancers, and B2B sales teams. It scrapes a prospect's Google Business Profile, reviews, and social media presence — then instantly generates a personalized outreach page that proves the sender did their homework before asking for anything.
 
 The core mechanic: instead of pitching a generic service, the user shows up with something already built for the prospect. The psychological hook — "we already built this for you, want to keep it?" — converts cold contacts into warm conversations.
 
-**Important positioning shift from v0.1:** Lead Rosetta is not just a "demo website" tool. The output page type depends on what the user sells:
+**Important positioning shift from v0.1:** Ed & Sy Admin is not just a "demo website" tool. The output page type depends on what the user sells:
 
-| What the user sells | What Lead Rosetta builds |
+| What the user sells | What Ed & Sy Admin builds |
 |---|---|
 | Website / SEO services | Full personalized demo site |
 | Reputation management | Review audit + improvement preview |
@@ -32,18 +32,18 @@ The GBP scraping engine powers all of these. The industry template determines th
 
 Cold outreach for web and digital services is broken. Generic "we build websites" emails are deleted in seconds. Response rates for standard cold email campaigns run under 2%. The only thing that breaks through is proof — showing the prospect something real, personalized, and immediately valuable.
 
-Building a custom demo for each prospect manually takes hours. Lead Rosetta makes it take seconds.
+Building a custom demo for each prospect manually takes hours. Ed & Sy Admin makes it take seconds.
 
 ### 1.3 The Solution
 
 - Drop in a prospect (business name is enough — no website required)
-- Lead Rosetta scrapes their Google Business Profile, Google Reviews, and social media
+- Ed & Sy Admin scrapes their Google Business Profile, Google Reviews, and social media
 - AI generates a personalized outreach page using their real branding, real services, real customer language
 - User reviews and approves before sending
 - System provides a pre-written email template + demo link ready to send
 - Prospect receives a link to their own personalized page — reply rate increases dramatically
 
-**Key differentiator:** Works even if the prospect has no website. Most competitors (including GenPage) require an existing website to scrape. Lead Rosetta builds from GBP and reviews alone.
+**Key differentiator:** Works even if the prospect has no website. Most competitors (including GenPage) require an existing website to scrape. Ed & Sy Admin builds from GBP and reviews alone.
 
 ### 1.4 Target Users
 
@@ -59,7 +59,7 @@ Building a custom demo for each prospect manually takes hours. Lead Rosetta make
 
 ### 1.5 Internal Use Case
 
-Lead Rosetta is built and used internally by Ed & Sy Inc. to close trades and service businesses (plumbers, glass repair, HVAC, locksmiths) in the GTA.
+Ed & Sy Admin is built and used internally by Ed & Sy Inc. to close trades and service businesses (plumbers, glass repair, HVAC, locksmiths) in the GTA.
 
 - **Client show page (/show):** In-person tool to look up a business by name and address, display their Google Business Profile, AI website/SEO analysis (section by section), recommendations, and a one-click option to generate a demo and send the link to the client's email.
 
@@ -104,7 +104,7 @@ Lead Rosetta is built and used internally by Ed & Sy Inc. to close trades and se
 **Role:** Solo freelancer, builds websites for local Toronto businesses
 **Pain:** Spends hours writing cold emails that go ignored. Has a Yellow Pages export of 200 plumbers. Doesn't know how to differentiate.
 **Goal:** Send something that gets a response. Close 2 new clients per month.
-**Behaviour:** Drops in a business name, Lead Rosetta scrapes GBP, generates demo in 90 seconds. Copies email template. Sends manually. Converts to Starter once he gets his first reply.
+**Behaviour:** Drops in a business name, Ed & Sy Admin scrapes GBP, generates demo in 90 seconds. Copies email template. Sends manually. Converts to Starter once he gets his first reply.
 
 ### Persona B — The Small Agency Owner
 
@@ -112,7 +112,7 @@ Lead Rosetta is built and used internally by Ed & Sy Inc. to close trades and se
 **Role:** Technical co-founder, web/AI agency (2 people)
 **Pain:** Has a list of trades businesses from Google Maps. Needs an outbound system that doesn't require constant manual effort.
 **Goal:** Close 5 new clients at $399/month in the next 60 days.
-**Behaviour:** Uses Lead Rosetta daily. Connects CRM on Pro. Reviews and approves demos, sends batch of 20 at once. Monitors open tracking dashboard.
+**Behaviour:** Uses Ed & Sy Admin daily. Connects CRM on Pro. Reviews and approves demos, sends batch of 20 at once. Monitors open tracking dashboard.
 
 ### Persona C — The Cold Outreach Freelancer
 
@@ -133,7 +133,7 @@ Lead Rosetta is built and used internally by Ed & Sy Inc. to close trades and se
 | Feature | Description |
 |---|---|
 | Single demo generation | Generate 1 demo page per session, no account or credit card required |
-| GBP auto-scrape | Drop in a business name — Lead Rosetta finds the rest from Google |
+| GBP auto-scrape | Drop in a business name — Ed & Sy Admin finds the rest from Google |
 | Manual send | Copy the generated demo link and send it yourself |
 | Email template | Pre-written cold email template with demo link auto-populated |
 | No data storage | Lead data is discarded immediately after session |
@@ -163,13 +163,13 @@ Lead Rosetta is built and used internally by Ed & Sy Inc. to close trades and se
 | Feature | Description |
 |---|---|
 | Base + per-demo | $499/month + $0.60 per demo (e.g. $859 for 600 demos) |
-| White-label demos | Your branding, not Lead Rosetta |
+| White-label demos | Your branding, not Ed & Sy Admin |
 | Team access | Multiple users |
 | Client dashboards | Manage multiple client campaigns |
 | Bulk prospecting | Scale outreach |
 | CTA | "Request Demo" (mailto; no self-serve) |
 
-**Agency signup:** Requires contacting us (no self-serve). CTA is "Request Demo" (mailto with subject "Lead Rosetta Agency plan").
+**Agency signup:** Requires contacting us (no self-serve). CTA is "Request Demo" (mailto with subject "Ed & Sy Admin Agency plan").
 
 #### Premium Demo Add-on ($2/demo)
 
@@ -240,14 +240,14 @@ Every generated demo page follows this structure:
    - Sender name is dynamic — pulled from whoever generated the demo
    - Mobile-first
 
-5. **Footer** — Lead Rosetta subtle branding only
+5. **Footer** — Ed & Sy Admin subtle branding only
 
 #### F2 — CSV Upload with AI Mapping
 
 - **Accepted format:** Any .csv — AI handles column mapping automatically
 - **AI mapping process:**
   1. AI reads headers + sample rows
-  2. Auto-maps to Lead Rosetta fields: business_name, contact_name, email, phone, location, website (optional), industry (optional)
+  2. Auto-maps to Ed & Sy Admin fields: business_name, contact_name, email, phone, location, website (optional), industry (optional)
   3. Shows user confirmation screen — user approves or adjusts in one click
   4. Unrecognized columns: user decides skip or assign
 - **Auto-cleaning after mapping:**
@@ -322,7 +322,7 @@ No catch. Have a look when you get a sec.
 (We might send a follow-up.)
 ```
 
-**Note:** Users copy and paste into their own sending tool (Instantly, Smartlead, Gmail, etc.). Lead Rosetta does not own sending infrastructure for cold outreach. Pro users can use automated sending via Resend for transactional/notification emails only.
+**Note:** Users copy and paste into their own sending tool (Instantly, Smartlead, Gmail, etc.). Ed & Sy Admin does not own sending infrastructure for cold outreach. Pro users can use automated sending via Resend for transactional/notification emails only.
 
 #### F5 — Demo Intelligence Dashboard (Pro+)
 
@@ -366,7 +366,7 @@ Warning shown if user skips. Deliverability guide linked in onboarding.
 Land on homepage
 → Click "Try free — one demo"
 → Enter business name (minimum) + optional location
-→ Lead Rosetta scrapes GBP + reviews + socials automatically
+→ Ed & Sy Admin scrapes GBP + reviews + socials automatically
 → Data confidence score calculated
 → Demo generated (< 90 seconds)
 → Pain modal preview shown to user
@@ -383,7 +383,7 @@ Sign in → Subscribe (Starter $79+ or Growth $199+ per month)
 → Upload CSV or connect CRM (Growth)
 → AI maps columns → user confirms
 → Auto-cleaning runs → user sees preview count
-→ Lead Rosetta scrapes GBP for each prospect
+→ Ed & Sy Admin scrapes GBP for each prospect
 → Data confidence scored per lead
 → Demo pages generated (within plan limit)
 → Review queue: preview each, edit if needed, approve
@@ -397,7 +397,7 @@ Sign in → Subscribe (Starter $79+ or Growth $199+ per month)
 
 ```
 Pull leads from GBP / Google Maps (trades businesses, GTA)
-→ Upload CSV to Lead Rosetta
+→ Upload CSV to Ed & Sy Admin
 → AI scrapes GBP + reviews for each lead
 → Review 20 demos (glass repair, HVAC, plumbers)
 → Copy email templates → send via own email tool
@@ -412,7 +412,7 @@ Pull leads from GBP / Google Maps (trades businesses, GTA)
 
 ```
 Step 1 — Welcome (30 seconds):
-"Lead Rosetta works in 3 steps. We'll show you with a real example."
+"Ed & Sy Admin works in 3 steps. We'll show you with a real example."
 
 Step 2 — Generate sample demo:
 "Type any local business name. Watch what we build."
@@ -441,13 +441,13 @@ We'll generate the demo and give you the email template."
 | Supplementary scraping | ScrapingBee (website + socials; ~$0.001/call) |
 | Data cache | Local DB cache — serves from cache if DataForSEO unavailable |
 | Email (transactional) | Resend — for user notifications only (not cold outreach sending) |
-| Cold email sending | User's own tool (Instantly, Smartlead, Gmail) — Lead Rosetta provides templates only |
+| Cold email sending | User's own tool (Instantly, Smartlead, Gmail) — Ed & Sy Admin provides templates only |
 | SMS | Twilio (backlog; optional via env when enabled) |
 | Auth | Clerk or Supabase Auth (planned) |
 | Payments | Stripe (planned) |
 | CRM connectors | HubSpot, GoHighLevel, Pipedrive, Notion (Growth) |
 
-**Note on sending architecture:** Lead Rosetta does not own cold outreach delivery infrastructure. Users copy email templates and send via their own tools. This keeps deliverability responsibility with the user and eliminates spam/blacklist risk for Lead Rosetta.
+**Note on sending architecture:** Ed & Sy Admin does not own cold outreach delivery infrastructure. Users copy email templates and send via their own tools. This keeps deliverability responsibility with the user and eliminates spam/blacklist risk for Ed & Sy Admin.
 
 ### 6.2 Data Stack
 
@@ -508,13 +508,13 @@ Three things required before any paying user touches the product:
    *"I confirm I am responsible for ensuring my outreach complies with applicable laws in my jurisdiction."*
 
 2. **Terms of Service line:**
-   *"Lead Rosetta is a demo generation tool. Users are solely responsible for compliance with anti-spam and data protection laws in their region."*
+   *"Ed & Sy Admin is a demo generation tool. Users are solely responsible for compliance with anti-spam and data protection laws in their region."*
    Generate full ToS + Privacy Policy via Termly.io.
 
 3. **Unsubscribe link on every demo page:**
    Auto-appended: *"Not interested? Click here to never receive a demo from this sender again."*
 
-**CASL note:** Lead Rosetta users are targeting business addresses (info@, hello@, contact@) — generally considered implied consent under CASL's B2B exemption. We are the platform, not the sender. User liability applies.
+**CASL note:** Ed & Sy Admin users are targeting business addresses (info@, hello@, contact@) — generally considered implied consent under CASL's B2B exemption. We are the platform, not the sender. User liability applies.
 
 **GDPR:** Not a current concern (Canadian market focus). Add regional compliance checkbox at signup for future European users.
 
@@ -534,7 +534,7 @@ Same as v0.1 — no changes.
 | Landing page | Style guide is priority. No shadcn-svelte. |
 | Dashboard & app pages | Use shadcn-svelte. Style guide for typography/colors. |
 | Industry demo pages | Industry style guides only. No shadcn-svelte. |
-| Lead Rosetta modal/banner in demos | Always use leadrosetta.html style guide. |
+| Ed & Sy Admin modal/banner in demos | Always use leadrosetta.html style guide. |
 
 ---
 
@@ -579,14 +579,14 @@ Simple, transparent pricing — pay for the value you get. 1 demo = 1 prospect.
 
 ### Direct Competitors
 
-| Competitor | Core Product | Pricing | Key Weakness vs. Lead Rosetta |
+| Competitor | Core Product | Pricing | Key Weakness vs. Ed & Sy Admin |
 |---|---|---|---|
 | GenPage | AI landing pages for cold outreach | $59–$259/month | Needs existing website; single page only; no GBP scraping |
 | Hyperise | Personalized images in cold email | ~$69/month | Images only; no pages; manual setup |
 | Lemlist | Cold email + personalized images/pages | $59–$99/user/month | Pages are a feature, not a product; no AI generation |
 | Instantly / Smartlead | Cold email infrastructure | $37–$97/month | Zero personalized page output |
 
-### Lead Rosetta's Moat
+### Ed & Sy Admin's Moat
 
 1. **Works without a prospect website** — nobody else does this
 2. **GBP + reviews + socials as data sources** — generates from real customer language
@@ -596,7 +596,7 @@ Simple, transparent pricing — pay for the value you get. 1 demo = 1 prospect.
 
 ### Key Positioning Statement
 
-*"Every other tool personalizes the email. Lead Rosetta personalizes what they land on — a full page built from everything publicly known about their business. That's why it gets replied to."*
+*"Every other tool personalizes the email. Ed & Sy Admin personalizes what they land on — a full page built from everything publicly known about their business. That's why it gets replied to."*
 
 ---
 
@@ -604,9 +604,9 @@ Simple, transparent pricing — pay for the value you get. 1 demo = 1 prospect.
 
 ### 9.1 Phase 1 — Internal Validation (Now)
 
-Use Lead Rosetta internally at Ed & Sy to close the next 5 GTA trades clients. Every closed client = validated workflow, real numbers for the landing page.
+Use Ed & Sy Admin internally at Ed & Sy to close the next 5 GTA trades clients. Every closed client = validated workflow, real numbers for the landing page.
 
-**Publish a case study:** Run 500 Lead Rosetta demos vs. 500 standard cold emails to identical prospect lists. Publish reply rate comparison. This data is the product's best sales tool.
+**Publish a case study:** Run 500 Ed & Sy Admin demos vs. 500 standard cold emails to identical prospect lists. Publish reply rate comparison. This data is the product's best sales tool.
 
 ### 9.2 Phase 2 — Soft Launch to Known Network
 
@@ -625,7 +625,7 @@ Offer free Pro access to 3 freelancer/agency contacts who have the same problem.
 - AppSumo — apply early; use for volume and case studies, not core revenue
 
 **Ecosystem channels (100+ users):**
-- GoHighLevel Marketplace — 1,500+ apps, none doing what Lead Rosetta does. Build native workflow integration (demo generates when contact added). 15% revenue share. Priority integration target.
+- GoHighLevel Marketplace — 1,500+ apps, none doing what Ed & Sy Admin does. Build native workflow integration (demo generates when contact added). 15% revenue share. Priority integration target.
 - Zapier / Make integrations
 - G2 + Capterra listings (free, long-tail SEO traffic)
 
@@ -635,7 +635,7 @@ GHL users are the ideal customer: web/SEO agencies, existing outreach budgets ($
 
 **Integration mechanic:**
 - Trigger: new contact added to GHL pipeline
-- Action: Lead Rosetta auto-generates demo for that contact
+- Action: Ed & Sy Admin auto-generates demo for that contact
 - Output: demo link + email template dropped into GHL contact record
 - User sends from inside GHL — never leaves the platform
 
@@ -645,13 +645,13 @@ GHL users are the ideal customer: web/SEO agencies, existing outreach budgets ($
 
 **Tagline:** Stop pitching. Show up with their site already built.
 
-**Expanded one-liner:** Whatever you're selling — Lead Rosetta builds a personalized page that proves you did your homework before asking for anything.
+**Expanded one-liner:** Whatever you're selling — Ed & Sy Admin builds a personalized page that proves you did your homework before asking for anything.
 
-**Versus generic cold email tools (Instantly, Lemlist):** Those tools personalize text. Lead Rosetta personalizes the destination.
+**Versus generic cold email tools (Instantly, Lemlist):** Those tools personalize text. Ed & Sy Admin personalizes the destination.
 
 **Versus GenPage:** They need a website to scrape. We build from Google data alone.
 
-**Versus manual demo building:** That takes hours per prospect. Lead Rosetta does it in 90 seconds at scale.
+**Versus manual demo building:** That takes hours per prospect. Ed & Sy Admin does it in 90 seconds at scale.
 
 ---
 
@@ -674,7 +674,7 @@ GHL users are the ideal customer: web/SEO agencies, existing outreach budgets ($
 
 ## 11. Open Questions
 
-- [ ] What domain will Lead Rosetta live on? (`leadrosetta.com`, `lead.rosetta.ai`, other?)
+- [ ] What domain will Ed & Sy Admin live on? (`leadrosetta.com`, `lead.rosetta.ai`, other?)
 - [ ] Should the free tier require an email signup, or stay fully anonymous?
 - [ ] What CRM should be prioritized for v1 Pro? GoHighLevel (most common in agency world) vs HubSpot?
 - [ ] Do we allow users to bring their own Twilio/SendGrid keys, or abstract it?
@@ -732,5 +732,5 @@ Must be complete before first paying user:
 
 ---
 
-*Lead Rosetta is a product of Ed & Sy Inc., Toronto, Ontario. © 2026.*
+*Ed & Sy Admin is a product of Ed & Sy Inc., Toronto, Ontario. © 2026.*
 *PRD v0.2 — Updated March 2026. Changes from v0.1 tracked in version header.*

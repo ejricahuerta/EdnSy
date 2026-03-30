@@ -1,10 +1,10 @@
 <script lang="ts">
-	// Data Processing Addendum – Ed & Sy Inc. / Lead Rosetta
+	// Data Processing Addendum – Ed & Sy Inc. / Ed & Sy Admin
 </script>
 
 <svelte:head>
-	<title>Data Processing Addendum (DPA) – Lead Rosetta</title>
-	<meta name="description" content="Data Processing Addendum for Lead Rosetta. Processor obligations, security, and sub-processors." />
+	<title>Data Processing Addendum (DPA) – Ed & Sy Admin</title>
+	<meta name="description" content="Data Processing Addendum for Ed & Sy Admin. Processor obligations, security, and sub-processors." />
 	<meta name="robots" content="index, follow" />
 </svelte:head>
 
@@ -20,7 +20,7 @@
 
 			<h2 class="text-xl font-semibold mt-8 mb-3">1. Scope</h2>
 			<p>
-				This agreement applies where Ed & Sy Inc. processes personal data subject to <strong>PIPEDA</strong> or <strong>GDPR</strong> as part of the Lead Rosetta service.
+				This agreement applies where Ed & Sy Inc. processes personal data subject to <strong>PIPEDA</strong> or <strong>GDPR</strong> as part of the Ed & Sy Admin service.
 			</p>
 
 			<h2 class="text-xl font-semibold mt-8 mb-3">2. Processor Obligations</h2>
@@ -42,7 +42,7 @@
 		</div>
 
 		<p class="mt-10">
-			<a href="/" class="link link-hover text-primary">← Back to Lead Rosetta</a>
+			<a href="/auth/login" class="link link-hover text-primary">← Back to Ed & Sy Admin</a>
 		</p>
 	</main>
 </div>

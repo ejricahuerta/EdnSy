@@ -1,16 +1,16 @@
-# Lead Rosetta Style Guides
+# Ed & Sy Admin Style Guides
 
 ## style-guide.html → app + dashboard (shadcn-svelte)
 
-**`style-guide.html`** is the canonical Component Style Guide for Lead Rosetta (colors, typography, buttons, forms, badges, etc.).
+**`style-guide.html`** is the canonical Component Style Guide for the admin app (colors, typography, buttons, forms, badges, etc.).
 
 ### How it’s merged into the app
 
 1. **Tokens**  
-   The palette (`--cream`, `--ink`, `--sage`, `--amber`, etc.) is defined in **`apps/admin/src/app.css`** under `.leadrosetta-app`. Keep those values in sync with `style-guide.html` when you change the guide.
+   The palette (`--cream`, `--ink`, `--sage`, `--amber`, etc.) is defined in **`apps/admin/src/app.css`** under `.admin-app`. Keep those values in sync with `style-guide.html` when you change the guide.
 
 2. **Dashboard + shadcn-svelte**  
-   The dashboard uses **shadcn-svelte** for UI (Card, Button, Select, Dialog, Table, etc.). Theme mapping is in `app.css` in the block **`.leadrosetta-app-dashboard`**:
+   The dashboard uses **shadcn-svelte** for UI (Card, Button, Select, Dialog, Table, etc.). Theme mapping is in `app.css` in the block **`.admin-app-dashboard`**:
    - `--primary` → sage  
    - `--background` → cream  
    - `--muted` → surface  
@@ -20,7 +20,7 @@
    So all shadcn components in the dashboard automatically use the style guide palette.
 
 3. **Typography in the dashboard**  
-   Use these classes inside dashboard pages (under `.leadrosetta-app-dashboard`):
+   Use these classes inside dashboard pages (under `.admin-app-dashboard`):
    - **`.lr-type-display`** – Instrument Serif, large display
    - **`.lr-type-h1`**, **`.lr-type-h2`** – Instrument Serif headings
    - **`.lr-type-eyebrow`** – uppercase label (amber)

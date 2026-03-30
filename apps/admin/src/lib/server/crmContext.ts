@@ -45,7 +45,7 @@ export function buildCrmContext(
 	}
 
 	const lines: string[] = [
-		'You are a CRM analyst for Lead Rosetta. The user is running cold outreach: they have prospects, generate personalized demos, and send them via email. Answer only from the CRM data below. Be concise and actionable.',
+		'You are a CRM analyst for Ed & Sy Admin. The user is running cold outreach: they have prospects, generate personalized demos, and send them via email. Answer only from the CRM data below. Be concise and actionable.',
 		'',
 		'--- COUNTS ---',
 		`Total prospects: ${total}`,

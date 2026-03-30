@@ -6,7 +6,7 @@ Your dashboard clients list can be powered by a Notion database. Follow these st
 
 1. Go to [Notion Integrations](https://www.notion.so/my-integrations) (or **Settings & members** → **Connections** → **Develop or manage integrations**).
 2. Click **+ New integration**.
-3. Name it (e.g. "Lead Rosetta") and select your workspace.
+3. Name it (e.g. "Ed & Sy Admin") and select your workspace.
 4. Click **Submit**.
 
 ## 2. Get your API key (secret)
@@ -35,7 +35,7 @@ Your dashboard clients list can be powered by a Notion database. Follow these st
 
 Without this step, the integration cannot read or sync the database.
 
-## 5. Connect in Lead Rosetta
+## 5. Connect in Ed & Sy Admin
 
 1. In **Dashboard → Integrations**, select **Notion**.
 2. Paste your **API key**.

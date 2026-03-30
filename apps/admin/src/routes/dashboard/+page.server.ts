@@ -36,6 +36,7 @@ import {
 	buildSmsBody,
 	getSendConfigured,
 	getOriginForOutgoingLinks,
+	getDemoPublicOrigin,
 	isTwilioConfigured
 } from '$lib/server/send';
 import { generateEmailCopy } from '$lib/server/generateEmailCopy';
@@ -132,8 +133,7 @@ export const actions: Actions = {
 			return fail(503, { message: formatScrapedDataErrorMessage(scrapedResult.errors) });
 		}
 		const scrapedData = scrapedResult.data;
-		const origin = url.origin;
-		const demoUrl = `${origin}/demo/${prospectId}`;
+		const demoUrl = `${getDemoPublicOrigin(url.origin)}/demo/${prospectId}`;
 		const result = await updateProspectDemoLink(prospectId, demoUrl, PROSPECT_STATUS.REVIEW);
 		if (!result.ok) {
 			return fail(502, { message: result.error ?? 'Failed to update prospect' });
@@ -230,6 +230,7 @@ export const actions: Actions = {
 			return fail(503, { message: 'Demo tracking not configured. Supabase is required for bulk demo creation.' });
 		}
 		const origin = getOriginForOutgoingLinks(url.origin);
+		const demoPublicOrigin = getDemoPublicOrigin(url.origin);
 		const defaultLocation = await getGbpDefaultLocation(user.id);
 		let enqueued = 0;
 		const errors: string[] = [];
@@ -247,7 +248,7 @@ export const actions: Actions = {
 				continue;
 			}
 			const scrapedData = scrapedResult.data as Record<string, unknown>;
-			const demoUrl = `${origin}/demo/${prospectId}`;
+			const demoUrl = `${demoPublicOrigin}/demo/${prospectId}`;
 			const crmSource = prospect.provider ?? 'manual';
 			const crmProspectId = prospect.provider_row_id ?? prospectId;
 			await upsertDemoTrackingForProspect(user.id, prospectId, crmSource, crmProspectId, demoUrl, 'draft');
