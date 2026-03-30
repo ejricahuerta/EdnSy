@@ -33,7 +33,7 @@
 		getPaginationRowModel,
 		getSortedRowModel
 	} from '@tanstack/table-core';
-	import { createRawSnippet, tick } from 'svelte';
+	import { createRawSnippet } from 'svelte';
 	import DataTableCheckbox from '$lib/components/data-table-checkbox.svelte';
 	import DataTableSortHeader from '$lib/components/prospects/data-table-sort-header.svelte';
 	import DataTableActionsCell from '$lib/components/prospects/data-table-actions-cell.svelte';
@@ -171,7 +171,14 @@ import { clientError } from '$lib/log';
 		if (gbpCount > 0) parts.push(`GBP ${gbpCount}`);
 		if (insightsCount > 0) parts.push(`Insights ${insightsCount}`);
 		if (demoCount > 0) parts.push(`Demo ${demoCount}`);
-		return parts.join(' · ');
+		if (parts.length > 0) return parts.join(' · ');
+		// Cron or another tab may have updated jobs; SSR can be stale so maps are empty while CRM still shows queued.
+		const list = data.prospects ?? [];
+		const queuedNoDemo = list.some(
+			(p) => !(p.demoLink ?? '').trim() && isProspectQueuedStatus(p.status)
+		);
+		if (queuedNoDemo) return 'Checking queue…';
+		return '';
 	});
 
 	let generatingDemo = $state(false);
@@ -339,7 +346,13 @@ import { clientError } from '$lib/log';
 		goto(`/dashboard/prospects/${p.id}`);
 	}
 
-	let demoJobPollingActive = $state(false);
+	/** Single coordinator for demo + GBP + insights queue polling (avoids triple timers and stacked invalidateAll). */
+	let jobQueuePollingActive = $state(false);
+	let jobPollInvalidateDebounce: ReturnType<typeof setTimeout> | null = null;
+	const JOB_POLL_INTERVAL_MS = 4000;
+	const JOB_POLL_MAX_ATTEMPTS = 50;
+	const JOB_POLL_INVALIDATE_DEBOUNCE_MS = 320;
+
 	let createDemosDialogOpen = $state(false);
 	let createDemosForm: HTMLFormElement | null = $state(null);
 	let createDemosSubmitting = $state(false);
@@ -351,8 +364,6 @@ import { clientError } from '$lib/log';
 	let bulkRestoreSubmitting = $state(false);
 	let bulkProcessNextStepSubmitting = $state(false);
 	let clearStuckSubmitting = $state(false);
-	let gbpJobPollingActive = $state(false);
-	let insightsJobPollingActive = $state(false);
 	/** Prospect ID currently running processNextStep (per-row generate icon). */
 	let processNextStepId = $state<string | null>(null);
 	let sendDemosDialogOpen = $state(false);
@@ -416,12 +427,12 @@ import { clientError } from '$lib/log';
 			if (success && result.queued && result.step) {
 				if (result.step === 'gbp') {
 					optimisticGbpProspectIds = new Set([...optimisticGbpProspectIds, prospectId]);
-					startGbpJobPolling();
+					startJobQueuePolling();
 				} else if (result.step === 'insights') {
 					optimisticInsightsProspectIds = new Set([...optimisticInsightsProspectIds, prospectId]);
-					startInsightsJobPolling();
+					startJobQueuePolling();
 				} else {
-					startDemoJobPolling();
+					startJobQueuePolling();
 				}
 				toastSuccess(
 					result.alreadyQueued ? 'Already in progress' : 'Queued',
@@ -480,7 +491,7 @@ import { clientError } from '$lib/log';
 					{ label: 'View prospect', onClick: () => goto(`/dashboard/prospects/${p.id}`) }
 				);
 				await invalidateAll();
-				startDemoJobPolling();
+				startJobQueuePolling();
 			} else {
 				const msg = result.message ?? 'Failed to queue demo';
 				toastError('Create demo', msg);
@@ -493,222 +504,188 @@ import { clientError } from '$lib/log';
 		}
 	}
 
-	/** Poll process-demo-job until queue is empty or max attempts. On each processed job: invalidate. */
-	function startDemoJobPolling() {
-		if (demoJobPollingActive) return;
-		demoJobPollingActive = true;
-		const maxAttempts = 50;
+	function scheduleInvalidateFromJobPoll() {
+		if (jobPollInvalidateDebounce) clearTimeout(jobPollInvalidateDebounce);
+		jobPollInvalidateDebounce = setTimeout(async () => {
+			jobPollInvalidateDebounce = null;
+			await invalidateAll();
+		}, JOB_POLL_INVALIDATE_DEBOUNCE_MS);
+	}
+
+	/**
+	 * Poll demo, GBP, and insights job endpoints together (one timer, Promise.all).
+	 * Debounces invalidate when work completes so we do not stack full-page reloads (main-thread jank).
+	 */
+	function startJobQueuePolling() {
+		if (jobQueuePollingActive) return;
+		jobQueuePollingActive = true;
 		let attempts = 0;
 		const run = async () => {
-			if (attempts >= maxAttempts) {
-				demoJobPollingActive = false;
+			if (!jobQueuePollingActive) return;
+			if (attempts >= JOB_POLL_MAX_ATTEMPTS) {
+				jobQueuePollingActive = false;
 				return;
 			}
 			attempts++;
 			try {
-				const res = await fetch('/api/jobs/demo', { method: 'POST' });
-				const body = (await res.json().catch(() => ({}))) as {
+				const [demoRes, gbpRes, insightsRes] = await Promise.all([
+					fetch('/api/jobs/demo', { method: 'POST' }),
+					fetch('/api/jobs/gbp', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({})
+					}),
+					fetch('/api/jobs/insights', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({})
+					})
+				]);
+				type JobBody = {
 					processed?: boolean;
 					status?: string;
 					prospectId?: string;
 					companyName?: string;
 					errorMessage?: string;
 				};
-				if (body.processed && body.status === 'done') {
-					const prospectId = body.prospectId;
-					const desc = body.companyName ? `Demo ready for ${body.companyName}` : 'Demo ready';
-					toastSuccess('Demo ready', desc, prospectId ? { label: 'View prospect', onClick: () => goto(`/dashboard/prospects/${prospectId}`) } : undefined);
-					await invalidateAll();
-				} else if (body.processed && body.status === 'failed') {
-					await invalidateAll();
-					const prospectId = body.prospectId;
-					const desc = body.errorMessage ? formatDemoErrorAlert(body.errorMessage) : 'Demo creation failed';
+				const demoBody = (await demoRes.json().catch(() => ({}))) as JobBody;
+				const gbpBody = (await gbpRes.json().catch(() => ({}))) as JobBody;
+				const insightsBody = (await insightsRes.json().catch(() => ({}))) as JobBody;
+
+				let needsInvalidate = false;
+
+				if (demoBody.processed && demoBody.status === 'done') {
+					const prospectId = demoBody.prospectId;
+					const desc = demoBody.companyName ? `Demo ready for ${demoBody.companyName}` : 'Demo ready';
+					toastSuccess(
+						'Demo ready',
+						desc,
+						prospectId ? { label: 'View prospect', onClick: () => goto(`/dashboard/prospects/${prospectId}`) } : undefined
+					);
+					needsInvalidate = true;
+				} else if (demoBody.processed && demoBody.status === 'failed') {
+					const prospectId = demoBody.prospectId;
+					const desc = demoBody.errorMessage ? formatDemoErrorAlert(demoBody.errorMessage) : 'Demo creation failed';
 					addHttpCallLog({
 						action: 'createDemo',
 						result: 'failure',
-						message: body.errorMessage ?? 'Demo creation failed',
-						context: body.companyName ? `${body.companyName}` : body.prospectId,
-						responseData: body,
+						message: demoBody.errorMessage ?? 'Demo creation failed',
+						context: demoBody.companyName ? `${demoBody.companyName}` : demoBody.prospectId,
+						responseData: demoBody,
 						skipClientConsole: true
 					});
-					toastError('Demo failed', desc, prospectId ? { label: 'View prospect', onClick: () => goto(`/dashboard/prospects/${prospectId}`) } : undefined);
+					toastError(
+						'Demo failed',
+						desc,
+						prospectId ? { label: 'View prospect', onClick: () => goto(`/dashboard/prospects/${prospectId}`) } : undefined
+					);
+					needsInvalidate = true;
 				}
-				if (body.processed === false) {
-					demoJobPollingActive = false;
-					// Refresh list so "In queue" (e.g. after demo completed or failed) updates
-					await invalidateAll();
-					return;
-				}
-				tick().then(() => setTimeout(run, 3000));
-			} catch {
-				tick().then(() => setTimeout(run, 3000));
-			}
-		};
-		tick().then(() => setTimeout(run, 500));
-	}
 
-	/** Poll process-gbp-job until queue is empty. On each processed job: toast, invalidate. */
-	function startGbpJobPolling() {
-		if (gbpJobPollingActive) return;
-		gbpJobPollingActive = true;
-		const maxAttempts = 50;
-		let attempts = 0;
-		const run = async () => {
-			if (attempts >= maxAttempts) {
-				gbpJobPollingActive = false;
-				return;
-			}
-			attempts++;
-			try {
-				const res = await fetch('/api/jobs/gbp', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({})
-				});
-				const body = (await res.json().catch(() => ({}))) as {
-					processed?: boolean;
-					status?: string;
-					prospectId?: string;
-					companyName?: string;
-					errorMessage?: string;
-				};
-				const gbpViewAction = body.prospectId ? { label: 'View prospect' as const, onClick: () => goto(`/dashboard/prospects/${body.prospectId}`) } : undefined;
-				if (body.processed === true && body.status === 'done') {
+				const gbpViewAction = gbpBody.prospectId
+					? { label: 'View prospect' as const, onClick: () => goto(`/dashboard/prospects/${gbpBody.prospectId}`) }
+					: undefined;
+				if (gbpBody.processed === true && gbpBody.status === 'done') {
 					addHttpCallLog({
 						action: 'processGbpJob',
 						result: 'success',
-						message: body.companyName ? `GBP ready for ${body.companyName}` : '1 prospect moved to Insights',
-						status: res.status,
-						context: body.prospectId ?? undefined
+						message: gbpBody.companyName ? `GBP ready for ${gbpBody.companyName}` : '1 prospect moved to Insights',
+						status: gbpRes.status,
+						context: gbpBody.prospectId ?? undefined
 					});
 					toastSuccess(
 						'GBP',
-						body.companyName ? `GBP ready for ${body.companyName}` : '1 prospect moved to Insights',
+						gbpBody.companyName ? `GBP ready for ${gbpBody.companyName}` : '1 prospect moved to Insights',
 						gbpViewAction
 					);
-					await invalidateAll();
-				} else if (body.processed === true && body.status === 'failed') {
+					needsInvalidate = true;
+				} else if (gbpBody.processed === true && gbpBody.status === 'failed') {
 					addHttpCallLog({
 						action: 'processGbpJob',
 						result: 'failure',
-						message: body.errorMessage ?? 'GBP job failed',
-						status: res.status,
-						context: body.companyName ? `${body.companyName}` : body.prospectId,
-						responseData: body,
+						message: gbpBody.errorMessage ?? 'GBP job failed',
+						status: gbpRes.status,
+						context: gbpBody.companyName ? `${gbpBody.companyName}` : gbpBody.prospectId,
+						responseData: gbpBody,
 						skipClientConsole: true
 					});
-					toastError('GBP', body.errorMessage ?? 'Failed', gbpViewAction);
-					await invalidateAll();
+					toastError('GBP', gbpBody.errorMessage ?? 'Failed', gbpViewAction);
+					needsInvalidate = true;
 				}
-				if (body.processed === false) {
-					gbpJobPollingActive = false;
-					// Refresh list so "In queue" (e.g. after GBP completed or failed) updates
-					await invalidateAll();
-					return;
-				}
-				tick().then(() => setTimeout(run, 3000));
-			} catch {
-				tick().then(() => setTimeout(run, 3000));
-			}
-		};
-		tick().then(() => setTimeout(run, 500));
-	}
 
-	/** Poll process-insights-job until queue is empty. On each processed job: toast, invalidate. */
-	function startInsightsJobPolling() {
-		if (insightsJobPollingActive) return;
-		insightsJobPollingActive = true;
-		const maxAttempts = 50;
-		let attempts = 0;
-		const run = async () => {
-			if (attempts >= maxAttempts) {
-				insightsJobPollingActive = false;
-				return;
-			}
-			attempts++;
-			try {
-				const res = await fetch('/api/jobs/insights', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({})
-				});
-				const body = (await res.json().catch(() => ({}))) as {
-					processed?: boolean;
-					status?: string;
-					prospectId?: string;
-					companyName?: string;
-					errorMessage?: string;
-				};
-				const insightsViewAction = body.prospectId ? { label: 'View prospect' as const, onClick: () => goto(`/dashboard/prospects/${body.prospectId}`) } : undefined;
-				if (body.processed === true && body.status === 'done') {
+				const insightsViewAction = insightsBody.prospectId
+					? { label: 'View prospect' as const, onClick: () => goto(`/dashboard/prospects/${insightsBody.prospectId}`) }
+					: undefined;
+				if (insightsBody.processed === true && insightsBody.status === 'done') {
 					addHttpCallLog({
 						action: 'processInsightsJob',
 						result: 'success',
-						message: body.companyName ? `Insights ready for ${body.companyName}` : '1 prospect moved to Demos',
-						status: res.status,
-						context: body.prospectId ?? undefined
+						message: insightsBody.companyName
+							? `Insights ready for ${insightsBody.companyName}`
+							: '1 prospect moved to Demos',
+						status: insightsRes.status,
+						context: insightsBody.prospectId ?? undefined
 					});
 					toastSuccess(
 						'Insights',
-						body.companyName ? `Insights ready for ${body.companyName}` : '1 prospect moved to Demos',
+						insightsBody.companyName
+							? `Insights ready for ${insightsBody.companyName}`
+							: '1 prospect moved to Demos',
 						insightsViewAction
 					);
-					await invalidateAll();
-				} else if (body.processed === true && body.status === 'failed') {
+					needsInvalidate = true;
+				} else if (insightsBody.processed === true && insightsBody.status === 'failed') {
 					addHttpCallLog({
 						action: 'processInsightsJob',
 						result: 'failure',
-						message: body.errorMessage ?? 'Insights job failed',
-						status: res.status,
-						context: body.companyName ? `${body.companyName}` : body.prospectId,
-						responseData: body,
+						message: insightsBody.errorMessage ?? 'Insights job failed',
+						status: insightsRes.status,
+						context: insightsBody.companyName ? `${insightsBody.companyName}` : insightsBody.prospectId,
+						responseData: insightsBody,
 						skipClientConsole: true
 					});
-					toastError('Insights', body.errorMessage ?? 'Failed', insightsViewAction);
-					await invalidateAll();
+					toastError('Insights', insightsBody.errorMessage ?? 'Failed', insightsViewAction);
+					needsInvalidate = true;
 				}
-				if (body.processed === false) {
-					insightsJobPollingActive = false;
-					// Refresh list so "In queue" (e.g. after insights completed) updates
+
+				const demoIdle = demoBody.processed === false;
+				const gbpIdle = gbpBody.processed === false;
+				const insightsIdle = insightsBody.processed === false;
+
+				if (demoIdle && gbpIdle && insightsIdle) {
+					jobQueuePollingActive = false;
+					if (jobPollInvalidateDebounce) {
+						clearTimeout(jobPollInvalidateDebounce);
+						jobPollInvalidateDebounce = null;
+					}
 					await invalidateAll();
 					return;
 				}
-				tick().then(() => setTimeout(run, 3000));
+
+				if (needsInvalidate) scheduleInvalidateFromJobPoll();
+
+				setTimeout(run, JOB_POLL_INTERVAL_MS);
 			} catch {
-				tick().then(() => setTimeout(run, 3000));
+				setTimeout(run, JOB_POLL_INTERVAL_MS);
 			}
 		};
-		tick().then(() => setTimeout(run, 500));
+		setTimeout(run, 500);
 	}
 
 	$effect(() => {
 		if (!browser) return;
 		const jobs = data.demoJobsByProspectId ?? {};
 		const hasPending = Object.values(jobs).some((j) => j.status === 'pending' || j.status === 'creating');
-		// Also poll when some prospects have no demo and queued status (demo may have completed or failed; refresh will update state)
-		const prospects = data.prospects ?? [];
-		const inQueueNoDemo = prospects.some(
-			(p: Prospect) => !(p.demoLink ?? '').trim() && isProspectQueuedStatus(p.status)
-		);
-		if ((hasPending || inQueueNoDemo) && !demoJobPollingActive) startDemoJobPolling();
-	});
-
-	$effect(() => {
-		if (!browser) return;
 		const gbpJobs = data.gbpJobsByProspectId ?? {};
-		if (Object.keys(gbpJobs).length > 0 && !gbpJobPollingActive) startGbpJobPolling();
-	});
-
-	$effect(() => {
-		if (!browser) return;
+		const hasGbpRows = Object.keys(gbpJobs).length > 0;
 		const insightsJobs = data.insightsJobsByProspectId ?? {};
 		const hasInsightsJobs = Object.keys(insightsJobs).length > 0;
-		// Also poll when some prospects have no demo and queued status (insights may have completed; refresh will update state)
-		const prospects = data.prospects ?? [];
-		const inQueueNoDemo = prospects.some(
+		const prospectsList = data.prospects ?? [];
+		const inQueueNoDemo = prospectsList.some(
 			(p: Prospect) => !(p.demoLink ?? '').trim() && isProspectQueuedStatus(p.status)
 		);
-		if ((hasInsightsJobs || inQueueNoDemo) && !insightsJobPollingActive) startInsightsJobPolling();
+		const shouldPoll = hasPending || hasGbpRows || hasInsightsJobs || inQueueNoDemo;
+		if (shouldPoll && !jobQueuePollingActive) startJobQueuePolling();
 	});
 
 	/** Clear optimistic status only when the prospect has moved to the next step (server data has gbpRaw or insight). */
@@ -765,7 +742,7 @@ import { clientError } from '$lib/log';
 						d.prospectId ? { label: 'View prospect', onClick: () => goto(`/dashboard/prospects/${d.prospectId}`) } : undefined
 					);
 					await invalidateAll();
-					startDemoJobPolling();
+					startJobQueuePolling();
 				} else {
 					const msg = result.data && typeof result.data === 'object' && 'message' in result.data ? String((result.data as { message?: string }).message) : undefined;
 					const status = result.type === 'failure' ? (result as { status?: number }).status : undefined;
@@ -934,7 +911,7 @@ import { clientError } from '$lib/log';
 						| undefined,
 					showDelete: !p.flagged,
 					showRestore: !!p.flagged,
-					onRegenerateQueued: () => startDemoJobPolling(),
+					onRegenerateQueued: () => startJobQueuePolling(),
 					onSendDemoSuccess: () => invalidateAll()
 				});
 			}
@@ -1057,7 +1034,7 @@ import { clientError } from '$lib/log';
 						d.alreadyQueued ? 'Demo already in progress' : 'Demo queued',
 						d.alreadyQueued ? 'Creation is running. The list will update when ready.' : 'Creation usually takes 1–2 minutes. The list will update when ready.'
 					);
-					startDemoJobPolling();
+					startJobQueuePolling();
 					await applyAction(result);
 				} else if (result.type === 'failure') {
 					const data = result.data as { message?: string } | undefined;
@@ -1524,8 +1501,9 @@ import { clientError } from '$lib/log';
 														});
 														rowSelection = {};
 														await invalidateAll();
-														if ((d.gbp?.queued ?? 0) > 0) startInsightsJobPolling();
-														if ((d.demos?.queued ?? 0) > 0) startDemoJobPolling();
+														if ((d.gbp?.queued ?? 0) > 0 || (d.demos?.queued ?? 0) > 0) {
+															startJobQueuePolling();
+														}
 														await invalidate('/dashboard/prospects');
 													} else if (result.type === 'failure' && result.data?.message) {
 														optimisticInsightsProspectIds = new Set([...optimisticInsightsProspectIds].filter((id) => !partition.pullData.includes(id)));
@@ -1731,7 +1709,7 @@ import { clientError } from '$lib/log';
 												'Demos queued',
 												'Creation usually takes 1–2 minutes. The list will update when ready.'
 											);
-											startDemoJobPolling();
+											startJobQueuePolling();
 										} else {
 											toastInfo('Create demos', 'No demos queued (selected already had demos or were skipped).');
 										}
