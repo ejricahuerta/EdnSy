@@ -1,0 +1,25 @@
+{
+  "name": "website-template",
+  "version": "1.0.0",
+  "description": "AI agent that generates landing pages from index.json using the prompt spec",
+  "type": "module",
+  "main": "generate.js",
+  "scripts": {
+    "generate": "node generate.js",
+    "generate:custom": "node generate.js --json=./path/to/data.json --out=./path/to/index.html",
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build": "npm install && npm run generate"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.78.0",
+    "@supabase/supabase-js": "^2.47.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "lucide": "^0.577.0",
+    "swagger-ui-express": "^5.0.1"
+  }
+}

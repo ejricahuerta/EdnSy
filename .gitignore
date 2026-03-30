@@ -21,8 +21,8 @@ Thumbs.db
 .env copy
 .dev.vars
 
-# Lead Rosetta app script output (DataForSEO test results)
-apps/lead-rosetta/scripts/output/
+# Admin app script output (DataForSEO test results)
+apps/admin/scripts/output/
 
 
 # Vite cache

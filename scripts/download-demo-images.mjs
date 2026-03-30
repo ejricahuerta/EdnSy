@@ -1,5 +1,5 @@
 /**
- * Download Unsplash demo images to apps/lead-rosetta/static/images/demo/{industry}/
+ * Download Unsplash demo images to apps/admin/static/images/demo/{industry}/
  * Run from repo root: node scripts/download-demo-images.mjs
  * Uses high-quality default Unsplash URLs (same as unsplash.ts). Set UNSPLASH_ACCESS_KEY
  * to optionally fetch alternate images via search query per industry.
@@ -10,7 +10,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const STATIC_IMAGES = path.join(__dirname, '..', 'apps', 'lead-rosetta', 'static', 'images', 'demo');
+const STATIC_IMAGES = path.join(__dirname, '..', 'apps', 'admin', 'static', 'images', 'demo');
 
 const INDUSTRIES = [
 	'healthcare',
@@ -68,7 +68,7 @@ async function download(url, filePath) {
 }
 
 async function main() {
-	console.log('Downloading demo images to apps/lead-rosetta/static/images/demo/...');
+	console.log('Downloading demo images to apps/admin/static/images/demo/...');
 	for (const industry of INDUSTRIES) {
 		const urls = DEFAULT_IMAGES[industry];
 		if (!urls) continue;

@@ -1,5 +1,5 @@
 {
-  "name": "lead-rosetta-cron-worker",
+  "name": "admin-cron-worker",
   "private": true,
   "version": "1.0.0",
   "scripts": {
