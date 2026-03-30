@@ -2,8 +2,8 @@
 
 /**
  * Cloudflare Worker: runs on a schedule.
- * - Lead Rosetta: calls cron endpoints (demo, GBP, insights, batch). Set CRON_TARGET_URL (vars) and CRON_SECRET (secret).
- * - Pitch Rosetta: pings health endpoint to keep Render awake. Set PITCH_ROSETTA_URL (vars, optional).
+ * - Admin app: calls cron endpoints (demo, GBP, insights, batch). Set CRON_TARGET_URL (vars) and CRON_SECRET (secret).
+ * - Website Template: pings health endpoint to keep the service warm. Set WEBSITE_TEMPLATE_URL (vars, optional).
  *
  * One Cron Trigger (every minute) plus UTC minute modulo matches separate 1/2/3/5/14 minute schedules
  * and stays under the Free tier cap of 5 Cron Triggers per account (see Cloudflare Workers limits).
@@ -12,6 +12,7 @@
 export interface Env {
 	CRON_SECRET: string;
 	CRON_TARGET_URL: string;
+	WEBSITE_TEMPLATE_URL?: string;
 	PITCH_ROSETTA_URL?: string;
 }
 
@@ -38,7 +39,7 @@ export default {
 		// scheduledTime is when this run was scheduled (ms). Use UTC minute for modulo alignment with each N-minute cron.
 		const minute = new Date(controller.scheduledTime).getUTCMinutes();
 
-		// Lead Rosetta: every minute
+		// Admin app: every minute
 		if (base && secret) {
 			const rDemo = await callCron(`${base}/api/cron/jobs/demo`, secret);
 			console.log(`[cron-worker] demo: ${rDemo.status} ${rDemo.ok ? "ok" : rDemo.text}`);
@@ -59,14 +60,14 @@ export default {
 				console.log(`[cron-worker] schedule/batch: ${r.status} ${r.ok ? "ok" : r.text}`);
 			}
 		} else {
-			console.error("[cron-worker] CRON_TARGET_URL and CRON_SECRET must be set for Lead Rosetta crons");
+			console.error("[cron-worker] CRON_TARGET_URL and CRON_SECRET must be set for admin app crons");
 		}
 
-		// Every 14 min: Pitch Rosetta warm (minute 0, 14, 28, 42, 56 UTC)
+		// Every 14 min: Website Template warm (minute 0, 14, 28, 42, 56 UTC)
 		if (minute % 14 === 0) {
-			const pitchBase = (env.PITCH_ROSETTA_URL ?? "https://pitch-rosetta.onrender.com").replace(/\/$/, "");
+			const pitchBase = (env.WEBSITE_TEMPLATE_URL ?? env.PITCH_ROSETTA_URL ?? "https://website-template.ednsy.com").replace(/\/$/, "");
 			const r = await pingHealth(`${pitchBase}/api/health`);
-			console.log(`[cron-worker] pitch-rosetta: ${r.status} ${r.ok ? "ok" : r.text}`);
+			console.log(`[cron-worker] website-template: ${r.status} ${r.ok ? "ok" : r.text}`);
 		}
 	},
 };

@@ -1,9 +1,9 @@
-# Lead Rosetta + Pitch Rosetta Cron Worker (Cloudflare)
+# Ed & Sy Admin + Website Template Cron Worker (Cloudflare)
 
 This Worker runs on a schedule:
 
-- **Lead Rosetta:** Calls the lead-rosetta app’s cron endpoints on Vercel (replaces Vercel Cron to avoid limits).
-- **Pitch Rosetta:** Pings the health endpoint to keep the Render service awake.
+- **Ed & Sy Admin:** Calls the admin app’s cron endpoints on Vercel (replaces Vercel Cron to avoid limits).
+- **Website Template:** Pings the health endpoint to keep the service warm.
 
 ## Schedules
 
@@ -11,9 +11,9 @@ This Worker runs on a schedule:
 - **GBP jobs:** `GET /api/cron/jobs/gbp` every 2 minutes
 - **Insights jobs:** `GET /api/cron/jobs/insights` every 3 minutes
 - **Batch enqueue:** `GET /api/cron/schedule/batch` every 5 minutes (up to 10× `new` → insights queue, 10× `demo pending` → demo queue)
-- **Pitch Rosetta:** `GET /api/health` every 14 minutes (keeps [pitch-rosetta.onrender.com](https://pitch-rosetta.onrender.com) warm)
+- **Website Template:** `GET /api/health` every 14 minutes (keeps `WEBSITE_TEMPLATE_URL` warm)
 
-The same `CRON_SECRET` used by the lead-rosetta app must be set here so the app accepts the Lead Rosetta cron requests. Pitch Rosetta health check does not require auth.
+The same `CRON_SECRET` used by the admin app must be set here so the app accepts cron requests. Website Template health check does not require auth.
 
 ## Setup
 
@@ -26,13 +26,13 @@ The same `CRON_SECRET` used by the lead-rosetta app must be set here so the app 
 
 2. **Configure the app URL**
 
-   Edit `wrangler.toml` and set `CRON_TARGET_URL` under `[vars]` to your lead-rosetta app’s base URL (no trailing slash), e.g.:
+   Edit `wrangler.toml` and set `CRON_TARGET_URL` under `[vars]` to your admin app’s base URL (no trailing slash), e.g.:
 
    ```toml
-   CRON_TARGET_URL = "https://lead-rosetta.vercel.app"
+   CRON_TARGET_URL = "https://admin.ednsy.com"
    ```
 
-   Optionally set **PITCH_ROSETTA_URL** (default: `https://pitch-rosetta.onrender.com`) if your Pitch Rosetta app is elsewhere.
+   Optionally set **WEBSITE_TEMPLATE_URL** (default: `https://website-template.ednsy.com`) if your Website Template app is elsewhere.
 
    Or set variables in [Cloudflare Dashboard](https://dash.cloudflare.com) → Workers & Pages → your worker → Settings → Variables.
 
@@ -44,7 +44,7 @@ The same `CRON_SECRET` used by the lead-rosetta app must be set here so the app 
    npx wrangler secret put CRON_SECRET
    ```
 
-   Enter the same secret you use in Vercel for the lead-rosetta app.
+   Enter the same secret you use in Vercel for the admin app.
 
 4. **Deploy**
 
@@ -80,7 +80,7 @@ CRON_TARGET_URL=https://your-app.vercel.app
 npx wrangler tail
 ```
 
-Watch for `[cron-worker] demo:`, `gbp:`, `insights:`, `schedule/batch:`, and `pitch-rosetta:` lines.
+Watch for `[cron-worker] demo:`, `gbp:`, `insights:`, `schedule/batch:`, and `website-template:` lines.
 
 ## Limits (Cloudflare Workers)
 

@@ -3,8 +3,8 @@ import { join, resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const leadRosettaRoot = resolve(__dirname, '..', 'apps', 'lead-rosetta');
-const envPath = join(leadRosettaRoot, '.env');
+const adminRoot = resolve(__dirname, '..', 'apps', 'admin');
+const envPath = join(adminRoot, '.env');
 
 if (!existsSync(envPath)) {
 	console.log('NO_ENV');

@@ -1,13 +1,13 @@
-name = "lead-rosetta-cron"
+name = "ednsy-admin-cron"
 main = "src/index.ts"
 compatibility_date = "2024-01-01"
 
-# Lead Rosetta: set CRON_TARGET_URL and CRON_SECRET (secret).
-# Pitch Rosetta: set PITCH_ROSETTA_URL to ping health (keeps Render awake).
+# Admin app: set CRON_TARGET_URL and CRON_SECRET (secret).
+# Website Template: set WEBSITE_TEMPLATE_URL to ping GET /api/health (keeps service warm).
 [vars]
 CRON_TARGET_URL = "https://leadrosetta.ednsy.com"
-# Pitch Rosetta base URL (GET /api/health), no trailing slash.
-PITCH_ROSETTA_URL = "https://pitch-rosetta.onrender.com"
+# Website Template base URL (GET /api/health), no trailing slash.
+WEBSITE_TEMPLATE_URL = "https://website-template.ednsy.com"
 
 [triggers]
 # Single trigger to stay within Cloudflare Free "Cron Triggers per account" (5). Handler runs every minute and

@@ -1,7 +1,7 @@
 /**
  * One-off script to fetch Notion database schema and one page, then verify property mapping.
  * Run from repo root: node scripts/check-notion-properties.mjs
- * Requires NOTION_API_KEY and NOTION_DATABASE_ID in apps/lead-rosetta/.env (script reads .env manually).
+ * Requires NOTION_API_KEY and NOTION_DATABASE_ID in apps/admin/.env (script reads .env manually).
  */
 
 import { readFileSync } from 'fs';
@@ -9,8 +9,8 @@ import { fileURLToPath } from 'url';
 import { dirname, join, resolve } from 'path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const leadRosettaRoot = resolve(__dirname, '..', 'apps', 'lead-rosetta');
-const envPath = join(leadRosettaRoot, '.env');
+const adminRoot = resolve(__dirname, '..', 'apps', 'admin');
+const envPath = join(adminRoot, '.env');
 
 function loadEnv() {
 	try {
@@ -37,7 +37,7 @@ const NOTION_API_KEY = env.NOTION_API_KEY;
 const NOTION_DATABASE_ID = env.NOTION_DATABASE_ID;
 
 if (!NOTION_API_KEY || !NOTION_DATABASE_ID) {
-	console.error('Missing NOTION_API_KEY or NOTION_DATABASE_ID in apps/lead-rosetta/.env');
+	console.error('Missing NOTION_API_KEY or NOTION_DATABASE_ID in apps/admin/.env');
 	process.exit(1);
 }
 

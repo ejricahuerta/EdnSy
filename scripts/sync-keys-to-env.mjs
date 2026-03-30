@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /**
- * Sync secrets from repo-root `.keys.json` into `apps/lead-rosetta/.env.local`.
+ * Sync secrets from repo-root `.keys.json` into `apps/admin/.env.local`.
  *
  * GBP data is now via Google Places API. This script syncs GOOGLE_PLACES_API_KEY
  * from keys.google.placesApiKey or keys.google.apiKey so dev config stays consistent
  * without committing secrets.
  *
  * - Reads: <repo-root>/.keys.json
- * - Writes/updates: <repo-root>/apps/lead-rosetta/.env.local
+ * - Writes/updates: <repo-root>/apps/admin/.env.local
  * - Does NOT print secret values.
  */
 
@@ -63,7 +63,7 @@ function upsertEnvKeys(existingText, updates) {
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '..');
 const keysPath = resolve(repoRoot, '.keys.json');
-const targetEnvPath = resolve(repoRoot, 'apps/lead-rosetta/.env.local');
+const targetEnvPath = resolve(repoRoot, 'apps/admin/.env.local');
 
 if (!existsSync(keysPath)) {
 	console.error(`Missing ${keysPath}. Nothing to sync.`);
