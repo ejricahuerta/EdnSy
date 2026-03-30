@@ -34,7 +34,7 @@ if (BASE_URL && openApiSpec.servers?.length) {
   openApiSpec.servers = [{ url: BASE_URL.replace(/\/$/, ""), description: "API" }, ...openApiSpec.servers];
 }
 
-const DEBUG = /^(1|true|yes|website-template|pitch-rosetta)$/i.test((process.env.DEBUG ?? "").trim());
+const DEBUG = /^(1|true|yes|website-template)$/i.test((process.env.DEBUG ?? "").trim());
 
 function debug(...args) {
   if (DEBUG) console.log("[website-template]", ...args);
@@ -52,7 +52,7 @@ function log(level, ...args) {
 const PORT = parseInt(process.env.PORT ?? "3000", 10);
 const MAX_BODY_SIZE = "1mb";
 
-const API_KEY = (process.env.DEMO_GENERATOR_API_KEY ?? process.env.WEBSITE_TEMPLATE_API_KEY ?? process.env.PITCH_ROSETTA_API_KEY ?? "").trim();
+const API_KEY = (process.env.DEMO_GENERATOR_API_KEY ?? process.env.WEBSITE_TEMPLATE_API_KEY ?? "").trim();
 const ALLOWED_CALLBACK_ORIGINS = (process.env.ALLOWED_CALLBACK_ORIGINS ?? "")
   .split(",")
   .map((s) => s.trim().toLowerCase())
