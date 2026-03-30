@@ -2,8 +2,8 @@
 /**
  * Local mock for production cron: matches apps/cron-worker (single schedule, UTC minute branches).
  *
- * Each tick: demo every time; GBP / insights / batch / pitch when UTC minute matches the same
- * modulo rules as the Worker (2, 3, 5, 14). Pitch pings GET /api/health (no auth).
+ * Each tick: demo every time; GBP / insights / batch / website-template when UTC minute matches the same
+ * modulo rules as the Worker (2, 3, 5, 14). Website Template pings GET /api/health (no auth).
  *
  * Usage (from repo root or apps/admin):
  *   node scripts/cron-mock.mjs
@@ -49,7 +49,7 @@ if (!process.env.CRON_SECRET) loadEnvFromDir(process.cwd());
 const CRON_SECRET = (process.env.CRON_SECRET ?? '').trim();
 const BASE_URL = (process.env.BASE_URL ?? 'http://localhost:5173').replace(/\/$/, '');
 const TICK_MS = Math.max(10000, parseInt(process.env.CRON_INTERVAL_MS || '60000', 10));
-const PITCH_BASE = (process.env.WEBSITE_TEMPLATE_URL ?? process.env.PITCH_ROSETTA_URL ?? 'https://website-template.ednsy.com').replace(/\/$/, '');
+const WEBSITE_TEMPLATE_BASE = (process.env.WEBSITE_TEMPLATE_URL ?? 'https://website-template.ednsy.com').replace(/\/$/, '');
 
 if (!CRON_SECRET) {
 	console.error('Missing CRON_SECRET. Set it in apps/admin/.env or .env.local (e.g. CRON_SECRET=my-local-cron-secret-16chars)');
@@ -79,8 +79,8 @@ async function callCron(path, label) {
 	}
 }
 
-async function pingPitch() {
-	const url = `${PITCH_BASE}/api/health`;
+async function pingWebsiteTemplateHealth() {
+	const url = `${WEBSITE_TEMPLATE_BASE}/api/health`;
 	try {
 		const res = await fetch(url, { method: 'GET' });
 		const text = await res.text().catch(() => '');
@@ -111,7 +111,7 @@ function formatResult(r) {
 	return `[${time}] ${r.label}: queue ${qStr}`;
 }
 
-function formatPitch(r) {
+function formatWebsiteTemplateHealth(r) {
 	const time = new Date().toISOString();
 	if (r.ok) return `[${time}] website-template: ${r.status} ok`;
 	return `[${time}] website-template: ${r.status ?? ''} ${r.error ?? r.text ?? 'failed'}`;
@@ -136,13 +136,13 @@ async function tick() {
 		console.log(formatResult(r));
 	}
 	if (minute % 14 === 0) {
-		const r = await pingPitch();
-		console.log(formatPitch(r));
+		const r = await pingWebsiteTemplateHealth();
+		console.log(formatWebsiteTemplateHealth(r));
 	}
 }
 
 console.log(
-	`Mock cron (Worker parity): BASE_URL=${BASE_URL} | tick=${Math.round(TICK_MS / 1000)}s | pitch=${PITCH_BASE} (Ctrl+C to stop)`
+	`Mock cron (Worker parity): BASE_URL=${BASE_URL} | tick=${Math.round(TICK_MS / 1000)}s | website-template=${WEBSITE_TEMPLATE_BASE} (Ctrl+C to stop)`
 );
 
 await tick();

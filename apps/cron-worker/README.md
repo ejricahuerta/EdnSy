@@ -60,7 +60,7 @@ The same `CRON_SECRET` used by the admin app must be set here so the app accepts
 npx wrangler dev --test-scheduled
 ```
 
-Then in another terminal, fire the single scheduled handler (runs all minute-modulo branches; at UTC minute 0 you get demo + GBP + insights + batch + pitch):
+Then in another terminal, fire the single scheduled handler (runs all minute-modulo branches; at UTC minute 0 you get demo + GBP + insights + batch + website-template health):
 
 ```bash
 curl "http://localhost:8787/__scheduled?cron=*%2F1+*+*+*+*"
