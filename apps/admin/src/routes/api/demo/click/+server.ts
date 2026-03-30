@@ -1,7 +1,7 @@
 import { redirect } from '@sveltejs/kit';
 import { recordDemoClicked, getDemoLinkForProspect, getFreeDemoRequestById, recordFreeDemoLinkClicked } from '$lib/server/supabase';
 import { getProspectById } from '$lib/server/prospects';
-import { getOriginForOutgoingLinks } from '$lib/server/send';
+import { getDemoPublicOrigin } from '$lib/server/send';
 import type { RequestHandler } from './$types';
 
 /**
@@ -11,7 +11,7 @@ import type { RequestHandler } from './$types';
 export const GET: RequestHandler = async ({ url }) => {
 	const prospectId = url.searchParams.get('p');
 	if (!prospectId || prospectId.length > 100) {
-		throw redirect(302, '/');
+		throw redirect(302, '/auth/login');
 	}
 	let demoLink = await recordDemoClicked(prospectId);
 	if (!demoLink) {
@@ -25,12 +25,11 @@ export const GET: RequestHandler = async ({ url }) => {
 		const freeRow = await getFreeDemoRequestById(prospectId);
 		if (freeRow) {
 			await recordFreeDemoLinkClicked(prospectId);
-			const origin = getOriginForOutgoingLinks(url.origin);
-			demoLink = freeRow.demo_link ?? `${origin}/demo/${prospectId}`;
+			demoLink = freeRow.demo_link ?? `${getDemoPublicOrigin(url.origin)}/demo/${prospectId}`;
 		}
 	}
 	if (!demoLink) {
-		throw redirect(302, '/');
+		throw redirect(302, '/auth/login');
 	}
 	throw redirect(302, demoLink);
 };

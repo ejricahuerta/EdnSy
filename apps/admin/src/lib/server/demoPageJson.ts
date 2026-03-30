@@ -233,7 +233,7 @@ export function buildDemoPageJson(
 		},
 		tone: { name: 'Professional', copyVoice: 'Clear, trustworthy, action-oriented' },
 		brand: {
-			logoUrl: landingContent?.logoUrl ?? '/images/logo.png',
+			logoUrl: landingContent?.logoUrl ?? '/logo/logo.png',
 			logoAlt: name,
 			businessName: name
 		},
@@ -377,7 +377,7 @@ export function buildDemoPageJsonFromAiContent(
 		},
 		tone: aiContent.tone,
 		brand: {
-			logoUrl: '/images/logo.png',
+			logoUrl: '/logo/logo.png',
 			logoAlt: name,
 			businessName: name
 		},

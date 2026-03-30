@@ -7,9 +7,9 @@
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   Lead Rosetta style-guide tokens (from style-guide.html)
+   Ed & Sy Admin / style-guide tokens (from style-guide.html)
    -------------------------------------------------------------------------- */
-.leadrosetta-app-dashboard {
+.admin-app-dashboard {
   --cream: #F5F0E8;
   --ink: #1A1A14;
   --sage: #3D5A3E;
@@ -112,8 +112,8 @@
   --color-input-placeholder: #5a5347;
 }
 
-/* Dark theme for dashboard (oklch – add class "dark" to .leadrosetta-app-dashboard to use) */
-.leadrosetta-app-dashboard.dark {
+/* Dark theme for dashboard (oklch – add class "dark" to .admin-app-dashboard to use) */
+.admin-app-dashboard.dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);

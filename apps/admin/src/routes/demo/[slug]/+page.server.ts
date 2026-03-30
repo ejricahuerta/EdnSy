@@ -127,7 +127,7 @@ export const load: PageServerLoad = async ({ params }) => {
 
 	// Ensure logo has a valid URL (stored JSON may have empty or broken logoUrl)
 	if (!pageJson.brand.logoUrl?.trim()) {
-		pageJson.brand.logoUrl = '/images/logo.png';
+		pageJson.brand.logoUrl = '/logo/logo.png';
 	}
 
 	// Fill missing work item image URLs (stored demos may have empty imageUrl)

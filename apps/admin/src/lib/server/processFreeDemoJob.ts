@@ -16,8 +16,7 @@ import { generateDemoHtmlWithClaude } from '$lib/server/claudeGenerateDemoHtml';
 import { uploadDemoHtml, uploadDemoHtmlPart } from '$lib/server/demoJsonStorage';
 import { INDUSTRY_LABELS } from '$lib/industries';
 import type { IndustrySlug } from '$lib/industries';
-import { sendEmail } from '$lib/server/send';
-import { escapeHtml } from '$lib/server/send';
+import { sendEmail, escapeHtml, getDemoPublicOrigin } from '$lib/server/send';
 import { LEGAL_COMPANY_NAME, LEGAL_COMPANY_ADDRESS } from '$lib/constants';
 import type { LandingPageIndexJson } from '$lib/types/landingPageIndexJson';
 import { serverError } from '$lib/server/logger';
@@ -128,7 +127,7 @@ export async function processOneFreeDemoJob(origin: string): Promise<ProcessFree
 			}
 		}
 
-		const demoLink = `${origin}/demo/${requestId}`;
+		const demoLink = `${getDemoPublicOrigin(origin)}/demo/${requestId}`;
 		await updateFreeDemoRequest(requestId, { status: 'done', demoLink });
 
 		// Notification email: sending is Gmail-only and requires a user context; free-demo job has none, so we skip it
@@ -139,7 +138,7 @@ export async function processOneFreeDemoJob(origin: string): Promise<ProcessFree
 <p>Hi,</p>
 <p>Your free demo for ${safeCompany} is ready.</p>
 <p><a href="${demoLink}">View your demo</a></p>
-<p>— Lead Rosetta</p>
+<p>— Ed & Sy Admin</p>
 <hr style="margin-top:1.5em; border:none; border-top:1px solid #eee;" />
 <p style="font-size:0.85em; color:#666;">${LEGAL_COMPANY_NAME} | ${LEGAL_COMPANY_ADDRESS}</p>
 `.trim();

@@ -1,7 +1,7 @@
 /**
- * Lead Rosetta design tokens – synced with docs/style-guides/style-guide.html
+ * Ed & Sy Admin shell design tokens – synced with docs/style-guides/style-guide.html
  * Use for JS/TS (e.g. charts, dynamic styles). CSS uses the same values via
- * app.css (.leadrosetta-app and .leadrosetta-app-dashboard).
+ * app.css (.admin-app and .admin-app-dashboard).
  * Dashboard shadcn-svelte components read CSS variables; this file is for
  * when you need token values in JavaScript.
  */

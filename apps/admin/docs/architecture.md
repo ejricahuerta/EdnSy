@@ -1,4 +1,4 @@
-# Lead Rosetta App — Architecture
+# Ed & Sy Admin App — Architecture
 
 This document describes the **core engines** of the app and how the **lib** is organized. Use it when onboarding, refactoring, or adding features.
 

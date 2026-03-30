@@ -98,7 +98,7 @@
 	});
 
 	/** Fallback image URLs so demos never render broken img (server fills these when possible). */
-	const DEFAULT_LOGO = '/images/logo.png';
+	const DEFAULT_LOGO = '/logo/logo.png';
 	const DEFAULT_AVATAR =
 		'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&q=80';
 
@@ -244,7 +244,7 @@
 	<!-- Nav -->
 	<nav class="nav-bar" id="nav">
 		<div class="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-4 py-4 min-h-[3.5rem] md:min-h-14">
-			<a href="/" class="flex items-center gap-2">
+			<a href="/auth/login" class="flex items-center gap-2">
 				<img
 					src={pageJson.brand.logoUrl?.trim() || DEFAULT_LOGO}
 					alt={pageJson.brand.logoAlt}

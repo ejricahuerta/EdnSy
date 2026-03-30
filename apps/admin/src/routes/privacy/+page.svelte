@@ -1,10 +1,10 @@
 <script lang="ts">
-	// Privacy Policy – Ed & Sy Inc. / Lead Rosetta
+	// Privacy Policy – Ed & Sy Inc. / Ed & Sy Admin
 </script>
 
 <svelte:head>
-	<title>Privacy Policy – Lead Rosetta</title>
-	<meta name="description" content="Privacy Policy for Lead Rosetta. How we collect, use, and protect your data." />
+	<title>Privacy Policy – Ed & Sy Admin</title>
+	<meta name="description" content="Privacy Policy for Ed & Sy Admin. How we collect, use, and protect your data." />
 	<meta name="robots" content="index, follow" />
 </svelte:head>
 
@@ -15,7 +15,7 @@
 
 		<div class="prose prose-base text-base-content/90 max-w-none">
 			<p>
-				<strong>Ed & Sy Inc.</strong> ("we", "our") operates Lead Rosetta. This policy describes how we collect, use, and protect your information.
+				<strong>Ed & Sy Inc.</strong> ("we", "our") operates Ed & Sy Admin. This policy describes how we collect, use, and protect your information.
 			</p>
 
 			<h2 class="text-xl font-semibold mt-8 mb-3">1. Information We Collect</h2>
@@ -27,7 +27,7 @@
 
 			<h2 class="text-xl font-semibold mt-8 mb-3">2. How We Use It</h2>
 			<p>
-				We use your information to provide and improve Lead Rosetta, process payments, send service-related communications, and comply with law.
+				We use your information to provide and improve Ed & Sy Admin, process payments, send service-related communications, and comply with law.
 			</p>
 
 			<h2 class="text-xl font-semibold mt-8 mb-3">3. Data Sharing</h2>
@@ -52,7 +52,7 @@
 		</div>
 
 		<p class="mt-10">
-			<a href="/" class="link link-hover text-primary">← Back to Lead Rosetta</a>
+			<a href="/auth/login" class="link link-hover text-primary">← Back to Ed & Sy Admin</a>
 		</p>
 	</main>
 </div>

@@ -26,7 +26,7 @@ import { notionIndustryToSlug } from '$lib/industryMapping';
 import { INDUSTRY_LABELS } from '$lib/industries';
 import { PROSPECT_STATUS } from '$lib/prospectStatus';
 
-const ANALYSIS_PLACEHOLDER_LINK = 'https://leadrosetta.local/analysis-pending';
+const ANALYSIS_PLACEHOLDER_LINK = 'https://admin.local/analysis-pending';
 
 /** Merge an inferred industry with current (e.g. "" + "Dental" → "Dental"). Dedupes and trims. */
 function mergeIndustryValues(current: string, toAdd: string): string {

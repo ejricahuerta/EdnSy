@@ -9,7 +9,7 @@ import type { IndustrySlug } from '$lib/industries';
 /** Derive a display name from an email (e.g. ed@gmail.com → Ed). */
 function nameFromEmail(email: string): string {
 	const local = email.split('@')[0]?.trim() || '';
-	if (!local) return 'Lead Rosetta';
+	if (!local) return 'Ed & Sy Admin';
 	return local.charAt(0).toUpperCase() + local.slice(1).toLowerCase();
 }
 
@@ -115,7 +115,7 @@ export async function setGbpDefaultLocation(
 
 /**
  * Effective sender name for outreach: user override if set, else Gmail account name when
- * Gmail is connected, else app account email local part, else "Lead Rosetta". Use this when
+ * Gmail is connected, else app account email local part, else "Ed & Sy Admin". Use this when
  * building email body and for the From name when sending.
  */
 export async function getEffectiveEmailSenderName(
@@ -128,7 +128,7 @@ export async function getEffectiveEmailSenderName(
 	if (tokens?.email?.trim()) return nameFromEmail(tokens.email.trim());
 	const local = appUserEmail?.trim().split('@')[0]?.trim();
 	if (local) return nameFromEmail(appUserEmail!.trim());
-	return 'Lead Rosetta';
+	return 'Ed & Sy Admin';
 }
 
 /**
@@ -149,7 +149,7 @@ export async function getEmailSenderName(userId: string): Promise<string | null>
 }
 
 /**
- * Save the user's email sender name. Pass empty string to clear (fall back to email prefix or "Lead Rosetta").
+ * Save the user's email sender name. Pass empty string to clear (fall back to email prefix or "Ed & Sy Admin").
  */
 export async function setEmailSenderName(
 	userId: string,

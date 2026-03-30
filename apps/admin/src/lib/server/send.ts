@@ -2,12 +2,38 @@ import twilio from 'twilio';
 import { env } from '$env/dynamic/private';
 import type { Prospect } from '$lib/server/prospects';
 
+/** Canonical origin for shareable demo page URLs in deployed environments. */
+export const DEMO_PUBLIC_ORIGIN_PRODUCTION = 'https://built.by.ednsy.com';
+
+function isLocalDevelopmentOrigin(requestOrigin: string): boolean {
+	const trimmed = requestOrigin.trim();
+	if (!trimmed) return false;
+	try {
+		const hostname = new URL(trimmed).hostname.toLowerCase();
+		return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]';
+	} catch {
+		return false;
+	}
+}
+
+/**
+ * Base URL for stored demo links (`/demo/:id`). Uses the request origin on localhost; otherwise
+ * built.by.ednsy.com. Use getOriginForOutgoingLinks for cron, email tracking (/api/demo/click), and callbacks.
+ */
+export function getDemoPublicOrigin(requestOrigin: string): string {
+	const trimmed = (requestOrigin ?? '').trim();
+	if (isLocalDevelopmentOrigin(trimmed)) {
+		return trimmed.replace(/\/$/, '');
+	}
+	return DEMO_PUBLIC_ORIGIN_PRODUCTION;
+}
+
 /** Use for links in emails and stored demo URLs. Prefer SITE_ORIGIN when set (e.g. in prod), else request origin. */
 export function getOriginForOutgoingLinks(requestOrigin: string): string {
 	const site = env.SITE_ORIGIN?.trim();
 	return site || requestOrigin;
 }
-import { SIGNATURE_DOMAIN } from '$lib/constants';
+import { LEGAL_COMPANY_ADDRESS, LEGAL_COMPANY_NAME, SIGNATURE_DOMAIN } from '$lib/constants';
 import { getEffectiveEmailSenderName } from '$lib/server/userSettings';
 import { getGmailTokens, sendEmailViaGmail } from '$lib/server/gmail';
 import { serverInfo, serverError } from '$lib/server/logger';

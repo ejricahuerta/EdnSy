@@ -5,7 +5,7 @@
 
 const DEFAULT_MAX_CHARS = 8000;
 const DEFAULT_TIMEOUT_MS = 8000;
-const USER_AGENT = 'LeadRosetta/1.0 (website analysis)';
+const USER_AGENT = 'EdnSyAdmin/1.0 (website analysis)';
 
 export type FetchWebsiteContentResult =
 	| { ok: true; html: string; text: string }

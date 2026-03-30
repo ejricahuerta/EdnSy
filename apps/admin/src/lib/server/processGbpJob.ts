@@ -22,7 +22,7 @@ import { isOutOfScopeCompany } from '$lib/server/outOfScope';
 import { NO_FIT_BIG_CORP_REASON } from '$lib/server/qualify';
 import { PROSPECT_STATUS } from '$lib/prospectStatus';
 
-const ANALYSIS_PLACEHOLDER_LINK = 'https://leadrosetta.local/analysis-pending';
+const ANALYSIS_PLACEHOLDER_LINK = 'https://admin.local/analysis-pending';
 
 export type ProcessGbpJobResult =
 	| { processed: true; prospectId: string; status: 'done'; companyName?: string }

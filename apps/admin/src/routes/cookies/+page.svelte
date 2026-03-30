@@ -1,10 +1,10 @@
 <script lang="ts">
-	// Cookie Policy – Ed & Sy Inc. / Lead Rosetta
+	// Cookie Policy – Ed & Sy Inc. / Ed & Sy Admin
 </script>
 
 <svelte:head>
-	<title>Cookie Policy – Lead Rosetta</title>
-	<meta name="description" content="Cookie Policy for Lead Rosetta. Types of cookies we use and how to manage them." />
+	<title>Cookie Policy – Ed & Sy Admin</title>
+	<meta name="description" content="Cookie Policy for Ed & Sy Admin. Types of cookies we use and how to manage them." />
 	<meta name="robots" content="index, follow" />
 </svelte:head>
 
@@ -15,7 +15,7 @@
 
 		<div class="prose prose-base text-base-content/90 max-w-none">
 			<p>
-				<strong>Ed & Sy Inc.</strong> uses cookies to improve your experience on Lead Rosetta.
+				<strong>Ed & Sy Inc.</strong> uses cookies to improve your experience on Ed & Sy Admin.
 			</p>
 
 			<h2 class="text-xl font-semibold mt-8 mb-3">1. Types of Cookies</h2>
@@ -37,7 +37,7 @@
 		</div>
 
 		<p class="mt-10">
-			<a href="/" class="link link-hover text-primary">← Back to Lead Rosetta</a>
+			<a href="/auth/login" class="link link-hover text-primary">← Back to Ed & Sy Admin</a>
 		</p>
 	</main>
 </div>

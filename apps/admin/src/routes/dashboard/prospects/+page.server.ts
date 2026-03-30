@@ -70,6 +70,7 @@ import {
 	buildSmsBody,
 	getSendConfigured,
 	getOriginForOutgoingLinks,
+	getDemoPublicOrigin,
 	isTwilioConfigured
 } from '$lib/server/send';
 import { generateEmailCopy } from '$lib/server/generateEmailCopy';
@@ -345,8 +346,7 @@ export const actions: Actions = {
 			}
 		}
 		(scrapedData as Record<string, unknown>).demoSource = 'claude';
-		const origin = getOriginForOutgoingLinks(url.origin);
-		const demoUrl = `${origin}/demo/${prospectId}`;
+		const demoUrl = `${getDemoPublicOrigin(url.origin)}/demo/${prospectId}`;
 		const result = await updateProspectDemoLink(prospectId, demoUrl, PROSPECT_STATUS.REVIEW);
 		if (!result.ok) {
 			return fail(502, { message: result.error ?? 'Failed to update prospect' });

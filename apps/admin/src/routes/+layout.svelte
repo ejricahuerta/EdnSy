@@ -85,7 +85,7 @@ import { isEdnsyUser } from '$lib/plans';
 
 		const onKey = (e: KeyboardEvent) => {
 			if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
-				if (document.body.querySelector('.leadrosetta-app-dashboard')) {
+				if (document.body.querySelector('.admin-app-dashboard')) {
 					e.preventDefault();
 					toggleSidebar();
 				}
@@ -134,27 +134,27 @@ import { isEdnsyUser } from '$lib/plans';
 
 {#if isDemoRoute}
 	<div class="demo-route" data-demo-theme={demoTheme}>
-		<div class="demo-lr-banner lr-brand" role="banner">
+		<div class="demo-admin-banner admin-demo-brand" role="banner">
 			<a
 				href="https://cal.com/edmel-ednsy/enable-ai"
 				target="_blank"
 				rel="noopener noreferrer"
-				class="demo-lr-banner-home"
+				class="demo-admin-banner-home"
 				aria-label="Ed & Sy — book a call (opens in a new tab)"
 			>
 				<img
-					src="/images/ed-sy-logo.png"
+					src="/logo/logo.png"
 					alt=""
-					class="demo-lr-banner-logo"
+					class="demo-admin-banner-logo"
 					width="80"
 					height="80"
 				/>
 			</a>
-			<div class="demo-lr-banner-right">
-				<div class="demo-lr-banner-right-stack">
-					<span class="demo-lr-banner-urgency">{bannerText}</span>
-					<div class="demo-lr-banner-actions">
-						<a href={bannerCtaHref} class="demo-lr-banner-cta">{bannerCtaLabel}</a>
+			<div class="demo-admin-banner-right">
+				<div class="demo-admin-banner-right-stack">
+					<span class="demo-admin-banner-urgency">{bannerText}</span>
+					<div class="demo-admin-banner-actions">
+						<a href={bannerCtaHref} class="demo-admin-banner-cta">{bannerCtaLabel}</a>
 					</div>
 				</div>
 			</div>
@@ -162,12 +162,12 @@ import { isEdnsyUser } from '$lib/plans';
 		{@render children()}
 	</div>
 {:else if isAuthRoute}
-	<div class="leadrosetta-app leadrosetta-app-auth">
+	<div class="admin-app admin-app-auth">
 		<main class="lr-auth-main">{@render children()}</main>
 	</div>
 {:else if isDashboardRoute && user}
 	<div
-		class="leadrosetta-app-dashboard"
+		class="admin-app-dashboard"
 		data-sidebar-collapsed={sidebarCollapsed}
 		data-sidebar-open={mobileSidebarOpen}
 		style="--sidebar-width: {sidebarCollapsed ? '3.5rem' : '16rem'};"
@@ -184,7 +184,7 @@ import { isEdnsyUser } from '$lib/plans';
 		<aside class="lr-dashboard-sidebar" aria-label="Dashboard navigation">
 			<div class="lr-dashboard-sidebar-header">
 				<a href="/dashboard" class="lr-dashboard-sidebar-logo" title="Ed & Sy Admin">
-					<img src="/images/logo.png" alt="" class="lr-dashboard-sidebar-logo-img" width="28" height="28" />
+					<img src="/logo/logo.png" alt="" class="lr-dashboard-sidebar-logo-img" width="28" height="28" />
 					<span class="lr-dashboard-sidebar-logo-text">Ed & Sy <span>Admin</span></span>
 				</a>
 			</div>
@@ -344,14 +344,14 @@ import { isEdnsyUser } from '$lib/plans';
 		<Toaster />
 	</div>
 {:else if isDashboardRoute}
-	<div class="leadrosetta-app leadrosetta-app-auth">
+	<div class="admin-app admin-app-auth">
 		<main>{@render children()}</main>
 	</div>
 {:else}
-	<div class="leadrosetta-app">
+	<div class="admin-app">
 		<nav class="landing-nav" aria-label="Main navigation">
-			<a href={user ? '/dashboard' : '/'} class="logo" aria-label="Ed & Sy Admin">
-				<img src="/images/logo.png" alt="Ed & Sy Admin" class="logo-img" width="32" height="32" />
+			<a href={user ? '/dashboard' : '/auth/login'} class="logo" aria-label="Ed & Sy Admin">
+				<img src="/logo/logo.png" alt="Ed & Sy Admin" class="logo-img" width="32" height="32" />
 				<span class="logo-text">Ed & Sy <span>Admin</span></span>
 			</a>
 			<ul class="nav-links">
@@ -404,8 +404,6 @@ import { isEdnsyUser } from '$lib/plans';
 						</li>
 						<li><a href="/auth/logout" class="landing-nav-mobile-link">Sign out</a></li>
 					{:else}
-						<li><a href="/#how" class="landing-nav-mobile-link">How it works</a></li>
-						<li><a href="/#pricing" class="landing-nav-mobile-link">Pricing</a></li>
 						<li><a href="/auth/login" class="landing-nav-mobile-link">Sign in</a></li>
 						<li><a href="/try" class="landing-nav-mobile-link landing-nav-mobile-cta">Try free →</a></li>
 					{/if}

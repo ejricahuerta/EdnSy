@@ -45,7 +45,7 @@
 			<Card.Header>
 				<Card.Title>Sender name (default delivery)</Card.Title>
 				<Card.Description>
-					This name appears in the email body as the sign-off and as the From name when using default delivery. Leave empty to use your account email prefix or "Lead Rosetta".
+					This name appears in the email body as the sign-off and as the From name when using default delivery. Leave empty to use your account email prefix or "Ed & Sy Admin".
 				</Card.Description>
 			</Card.Header>
 			<Card.Content class="space-y-4">
@@ -55,7 +55,7 @@
 						id="sender-name"
 						name="senderName"
 						type="text"
-						placeholder="e.g. Ed or Lead Rosetta"
+						placeholder="e.g. Ed or Ed & Sy Admin"
 						bind:value={senderName}
 					/>
 				</div>

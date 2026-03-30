@@ -1,10 +1,10 @@
 <script lang="ts">
-	// Acceptable Use Policy – Ed & Sy Inc. / Lead Rosetta
+	// Acceptable Use Policy – Ed & Sy Inc. / Ed & Sy Admin
 </script>
 
 <svelte:head>
-	<title>Acceptable Use Policy (AUP) – Lead Rosetta</title>
-	<meta name="description" content="Acceptable Use Policy for Lead Rosetta. Outreach rules, prohibited industries, and enforcement." />
+	<title>Acceptable Use Policy (AUP) – Ed & Sy Admin</title>
+	<meta name="description" content="Acceptable Use Policy for Ed & Sy Admin. Outreach rules, prohibited industries, and enforcement." />
 	<meta name="robots" content="index, follow" />
 </svelte:head>
 
@@ -15,7 +15,7 @@
 
 		<div class="prose prose-base text-base-content/90 max-w-none">
 			<p>
-				All users of <strong>Lead Rosetta</strong> must comply with this policy to ensure platform integrity.
+				All users of <strong>Ed & Sy Admin</strong> must comply with this policy to ensure platform integrity.
 			</p>
 
 			<h2 class="text-xl font-semibold mt-8 mb-3">1. Outreach Rules</h2>
@@ -26,7 +26,7 @@
 			</ul>
 
 			<h2 class="text-xl font-semibold mt-8 mb-3">2. Prohibited Industries</h2>
-			<p>You may not use Lead Rosetta to market:</p>
+			<p>You may not use Ed & Sy Admin to market:</p>
 			<ul class="list-disc pl-6 space-y-1">
 				<li>Illegal goods/services.</li>
 				<li>Predatory lending or get-rich-quick schemes.</li>
@@ -40,7 +40,7 @@
 		</div>
 
 		<p class="mt-10">
-			<a href="/" class="link link-hover text-primary">← Back to Lead Rosetta</a>
+			<a href="/auth/login" class="link link-hover text-primary">← Back to Ed & Sy Admin</a>
 		</p>
 	</main>
 </div>

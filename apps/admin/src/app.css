@@ -3,9 +3,9 @@
 
 /* ==========================================================================
    Color scheme: shadcn from globals.css is the default everywhere.
-   Lead Rosetta token overrides (--muted, --cream, etc.) apply ONLY under
-   .leadrosetta-app: landing page, auth shell, and any demo widget that
-   uses that class. Dashboard (.leadrosetta-app-dashboard) never gets
+   Ed & Sy Admin shell token overrides (--muted, --cream, etc.) apply ONLY under
+   .admin-app: landing page, auth shell, and any demo widget that
+   uses that class. Dashboard (.admin-app-dashboard) never gets
    these overrides and always uses globals.css (shadcn) only.
    ========================================================================== */
 
@@ -23,17 +23,17 @@ body {
 }
 
 /* ==========================================================================
-   Lead Rosetta app shell – MERGED FROM docs/style-guides/style-guide.html
-   SCOPE: Only .leadrosetta-app (landing, auth, Lead Rosetta–branded demo
+   Ed & Sy Admin shell – MERGED FROM docs/style-guides/style-guide.html
+   SCOPE: Only .admin-app (landing, auth, Ed & Sy–branded demo
    widgets). Dashboard uses globals.css (shadcn) only; do not add token
-   overrides here that affect .leadrosetta-app-dashboard.
+   overrides here that affect .admin-app-dashboard.
    Tokens: --cream, --ink, --sage, --amber, --muted (text #7A7566),
    --border, --surface, --white, --error, --success.
    Typography: Instrument Serif (display/headings), DM Sans (body/UI).
    ========================================================================== */
-.leadrosetta-app {
+.admin-app {
   font-size: 15px;
-  /* Style guide palette (Lead Rosetta – docs/style-guides/style-guide.html). */
+  /* Style guide palette (docs/style-guides/style-guide.html). */
   --cream: #F5F0E8;
   --ink: #1A1A14;
   --sage: #3D5A3E;
@@ -98,8 +98,8 @@ body {
   overflow-x: hidden;
 }
 
-/* Landing: no dark mode – always use light theme (dashboard keeps dark via .dark .leadrosetta-app-dashboard) */
-.dark .leadrosetta-app {
+/* Landing: no dark mode – always use light theme (dashboard keeps dark via .dark .admin-app-dashboard) */
+.dark .admin-app {
   --cream: #F5F0E8;
   --ink: #1A1A14;
   --sage: #3D5A3E;
@@ -125,12 +125,12 @@ body {
 /* Dashboard: no token overrides. Dark/light use globals.css (shadcn) only. */
 
 /* ==========================================================================
-   Dashboard: shadcn from globals.css only. No Lead Rosetta overrides in this file.
+   Dashboard: shadcn from globals.css only. No marketing-shell overrides in this file.
    Shell mapping (--ink, --sage, etc.) in styles/dashboard.css (dashboard layout).
    ========================================================================== */
 
 /* Typography: Instrument Serif for display/headings, DM Sans for body (style guide) */
-.leadrosetta-app .lr-heading-hero {
+.admin-app .lr-heading-hero {
   font-family: 'Instrument Serif', serif;
   font-size: clamp(2rem, 5vw, 3rem);
   line-height: 1.08;
@@ -138,12 +138,12 @@ body {
   color: var(--ink);
 }
 
-.leadrosetta-app .lr-heading-hero em {
+.admin-app .lr-heading-hero em {
   font-style: italic;
   color: var(--sage);
 }
 
-.leadrosetta-app .lr-heading-display {
+.admin-app .lr-heading-display {
   font-family: 'Instrument Serif', serif;
   font-size: clamp(1.5rem, 4vw, 2.5rem);
   line-height: 1.1;
@@ -151,12 +151,12 @@ body {
   color: var(--ink);
 }
 
-.leadrosetta-app .lr-heading-display em {
+.admin-app .lr-heading-display em {
   font-style: italic;
   color: var(--sage);
 }
 
-.leadrosetta-app .lr-heading-page {
+.admin-app .lr-heading-page {
   font-family: 'Instrument Serif', serif;
   font-size: 1.75rem;
   line-height: 1.15;
@@ -164,7 +164,7 @@ body {
   color: var(--ink);
 }
 
-.leadrosetta-app .lr-subline {
+.admin-app .lr-subline {
   font-family: 'DM Sans', system-ui, sans-serif;
   font-size: 1.125rem;
   line-height: 1.65;
@@ -173,7 +173,7 @@ body {
 }
 
 /* Primary CTA: Amber, pill (style guide .btn-primary) */
-.leadrosetta-app .lr-btn-primary {
+.admin-app .lr-btn-primary {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -190,23 +190,23 @@ body {
   transition: background 0.2s, transform 0.15s;
 }
 
-.leadrosetta-app .lr-btn-primary:hover {
+.admin-app .lr-btn-primary:hover {
   background: var(--amber-light);
   transform: translateY(-1px);
 }
 
 /* Semantic .btn .btn-primary (e.g. StickyCtaBar, ChatWidget): green/sage must use light text for contrast */
-.leadrosetta-app .btn.btn-primary,
-.leadrosetta-app .btn-primary.bg-primary {
+.admin-app .btn.btn-primary,
+.admin-app .btn-primary.bg-primary {
   color: #ffffff;
 }
-.leadrosetta-app .btn.btn-primary:hover,
-.leadrosetta-app .btn-primary.bg-primary:hover {
+.admin-app .btn.btn-primary:hover,
+.admin-app .btn-primary.bg-primary:hover {
   color: #ffffff;
 }
 
 /* Ghost: Outline, ink border (style guide .btn-outline); sage variant for secondary CTA */
-.leadrosetta-app .lr-btn-ghost {
+.admin-app .lr-btn-ghost {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -223,23 +223,23 @@ body {
   transition: border-color 0.2s;
 }
 
-.leadrosetta-app .lr-btn-ghost:hover {
+.admin-app .lr-btn-ghost:hover {
   border-color: var(--ink);
 }
 
-/* Wordmark: Instrument Serif, Lead ink / Rosetta sage (style guide .brand-logo) */
-.leadrosetta-app .lr-wordmark {
+/* Wordmark: Instrument Serif, ink / sage accent (style guide .brand-logo) */
+.admin-app .lr-wordmark {
   font-family: 'Instrument Serif', serif;
   font-size: 1.5rem;
   color: var(--ink);
   text-decoration: none;
 }
 
-.leadrosetta-app .lr-wordmark .lr-wordmark-strong {
+.admin-app .lr-wordmark .lr-wordmark-strong {
   color: var(--sage);
 }
 
-.leadrosetta-app .lr-nav-ghost {
+.admin-app .lr-nav-ghost {
   padding: var(--space-2) var(--space-4);
   font-size: 0.95rem;
   font-weight: 500;
@@ -253,11 +253,11 @@ body {
   transition: color 0.2s;
 }
 
-.leadrosetta-app .lr-nav-ghost:hover {
+.admin-app .lr-nav-ghost:hover {
   color: var(--ink);
 }
 
-.leadrosetta-app .lr-table-header {
+.admin-app .lr-table-header {
   font-size: 0.7rem;
   font-weight: 500;
   letter-spacing: 0.08em;
@@ -266,13 +266,13 @@ body {
   font-family: 'DM Sans', system-ui, sans-serif;
 }
 
-.leadrosetta-app .lr-table-body {
+.admin-app .lr-table-body {
   font-size: 0.875rem;
   color: var(--ink);
   font-family: 'DM Sans', system-ui, sans-serif;
 }
 
-.leadrosetta-app .lr-status-badge {
+.admin-app .lr-status-badge {
   display: inline-flex;
   align-items: center;
   padding: 4px 12px;
@@ -282,31 +282,31 @@ body {
   border-radius: var(--radius-pill);
 }
 
-.leadrosetta-app .lr-status-default {
+.admin-app .lr-status-default {
   background: rgba(61, 90, 62, 0.1);
   color: var(--sage);
   border: 1px solid rgba(61, 90, 62, 0.2);
 }
 
-.leadrosetta-app .lr-status-warning {
+.admin-app .lr-status-warning {
   background: rgba(193, 125, 42, 0.12);
   color: var(--amber);
   border: 1px solid rgba(193, 125, 42, 0.25);
 }
 
-.leadrosetta-app .lr-status-success {
+.admin-app .lr-status-success {
   background: rgba(61, 90, 62, 0.1);
   color: var(--sage);
   border: 1px solid rgba(61, 90, 62, 0.2);
 }
 
-.leadrosetta-app .lr-status-muted {
+.admin-app .lr-status-muted {
   background: var(--surface);
   color: var(--muted);
   border: 1px solid var(--border);
 }
 
-.leadrosetta-app .lr-alert {
+.admin-app .lr-alert {
   padding: var(--space-4);
   border-radius: 10px;
   border: 1px solid var(--border);
@@ -315,32 +315,32 @@ body {
   font-family: 'DM Sans', system-ui, sans-serif;
 }
 
-.leadrosetta-app .lr-alert-warning {
+.admin-app .lr-alert-warning {
   background: rgba(193, 125, 42, 0.08);
   border-color: rgba(193, 125, 42, 0.2);
   color: var(--amber);
 }
 
-.leadrosetta-app .lr-alert-error {
+.admin-app .lr-alert-error {
   background: rgba(192, 64, 64, 0.08);
   border-color: rgba(192, 64, 64, 0.2);
   color: var(--error);
 }
 
-.leadrosetta-app .lr-alert-success {
+.admin-app .lr-alert-success {
   background: rgba(61, 90, 62, 0.08);
   border-color: rgba(61, 90, 62, 0.2);
   color: var(--sage);
 }
 
-/* Auth: header + centered main (Lead Rosetta branding) */
-.leadrosetta-app-auth {
+/* Auth: header + centered main (Ed & Sy Admin branding) */
+.admin-app-auth {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   background: var(--cream);
 }
-.leadrosetta-app-auth .lr-auth-main {
+.admin-app-auth .lr-auth-main {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -348,7 +348,7 @@ body {
   justify-content: center;
   padding: var(--space-6) var(--space-4);
 }
-.leadrosetta-app .lr-auth-card-return {
+.admin-app .lr-auth-card-return {
   display: block;
   font-size: 0.8125rem;
   color: var(--muted);
@@ -356,17 +356,17 @@ body {
   margin-top: var(--space-4);
   transition: color 0.2s;
 }
-.leadrosetta-app .lr-auth-card-return:hover {
+.admin-app .lr-auth-card-return:hover {
   color: var(--ink);
 }
-.leadrosetta-app .lr-auth-page {
+.admin-app .lr-auth-page {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   width: 100%;
 }
-.leadrosetta-app .lr-auth-card {
+.admin-app .lr-auth-card {
   width: 100%;
   max-width: 420px;
   padding: var(--space-8) var(--space-7);
@@ -376,7 +376,7 @@ body {
   box-shadow: var(--shadow-card);
   text-align: center;
 }
-.leadrosetta-app .lr-auth-card-logo {
+.admin-app .lr-auth-card-logo {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
@@ -385,19 +385,19 @@ body {
   color: var(--ink);
   margin-bottom: var(--space-5);
 }
-.leadrosetta-app .lr-auth-card-logo img {
+.admin-app .lr-auth-card-logo img {
   width: 3rem;
   height: 3rem;
   object-fit: contain;
 }
-.leadrosetta-app .lr-auth-card-logo-text {
+.admin-app .lr-auth-card-logo-text {
   font-family: 'Instrument Serif', serif;
   font-size: 1.15rem;
 }
-.leadrosetta-app .lr-auth-card-logo-text span {
+.admin-app .lr-auth-card-logo-text span {
   color: var(--sage);
 }
-.leadrosetta-app .lr-auth-card-title {
+.admin-app .lr-auth-card-title {
   font-family: 'Instrument Serif', serif;
   font-size: 1.5rem;
   line-height: 1.2;
@@ -405,13 +405,13 @@ body {
   color: var(--ink);
   margin: 0 0 var(--space-2);
 }
-.leadrosetta-app .lr-auth-card-sub {
+.admin-app .lr-auth-card-sub {
   font-size: 0.9375rem;
   color: var(--muted);
   margin: 0 0 var(--space-6);
 }
-/* Style guide .btn-primary: amber, pill, 0.875rem 2rem, 100px radius (see leadrosetta.html) */
-.leadrosetta-app .lr-auth-google-btn {
+/* Style guide .btn-primary: amber, pill, 0.875rem 2rem, 100px radius (see style-guide.html) */
+.admin-app .lr-auth-google-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -428,35 +428,35 @@ body {
   text-decoration: none;
   transition: background 0.2s, transform 0.15s;
 }
-.leadrosetta-app .lr-auth-google-btn:hover {
+.admin-app .lr-auth-google-btn:hover {
   background: var(--amber-light);
   transform: translateY(-1px);
 }
-.leadrosetta-app .lr-auth-google-icon {
+.admin-app .lr-auth-google-icon {
   width: 1.25rem;
   height: 1.25rem;
   flex-shrink: 0;
 }
-.leadrosetta-app .lr-auth-card-note {
+.admin-app .lr-auth-card-note {
   font-size: 0.8125rem;
   color: var(--color-text-muted);
   margin: var(--space-5) 0 0;
   max-width: none;
 }
-.leadrosetta-app .lr-auth-legal {
+.admin-app .lr-auth-legal {
   width: 100%;
   max-width: 420px;
 }
 
 /* Max paragraph width per style guide (~68 characters) */
-.leadrosetta-app p {
+.admin-app p {
   max-width: 68ch;
 }
 
 /* Form elements (style guide .form-group, .form-label, .form-input).
    Scoped to landing/auth only so dashboard shadcn components keep consistent
    borders (border-input, rounded-md) and are not overridden. */
-.leadrosetta-app:not(.leadrosetta-app-dashboard) .form-group {
+.admin-app:not(.admin-app-dashboard) .form-group {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
@@ -464,18 +464,18 @@ body {
   max-width: 360px;
 }
 
-.leadrosetta-app:not(.leadrosetta-app-dashboard) .form-label {
+.admin-app:not(.admin-app-dashboard) .form-label {
   font-size: 0.825rem;
   font-weight: 500;
   color: var(--ink);
   font-family: 'DM Sans', system-ui, sans-serif;
 }
 
-.leadrosetta-app:not(.leadrosetta-app-dashboard) .form-input,
-.leadrosetta-app:not(.leadrosetta-app-dashboard) input[type="text"],
-.leadrosetta-app:not(.leadrosetta-app-dashboard) input[type="email"],
-.leadrosetta-app:not(.leadrosetta-app-dashboard) input[type="url"],
-.leadrosetta-app:not(.leadrosetta-app-dashboard) input[type="password"] {
+.admin-app:not(.admin-app-dashboard) .form-input,
+.admin-app:not(.admin-app-dashboard) input[type="text"],
+.admin-app:not(.admin-app-dashboard) input[type="email"],
+.admin-app:not(.admin-app-dashboard) input[type="url"],
+.admin-app:not(.admin-app-dashboard) input[type="password"] {
   padding: 0.7rem 1rem;
   border: 1.5px solid var(--border);
   border-radius: 8px;
@@ -487,8 +487,8 @@ body {
   transition: border-color 0.2s;
 }
 
-.leadrosetta-app:not(.leadrosetta-app-dashboard) select.form-input,
-.leadrosetta-app:not(.leadrosetta-app-dashboard) select {
+.admin-app:not(.admin-app-dashboard) select.form-input,
+.admin-app:not(.admin-app-dashboard) select {
   padding: 0.7rem 2.5rem 0.7rem 1rem;
   border: 1.5px solid var(--border);
   border-radius: 8px;
@@ -504,48 +504,48 @@ body {
   transition: border-color 0.2s;
 }
 
-.leadrosetta-app:not(.leadrosetta-app-dashboard) .form-input:focus,
-.leadrosetta-app:not(.leadrosetta-app-dashboard) input:focus,
-.leadrosetta-app:not(.leadrosetta-app-dashboard) select:focus {
+.admin-app:not(.admin-app-dashboard) .form-input:focus,
+.admin-app:not(.admin-app-dashboard) input:focus,
+.admin-app:not(.admin-app-dashboard) select:focus {
   border-color: var(--sage);
 }
 
-.leadrosetta-app:not(.leadrosetta-app-dashboard) .form-input::placeholder,
-.leadrosetta-app:not(.leadrosetta-app-dashboard) input::placeholder {
+.admin-app:not(.admin-app-dashboard) .form-input::placeholder,
+.admin-app:not(.admin-app-dashboard) input::placeholder {
   color: #5a5347;
 }
 
-.leadrosetta-app .form-hint {
+.admin-app .form-hint {
   font-size: 0.75rem;
   color: var(--muted);
 }
 
 /* Compliance/legal label: full contrast on cream (style guide ink) */
-.leadrosetta-app .form-compliance-label {
+.admin-app .form-compliance-label {
   font-size: 0.875rem;
   color: var(--ink);
   line-height: 1.5;
 }
 
 /* Legal pages (privacy, terms, etc.): prose and text use style-guide ink for contrast on cream */
-.leadrosetta-app .prose,
-.leadrosetta-app .prose p,
-.leadrosetta-app .prose li {
+.admin-app .prose,
+.admin-app .prose p,
+.admin-app .prose li {
   color: var(--ink);
 }
-.leadrosetta-app .prose strong { color: var(--ink); }
-.leadrosetta-app .prose a { color: var(--sage); }
-.leadrosetta-app .prose a:hover { color: var(--sage-light); }
+.admin-app .prose strong { color: var(--ink); }
+.admin-app .prose a { color: var(--sage); }
+.admin-app .prose a:hover { color: var(--sage-light); }
 
-.leadrosetta-app .form-error-text {
+.admin-app .form-error-text {
   font-size: 0.75rem;
   color: var(--error);
 }
 
 /* ==========================================================================
-   Landing page layout (docs/style-guides/leadrosetta.html)
+   Landing page layout (docs/style-guides/style-guide.html)
    ========================================================================== */
-.leadrosetta-app .landing-nav {
+.admin-app .landing-nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -558,7 +558,7 @@ body {
   /* Clear separation from dark UI (e.g. Crisp) so nav doesn’t blend */
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
-.leadrosetta-app .landing-nav .logo {
+.admin-app .landing-nav .logo {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -567,14 +567,14 @@ body {
   color: var(--ink);
   text-decoration: none;
 }
-.leadrosetta-app .landing-nav .logo .logo-img {
+.admin-app .landing-nav .logo .logo-img {
   flex-shrink: 0;
   height: 2rem;
   width: auto;
   object-fit: contain;
 }
-.leadrosetta-app .landing-nav .logo .logo-text span { color: var(--sage); }
-.leadrosetta-app .nav-links {
+.admin-app .landing-nav .logo .logo-text span { color: var(--sage); }
+.admin-app .nav-links {
   display: flex;
   align-items: center;
   gap: 2rem;
@@ -584,7 +584,7 @@ body {
 }
 
 /* Mobile: hide nav links, show hamburger */
-.leadrosetta-app .landing-nav-menu-btn {
+.admin-app .landing-nav-menu-btn {
   display: none;
   align-items: center;
   justify-content: center;
@@ -598,22 +598,22 @@ body {
   cursor: pointer;
   transition: background 0.2s;
 }
-.leadrosetta-app .landing-nav-menu-btn:hover {
+.admin-app .landing-nav-menu-btn:hover {
   background: var(--surface);
 }
-.leadrosetta-app .landing-nav-menu-btn:focus-visible {
+.admin-app .landing-nav-menu-btn:focus-visible {
   outline: 2px solid var(--sage);
   outline-offset: 2px;
 }
 
-.leadrosetta-app .landing-nav-mobile-overlay {
+.admin-app .landing-nav-mobile-overlay {
   position: fixed;
   inset: 0;
   background: rgba(26, 26, 20, 0.4);
   z-index: 199;
   cursor: pointer;
 }
-.leadrosetta-app .landing-nav-mobile-panel {
+.admin-app .landing-nav-mobile-panel {
   position: fixed;
   top: 0;
   right: 0;
@@ -624,7 +624,7 @@ body {
   padding: 5rem 1.5rem 1.5rem;
   box-shadow: -4px 0 24px rgba(0, 0, 0, 0.08);
 }
-.leadrosetta-app .landing-nav-mobile-links {
+.admin-app .landing-nav-mobile-links {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -632,7 +632,7 @@ body {
   flex-direction: column;
   gap: 0.25rem;
 }
-.leadrosetta-app .landing-nav-mobile-link {
+.admin-app .landing-nav-mobile-link {
   display: block;
   padding: 0.875rem 1rem;
   font-size: 1rem;
@@ -641,31 +641,31 @@ body {
   border-radius: var(--radius-sm);
   transition: background 0.2s;
 }
-.leadrosetta-app .landing-nav-mobile-link:hover {
+.admin-app .landing-nav-mobile-link:hover {
   background: var(--surface);
   color: var(--ink);
 }
-.leadrosetta-app .landing-nav-mobile-cta {
+.admin-app .landing-nav-mobile-cta {
   margin-top: 0.5rem;
   background: var(--sage);
   color: #ffffff !important;
   font-weight: 500;
   text-align: center;
 }
-.leadrosetta-app .landing-nav-mobile-cta:hover {
+.admin-app .landing-nav-mobile-cta:hover {
   background: var(--sage-light);
   color: #ffffff !important;
 }
-.leadrosetta-app .nav-links a {
+.admin-app .nav-links a {
   text-decoration: none;
   color: var(--nav-text, #a39e92);
   font-size: 0.875rem;
   transition: color 0.2s;
 }
-.leadrosetta-app .nav-links a:hover { color: var(--ink); }
+.admin-app .nav-links a:hover { color: var(--ink); }
 /* Try free: amber CTA so it doesn’t blend with dark UI (e.g. Crisp recording bar) */
-/* Nav CTA: style guide .btn-nav (leadrosetta.html) — sage pill */
-.leadrosetta-app .btn-nav {
+/* Nav CTA: style guide .btn-nav (style-guide.html) — sage pill */
+.admin-app .btn-nav {
   background: var(--sage);
   color: #ffffff !important;
   padding: 0.5rem 1.25rem;
@@ -675,12 +675,12 @@ body {
   text-decoration: none;
   transition: background 0.2s, transform 0.15s;
 }
-.leadrosetta-app .btn-nav:hover {
+.admin-app .btn-nav:hover {
   background: var(--sage-light);
   color: #ffffff !important;
   transform: translateY(-1px);
 }
-.leadrosetta-app .btn-outline {
+.admin-app .btn-outline {
   background: transparent;
   color: var(--ink);
   padding: 0.875rem 2rem;
@@ -691,22 +691,22 @@ body {
   border: 1.5px solid var(--border);
   transition: border-color 0.2s, transform 0.15s;
 }
-.leadrosetta-app .btn-outline:hover {
+.admin-app .btn-outline:hover {
   border-color: var(--ink);
   transform: translateY(-1px);
 }
 
-.leadrosetta-app .hero {
+.admin-app .hero {
   max-width: 860px;
   margin: 0 auto;
   padding: 7rem 2.5rem 5rem;
   text-align: center;
 }
-.leadrosetta-app .hero-inner {
+.admin-app .hero-inner {
   max-width: 100%;
   margin: 0;
 }
-.leadrosetta-app .hero .eyebrow {
+.admin-app .hero .eyebrow {
   display: inline-block;
   font-size: 0.75rem;
   font-weight: 500;
@@ -719,7 +719,7 @@ body {
   margin-bottom: 2rem;
   border: 1px solid rgba(193, 125, 42, 0.2);
 }
-.leadrosetta-app .hero h1 {
+.admin-app .hero h1 {
   font-family: 'Instrument Serif', serif;
   font-size: clamp(2.8rem, 6vw, 4.5rem);
   line-height: 1.08;
@@ -727,8 +727,8 @@ body {
   margin-bottom: 1.5rem;
   max-width: none;
 }
-.leadrosetta-app .hero h1 em { font-style: italic; color: var(--sage); }
-.leadrosetta-app .hero-sub {
+.admin-app .hero h1 em { font-style: italic; color: var(--sage); }
+.admin-app .hero-sub {
   font-size: 1.125rem;
   line-height: 1.65;
   color: var(--muted);
@@ -736,15 +736,15 @@ body {
   margin: 0 auto 2.5rem;
   font-weight: 300;
 }
-.leadrosetta-app .hero-sub strong { color: var(--ink); font-weight: 500; }
-.leadrosetta-app .hero-ctas {
+.admin-app .hero-sub strong { color: var(--ink); font-weight: 500; }
+.admin-app .hero-ctas {
   display: flex;
   gap: 1rem;
   justify-content: center;
   flex-wrap: wrap;
   margin-bottom: 1.25rem;
 }
-.leadrosetta-app .hero-note {
+.admin-app .hero-note {
   display: block;
   width: 100%;
   margin: 0;
@@ -755,13 +755,13 @@ body {
   text-align: center !important;
 }
 
-.leadrosetta-app .preview-strip {
+.admin-app .preview-strip {
   background: var(--surface);
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
   padding: 2.5rem;
 }
-.leadrosetta-app .preview-label {
+.admin-app .preview-label {
   text-align: center;
   font-size: 0.75rem;
   font-weight: 500;
@@ -770,7 +770,7 @@ body {
   color: var(--muted);
   margin-bottom: 1.75rem;
 }
-.leadrosetta-app .demo-flow {
+.admin-app .demo-flow {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -779,13 +779,13 @@ body {
   margin: 0 auto;
   flex-wrap: wrap;
 }
-.leadrosetta-app .demo-step {
+.admin-app .demo-step {
   flex: 1;
   min-width: 160px;
   text-align: center;
   padding: 1.25rem 1rem;
 }
-.leadrosetta-app .step-icon {
+.admin-app .step-icon {
   width: 44px;
   height: 44px;
   border-radius: 12px;
@@ -797,11 +797,11 @@ body {
   margin: 0 auto 0.75rem;
   color: var(--ink);
 }
-.leadrosetta-app .step-icon :global(svg) {
+.admin-app .step-icon :global(svg) {
   display: block;
   flex-shrink: 0;
 }
-.leadrosetta-app .step-num {
+.admin-app .step-num {
   font-size: 0.7rem;
   font-weight: 500;
   letter-spacing: 0.08em;
@@ -809,9 +809,9 @@ body {
   color: var(--amber);
   margin-bottom: 0.25rem;
 }
-.leadrosetta-app .step-title { font-size: 0.875rem; font-weight: 500; margin-bottom: 0.25rem; }
-.leadrosetta-app .step-desc { font-size: 0.75rem; color: var(--muted); line-height: 1.5; }
-.leadrosetta-app .step-arrow {
+.admin-app .step-title { font-size: 0.875rem; font-weight: 500; margin-bottom: 0.25rem; }
+.admin-app .step-desc { font-size: 0.75rem; color: var(--muted); line-height: 1.5; }
+.admin-app .step-arrow {
   font-size: 1.2rem;
   color: var(--border);
   flex-shrink: 0;
@@ -819,12 +819,12 @@ body {
   margin-top: -1rem;
 }
 
-.leadrosetta-app .section {
+.admin-app .section {
   max-width: 960px;
   margin: 0 auto;
   padding: 6rem 2.5rem;
 }
-.leadrosetta-app .section-label {
+.admin-app .section-label {
   font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.12em;
@@ -832,51 +832,51 @@ body {
   color: var(--muted);
   margin-bottom: 1rem;
 }
-.leadrosetta-app .section-sub {
+.admin-app .section-sub {
   max-width: 32rem;
   margin: 0.75rem auto 0;
   color: var(--muted);
   font-size: 0.95rem;
   line-height: 1.5;
 }
-.leadrosetta-app .section-head-center {
+.admin-app .section-head-center {
   text-align: center;
   margin-bottom: 3.5rem;
 }
-.leadrosetta-app .section-head-center-tight {
+.admin-app .section-head-center-tight {
   text-align: center;
   margin-bottom: 0.5rem;
 }
-.leadrosetta-app .section-head-center-tight .section-sub {
+.admin-app .section-head-center-tight .section-sub {
   margin-top: 0.5rem;
 }
-.leadrosetta-app .section-cta {
+.admin-app .section-cta {
   text-align: center;
   padding-top: 2rem;
   padding-bottom: 5rem;
 }
-.leadrosetta-app .section-cta h2 {
+.admin-app .section-cta h2 {
   margin-bottom: 0.75rem;
 }
-.leadrosetta-app .section-cta .section-sub {
+.admin-app .section-cta .section-sub {
   margin-bottom: 1.5rem;
 }
-.leadrosetta-app .section h2 {
+.admin-app .section h2 {
   font-family: 'Instrument Serif', serif;
   font-size: clamp(2rem, 4vw, 3rem);
   line-height: 1.12;
   letter-spacing: -0.02em;
   margin-bottom: 1.5rem;
 }
-.leadrosetta-app .section h2 em { font-style: italic; color: var(--sage); }
-.leadrosetta-app .two-col {
+.admin-app .section h2 em { font-style: italic; color: var(--sage); }
+.admin-app .two-col {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 4rem;
   align-items: start;
 }
-.leadrosetta-app .problem-list,
-.leadrosetta-app .solution-list {
+.admin-app .problem-list,
+.admin-app .solution-list {
   list-style: none;
   display: flex;
   flex-direction: column;
@@ -884,17 +884,17 @@ body {
   margin-top: 2rem;
   padding: 0;
 }
-.leadrosetta-app .problem-list li,
-.leadrosetta-app .solution-list li {
+.admin-app .problem-list li,
+.admin-app .solution-list li {
   display: flex;
   align-items: flex-start;
   gap: 0.875rem;
   font-size: 0.95rem;
   line-height: 1.5;
 }
-.leadrosetta-app .problem-list li { color: var(--muted); }
-.leadrosetta-app .solution-list li { color: var(--ink); }
-.leadrosetta-app .problem-list li::before {
+.admin-app .problem-list li { color: var(--muted); }
+.admin-app .solution-list li { color: var(--ink); }
+.admin-app .problem-list li::before {
   content: '✕';
   color: var(--error);
   font-size: 0.8rem;
@@ -902,7 +902,7 @@ body {
   flex-shrink: 0;
   font-weight: 600;
 }
-.leadrosetta-app .solution-list li::before {
+.admin-app .solution-list li::before {
   content: '✓';
   color: var(--sage);
   font-size: 0.85rem;
@@ -911,7 +911,7 @@ body {
   font-weight: 600;
 }
 
-.leadrosetta-app .email-mock {
+.admin-app .email-mock {
   background: white;
   border: 1.5px solid var(--border);
   border-radius: 12px;
@@ -920,7 +920,7 @@ body {
   max-width: 620px;
   margin: 0 auto;
 }
-.leadrosetta-app .email-header {
+.admin-app .email-header {
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   padding: 0.875rem 1.25rem;
@@ -928,33 +928,33 @@ body {
   align-items: center;
   gap: 0.5rem;
 }
-.leadrosetta-app .email-dot { width: 10px; height: 10px; border-radius: 50%; }
-.leadrosetta-app .dot-r { background: #ff5f56; }
-.leadrosetta-app .dot-y { background: #ffbd2e; }
-.leadrosetta-app .dot-g { background: #27c93f; }
-.leadrosetta-app .email-body { padding: 1.5rem 1.75rem; }
-.leadrosetta-app .email-meta { margin-bottom: 0.25rem; }
-.leadrosetta-app .email-field {
+.admin-app .email-dot { width: 10px; height: 10px; border-radius: 50%; }
+.admin-app .dot-r { background: #ff5f56; }
+.admin-app .dot-y { background: #ffbd2e; }
+.admin-app .dot-g { background: #27c93f; }
+.admin-app .email-body { padding: 1.5rem 1.75rem; }
+.admin-app .email-meta { margin-bottom: 0.25rem; }
+.admin-app .email-field {
   font-size: 0.8rem;
   color: var(--muted);
   margin-bottom: 0.35rem;
   display: flex;
   gap: 0.5rem;
 }
-.leadrosetta-app .email-field span { color: var(--ink); font-weight: 500; }
-.leadrosetta-app .email-divider { border: none; border-top: 1px solid var(--border); margin: 1rem 0 1.25rem; }
-.leadrosetta-app .email-text {
+.admin-app .email-field span { color: var(--ink); font-weight: 500; }
+.admin-app .email-divider { border: none; border-top: 1px solid var(--border); margin: 1rem 0 1.25rem; }
+.admin-app .email-text {
   font-size: 0.9375rem;
   color: var(--ink);
   line-height: 1.65;
 }
-.leadrosetta-app .email-text p {
+.admin-app .email-text p {
   margin: 0 0 1rem;
 }
-.leadrosetta-app .email-text p:last-of-type { margin-bottom: 0; }
-.leadrosetta-app .email-greeting { margin-top: 0; }
-.leadrosetta-app .email-cta-line { margin: 1.25rem 0 1rem !important; }
-.leadrosetta-app .email-snippet {
+.admin-app .email-text p:last-of-type { margin-bottom: 0; }
+.admin-app .email-greeting { margin-top: 0; }
+.admin-app .email-cta-line { margin: 1.25rem 0 1rem !important; }
+.admin-app .email-snippet {
   margin: 1rem 0;
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -962,7 +962,7 @@ body {
   max-width: 100%;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
 }
-.leadrosetta-app .email-snippet-browser {
+.admin-app .email-snippet-browser {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -970,15 +970,15 @@ body {
   background: var(--surface);
   border-bottom: 1px solid var(--border);
 }
-.leadrosetta-app .email-snippet-dot {
+.admin-app .email-snippet-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
 }
-.leadrosetta-app .email-snippet-dot:nth-child(1) { background: #ff5f56; }
-.leadrosetta-app .email-snippet-dot:nth-child(2) { background: #ffbd2e; }
-.leadrosetta-app .email-snippet-dot:nth-child(3) { background: #27c93f; }
-.leadrosetta-app .email-snippet-url {
+.admin-app .email-snippet-dot:nth-child(1) { background: #ff5f56; }
+.admin-app .email-snippet-dot:nth-child(2) { background: #ffbd2e; }
+.admin-app .email-snippet-dot:nth-child(3) { background: #27c93f; }
+.admin-app .email-snippet-url {
   flex: 1;
   max-width: 180px;
   height: 18px;
@@ -992,7 +992,7 @@ body {
   align-items: center;
   padding: 0 8px;
 }
-.leadrosetta-app .email-snippet-preview {
+.admin-app .email-snippet-preview {
   height: 100px;
   background: linear-gradient(135deg, var(--surface) 0%, var(--cream) 100%);
   background-image:
@@ -1003,30 +1003,30 @@ body {
   background-position: 0 0, 0 0, 0 0;
   opacity: 0.85;
 }
-.leadrosetta-app .email-snippet-caption {
+.admin-app .email-snippet-caption {
   padding: 0.5rem 0.75rem;
   font-size: 0.75rem;
   color: var(--muted);
   background: white;
   border-top: 1px solid var(--border);
 }
-.leadrosetta-app .email-snippet-caption strong { color: var(--ink); font-weight: 500; }
-.leadrosetta-app .email-body-link {
+.admin-app .email-snippet-caption strong { color: var(--ink); font-weight: 500; }
+.admin-app .email-body-link {
   color: var(--sage);
   text-decoration: underline;
   text-underline-offset: 0.2em;
   font-weight: 500;
 }
-.leadrosetta-app .email-body-link:hover { color: var(--ink); }
-.leadrosetta-app .email-signature { margin-top: 1.25rem; margin-bottom: 0; }
-.leadrosetta-app .email-link {
+.admin-app .email-body-link:hover { color: var(--ink); }
+.admin-app .email-signature { margin-top: 1.25rem; margin-bottom: 0; }
+.admin-app .email-link {
   color: var(--sage);
   text-decoration: underline;
   text-underline-offset: 0.2em;
   font-weight: 500;
 }
-.leadrosetta-app .email-link:hover { color: var(--ink); }
-.leadrosetta-app .email-reply-badge {
+.admin-app .email-link:hover { color: var(--ink); }
+.admin-app .email-reply-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -1040,13 +1040,13 @@ body {
   border: 1px solid rgba(61, 90, 62, 0.2);
 }
 
-.leadrosetta-app .pricing-grid {
+.admin-app .pricing-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1.25rem;
   margin-top: 3rem;
 }
-.leadrosetta-app .pricing-testimonial {
+.admin-app .pricing-testimonial {
   display: block;
   width: 100%;
   margin-top: 2rem;
@@ -1056,7 +1056,7 @@ body {
   font-size: 0.95rem;
   text-align: center !important;
 }
-.leadrosetta-app .pricing-card {
+.admin-app .pricing-card {
   display: flex;
   flex-direction: column;
   background: white;
@@ -1066,16 +1066,16 @@ body {
   position: relative;
   transition: transform 0.2s, box-shadow 0.2s;
 }
-.leadrosetta-app .pricing-card:hover {
+.admin-app .pricing-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
 }
-.leadrosetta-app .pricing-card.featured {
+.admin-app .pricing-card.featured {
   border-color: var(--sage);
   background: var(--sage);
   color: white;
 }
-.leadrosetta-app .featured-badge {
+.admin-app .featured-badge {
   position: absolute;
   top: -0.75rem;
   left: 50%;
@@ -1090,7 +1090,7 @@ body {
   border-radius: 100px;
   white-space: nowrap;
 }
-.leadrosetta-app .plan-name {
+.admin-app .plan-name {
   font-size: 0.8rem;
   font-weight: 500;
   letter-spacing: 0.08em;
@@ -1098,17 +1098,17 @@ body {
   color: var(--muted);
   margin-bottom: 0.75rem;
 }
-.leadrosetta-app .pricing-card.featured .plan-name { color: rgba(255, 255, 255, 0.6); }
-.leadrosetta-app .price {
+.admin-app .pricing-card.featured .plan-name { color: rgba(255, 255, 255, 0.6); }
+.admin-app .price {
   font-family: 'Instrument Serif', serif;
   font-size: 2.75rem;
   line-height: 1;
   letter-spacing: -0.02em;
   margin-bottom: 0.25rem;
 }
-.leadrosetta-app .price-period { font-size: 0.8rem; color: var(--muted); margin-bottom: 1.5rem; }
-.leadrosetta-app .pricing-card.featured .price-period { color: rgba(255, 255, 255, 0.6); }
-.leadrosetta-app .plan-features {
+.admin-app .price-period { font-size: 0.8rem; color: var(--muted); margin-bottom: 1.5rem; }
+.admin-app .pricing-card.featured .price-period { color: rgba(255, 255, 255, 0.6); }
+.admin-app .plan-features {
   list-style: none;
   padding: 0;
   margin: 0 0 1.75rem 0;
@@ -1116,7 +1116,7 @@ body {
   flex-direction: column;
   gap: 0.75rem;
 }
-.leadrosetta-app .plan-features li {
+.admin-app .plan-features li {
   font-size: 0.875rem;
   display: flex;
   align-items: flex-start;
@@ -1124,8 +1124,8 @@ body {
   line-height: 1.4;
   color: var(--ink);
 }
-.leadrosetta-app .pricing-card.featured .plan-features li { color: rgba(255, 255, 255, 0.9); }
-.leadrosetta-app .plan-features li::before {
+.admin-app .pricing-card.featured .plan-features li { color: rgba(255, 255, 255, 0.9); }
+.admin-app .plan-features li::before {
   content: '✓';
   color: var(--sage);
   font-size: 0.8rem;
@@ -1133,8 +1133,8 @@ body {
   flex-shrink: 0;
   font-weight: 600;
 }
-.leadrosetta-app .pricing-card.featured .plan-features li::before { color: var(--amber-light); }
-.leadrosetta-app .btn-plan {
+.admin-app .pricing-card.featured .plan-features li::before { color: var(--amber-light); }
+.admin-app .btn-plan {
   display: block;
   text-align: center;
   padding: 0.75rem 1.5rem;
@@ -1148,18 +1148,18 @@ body {
   transition: all 0.2s;
   width: 100%;
 }
-.leadrosetta-app .btn-plan:hover { border-color: var(--ink); }
-.leadrosetta-app .btn-plan-primary {
+.admin-app .btn-plan:hover { border-color: var(--ink); }
+.admin-app .btn-plan-primary {
   background: var(--amber);
   color: white;
   border-color: var(--amber);
 }
-.leadrosetta-app .btn-plan-primary:hover {
+.admin-app .btn-plan-primary:hover {
   background: var(--amber-light);
   border-color: var(--amber-light);
 }
 
-.leadrosetta-app .pricing-addon {
+.admin-app .pricing-addon {
   margin-top: 2rem;
   padding: 1.25rem 1.5rem;
   border: 1px solid var(--border);
@@ -1170,40 +1170,40 @@ body {
   margin-right: auto;
 }
 
-.leadrosetta-app .divider {
+.admin-app .divider {
   border: none;
   border-top: 1px solid var(--border);
   max-width: 960px;
   margin: 0 auto;
 }
 
-.leadrosetta-app .who-grid {
+.admin-app .who-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1.25rem;
   margin-top: 3rem;
 }
-.leadrosetta-app .who-card {
+.admin-app .who-card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 1.5rem;
 }
-.leadrosetta-app .who-icon {
+.admin-app .who-icon {
   color: var(--ink);
   margin-bottom: 0.75rem;
   display: flex;
   align-items: center;
   justify-content: flex-start;
 }
-.leadrosetta-app .who-icon :global(svg) {
+.admin-app .who-icon :global(svg) {
   display: block;
   flex-shrink: 0;
 }
-.leadrosetta-app .who-title { font-size: 0.95rem; font-weight: 500; margin-bottom: 0.4rem; }
-.leadrosetta-app .who-desc { font-size: 0.825rem; color: var(--muted); line-height: 1.55; }
+.admin-app .who-title { font-size: 0.95rem; font-weight: 500; margin-bottom: 0.4rem; }
+.admin-app .who-desc { font-size: 0.825rem; color: var(--muted); line-height: 1.55; }
 
-.leadrosetta-app .landing-footer {
+.admin-app .landing-footer {
   border-top: 1px solid var(--border);
   padding: 2rem 2.5rem;
   display: flex;
@@ -1212,28 +1212,28 @@ body {
   max-width: 960px;
   margin: 0 auto;
 }
-.leadrosetta-app .footer-note { font-size: 0.8rem; color: var(--muted); }
-.leadrosetta-app .footer-note a { color: var(--muted); text-decoration: none; }
-.leadrosetta-app .footer-note a:hover { color: var(--ink); }
-.leadrosetta-app .footer-links { display: flex; gap: 1.5rem; }
-.leadrosetta-app .footer-links a { font-size: 0.8rem; color: var(--muted); text-decoration: none; }
-.leadrosetta-app .footer-links a:hover { color: var(--ink); }
+.admin-app .footer-note { font-size: 0.8rem; color: var(--muted); }
+.admin-app .footer-note a { color: var(--muted); text-decoration: none; }
+.admin-app .footer-note a:hover { color: var(--ink); }
+.admin-app .footer-links { display: flex; gap: 1.5rem; }
+.admin-app .footer-links a { font-size: 0.8rem; color: var(--muted); text-decoration: none; }
+.admin-app .footer-links a:hover { color: var(--ink); }
 
 @keyframes lr-fadeUp {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.leadrosetta-app .hero > * { animation: lr-fadeUp 0.6s ease both; }
-.leadrosetta-app .hero > *:nth-child(1) { animation-delay: 0.05s; }
-.leadrosetta-app .hero > *:nth-child(2) { animation-delay: 0.15s; }
-.leadrosetta-app .hero > *:nth-child(3) { animation-delay: 0.25s; }
-.leadrosetta-app .hero > *:nth-child(4) { animation-delay: 0.35s; }
-.leadrosetta-app .hero > *:nth-child(5) { animation-delay: 0.4s; }
-.leadrosetta-app .hero > *:nth-child(6) { animation-delay: 0.45s; }
-.leadrosetta-app .hero > *:nth-child(7) { animation-delay: 0.5s; }
+.admin-app .hero > * { animation: lr-fadeUp 0.6s ease both; }
+.admin-app .hero > *:nth-child(1) { animation-delay: 0.05s; }
+.admin-app .hero > *:nth-child(2) { animation-delay: 0.15s; }
+.admin-app .hero > *:nth-child(3) { animation-delay: 0.25s; }
+.admin-app .hero > *:nth-child(4) { animation-delay: 0.35s; }
+.admin-app .hero > *:nth-child(5) { animation-delay: 0.4s; }
+.admin-app .hero > *:nth-child(6) { animation-delay: 0.45s; }
+.admin-app .hero > *:nth-child(7) { animation-delay: 0.5s; }
 
 /* Inner pages (try, upload, dashboard, etc.) — consistent width and padding */
-.leadrosetta-app .page-content {
+.admin-app .page-content {
   max-width: 1200px;
   margin: 0 auto;
   padding: 4rem 2.5rem;
@@ -1242,7 +1242,7 @@ body {
 /* ==========================================================================
    Dashboard (shadcn-style): sidebar + main, subtle borders, shadow-led cards
    ========================================================================== */
-.leadrosetta-app-dashboard {
+.admin-app-dashboard {
   --sidebar-width: 16rem;
   /* Softer divider lines to match shadcn themes (shadow over outline) */
   --dashboard-divider: color-mix(in oklch, var(--border) 45%, transparent);
@@ -1254,7 +1254,7 @@ body {
   color: var(--foreground);
   transition: --sidebar-width 0.2s ease;
 }
-.leadrosetta-app-dashboard .lr-dashboard-sidebar {
+.admin-app-dashboard .lr-dashboard-sidebar {
   width: var(--sidebar-width);
   flex-shrink: 0;
   height: 100%;
@@ -1266,11 +1266,11 @@ body {
   transition: width 0.2s ease;
   overflow: hidden;
 }
-.leadrosetta-app-dashboard .lr-dashboard-sidebar-header {
+.admin-app-dashboard .lr-dashboard-sidebar-header {
   padding: 1.25rem 1.5rem;
   border-bottom: 1px solid var(--dashboard-divider);
 }
-.leadrosetta-app-dashboard .lr-dashboard-sidebar-logo {
+.admin-app-dashboard .lr-dashboard-sidebar-logo {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -1281,16 +1281,16 @@ body {
   text-decoration: none;
   letter-spacing: -0.02em;
 }
-.leadrosetta-app-dashboard .lr-dashboard-sidebar-logo-img {
+.admin-app-dashboard .lr-dashboard-sidebar-logo-img {
   flex-shrink: 0;
   width: 1.75rem;
   height: 1.75rem;
   object-fit: contain;
 }
-.leadrosetta-app-dashboard .lr-dashboard-sidebar-logo span {
+.admin-app-dashboard .lr-dashboard-sidebar-logo span {
   font-weight: 600;
 }
-.leadrosetta-app-dashboard .lr-dashboard-sidebar-nav {
+.admin-app-dashboard .lr-dashboard-sidebar-nav {
   flex: 1;
   min-height: 0;
   padding: 0.75rem;
@@ -1298,7 +1298,7 @@ body {
   flex-direction: column;
   gap: 0.125rem;
 }
-.leadrosetta-app-dashboard .lr-dashboard-sidebar-link {
+.admin-app-dashboard .lr-dashboard-sidebar-link {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -1310,29 +1310,29 @@ body {
   border-radius: 0.375rem;
   transition: color 0.15s, background 0.15s;
 }
-.leadrosetta-app-dashboard .lr-dashboard-sidebar-link-icon {
+.admin-app-dashboard .lr-dashboard-sidebar-link-icon {
   flex-shrink: 0;
   width: 1.125rem;
   height: 1.125rem;
   opacity: 0.9;
   color: var(--primary);
 }
-.leadrosetta-app-dashboard .lr-dashboard-sidebar-link:hover {
+.admin-app-dashboard .lr-dashboard-sidebar-link:hover {
   color: var(--primary);
   background: var(--accent);
 }
-.leadrosetta-app-dashboard .lr-dashboard-sidebar-link:hover .lr-dashboard-sidebar-link-icon {
+.admin-app-dashboard .lr-dashboard-sidebar-link:hover .lr-dashboard-sidebar-link-icon {
   color: var(--primary);
 }
-.leadrosetta-app-dashboard .lr-dashboard-sidebar-link-active {
+.admin-app-dashboard .lr-dashboard-sidebar-link-active {
   color: var(--primary);
   font-weight: 600;
   background: var(--accent);
 }
-.leadrosetta-app-dashboard .lr-dashboard-sidebar-link-active .lr-dashboard-sidebar-link-icon {
+.admin-app-dashboard .lr-dashboard-sidebar-link-active .lr-dashboard-sidebar-link-icon {
   color: var(--primary);
 }
-.leadrosetta-app-dashboard .lr-dashboard-sidebar-footer {
+.admin-app-dashboard .lr-dashboard-sidebar-footer {
   padding: 1rem 1.5rem;
   border-top: 1px solid var(--dashboard-divider);
   display: flex;
@@ -1340,33 +1340,33 @@ body {
   gap: 0.5rem;
   position: relative;
 }
-.leadrosetta-app-dashboard .lr-dashboard-sidebar-bottom {
+.admin-app-dashboard .lr-dashboard-sidebar-bottom {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
 }
-.leadrosetta-app-dashboard .lr-dashboard-sidebar-plan {
+.admin-app-dashboard .lr-dashboard-sidebar-plan {
   font-size: 0.8125rem;
   font-weight: 600;
   color: var(--ink);
 }
-.leadrosetta-app-dashboard .lr-dashboard-sidebar-demos {
+.admin-app-dashboard .lr-dashboard-sidebar-demos {
   font-size: 0.8125rem;
   font-weight: 500;
   color: var(--sage);
 }
-.leadrosetta-app-dashboard .lr-dashboard-sidebar-upgrade {
+.admin-app-dashboard .lr-dashboard-sidebar-upgrade {
   font-size: 0.8125rem;
   font-weight: 500;
   color: var(--sage);
   text-decoration: none;
   transition: color 0.15s;
 }
-.leadrosetta-app-dashboard .lr-dashboard-sidebar-upgrade:hover {
+.admin-app-dashboard .lr-dashboard-sidebar-upgrade:hover {
   color: var(--primary);
   text-decoration: underline;
 }
-.leadrosetta-app-dashboard .lr-dashboard-sidebar-powered {
+.admin-app-dashboard .lr-dashboard-sidebar-powered {
   font-size: 0.75rem;
   color: var(--muted-foreground);
   text-decoration: none;
@@ -1375,17 +1375,17 @@ body {
   padding-top: 0.5rem;
   border-top: 1px solid var(--dashboard-divider);
 }
-.leadrosetta-app-dashboard .lr-dashboard-sidebar-powered:hover {
+.admin-app-dashboard .lr-dashboard-sidebar-powered:hover {
   color: var(--foreground);
 }
-.leadrosetta-app-dashboard .lr-dashboard-sidebar-email {
+.admin-app-dashboard .lr-dashboard-sidebar-email {
   font-size: 0.75rem;
   color: var(--muted-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.leadrosetta-app-dashboard .lr-dashboard-sidebar-rail {
+.admin-app-dashboard .lr-dashboard-sidebar-rail {
   position: absolute;
   top: 0;
   right: 0;
@@ -1405,18 +1405,18 @@ body {
   color: var(--muted-foreground);
   transition: color 0.15s, background 0.15s;
 }
-.leadrosetta-app-dashboard .lr-dashboard-sidebar-rail:hover {
+.admin-app-dashboard .lr-dashboard-sidebar-rail:hover {
   color: var(--foreground);
   background: var(--accent);
 }
-.leadrosetta-app-dashboard .lr-dashboard-sidebar-rail-icon {
+.admin-app-dashboard .lr-dashboard-sidebar-rail-icon {
   width: 1rem;
   height: 1rem;
   opacity: 0.9;
 }
 
 /* Settings sub-nav: same style as main sidebar menu */
-.leadrosetta-app-dashboard .lr-dashboard-settings-layout {
+.admin-app-dashboard .lr-dashboard-settings-layout {
   display: flex;
   min-height: 0;
   flex: 1;
@@ -1424,11 +1424,11 @@ body {
   gap: 0;
 }
 @media (min-width: 768px) {
-  .leadrosetta-app-dashboard .lr-dashboard-settings-layout {
+  .admin-app-dashboard .lr-dashboard-settings-layout {
     flex-direction: row;
   }
 }
-.leadrosetta-app-dashboard .lr-dashboard-settings-nav {
+.admin-app-dashboard .lr-dashboard-settings-nav {
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -1436,7 +1436,7 @@ body {
   padding: 0.75rem;
 }
 @media (max-width: 767px) {
-  .leadrosetta-app-dashboard .lr-dashboard-settings-nav {
+  .admin-app-dashboard .lr-dashboard-settings-nav {
     flex-direction: row;
     overflow-x: auto;
     overflow-y: hidden;
@@ -1445,17 +1445,17 @@ body {
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
   }
-  .leadrosetta-app-dashboard .lr-dashboard-settings-link {
+  .admin-app-dashboard .lr-dashboard-settings-link {
     white-space: nowrap;
     flex-shrink: 0;
   }
 }
 @media (min-width: 768px) {
-  .leadrosetta-app-dashboard .lr-dashboard-settings-nav {
+  .admin-app-dashboard .lr-dashboard-settings-nav {
     width: 14rem;
   }
 }
-.leadrosetta-app-dashboard .lr-dashboard-settings-link {
+.admin-app-dashboard .lr-dashboard-settings-link {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -1467,47 +1467,47 @@ body {
   border-radius: 0.375rem;
   transition: color 0.15s, background 0.15s;
 }
-.leadrosetta-app-dashboard .lr-dashboard-settings-link-icon {
+.admin-app-dashboard .lr-dashboard-settings-link-icon {
   flex-shrink: 0;
   width: 1.125rem;
   height: 1.125rem;
   opacity: 0.9;
   color: var(--primary);
 }
-.leadrosetta-app-dashboard .lr-dashboard-settings-link:hover {
+.admin-app-dashboard .lr-dashboard-settings-link:hover {
   color: var(--primary);
   background: var(--accent);
 }
-.leadrosetta-app-dashboard .lr-dashboard-settings-link:hover .lr-dashboard-settings-link-icon {
+.admin-app-dashboard .lr-dashboard-settings-link:hover .lr-dashboard-settings-link-icon {
   color: var(--primary);
 }
-.leadrosetta-app-dashboard .lr-dashboard-settings-link-active {
+.admin-app-dashboard .lr-dashboard-settings-link-active {
   color: var(--primary);
   font-weight: 600;
   background: var(--accent);
 }
-.leadrosetta-app-dashboard .lr-dashboard-settings-link-active .lr-dashboard-settings-link-icon {
+.admin-app-dashboard .lr-dashboard-settings-link-active .lr-dashboard-settings-link-icon {
   color: var(--primary);
 }
-.leadrosetta-app-dashboard .lr-dashboard-settings-link-label {
+.admin-app-dashboard .lr-dashboard-settings-link-label {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.leadrosetta-app-dashboard .lr-dashboard-settings-main {
+.admin-app-dashboard .lr-dashboard-settings-main {
   min-width: 0;
   flex: 1;
   overflow: auto;
   padding: 1rem 1rem 1.5rem;
 }
 @media (min-width: 768px) {
-  .leadrosetta-app-dashboard .lr-dashboard-settings-main {
+  .admin-app-dashboard .lr-dashboard-settings-main {
     padding: 1.5rem 1.5rem 2rem 1.5rem;
   }
 }
 
 /* Integrations nav: same as settings but with logo + optional status icon */
-.leadrosetta-app-dashboard .lr-dashboard-integrations-link {
+.admin-app-dashboard .lr-dashboard-integrations-link {
   border: none;
   background: none;
   cursor: pointer;
@@ -1516,11 +1516,11 @@ body {
   color: inherit;
   text-align: start;
 }
-.leadrosetta-app-dashboard .lr-dashboard-integrations-link .lr-dashboard-settings-link-label {
+.admin-app-dashboard .lr-dashboard-integrations-link .lr-dashboard-settings-link-label {
   flex: 1;
   min-width: 0;
 }
-.leadrosetta-app-dashboard .lr-dashboard-integrations-link-logo {
+.admin-app-dashboard .lr-dashboard-integrations-link-logo {
   flex-shrink: 0;
   width: 1.75rem;
   height: 1.75rem;
@@ -1531,23 +1531,23 @@ body {
   align-items: center;
   justify-content: center;
 }
-.leadrosetta-app-dashboard .lr-dashboard-integrations-link-logo-img {
+.admin-app-dashboard .lr-dashboard-integrations-link-logo-img {
   width: 100%;
   height: 100%;
   object-fit: contain;
 }
-.leadrosetta-app-dashboard .lr-dashboard-integrations-link-status {
+.admin-app-dashboard .lr-dashboard-integrations-link-status {
   flex-shrink: 0;
   width: 1.125rem;
   height: 1.125rem;
   opacity: 0.9;
   color: var(--muted-foreground);
 }
-.leadrosetta-app-dashboard .lr-dashboard-integrations-link-status-connected {
+.admin-app-dashboard .lr-dashboard-integrations-link-status-connected {
   color: var(--primary);
 }
 
-.leadrosetta-app-dashboard .lr-dashboard-main {
+.admin-app-dashboard .lr-dashboard-main {
   flex: 1;
   min-height: 0;
   display: flex;
@@ -1555,7 +1555,7 @@ body {
   overflow: hidden;
   position: relative;
 }
-.leadrosetta-app-dashboard .lr-dashboard-topnav {
+.admin-app-dashboard .lr-dashboard-topnav {
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -1566,13 +1566,13 @@ body {
   border-bottom: 1px solid var(--dashboard-divider);
   background: var(--background);
 }
-.leadrosetta-app-dashboard .lr-dashboard-topnav-left {
+.admin-app-dashboard .lr-dashboard-topnav-left {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   min-width: 0;
 }
-.leadrosetta-app-dashboard .lr-dashboard-sidebar-trigger {
+.admin-app-dashboard .lr-dashboard-sidebar-trigger {
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
@@ -1588,29 +1588,29 @@ body {
   cursor: pointer;
   transition: color 0.15s, background 0.15s;
 }
-.leadrosetta-app-dashboard .lr-dashboard-sidebar-trigger:hover {
+.admin-app-dashboard .lr-dashboard-sidebar-trigger:hover {
   color: var(--foreground);
   background: var(--accent);
 }
 /* Mobile: show hamburger/close; desktop: show collapse/expand */
-.leadrosetta-app-dashboard .lr-dashboard-menu-btn-mobile {
+.admin-app-dashboard .lr-dashboard-menu-btn-mobile {
   display: none;
 }
-.leadrosetta-app-dashboard .lr-dashboard-menu-btn-desktop {
+.admin-app-dashboard .lr-dashboard-menu-btn-desktop {
   display: inline-flex;
 }
 @media (max-width: 767px) {
-  .leadrosetta-app-dashboard .lr-dashboard-menu-btn-mobile {
+  .admin-app-dashboard .lr-dashboard-menu-btn-mobile {
     display: inline-flex;
   }
-  .leadrosetta-app-dashboard .lr-dashboard-menu-btn-desktop {
+  .admin-app-dashboard .lr-dashboard-menu-btn-desktop {
     display: none;
   }
-  .leadrosetta-app-dashboard .lr-dashboard-sidebar-rail {
+  .admin-app-dashboard .lr-dashboard-sidebar-rail {
     display: none;
   }
 }
-.leadrosetta-app-dashboard .lr-dashboard-breadcrumb {
+.admin-app-dashboard .lr-dashboard-breadcrumb {
   font-size: 0.8125rem;
   color: var(--muted-foreground);
   display: flex;
@@ -1618,30 +1618,30 @@ body {
   gap: 0.35rem;
   flex-wrap: wrap;
 }
-.leadrosetta-app-dashboard .lr-dashboard-breadcrumb a {
+.admin-app-dashboard .lr-dashboard-breadcrumb a {
   color: var(--primary);
   font-weight: 500;
   text-decoration: none;
   transition: color 0.15s;
 }
-.leadrosetta-app-dashboard .lr-dashboard-breadcrumb a:hover {
+.admin-app-dashboard .lr-dashboard-breadcrumb a:hover {
   color: var(--primary);
 }
-.leadrosetta-app-dashboard .lr-dashboard-breadcrumb-sep {
+.admin-app-dashboard .lr-dashboard-breadcrumb-sep {
   color: var(--border);
   user-select: none;
 }
-.leadrosetta-app-dashboard .lr-dashboard-breadcrumb-current {
+.admin-app-dashboard .lr-dashboard-breadcrumb-current {
   color: var(--foreground);
   font-weight: 500;
 }
-.leadrosetta-app-dashboard .lr-dashboard-topnav-right {
+.admin-app-dashboard .lr-dashboard-topnav-right {
   display: flex;
   align-items: center;
   gap: 1rem;
   flex-shrink: 0;
 }
-.leadrosetta-app-dashboard .lr-dashboard-topnav-user {
+.admin-app-dashboard .lr-dashboard-topnav-user {
   font-size: 0.8125rem;
   color: var(--foreground);
   max-width: 12rem;
@@ -1649,31 +1649,31 @@ body {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.leadrosetta-app-dashboard .lr-dashboard-topnav-logout {
+.admin-app-dashboard .lr-dashboard-topnav-logout {
   font-size: 0.8125rem;
   font-weight: 500;
   color: var(--primary);
   text-decoration: none;
   transition: color 0.15s;
 }
-.leadrosetta-app-dashboard .lr-dashboard-topnav-logout:hover {
+.admin-app-dashboard .lr-dashboard-topnav-logout:hover {
   color: var(--primary);
 }
-.leadrosetta-app-dashboard .lr-dashboard-theme-toggle {
+.admin-app-dashboard .lr-dashboard-theme-toggle {
   position: relative;
 }
-.leadrosetta-app-dashboard .lr-dashboard-theme-toggle .absolute {
+.admin-app-dashboard .lr-dashboard-theme-toggle .absolute {
   position: absolute;
   inset: 0;
   margin: auto;
 }
 /* Toasts (svelte-sonner) must appear above dropdowns (z-50) and modals */
-.leadrosetta-app-dashboard .toaster,
+.admin-app-dashboard .toaster,
 .toaster {
   z-index: 9999;
 }
 
-.leadrosetta-app-dashboard .lr-dashboard-main-content {
+.admin-app-dashboard .lr-dashboard-main-content {
   flex: 1;
   min-height: 0;
   overflow: auto;
@@ -1683,13 +1683,13 @@ body {
   background: color-mix(in oklch, var(--muted) 35%, var(--background));
 }
 @media (min-width: 768px) {
-  .leadrosetta-app-dashboard .lr-dashboard-main-content {
+  .admin-app-dashboard .lr-dashboard-main-content {
     padding: 1.5rem 2rem;
   }
 }
 
 /* Mobile: sidebar overlay (visible only when drawer is open) */
-.leadrosetta-app-dashboard .lr-dashboard-sidebar-overlay {
+.admin-app-dashboard .lr-dashboard-sidebar-overlay {
   display: none;
   position: fixed;
   inset: 0;
@@ -1700,13 +1700,13 @@ body {
   padding: 0;
 }
 @media (max-width: 767px) {
-  .leadrosetta-app-dashboard .lr-dashboard-sidebar-overlay {
+  .admin-app-dashboard .lr-dashboard-sidebar-overlay {
     display: block;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.2s ease;
   }
-  .leadrosetta-app-dashboard[data-sidebar-open="true"] .lr-dashboard-sidebar-overlay {
+  .admin-app-dashboard[data-sidebar-open="true"] .lr-dashboard-sidebar-overlay {
     opacity: 1;
     pointer-events: auto;
   }
@@ -1714,7 +1714,7 @@ body {
 
 /* Mobile: sidebar as off-canvas drawer; allow scroll so menu isn't cut off */
 @media (max-width: 767px) {
-  .leadrosetta-app-dashboard .lr-dashboard-sidebar {
+  .admin-app-dashboard .lr-dashboard-sidebar {
     position: fixed;
     top: 0;
     left: 0;
@@ -1730,21 +1730,21 @@ body {
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
-  .leadrosetta-app-dashboard[data-sidebar-open="true"] .lr-dashboard-sidebar {
+  .admin-app-dashboard[data-sidebar-open="true"] .lr-dashboard-sidebar {
     transform: translateX(0);
     box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
   }
-  .leadrosetta-app-dashboard .lr-dashboard-sidebar-footer {
+  .admin-app-dashboard .lr-dashboard-sidebar-footer {
     padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }
   /* On mobile ignore collapsed state for width */
-  .leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar {
+  .admin-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar {
     width: 16rem;
     max-width: 85vw;
   }
-  .leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-logo-text,
-  .leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-link-label,
-  .leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-bottom {
+  .admin-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-logo-text,
+  .admin-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-link-label,
+  .admin-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-bottom {
     width: auto;
     overflow: visible;
     opacity: 1;
@@ -1754,21 +1754,21 @@ body {
     padding: inherit;
     margin: inherit;
   }
-  .leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-link {
+  .admin-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-link {
     justify-content: flex-start;
     padding: 0.5rem 0.75rem;
   }
-  .leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-nav {
+  .admin-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-nav {
     align-items: stretch;
     padding: 0.75rem;
   }
-  .leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-header {
+  .admin-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-header {
     justify-content: flex-start;
   }
-  .leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-logo {
+  .admin-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-logo {
     justify-content: flex-start;
   }
-  .leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-footer {
+  .admin-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-footer {
     padding: 1rem 1.5rem;
     align-items: stretch;
   }
@@ -1776,25 +1776,25 @@ body {
 
 /* Mobile: topnav adjustments */
 @media (max-width: 767px) {
-  .leadrosetta-app-dashboard .lr-dashboard-topnav {
+  .admin-app-dashboard .lr-dashboard-topnav {
     padding: 0 0.5rem 0 0.5rem;
     gap: 0.5rem;
     min-height: 3rem;
   }
-  .leadrosetta-app-dashboard .lr-dashboard-breadcrumb {
+  .admin-app-dashboard .lr-dashboard-breadcrumb {
     font-size: 0.75rem;
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .leadrosetta-app-dashboard .lr-dashboard-topnav-user {
+  .admin-app-dashboard .lr-dashboard-topnav-user {
     max-width: 6rem;
     font-size: 0.75rem;
   }
-  .leadrosetta-app-dashboard .lr-dashboard-topnav-right {
+  .admin-app-dashboard .lr-dashboard-topnav-right {
     gap: 0.5rem;
   }
-  .leadrosetta-app-dashboard .lr-dashboard-topnav-logout {
+  .admin-app-dashboard .lr-dashboard-topnav-logout {
     font-size: 0.75rem;
   }
 }
@@ -1826,51 +1826,51 @@ body {
 }
 
 /* Dashboard page: layout only (no shadcn overrides; use shadcn Card, Table, Button as-is) */
-.leadrosetta-app-dashboard .lr-dash-page {
+.admin-app-dashboard .lr-dash-page {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
 /* Collapsed state: icon-only sidebar (shadcn-style) */
-.leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-logo-img {
+.admin-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-logo-img {
   width: 1.5rem;
   height: 1.5rem;
 }
-.leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-logo-text {
+.admin-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-logo-text {
   overflow: hidden;
   width: 0;
   opacity: 0;
   white-space: nowrap;
   pointer-events: none;
 }
-.leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-header {
+.admin-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-header {
   padding: 1rem;
   justify-content: center;
 }
-.leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-logo {
+.admin-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-logo {
   justify-content: center;
 }
-.leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-link-label {
+.admin-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-link-label {
   overflow: hidden;
   width: 0;
   opacity: 0;
   white-space: nowrap;
   pointer-events: none;
 }
-.leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-link {
+.admin-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-link {
   justify-content: center;
   padding: 0.5rem;
 }
-.leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-nav {
+.admin-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-nav {
   padding: 0.75rem 0.5rem;
   align-items: center;
 }
-.leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-footer {
+.admin-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-footer {
   padding: 1rem 0.5rem;
   align-items: center;
 }
-.leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-bottom {
+.admin-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-bottom {
   overflow: hidden;
   width: 0;
   height: 0;
@@ -1915,7 +1915,7 @@ body {
 }
 /* Page containers: prevent horizontal overflow on mobile */
 @media (max-width: 767px) {
-  .leadrosetta-app-dashboard .lr-dash-page {
+  .admin-app-dashboard .lr-dash-page {
     min-width: 0;
   }
 }
@@ -2043,13 +2043,13 @@ body {
 }
 
 @media (max-width: 768px) {
-  .leadrosetta-app-dashboard {
+  .admin-app-dashboard {
     flex-direction: column;
     height: auto;
     min-height: 100vh;
     overflow: visible;
   }
-  .leadrosetta-app-dashboard .lr-dashboard-sidebar {
+  .admin-app-dashboard .lr-dashboard-sidebar {
     width: 100%;
     height: auto;
     min-height: 0;
@@ -2059,60 +2059,60 @@ body {
     border-bottom: 1px solid var(--border);
     overflow: visible;
   }
-  .leadrosetta-app-dashboard .lr-dashboard-sidebar-header {
+  .admin-app-dashboard .lr-dashboard-sidebar-header {
     border-bottom: none;
   }
-  .leadrosetta-app-dashboard .lr-dashboard-sidebar-nav {
+  .admin-app-dashboard .lr-dashboard-sidebar-nav {
     flex: 0;
     flex-direction: row;
   }
-  .leadrosetta-app-dashboard .lr-dashboard-sidebar-footer {
+  .admin-app-dashboard .lr-dashboard-sidebar-footer {
     margin-left: auto;
     border-top: none;
     flex-direction: row;
     align-items: center;
   }
-  .leadrosetta-app-dashboard .lr-dashboard-sidebar-rail {
+  .admin-app-dashboard .lr-dashboard-sidebar-rail {
     display: none;
   }
-  .leadrosetta-app-dashboard .lr-dashboard-sidebar-trigger {
+  .admin-app-dashboard .lr-dashboard-sidebar-trigger {
     display: none;
   }
-  .leadrosetta-app-dashboard .lr-dashboard-main {
+  .admin-app-dashboard .lr-dashboard-main {
     min-height: 0;
     overflow: visible;
   }
-  .leadrosetta-app-dashboard .lr-dashboard-main-content {
+  .admin-app-dashboard .lr-dashboard-main-content {
     overflow: visible;
     padding: 1rem 1.25rem;
   }
-  .leadrosetta-app-dashboard .lr-dashboard-topnav {
+  .admin-app-dashboard .lr-dashboard-topnav {
     padding: 0.5rem 1rem;
   }
   /* On mobile, always show full labels (ignore collapsed state) */
-  .leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-logo-img {
+  .admin-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-logo-img {
     width: 1.75rem;
     height: 1.75rem;
   }
-  .leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-logo-text {
+  .admin-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-logo-text {
     width: auto;
     opacity: 1;
   }
-  .leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-link-label {
+  .admin-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-link-label {
     width: auto;
     opacity: 1;
   }
-  .leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-link {
+  .admin-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-link {
     justify-content: flex-start;
   }
-  .leadrosetta-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-footer {
+  .admin-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-footer {
     align-items: flex-start;
   }
 }
 
 @media (max-width: 768px) {
-  .leadrosetta-app .nav-links { display: none; }
-  .leadrosetta-app .landing-nav-menu-btn { display: flex; }
+  .admin-app .nav-links { display: none; }
+  .admin-app .landing-nav-menu-btn { display: flex; }
 }
 
 body.lr-nav-mobile-open {
@@ -2120,14 +2120,14 @@ body.lr-nav-mobile-open {
 }
 
 @media (max-width: 700px) {
-  .leadrosetta-app .two-col { grid-template-columns: 1fr; gap: 2rem; }
-  .leadrosetta-app .pricing-grid { grid-template-columns: 1fr; }
-  .leadrosetta-app .who-grid { grid-template-columns: 1fr 1fr; }
-  .leadrosetta-app .landing-nav { padding: 1rem 1.25rem; }
-  .leadrosetta-app .section { padding: 4rem 1.25rem; }
-  .leadrosetta-app .hero { padding: 4rem 1.25rem 3rem; }
-  .leadrosetta-app .hero-note { padding-left: 1.25rem; padding-right: 1.25rem; }
-  .leadrosetta-app .landing-footer { flex-direction: column; gap: 1rem; text-align: center; }
-  .leadrosetta-app .step-arrow { display: none; }
-  .leadrosetta-app .page-content { padding: 2rem 1.25rem; }
+  .admin-app .two-col { grid-template-columns: 1fr; gap: 2rem; }
+  .admin-app .pricing-grid { grid-template-columns: 1fr; }
+  .admin-app .who-grid { grid-template-columns: 1fr 1fr; }
+  .admin-app .landing-nav { padding: 1rem 1.25rem; }
+  .admin-app .section { padding: 4rem 1.25rem; }
+  .admin-app .hero { padding: 4rem 1.25rem 3rem; }
+  .admin-app .hero-note { padding-left: 1.25rem; padding-right: 1.25rem; }
+  .admin-app .landing-footer { flex-direction: column; gap: 1rem; text-align: center; }
+  .admin-app .step-arrow { display: none; }
+  .admin-app .page-content { padding: 2rem 1.25rem; }
 }

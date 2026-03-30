@@ -8,6 +8,6 @@ import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params }) => {
 	const id = params.id;
-	if (!id) throw redirect(302, '/');
+	if (!id) throw redirect(302, '/auth/login');
 	throw redirect(302, `/demo/${id}`);
 };
