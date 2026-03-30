@@ -47,7 +47,7 @@ const SUPABASE_STORAGE_PREFIX = "demo-html";
 const DEMOS_DIR = resolve(__dirname, "demos");
 const OUTPUT_DIR = resolve(__dirname, "output");
 
-const DEBUG = /^(1|true|yes|website-template|pitch-rosetta)$/i.test((process.env.DEBUG ?? "").trim());
+const DEBUG = /^(1|true|yes|website-template)$/i.test((process.env.DEBUG ?? "").trim());
 function debug(...args) {
   if (DEBUG) console.log("[website-template]", ...args);
 }

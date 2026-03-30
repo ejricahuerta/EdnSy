@@ -13,7 +13,6 @@ export interface Env {
 	CRON_SECRET: string;
 	CRON_TARGET_URL: string;
 	WEBSITE_TEMPLATE_URL?: string;
-	PITCH_ROSETTA_URL?: string;
 }
 
 async function callCron(url: string, secret: string): Promise<{ ok: boolean; status: number; text: string }> {
@@ -65,8 +64,8 @@ export default {
 
 		// Every 14 min: Website Template warm (minute 0, 14, 28, 42, 56 UTC)
 		if (minute % 14 === 0) {
-			const pitchBase = (env.WEBSITE_TEMPLATE_URL ?? env.PITCH_ROSETTA_URL ?? "https://website-template.ednsy.com").replace(/\/$/, "");
-			const r = await pingHealth(`${pitchBase}/api/health`);
+			const websiteTemplateBase = (env.WEBSITE_TEMPLATE_URL ?? "https://website-template.ednsy.com").replace(/\/$/, "");
+			const r = await pingHealth(`${websiteTemplateBase}/api/health`);
 			console.log(`[cron-worker] website-template: ${r.status} ${r.ok ? "ok" : r.text}`);
 		}
 	},

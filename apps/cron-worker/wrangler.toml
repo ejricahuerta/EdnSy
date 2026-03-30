@@ -11,6 +11,6 @@ WEBSITE_TEMPLATE_URL = "https://website-template-68wq.onrender.com"
 
 [triggers]
 # Single trigger to stay within Cloudflare Free "Cron Triggers per account" (5). Handler runs every minute and
-# dispatches GBP (*/2), insights (*/3), batch (*/5), pitch ping (*/14) by UTC minute — same as separate crons.
+# dispatches GBP (*/2), insights (*/3), batch (*/5), website-template health (*/14) by UTC minute — same as separate crons.
 # See: https://developers.cloudflare.com/workers/platform/limits/#account-plan-limits
 crons = ["*/1 * * * *"]
