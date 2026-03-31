@@ -2,7 +2,7 @@
 
 SvelteKit app for the Ed & Sy Admin CRM: Pro/Agency dashboard (prospects from connected CRM), industry demo pages, and (later) generate-demo + Resend email flow.
 
-**Version:** See `package.json` (`version`). History and release notes: [CHANGELOG.md](CHANGELOG.md). Versioning policy: [docs/VERSION.md](docs/VERSION.md).
+**Version:** See `package.json` (`version`). History and release notes: [docs/CHANGELOG.md](docs/CHANGELOG.md). Versioning policy: [docs/VERSION.md](docs/VERSION.md).
 
 ## Stack
 
@@ -13,7 +13,7 @@ SvelteKit app for the Ed & Sy Admin CRM: Pro/Agency dashboard (prospects from co
 
 ## Architecture
 
-Core engines (Demo, Insights, GBP, Prospects, Send, Auth, CRM, Billing, Supabase, User settings) and lib layout are documented in **[docs/architecture.md](docs/architecture.md)**. Use `$lib/demo`, `$lib/insights`, `$lib/server/demo`, and `$lib/server/insights` as the main entry points for demo and insight features.
+Technology stack, request lifecycle, Website Template integration, core engines (Demo, Insights, GBP, Prospects, Send, Auth, CRM, Billing, Supabase, User settings), and `$lib` layout are documented in **[docs/architecture.md](docs/architecture.md)**. API route conventions: **[docs/api-conventions.md](docs/api-conventions.md)**. Use `$lib/demo`, `$lib/insights`, `$lib/server/demo`, and `$lib/server/insights` as the main entry points for demo and insight features.
 
 ## Setup
 
@@ -148,12 +148,14 @@ If you see "an empty prospects list" on Vercel, connect at least one integration
 
 ## Routes
 
-- `/` - Ed & Sy Admin home
-- `/dashboard` - Pro & Agency dashboard (prospects from connected CRM); **requires Google sign-in**
-- `/prospects` - redirects to `/dashboard` (legacy URL)
-- `/auth/login` - sign-in page (link to Google)
-- `/auth/google` - starts Google OAuth (redirect)
-- `/auth/logout` - clears session and redirects to `/`
-- `/dashboard/billing` - plan and upgrade (Stripe Checkout); manage subscription (Stripe Customer Portal) when applicable
-- `/healthcare/[id]` - healthcare demo (prospect id from connected CRM)
-- `/dental/[id]` - dental demo (prospect id); more industry routes to be added
+- `/` - Ed & Sy Admin home (marketing-style landing for the product)
+- `/try` - free-tier try flow (one demo per month rules via cookie)
+- `/upload` - CSV upload (Starter+)
+- `/show` - internal client lookup / demo tool (Ed & Sy)
+- `/dashboard` - dashboard (prospects, demos, integrations, billing); **requires Google sign-in**
+- `/auth/login` - sign-in (Google)
+- `/auth/google` - starts Google OAuth
+- `/auth/logout` - clears session
+- `/dashboard/billing` - Stripe Checkout and Customer Portal (when configured)
+- `/demo/[industrySlug]/[id]` - industry demo page (e.g. `healthcare`, `construction`; `id` from CRM or `demo` for cookie-based free demo)
+- `/demo/[slug]` - single-demo viewer and related demo HTML routes
