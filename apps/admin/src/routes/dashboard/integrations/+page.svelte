@@ -435,7 +435,8 @@
 											{#if notionEditDatabases.length > 0}
 												<Select.Root type="single" bind:value={editValues.databaseId}>
 													<Select.Trigger id="notion-database-edit" class="w-full font-mono text-sm">
-														<Select.Value placeholder="Select a database" />
+														{notionEditDatabases.find((d) => d.id === editValues.databaseId)?.title ??
+															(editValues.databaseId?.trim() ? editValues.databaseId : 'Select a database')}
 													</Select.Trigger>
 													<Select.Content>
 														{#each notionEditDatabases as db (db.id)}
@@ -717,7 +718,8 @@
 									{#if notionDatabases.length > 0}
 										<Select.Root type="single" bind:value={selectedNotionDatabaseId}>
 											<Select.Trigger id="notion-database-select" class="w-full font-mono text-sm">
-												<Select.Value placeholder="Select a database" />
+												{notionDatabases.find((d) => d.id === selectedNotionDatabaseId)?.title ??
+													(selectedNotionDatabaseId?.trim() ? selectedNotionDatabaseId : 'Select a database')}
 											</Select.Trigger>
 											<Select.Content>
 												{#each notionDatabases as db (db.id)}

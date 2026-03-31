@@ -1,14 +1,10 @@
-import { env } from '$env/dynamic/private';
-import { PUBLIC_SUPABASE_ANON_KEY, PUBLIC_SUPABASE_URL } from '$env/static/public';
+import { env as privateEnv } from '$env/dynamic/private';
+import { env as publicEnv } from '$env/dynamic/public';
 
-/**
- * Project URL + anon key for Supabase Auth, SSR cookies, and browser Realtime.
- * Prefer `PUBLIC_SUPABASE_*` in `.env` (required for client bundle if you skip layout fallback).
- * Server also accepts `SUPABASE_URL` + `SUPABASE_ANON_KEY` so existing server-only setups work.
- */
+/** URL + anon key for Supabase (PUBLIC_* or SUPABASE_* fallbacks). Dynamic env avoids static import errors when vars are runtime-only. */
 export function getSupabasePublicConfig(): { url: string; anonKey: string } | null {
-	const url = (PUBLIC_SUPABASE_URL || env.SUPABASE_URL || '').trim();
-	const anonKey = (PUBLIC_SUPABASE_ANON_KEY || env.SUPABASE_ANON_KEY || '').trim();
+	const url = (publicEnv.PUBLIC_SUPABASE_URL || privateEnv.SUPABASE_URL || '').trim();
+	const anonKey = (publicEnv.PUBLIC_SUPABASE_ANON_KEY || privateEnv.SUPABASE_ANON_KEY || '').trim();
 	if (!url || !anonKey) return null;
 	return { url, anonKey };
 }
