@@ -1,8 +1,33 @@
 # Ed & Sy Admin App — Architecture
 
-This document describes the **core engines** of the app and how the **lib** is organized. Use it when onboarding, refactoring, or adding features.
+This document describes the **technology stack**, **core engines**, **data flow**, and how **`$lib`** is organized. Use it when onboarding, refactoring, or adding features.
 
 **Last updated:** March 2026
+
+---
+
+## Technology stack
+
+| Layer | Choices |
+|-------|---------|
+| Framework | **SvelteKit 2** (Vite), **Svelte 5** (runes), **TypeScript** |
+| Styling | **Tailwind CSS v4** (`@tailwindcss/vite`), component tokens via shadcn-svelte on **dashboard routes only** |
+| Package manager | **pnpm** (see root / `apps/admin` `packageManager`) |
+| Adapter | `@sveltejs/adapter-auto` (typical deploy: **Vercel** with Root Directory `apps/admin`) |
+| Database / auth (browser) | **Supabase** — `@supabase/ssr` in `src/hooks.server.ts` creates a per-request server client; **PUBLIC_SUPABASE_URL** + **PUBLIC_SUPABASE_ANON_KEY** are required at startup |
+| Database (server) | **Supabase** service role for jobs, prospects, `demo_tracking`, CRM connections, etc. (`$lib/server/supabase`) |
+| Dashboard sign-in | **Google OAuth** via `$lib/server/googleAuth` (not Supabase-hosted OAuth redirect); after sign-in, server uses **`signInWithIdToken`** so the browser Supabase client can use Realtime under RLS |
+| Payments | **Stripe** — checkout, portal, webhooks (`$lib/server/stripe`, `/api/stripe/*`) |
+| Email / SMS | **Resend**, optional **Gmail** OAuth, **Twilio** (optional) via `$lib/server/send` |
+| AI | **Gemini** (insights, copy), **Claude** (inline HTML demos), optional **Retell** for voice callback |
+| GBP data | **Google Places API** (`$lib/server/placesApi`, `$lib/server/gbp.ts`), not DataForSEO in current code |
+| Background work | **Demo / GBP / insights jobs** in Postgres; processing triggered by **`/api/cron/*`** (Bearer **CRON_SECRET**) or **`POST /api/jobs/*`**; optional **Cloudflare Worker** in `apps/cron-worker` to hit cron routes on a schedule |
+
+### Monorepo context
+
+- **`apps/landing`** — public marketing site (separate SvelteKit app).
+- **`apps/website-template`** — Node **Express** service that generates landing HTML for **paid** demo jobs; Admin calls it asynchronously and receives results on **`/api/demo/generation-callback`**. See [demo-payload-website-template.md](demo-payload-website-template.md) and `apps/website-template/docs/architecture.md`.
+- **`apps/cron-worker`** — optional scheduler for Admin cron endpoints.
 
 ---
 
@@ -14,7 +39,7 @@ The app is built around these functional areas. Each has a clear responsibility 
 |--------|----------------|------------------|
 | **Demo** | Build, store, and serve personalized demo pages (themes, page.json, tracking, free-demo flow). | `$lib/demo`, `$lib/server/demo` |
 | **Insights** | AI-generated business assessment (grade, summary, recommendations, audit modal copy, industry inference). | `$lib/insights`, `$lib/server/insights` |
-| **GBP** | Google Business Profile data: fetch via DataForSEO, shape scraped data for demos and audit. | `$lib/server/gbp` |
+| **GBP** | Google Business Profile data: fetch via **Google Places API**, shape scraped data for demos and audit. | `$lib/server/gbp`, `$lib/server/placesApi` |
 | **Prospects** | Lead/prospect lifecycle: CRUD, flagging, sync from CRM, demo link and status. | `$lib/server/prospects` |
 | **Send** | Outbound email (Resend/Gmail) and SMS (Twilio); templates and body builders. | `$lib/server/send` |
 | **Auth** | Who is signed in: session, Google/Gmail OAuth, Gmail tokens. | `$lib/server/session`, `$lib/server/googleAuth`, `$lib/server/gmailAuth`, `$lib/server/gmail` |
@@ -30,6 +55,21 @@ The app is built around these functional areas. Each has a clear responsibility 
 - **Demo** → builds and serves the demo; **Send** → emails/SMS the link.
 - **Supabase** → stores tracking, jobs, scraped_data, settings.
 - **Billing** + **Plans** → what the user is allowed (demos/month, send, etc.).
+
+### Request lifecycle (simplified)
+
+1. **`hooks.server.ts`** — Ensures Supabase URL + anon key exist; attaches `event.locals.supabase` and `getSession()` for SSR and Realtime-aligned cookies.
+2. **`+layout.server.ts`** (root) — Loads session user for Google dashboard auth and **`getPlanForUser`** (Stripe) where applicable.
+3. **Protected routes** — e.g. `src/lib/server/authDashboard.ts` patterns for `/dashboard/*`.
+
+### Paid demo generation and Website Template
+
+- **Queue:** `demo_jobs` rows processed by **`processOneDemoJob`** in `$lib/server/processDemoJob.ts` (invoked from **`POST /api/jobs/demo`** and cron **`GET /api/cron/jobs/demo`**).
+- **Requirement:** Env **`DEMO_GENERATOR_URL`**, **`DEMO_GENERATOR_API_KEY`**, **`DEMO_CALLBACK_SECRET`**. If any are missing, paid jobs fail fast with a clear error (no in-process HTML substitute).
+- **HTTP:** Admin POSTs to **`{DEMO_GENERATOR_URL}/api/dental-async`** (see `getDemoGeneratorEndpoint` in `processDemoJob.ts`; industry-specific routing to `/api/generate-async` may be added later).
+- **Callback:** Website Template POSTs to **`/api/demo/generation-callback`** with **`Authorization: Bearer <DEMO_CALLBACK_SECRET>`**; Admin updates prospect demo link, storage, and job status.
+
+Free-tier and some inline flows may use **Claude** HTML generation in-app (`$lib/server` demo helpers) without the external service; see README and PRD for env matrix.
 
 ---
 
@@ -63,11 +103,11 @@ This keeps a single source of truth and avoids circular dependencies.
 
 ## 3. Key flows
 
-### Qualifying (GBP) → Generate demo
+### Qualifying (GBP) → Generate demo (dashboard / paid path)
 
-1. **Qualifying (GBP)** runs (cron or user action): fetches GBP, grades with AI, stores `scraped_data` in `demo_tracking` and moves prospect to "Generate Demo".
-2. User clicks **Generate demo** → a job is enqueued; `processOneDemoJob` runs. It uses **only** existing `scraped_data` from the qualifying step. If none is present, the job fails with "Complete the qualifying (GBP) step first."
-3. Demo job builds page.json (theme, landing content, images), uploads to storage, updates prospect `demoLink` and `demo_tracking`.
+1. **Qualifying (GBP)** runs (cron or user action): fetches GBP via Places, stores **`scraped_data`** on the prospect / `demo_tracking`, runs insights as configured.
+2. User clicks **Generate demo** → a **`demo_jobs`** row is processed; **`processOneDemoJob`** uses **only** existing scraped data. If none is present, the job fails until qualifying completes.
+3. **Paid path:** Payload is built (`transformToWebsiteTemplatePayload`), sent to **Website Template** async endpoint; on callback, demo URL and artifacts are persisted. **Legacy / alternate:** some demos still use page JSON + Svelte industry templates or Claude HTML in storage; the PRD describes convergence on generated HTML where applicable.
 
 ### Send email
 
@@ -85,6 +125,9 @@ This keeps a single source of truth and avoids circular dependencies.
 ## 5. Related docs
 
 - [PRD](prd.md) — product scope and requirements.
+- [API conventions](api-conventions.md) — `/api/*` patterns, cron and Stripe auth.
+- [Demo payload → Website Template](demo-payload-website-template.md) — JSON contract for the generator service.
 - [Next steps (first send)](next-steps-first-send.md) — checklist for sending the first email.
 - [Integrations](integrations/) — HubSpot, GoHighLevel, Pipedrive, Notion.
 - [VERSION.md](VERSION.md) — versioning policy.
+- [README](../README.md) — env vars, migrations list, route map.

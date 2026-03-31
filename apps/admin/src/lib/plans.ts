@@ -26,8 +26,8 @@ export const PLAN_LABELS: Record<PlanTier, string> = {
 };
 
 /**
- * Resolve plan for the current user. No billing yet: signed-in = starter, else free.
- * When Stripe is integrated, read subscription to return 'starter' | 'pro' | 'teams' (Agency).
+ * Client-side fallback only. Server routes should use getPlanForUser from $lib/server/stripe
+ * (reads Stripe subscription + @ednsy.com internal override).
  */
 export function getPlanTier(user: { id: string; email: string } | null): PlanTier {
 	return user ? 'starter' : 'free';

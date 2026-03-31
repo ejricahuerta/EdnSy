@@ -6,6 +6,8 @@
 **Last Updated:** March 2026
 **Changes from v0.1:** Positioning expanded, pricing restructured, data stack updated, bulletproofing measures added, distribution plan added, competitive landscape added.
 
+**Implementation snapshot (apps/admin, March 2026):** The SvelteKit app ships Google OAuth, Supabase-backed prospects and demo tracking, CRM integrations (HubSpot, GoHighLevel, Pipedrive, Notion), Stripe subscriptions (`getPlanForUser`), dashboard review queue with confidence scores, email/SMS template flows, insights and demo jobs (Places/Gemini/Claude paths per env), and billing portal. Industry-hosted demos are served under `/demo/[industrySlug]/[id]` (and related `/demo/[slug]` routes). Remaining gaps vs this PRD include CSV AI mapping (F2), guided onboarding (Section 5.4), deliverability checklist (F7), on-demand refresh (F6), and compliance items in Section 12 (Termly, signup checkbox, unsubscribe link polish). Task list: `apps/admin/tasks/tasks.json`.
+
 ---
 
 ## 1. Overview
@@ -689,22 +691,22 @@ GHL users are the ideal customer: web/SEO agencies, existing outreach budgets ($
 
 ## 12. Pre-Launch Checklist
 
-Must be complete before first paying user:
+Must be complete before first paying user. Status reflects the codebase as of March 2026:
 
-- [ ] Switch data source from Yellow Pages to DataForSEO + ScrapingBee stack
-- [ ] Implement data confidence scoring (F1a)
-- [ ] Build pain modal on demo pages (F1b)
-- [ ] Build sticky CTA bar on demo pages (F1b)
-- [ ] Make review & approve a hard gate (F3)
-- [ ] Add disclaimer on every generated demo
-- [ ] Build email template section (F4)
+- [x] Switch data source from Yellow Pages to DataForSEO + ScrapingBee stack (waterfall in app; Yellow Pages not primary)
+- [x] Implement data confidence scoring (F1a)
+- [x] Build pain modal on demo pages (F1b)
+- [x] Build sticky CTA bar on demo pages (F1b)
+- [x] Make review & approve a hard gate (F3)
+- [x] Add disclaimer on every generated demo (where applicable in flow)
+- [x] Build email template section (F4)
 - [ ] Add deliverability pre-send checklist (F7)
 - [ ] Build 3-step onboarding flow (Section 5.4)
-- [ ] Generate ToS + Privacy Policy via Termly.io
+- [ ] Generate ToS + Privacy Policy via Termly.io (static legal pages exist; Termly embed TBD)
 - [ ] Add compliance checkbox on signup
 - [ ] Add unsubscribe link to every demo page
-- [ ] Remove "data never stored" claim for paid tier users
-- [ ] Remove Agency waitlist — replace with "Contact us" CTA
+- [ ] Remove "data never stored" claim for paid tier users (copy audit)
+- [x] Remove Agency waitlist — replace with "Contact us" CTA
 - [ ] Update landing page copy (v2 copy doc)
 
 ---

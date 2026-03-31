@@ -1,5 +1,7 @@
 # Ed & Sy Digital Agency: AI-Powered Solutions for Small to Medium Businesses
 
+**Document status:** Strategy and positioning PRD. **Last aligned with codebase:** March 2026. The public marketing site is implemented in **`apps/landing`** (SvelteKit): homepage, services, case studies, blog, contact, industries, and local SEO pages. The interactive demo and paid product live in **`apps/admin`** (Ed & Sy Admin), not this app.
+
 ---
 
 ## Executive Summary

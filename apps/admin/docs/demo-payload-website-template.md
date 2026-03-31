@@ -1,9 +1,10 @@
 # Demo payload contract: Ed & Sy Admin to Website Template
 
-When Ed & Sy Admin creates a paid demo, it sends a structured JSON payload to the Website Template service. The **endpoint is chosen by industry**:
+When Ed & Sy Admin creates a paid demo, it sends a structured JSON payload to the Website Template service.
 
-- **Dental** → `POST /api/dental-async` (template render; callback includes `html`).
-- **All other industries** → `POST /api/generate-async` (AI full generation; callback includes `publicUrl` or `html`).
+**Endpoint (current code, March 2026):** `processDemoJob` posts to **`POST /api/dental-async`** for all industries (`getDemoGeneratorEndpoint` in `src/lib/server/processDemoJob.ts`). The service responds **202** and later POSTs to the Admin **generation callback** with HTML (and optional `publicUrl` depending on path).
+
+**Future / alternate:** The Website Template app also exposes **`POST /api/generate-async`** (Claude branding → plan → full HTML). To route non-dental industries there again, extend `getDemoGeneratorEndpoint` (and keep payload/callback contracts aligned). See `apps/website-template/docs/architecture.md`.
 
 The payload conforms to the **index.json** shape expected by Website Template so the generator can render the landing page correctly.
 
@@ -38,6 +39,6 @@ The exact shape is aligned with these Website Template index files:
 
 - **Type:** `WebsiteTemplatePayload` in `src/lib/types/websiteTemplatePayload.ts`
 - **Builder:** `transformToWebsiteTemplatePayload()` in `src/lib/server/transformToWebsiteTemplatePayload.ts` converts built and enriched `LandingPageIndexJson` (from GBP + prospect + insight) into this shape, with hours normalized to day keys, dental-specific fields (coverage, insurance, acceptingNewPatients), and testimonials mapped to { author, quote, rating }.
-- **Usage:** `processDemoJob` builds and enriches the landing JSON, then calls the transformer and sends the result plus callback meta to Website Template. The industry slug (e.g. `dental`) determines which endpoint is used; see `DEMO_GENERATOR_ENDPOINT_BY_INDUSTRY` in `processDemoJob.ts`. To add another industry-specific endpoint, add an entry there and implement the route in website-template.
+- **Usage:** `processOneDemoJob` builds and enriches the landing JSON, then calls the transformer and sends the result plus callback meta to Website Template. Endpoint selection is **`getDemoGeneratorEndpoint()`** in `processDemoJob.ts` (currently always `/api/dental-async`). To add `/api/generate-async` for selected industries, change that helper and test callbacks end-to-end.
 
 Content that is missing from GBP and insights is filled with industry defaults and, where applicable, AI-generated copy (e.g. tagline, hero, about, services) via `enrichWebsiteTemplateCopy` before transformation.

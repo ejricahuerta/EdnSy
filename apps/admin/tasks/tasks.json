@@ -80,14 +80,14 @@
       },
       {
         "id": 7,
-        "title": "Dashboard and prospects from Notion",
-        "description": "Pro/Starter dashboard: list prospects from Notion, create demo (store demo link), copy link, open mailto/sms with demo link. CSV export.",
+        "title": "Dashboard and prospects (Supabase + CRM)",
+        "description": "Pro/Starter dashboard: list prospects synced from connected CRM or manual add, create demo (store demo link), copy link, open mailto/sms with demo link. CSV export.",
         "status": "done",
         "priority": "high",
         "dependencies": [
           4
         ],
-        "details": "Dashboard loads prospects via Notion API. Create demo action builds URL origin/{slug}/{prospectId}, updates Notion Demo Link. Copy link, mailto:, sms: with demo body. Data table with shadcn; CSV export. Dashboard uses shadcn only (per lead-rosetta-shadcn-scope).",
+        "details": "Dashboard loads prospects from Supabase (provider + provider_row_id) after sync from HubSpot, GoHighLevel, Pipedrive, or Notion; users can add test clients without CRM. Create demo action builds hosted demo URL; status and tracking stored in app DB. Copy link, mailto:, sms: with demo body. Data table with shadcn; CSV export. Dashboard uses shadcn only (per marketing-shadcn-scope).",
         "testStrategy": "Sign in → dashboard shows Notion prospects; create demo → link appears; copy and mailto/sms work.",
         "subtasks": []
       },
@@ -211,14 +211,14 @@
       {
         "id": 17,
         "title": "Stripe payments and Pro subscription",
-        "description": "Stripe integration for Starter ($49), Pro ($99), and Agency ($299). Subscribe → set plan tier; cancel → downgrade.",
-        "status": "in-progress",
+        "description": "Stripe integration for Starter, Growth, and Agency per PRD pricing. Checkout → subscription; webhook updates plan tier; Customer Portal for manage/cancel.",
+        "status": "done",
         "priority": "high",
         "dependencies": [
           8,
           16
         ],
-        "details": "Checkout for Pro; webhook for subscription created/cancelled. Store subscription status; map to plan tier in app.",
+        "details": "Implemented: /api/stripe/checkout, /api/stripe/webhook, /api/stripe/portal; subscriptions table; getPlanForUser reads Stripe + internal @ednsy.com override. Configure STRIPE_* env vars and run subscriptions migration.",
         "testStrategy": "Complete test checkout → user has Pro; cancel → reverted to free.",
         "subtasks": []
       },
@@ -334,8 +334,8 @@
     ],
     "metadata": {
       "created": "2026-03-01T01:23:10.021Z",
-      "updated": "2026-03-01T02:47:21.221Z",
-      "description": "Tasks for master context"
+      "updated": "2026-03-30T12:00:00.000Z",
+      "description": "Tasks for master context; aligned with apps/admin and docs/prd.md"
     }
   }
 }

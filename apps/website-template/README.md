@@ -2,6 +2,8 @@
 
 AI agent that generates a single **cinematic landing page** (`index.html`) from business data (`index.json`) using the spec in `prompt.md`. **Branding** runs first (voice, colors, typography, CTAs from JSON); **planning** uses that branding; **generation** follows with branding and plan locked in. No build step — output runs in the browser as-is.
 
+**Architecture (stack, modes, Admin integration):** [docs/architecture.md](docs/architecture.md).
+
 ## How it works
 
 1. **Branding phase:** Reads `prompts/branding-prompt.md` + business JSON → calls Claude → produces a structured branding spec (brand essence, audience & tone, visual direction, typography, hero/CTAs). Optional: write branding to a file with `--branding-out`. If `branding-prompt.md` is missing, this phase is skipped.
