@@ -6,7 +6,7 @@
 	import { Label } from '$lib/components/ui/label';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { Badge } from '$lib/components/ui/badge';
-	import { toast } from 'svelte-sonner';
+	import { toastSuccess, toastError } from '$lib/toast';
 	import type { ContentSlot } from './+page.server';
 
 	type AgentId = 'email' | 'gbp' | 'demo-chat';
@@ -61,11 +61,11 @@
 
 	$effect(() => {
 		if (form?.success && form?.version != null) {
-			toast.success('Saved', { description: `New version: ${form.version}` });
+			toastSuccess('Saved', `New version: ${form.version}`);
 			invalidateAll();
 		}
 		if (form?.success === false && form?.error) {
-			toast.error('Save failed', { description: form.error });
+			toastError('Save failed', form.error);
 		}
 	});
 </script>

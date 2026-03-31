@@ -1,17 +1,17 @@
 import { redirect } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { exchangeGmailCodeForTokens, getGmailProfile } from '$lib/server/gmailAuth';
-import { getSessionFromCookie, getSessionCookieName } from '$lib/server/session';
+import { getDashboardSessionUser } from '$lib/server/authDashboard';
 import { setGmailTokens } from '$lib/server/gmail';
 
 const DEFAULT_REDIRECT = '/dashboard/integrations';
 
-export const GET: RequestHandler = async ({ url, cookies }) => {
+export const GET: RequestHandler = async (event) => {
+	const { url } = event;
 	const code = url.searchParams.get('code');
 	const state = url.searchParams.get('state');
 
-	const cookie = cookies.get(getSessionCookieName());
-	const user = await getSessionFromCookie(cookie);
+	const user = await getDashboardSessionUser(event);
 	if (!user) {
 		throw redirect(303, '/auth/login');
 	}

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { applyAction, enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
-	import { ChevronRight, LoaderCircle, RefreshCw, Trash2, RotateCcw } from 'lucide-svelte';
+	import { ChevronRight, LoaderCircle, Wand, Trash2, RotateCcw } from 'lucide-svelte';
 	import { buttonVariants } from '$lib/components/ui/button';
 	import { cn } from '$lib/utils';
 	import * as Tooltip from '$lib/components/ui/tooltip';
@@ -9,6 +9,7 @@
 
 	let {
 		prospectId,
+		prospectLabel = '',
 		hasDemoLink = false,
 		demoJobStatus,
 		trackingStatus,
@@ -19,6 +20,8 @@
 		onRegenerateQueued
 	}: {
 		prospectId: string;
+		/** Company or email for bell copy; falls back to short id. */
+		prospectLabel?: string;
 		hasDemoLink?: boolean;
 		demoJobStatus?: 'pending' | 'creating' | 'done' | 'failed';
 		trackingStatus?: 'draft' | 'approved' | 'sent' | 'opened' | 'clicked' | 'replied';
@@ -36,6 +39,8 @@
 	let regenerating = $state(false);
 	let flagging = $state(false);
 	let restoring = $state(false);
+
+	const who = $derived(prospectLabel.trim() || prospectId.slice(0, 8));
 
 	const demoJobActive = $derived(demoJobStatus === 'pending' || demoJobStatus === 'creating');
 	const canRegenerate = $derived(
@@ -64,16 +69,28 @@
 							if (d.queued) {
 								toastSuccess(
 									d.alreadyQueued ? 'Demo already in progress' : 'Regeneration queued',
-									d.alreadyQueued ? 'Demo is being regenerated. The list will update when ready.' : 'Usually 1–2 minutes. The list will update when ready.'
+									d.alreadyQueued
+										? 'Demo is being regenerated. The list will update when ready.'
+										: 'Usually 1–2 minutes. The list will update when ready.',
+									undefined,
+									{
+										activity: d.alreadyQueued
+											? `Demo still regenerating for ${who}.`
+											: `Started regenerating the demo for ${who}.`
+									}
 								);
 								await invalidateAll();
 								onRegenerateQueued?.();
 							} else {
-								toastSuccess('Demo regenerated', 'Content and images updated.');
+								toastSuccess('Demo regenerated', 'Content and images updated.', undefined, {
+									activity: `Updated demo page for ${who}.`
+								});
 								await invalidateAll();
 							}
 						} else if (result.type === 'failure' && result.data && typeof result.data === 'object' && 'message' in result.data) {
-							toastError('Regenerate', String((result.data as { message?: string }).message));
+							toastError('Regenerate', String((result.data as { message?: string }).message), undefined, {
+								activity: `Could not regenerate demo for ${who}.`
+							});
 							await applyAction(result);
 						}
 					} finally {
@@ -95,7 +112,7 @@
 					{#if regenerating}
 						<LoaderCircle class="size-4 animate-spin" aria-hidden="true" />
 					{:else}
-						<RefreshCw class="size-4" aria-hidden="true" />
+						<Wand class="size-4" aria-hidden="true" />
 					{/if}
 				</Tooltip.Trigger>
 				<Tooltip.Content side="top" sideOffset={6}>
@@ -184,10 +201,14 @@
 						return async ({ result }) => {
 							try {
 								if (result.type === 'success' && result.data && typeof result.data === 'object' && 'success' in result.data && result.data.success) {
-									toastSuccess('Restored to pipeline');
+									toastSuccess('Restored to pipeline', undefined, undefined, {
+										activity: `Restored ${who} to the pipeline.`
+									});
 									await invalidateAll();
 								} else if (result.type === 'failure' && result.data && typeof result.data === 'object' && 'message' in result.data) {
-									toastError('Restore', String((result.data as { message?: string }).message));
+									toastError('Restore', String((result.data as { message?: string }).message), undefined, {
+										activity: `Could not restore ${who} to the pipeline.`
+									});
 									await applyAction(result);
 								}
 							} finally {

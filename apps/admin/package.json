@@ -54,9 +54,11 @@
     "zod": "^4.3.6"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.52.0",
+    "@supabase/ssr": "^0.10.0",
+    "@supabase/supabase-js": "^2.100.1",
     "@vercel/analytics": "^1.4.1",
     "bits-ui": "^2.16.2",
+    "jose": "^6.2.2",
     "lucide-svelte": "^0.525.0",
     "marked": "^17.0.3",
     "nodemailer": "^6.9.16",

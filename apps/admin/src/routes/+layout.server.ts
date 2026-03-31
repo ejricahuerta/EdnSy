@@ -1,12 +1,13 @@
 import type { LayoutServerLoad } from './$types';
-import { getSessionFromCookie, getSessionCookieName } from '$lib/server/session';
+import { getDashboardSessionUser } from '$lib/server/authDashboard';
 import { getPlanForUser } from '$lib/server/stripe';
 import { getProspectOwnerId } from '$lib/server/prospects';
 import { getDemoBanner } from '$lib/server/userSettings';
+import { getSupabasePublicConfig } from '$lib/server/supabasePublicConfig';
 
-export const load: LayoutServerLoad = async ({ cookies, url }) => {
-	const cookie = cookies.get(getSessionCookieName());
-	const user = await getSessionFromCookie(cookie);
+export const load: LayoutServerLoad = async (event) => {
+	const { url } = event;
+	const user = await getDashboardSessionUser(event);
 	const plan = user ? await getPlanForUser(user) : 'free';
 
 	let demoBanner: { text: string; ctaLabel: string; ctaHref: string } | null = null;
@@ -21,10 +22,13 @@ export const load: LayoutServerLoad = async ({ cookies, url }) => {
 		}
 	}
 
+	const supabasePublic = getSupabasePublicConfig();
+
 	return {
 		user: user ?? null,
 		plan,
 		siteOrigin: url.origin,
-		demoBanner
+		demoBanner,
+		supabasePublic
 	};
 };

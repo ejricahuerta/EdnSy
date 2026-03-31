@@ -53,13 +53,13 @@ Core engines (Demo, Insights, GBP, Prospects, Send, Auth, CRM, Billing, Supabase
      (avoids Vercel cron limits). Set **CRON_SECRET** (16+ chars) in both Vercel and the Worker; routes reject requests without `Authorization: Bearer <CRON_SECRET>`. Demo cron requires **SITE_ORIGIN** so demo links are correct. **Local:** Run `pnpm run cron:mock` (with dev server and `CRON_SECRET` in `.env`); see [scripts/README.md](../../scripts/README.md).
    - **Twilio (F4 SMS):** Optional / backlogged (no budget, low traction). If you enable it: `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER` (E.164). When set, Send will also send SMS to prospects with a phone number.
    - `MARKETING_API_KEY` - optional, for protecting API routes
-   - **Google login** (for `/dashboard` and auth):
-     - `AUTH_GOOGLE_CLIENT_ID` - Google OAuth client ID (Cloud Console)
-     - `AUTH_GOOGLE_CLIENT_SECRET` - Google OAuth client secret
-     - `SESSION_SECRET` - at least 16 characters; used to sign session cookies
+   - **Google login** (for `/dashboard` and auth): direct OAuth to Google (not Supabase’s hosted OAuth redirect). Create a **Web application** OAuth client in Google Cloud and set **Authorized redirect URIs** to `{your origin}/auth/callback` (e.g. `http://localhost:5173/auth/callback` for local dev).
+     - `AUTH_GOOGLE_CLIENT_ID` / `AUTH_GOOGLE_CLIENT_SECRET` (or `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`) — same client as in Supabase → Authentication → Providers → Google (recommended)
+     - `SESSION_SECRET` - at least 16 characters; signs the admin session cookie (`ednsy_admin_session`)
    - **Supabase (demo tracking,** optional): when set, the app records each created demo in Supabase for tracking (CRM id, demo link, status, send time, scraped data).
      - `SUPABASE_URL` - your Supabase project URL
      - `SUPABASE_SERVICE_ROLE_KEY` - service role key (server-only; do not expose to the client)
+     - **Realtime (dashboard):** set **`PUBLIC_SUPABASE_URL`** and **`PUBLIC_SUPABASE_ANON_KEY`** (same project URL and **anon** key from Supabase → Settings → API), or set **`SUPABASE_ANON_KEY`** alongside `SUPABASE_URL` so the server can expose the anon client to the browser via layout data. Without URL + anon, `hooks.server.ts` will fail on startup. After Google sign-in, the server calls **`signInWithIdToken`** so the browser Supabase client gets a JWT for Realtime/RLS. Enable the **Google** provider in Supabase with the **same** OAuth client ID/secret as above.
    - **Demos (scraped data required):** Creating a demo only works when scraped data is available. You must configure **at least one** of Places API or Gemini in `.env`. If you see *"Scraped data is required to run the demo. Configure Places API (GOOGLE_PLACES_API_KEY) or Gemini (GEMINI_API_KEY) in .env and try again."*, add the missing credentials below.
    - **Google Places API (GBP data):** when set, creating a demo fetches business data (name, address, phone, website, rating, hours) via Google Places API (Text Search + Place Details) and builds the audit from it; otherwise the app falls back to Gemini. Enable [Places API (New)](https://developers.google.com/maps/documentation/places/web-service/overview) in Google Cloud, create an API key, and set `GOOGLE_PLACES_API_KEY` (or `GOOGLE_MAPS_API_KEY`). Optional: `PLACES_API_MONTHLY_LIMIT` (default 10,000) caps lookups per month so you stay within the free tier; the app blocks new requests when the limit is reached.
    - **Gemini (AI audit fallback):** when Places API is not configured or GBP fetch fails, creating a demo uses Gemini to generate a synthetic audit from the prospect's name, industry, and website. Set `GEMINI_API_KEY` (same as chat widget). With `GEMINI_API_KEY` set, creating a demo also generates personalized landing content (hero, CTA, services) for the industry demo page.
@@ -71,7 +71,7 @@ Core engines (Demo, Insights, GBP, Prospects, Send, Auth, CRM, Billing, Supabase
    - **Stripe (billing):** for Pro subscription and checkout: `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_PRICE_STARTER`, `STRIPE_PRICE_PRO` (Stripe Price IDs), and after adding the webhook in Stripe Dashboard: `STRIPE_WEBHOOK_SECRET`. Run the `subscriptions` Supabase migration so the `subscriptions` table exists.
 
    Add your app's **Authorized redirect URI** in Google Cloud Console:
-   `http://localhost:5173/auth/google/callback` (dev) or your production origin + `/auth/google/callback`.
+   `http://localhost:5173/auth/callback` (dev) or your production origin + `/auth/callback`.
 
    **Prospects / dashboard:** The dashboard shows prospects from whatever CRM you connect (HubSpot, GoHighLevel, Pipedrive, or Notion). There is no single required database; connect at least one integration in Dashboard → Integrations. Each prospect is stored with **provider** and **provider_row_id**; we sync status and tracking by id. Without any connected integration, the dashboard list is empty. Without Google/SESSION_SECRET, **Sign in** and `/dashboard` require auth to be configured.
 

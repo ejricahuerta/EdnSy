@@ -1,13 +1,13 @@
 import type { RequestHandler } from './$types';
-import { getSessionFromCookie, getSessionCookieName } from '$lib/server/session';
+import { getDashboardSessionUser } from '$lib/server/authDashboard';
 import { getCrmConnection } from '$lib/server/crm';
 import { apiError, apiSuccess } from '$lib/server/apiResponse';
 
 const ALLOWED = ['notion'] as const;
 
-export const GET: RequestHandler = async ({ cookies, params }) => {
-	const cookie = cookies.get(getSessionCookieName());
-	const user = await getSessionFromCookie(cookie);
+export const GET: RequestHandler = async (event) => {
+	const { cookies, params } = event;
+	const user = await getDashboardSessionUser(event);
 	if (!user) {
 		return apiError(401, 'Sign in required');
 	}

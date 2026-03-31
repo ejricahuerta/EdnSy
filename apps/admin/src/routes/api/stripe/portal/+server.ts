@@ -1,11 +1,11 @@
 import type { RequestHandler } from './$types';
-import { getSessionFromCookie, getSessionCookieName } from '$lib/server/session';
+import { getDashboardSessionUser } from '$lib/server/authDashboard';
 import { getSubscriptionForUser, createPortalSession } from '$lib/server/stripe';
 import { apiError, apiSuccess } from '$lib/server/apiResponse';
 
-export const POST: RequestHandler = async ({ request, cookies, url }) => {
-	const cookie = cookies.get(getSessionCookieName());
-	const user = await getSessionFromCookie(cookie);
+export const POST: RequestHandler = async (event) => {
+	const { request, cookies, url } = event;
+	const user = await getDashboardSessionUser(event);
 	if (!user) {
 		return apiError(401, 'Sign in required');
 	}

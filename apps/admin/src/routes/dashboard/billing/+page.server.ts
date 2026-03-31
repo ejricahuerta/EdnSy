@@ -1,11 +1,10 @@
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { getSessionFromCookie, getSessionCookieName } from '$lib/server/session';
+import { getDashboardSessionUser } from '$lib/server/authDashboard';
 import { getSubscriptionForUser, getStripeConfig } from '$lib/server/stripe';
 
-export const load: PageServerLoad = async ({ cookies }) => {
-	const cookie = cookies.get(getSessionCookieName());
-	const user = await getSessionFromCookie(cookie);
+export const load: PageServerLoad = async (event) => {
+	const user = await getDashboardSessionUser(event);
 	if (!user) {
 		throw redirect(303, '/auth/login');
 	}

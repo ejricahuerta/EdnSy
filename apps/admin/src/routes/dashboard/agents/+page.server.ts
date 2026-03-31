@@ -1,6 +1,6 @@
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
-import { getSessionFromCookie, getSessionCookieName } from '$lib/server/session';
+import { getDashboardSessionUser } from '$lib/server/authDashboard';
 import { isEdnsyUser } from '$lib/plans';
 import {
 	getResolvedContent,
@@ -92,9 +92,8 @@ async function loadSlots(): Promise<ContentSlot[]> {
 	return slots;
 }
 
-export const load: PageServerLoad = async ({ cookies }) => {
-	const cookie = cookies.get(getSessionCookieName());
-	const user = await getSessionFromCookie(cookie);
+export const load: PageServerLoad = async (event) => {
+	const user = await getDashboardSessionUser(event);
 	if (!user) {
 		throw redirect(303, '/auth/login');
 	}
@@ -106,9 +105,9 @@ export const load: PageServerLoad = async ({ cookies }) => {
 };
 
 export const actions: Actions = {
-	save: async ({ request, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	save: async (event) => {
+		const { request, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user || !isEdnsyUser(user)) {
 			return { success: false, error: 'Unauthorized' };
 		}

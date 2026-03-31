@@ -10,7 +10,7 @@ import type { Prospect } from '$lib/server/prospects';
 import { getScrapedDataForDemo } from '$lib/server/gbp';
 import { insertFreeDemoRequest } from '$lib/server/supabase';
 import { getOriginForOutgoingLinks } from '$lib/server/send';
-import { getSessionFromCookie, getSessionCookieName } from '$lib/server/session';
+import { getDashboardSessionUser } from '$lib/server/authDashboard';
 import { env } from '$env/dynamic/private';
 import { INDUSTRY_SLUGS, type IndustrySlug } from '$lib/industries';
 import type { GbpData } from '$lib/server/gbp';
@@ -29,8 +29,8 @@ function prospectForShowLookup(businessName: string, address: string): Prospect 
 	};
 }
 
-export const load: PageServerLoad = async ({ cookies }) => {
-	const user = await getSessionFromCookie(cookies.get(getSessionCookieName()));
+export const load: PageServerLoad = async (event) => {
+	const user = await getDashboardSessionUser(event);
 	if (!user) {
 		throw redirect(303, '/auth/login');
 	}
@@ -38,8 +38,9 @@ export const load: PageServerLoad = async ({ cookies }) => {
 };
 
 export const actions: Actions = {
-	lookup: async ({ request, cookies }) => {
-		const user = await getSessionFromCookie(cookies.get(getSessionCookieName()));
+	lookup: async (event) => {
+		const { request } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) throw redirect(303, '/auth/login');
 
 		const formData = await request.formData();
@@ -92,8 +93,9 @@ export const actions: Actions = {
 		};
 	},
 
-	createDemo: async ({ request, url, cookies }) => {
-		const user = await getSessionFromCookie(cookies.get(getSessionCookieName()));
+	createDemo: async (event) => {
+		const { request, url } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) throw redirect(303, '/auth/login');
 
 		try {

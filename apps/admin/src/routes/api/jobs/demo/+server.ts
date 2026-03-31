@@ -1,5 +1,5 @@
 import type { RequestHandler } from './$types';
-import { getSessionFromCookie, getSessionCookieName } from '$lib/server/session';
+import { getDashboardSessionUser } from '$lib/server/authDashboard';
 import { processOneDemoJob } from '$lib/server/demo';
 import { processOneFreeDemoJob } from '$lib/server/processFreeDemoJob';
 import { getOriginForOutgoingLinks } from '$lib/server/send';
@@ -17,9 +17,9 @@ import {
  * Only one demo runs at a time (in-memory lock + DB check) to avoid Claude rate limits.
  * Resets stale 'creating' rows and skips if a demo is already in progress (handles restarts/disconnects).
  */
-export const POST: RequestHandler = async ({ cookies, url }) => {
-	const cookie = cookies.get(getSessionCookieName());
-	const user = await getSessionFromCookie(cookie);
+export const POST: RequestHandler = async (event) => {
+	const { cookies, url } = event;
+	const user = await getDashboardSessionUser(event);
 	if (!user) {
 		return apiError(401, 'Sign in required');
 	}

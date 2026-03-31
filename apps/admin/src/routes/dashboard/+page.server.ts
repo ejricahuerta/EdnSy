@@ -20,7 +20,7 @@ import {
 } from '$lib/server/supabase';
 import { getScrapedDataForDemo, formatScrapedDataErrorMessage } from '$lib/server/gbp';
 import type { PageServerLoad, Actions } from './$types';
-import { getSessionFromCookie, getSessionCookieName } from '$lib/server/session';
+import { getDashboardSessionUser } from '$lib/server/authDashboard';
 import { env } from '$env/dynamic/private';
 import { getCrmIndustryFilter, getGbpDefaultLocation, getEffectiveEmailSenderName, getEmailSignatureOverride } from '$lib/server/userSettings';
 import { isValidDemoTrackingStatus } from '$lib/demo';
@@ -43,9 +43,8 @@ import { generateEmailCopy } from '$lib/server/generateEmailCopy';
 import { getTemplates } from '$lib/server/templates';
 import { PROSPECT_STATUS } from '$lib/prospectStatus';
 
-export const load: PageServerLoad = async ({ cookies }) => {
-	const cookie = cookies.get(getSessionCookieName());
-	const user = await getSessionFromCookie(cookie);
+export const load: PageServerLoad = async (event) => {
+	const user = await getDashboardSessionUser(event);
 	if (!user) {
 		throw redirect(303, '/auth/login');
 	}
@@ -97,9 +96,9 @@ export const load: PageServerLoad = async ({ cookies }) => {
 };
 
 export const actions: Actions = {
-	generateDemo: async ({ request, url, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	generateDemo: async (event) => {
+		const { request, url, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) {
 			return fail(401, { message: 'Sign in required' });
 		}
@@ -162,9 +161,9 @@ export const actions: Actions = {
 		}
 		return { success: true, prospectId, demoLink: demoUrl };
 	},
-	updateDemoStatus: async ({ request, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	updateDemoStatus: async (event) => {
+		const { request, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) {
 			return fail(401, { message: 'Sign in required' });
 		}
@@ -183,9 +182,9 @@ export const actions: Actions = {
 		}
 		return { success: true, prospectId, status };
 	},
-	bulkApproveDemos: async ({ request, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	bulkApproveDemos: async (event) => {
+		const { request, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) {
 			return fail(401, { message: 'Sign in required' });
 		}
@@ -206,9 +205,9 @@ export const actions: Actions = {
 		}
 		return { success: true, total: prospectIds.length };
 	},
-	bulkGenerateDemos: async ({ request, url, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	bulkGenerateDemos: async (event) => {
+		const { request, url, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) {
 			return fail(401, { message: 'Sign in required' });
 		}
@@ -285,9 +284,9 @@ export const actions: Actions = {
 			errors: errors.length > 0 ? errors.slice(0, 5) : undefined
 		};
 	},
-	sendDemos: async ({ request, url, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	sendDemos: async (event) => {
+		const { request, url, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) {
 			return fail(401, { message: 'Sign in required' });
 		}

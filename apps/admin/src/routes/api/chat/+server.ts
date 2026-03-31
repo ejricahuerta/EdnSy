@@ -40,7 +40,8 @@ function toGeminiContents(messages: { role: string; content: string }[]): { role
 	return out;
 }
 
-export const POST: RequestHandler = async ({ request, cookies }) => {
+export const POST: RequestHandler = async (event) => {
+	const { request, cookies } = event;
 	if (!GEMINI_API_KEY) {
 		return apiError(503, 'Chat is not configured', 'MISSING_API_KEY');
 	}
