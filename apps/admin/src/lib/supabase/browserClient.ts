@@ -1,15 +1,12 @@
 import { createBrowserClient } from '@supabase/ssr';
-import { PUBLIC_SUPABASE_ANON_KEY, PUBLIC_SUPABASE_URL } from '$env/static/public';
+import { env } from '$env/dynamic/public';
 
 export type SupabasePublicFromLayout = { url: string; anonKey: string } | null | undefined;
 
-/**
- * Browser Supabase client. Pass `data.supabasePublic` from root layout when `PUBLIC_*` env vars
- * are unset but `SUPABASE_URL` + `SUPABASE_ANON_KEY` are set (server injects config via load).
- */
+/** Browser client; optional `layoutSupabasePublic` when only server env is set. */
 export function createSupabaseBrowserClient(layoutSupabasePublic?: SupabasePublicFromLayout) {
-	const url = (layoutSupabasePublic?.url ?? PUBLIC_SUPABASE_URL ?? '').trim();
-	const anonKey = (layoutSupabasePublic?.anonKey ?? PUBLIC_SUPABASE_ANON_KEY ?? '').trim();
+	const url = (layoutSupabasePublic?.url ?? env.PUBLIC_SUPABASE_URL ?? '').trim();
+	const anonKey = (layoutSupabasePublic?.anonKey ?? env.PUBLIC_SUPABASE_ANON_KEY ?? '').trim();
 	if (!url || !anonKey) {
 		throw new Error(
 			'Supabase client: missing URL or anon key. Set PUBLIC_SUPABASE_URL and PUBLIC_SUPABASE_ANON_KEY in .env, ' +
