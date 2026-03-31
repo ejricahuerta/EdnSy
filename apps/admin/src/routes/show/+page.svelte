@@ -289,7 +289,7 @@
 		background: var(--color-surface, var(--white));
 	}
 	.show-section-title {
-		font-family: 'Instrument Serif', serif;
+		font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 		font-size: 1.25rem;
 		color: var(--ink);
 		margin: 0 0 1rem;

@@ -1,43 +1,33 @@
 # Ed & Sy Admin Style Guides
 
-## style-guide.html → app + dashboard (shadcn-svelte)
+## Canonical theme: landing app + `globals.css`
 
-**`style-guide.html`** is the canonical Component Style Guide for the admin app (colors, typography, buttons, forms, badges, etc.).
+**Public marketing** lives in **`apps/landing`**. The admin app’s **shadcn-svelte** theme (CSS variables for `bg-primary`, `text-foreground`, charts, sidebar, etc.) is defined in **`apps/admin/src/globals.css`** and is aligned with **`apps/landing/src/app.css`** (same `:root` / `.dark` / `@theme inline` tokens: primary **`#3a00ff`**, neutrals, sidebar, charts).
 
-### How it’s merged into the app
+`style-guide.html` remains a historical component reference. When you change product branding, update **landing `app.css` and admin `globals.css` together**, then adjust **`.admin-app` shell tokens** in **`apps/admin/src/app.css`** (legacy names like `--sage` still map to the purple primary for existing selectors).
 
-1. **Tokens**  
-   The palette (`--cream`, `--ink`, `--sage`, `--amber`, etc.) is defined in **`apps/admin/src/app.css`** under `.admin-app`. Keep those values in sync with `style-guide.html` when you change the guide.
+### How it maps in the admin app
 
-2. **Dashboard + shadcn-svelte**  
-   The dashboard uses **shadcn-svelte** for UI (Card, Button, Select, Dialog, Table, etc.). Theme mapping is in `app.css` in the block **`.admin-app-dashboard`**:
-   - `--primary` → sage  
-   - `--background` → cream  
-   - `--muted` → surface  
-   - `--destructive` → error  
-   - etc.
+1. **Dashboard (`/dashboard/*`)**  
+   Uses **`globals.css`** only. Shell aliases are in **`apps/admin/src/styles/dashboard.css`** on **`.admin-app-dashboard`** (e.g. `--sage` → `var(--primary)`). shadcn components read `--primary`, `--background`, `--sidebar-*`, etc.
 
-   So all shadcn components in the dashboard automatically use the style guide palette.
+2. **`.admin-app` shell** (root pages, auth, branded non-dashboard UI)  
+   Marketing-aligned tokens live under **`.admin-app`** in **`app.css`** (cream/ink/sage names kept for backward compatibility; values match the landing palette).
 
-3. **Typography in the dashboard**  
-   Use these classes inside dashboard pages (under `.admin-app-dashboard`):
-   - **`.lr-type-display`** – Instrument Serif, large display
-   - **`.lr-type-h1`**, **`.lr-type-h2`** – Instrument Serif headings
-   - **`.lr-type-eyebrow`** – uppercase label (amber)
-   - **`.lr-type-body`**, **`.lr-type-body-muted`** – DM Sans body
-   - **`.lr-type-small`**, **`.lr-type-label`** – DM Sans small/label
-
-   Card titles (`.lr-dash-card-title`) already use Instrument Serif.
+3. **Typography**  
+   **Inter** is loaded from **`app.html`** and applied in **`globals.css`** (`body`) and **`.admin-app`**. **Marck Script** is available for brand moments (same as landing). Dashboard typography classes (e.g. **`.lr-type-display`**) use **Inter** in the current stylesheet.
 
 4. **JS/TS**  
-   For charts or any code that needs hex values, use **`$lib/style-guide-tokens.ts`**. It exports the same palette and a `chartColors` array aligned with the CSS chart variables.
+   For charts or code that needs fixed values, use **`$lib/style-guide-tokens.ts`** (`chartColors` matches **`--chart-1` … `--chart-5`** in `globals.css`).
 
 ### Summary
 
-| Where            | What |
-|------------------|------|
-| `style-guide.html` | Canonical reference; design decisions and component specs |
-| `app.css`         | Live tokens + shadcn mapping + typography classes |
-| `$lib/style-guide-tokens.ts` | Token hex values for JavaScript |
+| Where | What |
+|-------|------|
+| `apps/landing/src/app.css` | Reference for marketing + shadcn tokens |
+| `apps/admin/src/globals.css` | Admin shadcn theme (keep in sync with landing) |
+| `apps/admin/src/styles/dashboard.css` | Dashboard-only aliases onto globals |
+| `apps/admin/src/app.css` | `.admin-app` shell + layout CSS |
+| `$lib/style-guide-tokens.ts` | Hex / chart colors for JavaScript |
 
-When you update the style guide, update `app.css` (and optionally `style-guide-tokens.ts`) so the dashboard and landing stay in sync.
+When you update branding, update **landing `app.css`**, **admin `globals.css`**, and **`.admin-app` tokens in `app.css`** together.

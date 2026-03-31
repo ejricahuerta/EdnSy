@@ -183,9 +183,9 @@ import { isEdnsyUser } from '$lib/plans';
 		></button>
 		<aside class="lr-dashboard-sidebar" aria-label="Dashboard navigation">
 			<div class="lr-dashboard-sidebar-header">
-				<a href="/dashboard" class="lr-dashboard-sidebar-logo" title="Ed & Sy Admin">
-					<img src="/logo/logo.png" alt="" class="lr-dashboard-sidebar-logo-img" width="28" height="28" />
-					<span class="lr-dashboard-sidebar-logo-text">Ed & Sy <span>Admin</span></span>
+				<a href="/dashboard" class="lr-dashboard-sidebar-logo" aria-label="Ed & Sy Admin" title="Ed & Sy Admin">
+					<img src="/logo/logo.png" alt="" class="lr-dashboard-sidebar-logo-img" width="40" height="40" />
+					<span class="lr-dashboard-sidebar-logo-title">Admin</span>
 				</a>
 			</div>
 			<nav class="lr-dashboard-sidebar-nav">
@@ -341,8 +341,8 @@ import { isEdnsyUser } from '$lib/plans';
 	<div class="admin-app">
 		<nav class="landing-nav" aria-label="Main navigation">
 			<a href={user ? '/dashboard' : '/auth/login'} class="logo" aria-label="Ed & Sy Admin">
-				<img src="/logo/logo.png" alt="Ed & Sy Admin" class="logo-img" width="32" height="32" />
-				<span class="logo-text">Ed & Sy <span>Admin</span></span>
+				<img src="/logo/logo.png" alt="" class="logo-img" width="40" height="40" />
+				<span class="logo-title">Admin</span>
 			</a>
 			<ul class="nav-links">
 				{#if user}

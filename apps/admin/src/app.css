@@ -2,11 +2,9 @@
 /* Demo styles live in `src/styles/demo.css` and are loaded only on `/demo/*` routes. */
 
 /* ==========================================================================
-   Color scheme: shadcn from globals.css is the default everywhere.
-   Ed & Sy Admin shell token overrides (--muted, --cream, etc.) apply ONLY under
-   .admin-app: landing page, auth shell, and any demo widget that
-   uses that class. Dashboard (.admin-app-dashboard) never gets
-   these overrides and always uses globals.css (shadcn) only.
+   Color scheme: shadcn tokens from globals.css (aligned with apps/landing).
+   .admin-app adds shell aliases (legacy --cream, --sage, etc.) for non-dashboard
+   routes only. Dashboard (.admin-app-dashboard) uses globals + styles/dashboard.css.
    ========================================================================== */
 
 /* Focus and selection for better accessibility */
@@ -16,42 +14,36 @@ html {
   scroll-behavior: smooth;
 }
 
-body {
-  font-family: var(--font-sans, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+/* Font stack set in globals.css (Inter, matches landing) */
 
 /* ==========================================================================
-   Ed & Sy Admin shell – MERGED FROM docs/style-guides/style-guide.html
-   SCOPE: Only .admin-app (landing, auth, Ed & Sy–branded demo
-   widgets). Dashboard uses globals.css (shadcn) only; do not add token
-   overrides here that affect .admin-app-dashboard.
-   Tokens: --cream, --ink, --sage, --amber, --muted (text #7A7566),
-   --border, --surface, --white, --error, --success.
-   Typography: Instrument Serif (display/headings), DM Sans (body/UI).
+   Ed & Sy Admin shell – aligned with apps/landing (marketing purple + neutrals)
+   SCOPE: Only .admin-app (root pages, auth, Ed & Sy–branded demo widgets).
+   Dashboard uses globals.css + styles/dashboard.css; do not add overrides
+   that affect .admin-app-dashboard.
+   Legacy names (--sage, --amber, --cream) kept for existing selectors; values match landing.
+   Typography: Inter (matches landing).
    ========================================================================== */
 .admin-app {
   font-size: 15px;
-  /* Style guide palette (docs/style-guides/style-guide.html). */
-  --cream: #F5F0E8;
-  --ink: #1A1A14;
-  --sage: #3D5A3E;
-  --sage-light: #5A7F5B;
-  --amber: #C17D2A;
-  --amber-light: #E09B3D;
-  --muted: #7A7566;
-  --border: #D8D0BF;
-  --surface: #EEEAE0;
-  --white: #FFFFFF;
-  --error: #C04040;
-  --success: #3D5A3E;
+  --cream: oklch(1 0 0);
+  --ink: oklch(0.145 0 0);
+  --sage: #3a00ff;
+  --sage-light: #6b4dff;
+  --amber: #3a00ff;
+  --amber-light: #8f66ff;
+  --muted: oklch(0.556 0 0);
+  --border: oklch(0.922 0 0);
+  --surface: oklch(0.97 0 0);
+  --white: #ffffff;
+  --error: oklch(0.577 0.245 27.325);
+  --success: oklch(0.52 0.14 155);
 
-  /* Ensure Tailwind text utilities on landing/legal pages use style-guide ink for contrast */
+  /* Ensure Tailwind text utilities on legal pages use ink for contrast */
   --color-base-content: var(--ink);
   --nav-text: var(--muted);
 
-  /* Backward-compat aliases for existing lr-* and inline styles (landing + dashboard) */
+  /* Backward-compat aliases for existing lr-* and inline styles */
   --color-bg: var(--cream);
   --color-surface: var(--white);
   --color-border: var(--border);
@@ -60,11 +52,11 @@ body {
   --color-text-muted: var(--muted);
   --color-brand-green: var(--sage);
   --color-accent-green: var(--sage-light);
-  --color-pale-green: rgba(61, 90, 62, 0.15);
+  --color-pale-green: rgba(58, 0, 255, 0.12);
   --color-cta: var(--amber);
   --color-cta-hover: var(--amber-light);
-  --color-success: var(--sage);
-  --color-warning: var(--amber);
+  --color-success: var(--success);
+  --color-warning: oklch(0.65 0.15 75);
   --color-featured-bg: var(--ink);
   --color-featured-text: var(--cream);
 
@@ -93,23 +85,23 @@ body {
   min-height: 100vh;
   background: var(--background);
   color: var(--foreground);
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   line-height: 1.5;
   overflow-x: hidden;
 }
 
-/* Landing: no dark mode – always use light theme (dashboard keeps dark via .dark .admin-app-dashboard) */
+/* Non-dashboard routes: keep light shell even when dashboard prefers dark (html.dark) */
 .dark .admin-app {
-  --cream: #F5F0E8;
-  --ink: #1A1A14;
-  --sage: #3D5A3E;
-  --sage-light: #5A7F5B;
-  --amber: #C17D2A;
-  --amber-light: #E09B3D;
-  --muted: #7A7566;
-  --border: #D8D0BF;
-  --surface: #EEEAE0;
-  --white: #FFFFFF;
+  --cream: oklch(1 0 0);
+  --ink: oklch(0.145 0 0);
+  --sage: #3a00ff;
+  --sage-light: #6b4dff;
+  --amber: #3a00ff;
+  --amber-light: #8f66ff;
+  --muted: oklch(0.556 0 0);
+  --border: oklch(0.922 0 0);
+  --surface: oklch(0.97 0 0);
+  --white: #ffffff;
   --color-bg: var(--cream);
   --color-surface: var(--white);
   --color-text-primary: var(--ink);
@@ -129,9 +121,9 @@ body {
    Shell mapping (--ink, --sage, etc.) in styles/dashboard.css (dashboard layout).
    ========================================================================== */
 
-/* Typography: Instrument Serif for display/headings, DM Sans for body (style guide) */
+/* Typography: Inter (matches landing) */
 .admin-app .lr-heading-hero {
-  font-family: 'Instrument Serif', serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: clamp(2rem, 5vw, 3rem);
   line-height: 1.08;
   letter-spacing: -0.02em;
@@ -144,7 +136,7 @@ body {
 }
 
 .admin-app .lr-heading-display {
-  font-family: 'Instrument Serif', serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: clamp(1.5rem, 4vw, 2.5rem);
   line-height: 1.1;
   letter-spacing: -0.02em;
@@ -157,7 +149,7 @@ body {
 }
 
 .admin-app .lr-heading-page {
-  font-family: 'Instrument Serif', serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 1.75rem;
   line-height: 1.15;
   letter-spacing: -0.02em;
@@ -165,14 +157,14 @@ body {
 }
 
 .admin-app .lr-subline {
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 1.125rem;
   line-height: 1.65;
   color: var(--muted);
   margin-top: var(--space-2);
 }
 
-/* Primary CTA: Amber, pill (style guide .btn-primary) */
+/* Primary CTA: brand purple, pill */
 .admin-app .lr-btn-primary {
   display: inline-flex;
   align-items: center;
@@ -180,7 +172,7 @@ body {
   padding: 0.875rem 2rem;
   font-size: 0.95rem;
   font-weight: 500;
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: #ffffff;
   background: var(--amber);
   border: none;
@@ -195,7 +187,7 @@ body {
   transform: translateY(-1px);
 }
 
-/* Semantic .btn .btn-primary (e.g. StickyCtaBar, ChatWidget): green/sage must use light text for contrast */
+/* Semantic .btn .btn-primary: primary fill must use light text for contrast */
 .admin-app .btn.btn-primary,
 .admin-app .btn-primary.bg-primary {
   color: #ffffff;
@@ -205,7 +197,7 @@ body {
   color: #ffffff;
 }
 
-/* Ghost: Outline, ink border (style guide .btn-outline); sage variant for secondary CTA */
+/* Ghost: Outline, ink border */
 .admin-app .lr-btn-ghost {
   display: inline-flex;
   align-items: center;
@@ -213,7 +205,7 @@ body {
   padding: 0.875rem 2rem;
   font-size: 0.95rem;
   font-weight: 500;
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: var(--ink);
   background: transparent;
   border: 1.5px solid var(--border);
@@ -227,9 +219,9 @@ body {
   border-color: var(--ink);
 }
 
-/* Wordmark: Instrument Serif, ink / sage accent (style guide .brand-logo) */
+/* Wordmark: Inter; strong uses primary (legacy --sage = purple) */
 .admin-app .lr-wordmark {
-  font-family: 'Instrument Serif', serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 1.5rem;
   color: var(--ink);
   text-decoration: none;
@@ -243,7 +235,7 @@ body {
   padding: var(--space-2) var(--space-4);
   font-size: 0.95rem;
   font-weight: 500;
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: var(--muted);
   background: transparent;
   border: none;
@@ -263,13 +255,13 @@ body {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted);
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .admin-app .lr-table-body {
   font-size: 0.875rem;
   color: var(--ink);
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .admin-app .lr-status-badge {
@@ -278,14 +270,14 @@ body {
   padding: 4px 12px;
   font-size: 12px;
   font-weight: 500;
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   border-radius: var(--radius-pill);
 }
 
 .admin-app .lr-status-default {
-  background: rgba(61, 90, 62, 0.1);
+  background: rgba(58, 0, 255, 0.1);
   color: var(--sage);
-  border: 1px solid rgba(61, 90, 62, 0.2);
+  border: 1px solid rgba(58, 0, 255, 0.2);
 }
 
 .admin-app .lr-status-warning {
@@ -295,9 +287,9 @@ body {
 }
 
 .admin-app .lr-status-success {
-  background: rgba(61, 90, 62, 0.1);
+  background: rgba(58, 0, 255, 0.1);
   color: var(--sage);
-  border: 1px solid rgba(61, 90, 62, 0.2);
+  border: 1px solid rgba(58, 0, 255, 0.2);
 }
 
 .admin-app .lr-status-muted {
@@ -312,7 +304,7 @@ body {
   border: 1px solid var(--border);
   font-size: 0.875rem;
   line-height: 1.5;
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .admin-app .lr-alert-warning {
@@ -328,8 +320,8 @@ body {
 }
 
 .admin-app .lr-alert-success {
-  background: rgba(61, 90, 62, 0.08);
-  border-color: rgba(61, 90, 62, 0.2);
+  background: rgba(58, 0, 255, 0.08);
+  border-color: rgba(58, 0, 255, 0.2);
   color: var(--sage);
 }
 
@@ -380,14 +372,14 @@ body {
   object-fit: contain;
 }
 .admin-app .lr-auth-card-logo-text {
-  font-family: 'Instrument Serif', serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 1.15rem;
 }
 .admin-app .lr-auth-card-logo-text span {
   color: var(--sage);
 }
 .admin-app .lr-auth-card-title {
-  font-family: 'Instrument Serif', serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 1.5rem;
   line-height: 1.2;
   letter-spacing: -0.02em;
@@ -404,7 +396,7 @@ body {
   padding: 0.875rem 2rem;
   font-size: 0.95rem;
   font-weight: 500;
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: #ffffff;
   background: var(--amber);
   border: none;
@@ -448,7 +440,7 @@ body {
   font-size: 0.825rem;
   font-weight: 500;
   color: var(--ink);
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .admin-app:not(.admin-app-dashboard) .form-input,
@@ -459,7 +451,7 @@ body {
   padding: 0.7rem 1rem;
   border: 1.5px solid var(--border);
   border-radius: 8px;
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 0.875rem;
   color: var(--ink);
   background-color: var(--white);
@@ -472,7 +464,7 @@ body {
   padding: 0.7rem 2.5rem 0.7rem 1rem;
   border: 1.5px solid var(--border);
   border-radius: 8px;
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 0.875rem;
   color: var(--ink);
   background-color: var(--white);
@@ -541,19 +533,24 @@ body {
 .admin-app .landing-nav .logo {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  font-family: 'Instrument Serif', serif;
-  font-size: 1.3rem;
-  color: var(--ink);
+  gap: 0.75rem;
   text-decoration: none;
+  line-height: 1.2;
 }
 .admin-app .landing-nav .logo .logo-img {
   flex-shrink: 0;
-  height: 2rem;
-  width: auto;
+  height: 2.5rem;
+  width: 2.5rem;
   object-fit: contain;
+  display: block;
 }
-.admin-app .landing-nav .logo .logo-text span { color: var(--sage); }
+.admin-app .landing-nav .logo .logo-title {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 1.375rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--sage);
+}
 .admin-app .nav-links {
   display: flex;
   align-items: center;
@@ -700,7 +697,7 @@ body {
   border: 1px solid rgba(193, 125, 42, 0.2);
 }
 .admin-app .hero h1 {
-  font-family: 'Instrument Serif', serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: clamp(2.8rem, 6vw, 4.5rem);
   line-height: 1.08;
   letter-spacing: -0.02em;
@@ -842,7 +839,7 @@ body {
   margin-bottom: 1.5rem;
 }
 .admin-app .section h2 {
-  font-family: 'Instrument Serif', serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: clamp(2rem, 4vw, 3rem);
   line-height: 1.12;
   letter-spacing: -0.02em;
@@ -1011,13 +1008,13 @@ body {
   align-items: center;
   gap: 0.4rem;
   margin-top: 1rem;
-  background: rgba(61, 90, 62, 0.1);
+  background: rgba(58, 0, 255, 0.1);
   color: var(--sage);
   font-size: 0.75rem;
   font-weight: 500;
   padding: 0.3rem 0.75rem;
   border-radius: 100px;
-  border: 1px solid rgba(61, 90, 62, 0.2);
+  border: 1px solid rgba(58, 0, 255, 0.2);
 }
 
 .admin-app .pricing-grid {
@@ -1080,7 +1077,7 @@ body {
 }
 .admin-app .pricing-card.featured .plan-name { color: rgba(255, 255, 255, 0.6); }
 .admin-app .price {
-  font-family: 'Instrument Serif', serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 2.75rem;
   line-height: 1;
   letter-spacing: -0.02em;
@@ -1254,21 +1251,23 @@ body {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  font-family: inherit;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--foreground);
+  justify-content: flex-start;
   text-decoration: none;
-  letter-spacing: -0.02em;
+  line-height: 1.2;
 }
 .admin-app-dashboard .lr-dashboard-sidebar-logo-img {
   flex-shrink: 0;
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 2.5rem;
+  height: 2.5rem;
   object-fit: contain;
+  display: block;
 }
-.admin-app-dashboard .lr-dashboard-sidebar-logo span {
-  font-weight: 600;
+.admin-app-dashboard .lr-dashboard-sidebar-logo-title {
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--primary);
+  white-space: nowrap;
 }
 .admin-app-dashboard .lr-dashboard-sidebar-nav {
   flex: 1;
@@ -1684,7 +1683,7 @@ body {
     width: 16rem;
     max-width: 85vw;
   }
-  .admin-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-logo-text,
+  .admin-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-logo-title,
   .admin-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-link-label,
   .admin-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-bottom {
     width: auto;
@@ -1769,10 +1768,10 @@ body {
 
 /* Collapsed state: icon-only sidebar (shadcn-style) */
 .admin-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-logo-img {
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 2rem;
+  height: 2rem;
 }
-.admin-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-logo-text {
+.admin-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-logo-title {
   overflow: hidden;
   width: 0;
   opacity: 0;
@@ -2026,12 +2025,14 @@ body {
   }
   /* On mobile, always show full labels (ignore collapsed state) */
   .admin-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-logo-img {
-    width: 1.75rem;
-    height: 1.75rem;
+    width: 2.5rem;
+    height: 2.5rem;
   }
-  .admin-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-logo-text {
+  .admin-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-logo-title {
     width: auto;
+    overflow: visible;
     opacity: 1;
+    pointer-events: auto;
   }
   .admin-app-dashboard[data-sidebar-collapsed="true"] .lr-dashboard-sidebar-link-label {
     width: auto;
