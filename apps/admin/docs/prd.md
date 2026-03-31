@@ -443,11 +443,13 @@ We'll generate the demo and give you the email template."
 | Email (transactional) | Resend — for user notifications only (not cold outreach sending) |
 | Cold email sending | User's own tool (Instantly, Smartlead, Gmail) — Ed & Sy Admin provides templates only |
 | SMS | Twilio (backlog; optional via env when enabled) |
-| Auth | Clerk or Supabase Auth (planned) |
+| Auth | Supabase Auth (Google) with `@supabase/ssr` session cookies for the dashboard |
 | Payments | Stripe (planned) |
 | CRM connectors | HubSpot, GoHighLevel, Pipedrive, Notion (Growth) |
 
 **Note on sending architecture:** Ed & Sy Admin does not own cold outreach delivery infrastructure. Users copy email templates and send via their own tools. This keeps deliverability responsibility with the user and eliminates spam/blacklist risk for Ed & Sy Admin.
+
+**Prospects dashboard:** The prospects list and prospect detail views subscribe to Supabase Realtime (`postgres_changes` on `prospects`, `demo_jobs`, `gbp_jobs`, `insights_jobs`) so job and row updates appear without client polling of `/api/jobs/*`. RLS limits rows to the signed-in user (Google identity `provider_id` matches stored `user_id`). GBP, insights, and demo jobs are still processed by cron/queue routes using the Supabase service role.
 
 ### 6.2 Data Stack
 

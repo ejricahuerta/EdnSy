@@ -1,6 +1,6 @@
 import type { RequestHandler } from './$types';
 import { env } from '$env/dynamic/private';
-import { getSessionFromCookie, getSessionCookieName } from '$lib/server/session';
+import { getDashboardSessionUser } from '$lib/server/authDashboard';
 import { apiError, apiSuccess } from '$lib/server/apiResponse';
 import { listProspects } from '$lib/server/prospects';
 import { getDemoTrackingForUser, getDashboardOverview, upsertDashboardOverview } from '$lib/server/supabase';
@@ -73,9 +73,9 @@ function parseOverviewFromText(text: string): OverviewJson | null {
 /**
  * POST /api/dashboard/overview — (re)generate dashboard overview. Resource-oriented; replaces legacy /overview/refresh.
  */
-export const POST: RequestHandler = async ({ cookies }) => {
-	const cookie = cookies.get(getSessionCookieName());
-	const user = await getSessionFromCookie(cookie);
+export const POST: RequestHandler = async (event) => {
+	const { cookies } = event;
+	const user = await getDashboardSessionUser(event);
 	if (!user) {
 		return apiError(401, 'Sign in required');
 	}

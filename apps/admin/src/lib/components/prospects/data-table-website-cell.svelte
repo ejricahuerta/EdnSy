@@ -2,6 +2,7 @@
 	import { ExternalLink } from 'lucide-svelte';
 	import { cn } from '$lib/utils';
 	import type { DemoAudit } from '$lib/demo';
+	import * as Tooltip from '$lib/components/ui/tooltip';
 
 	let { website, audit = null }: { website: string | null | undefined; audit?: DemoAudit | null } = $props();
 
@@ -35,18 +36,39 @@
 <span class={cn('inline-flex items-center gap-2 text-sm text-muted-foreground', !display && 'opacity-50')}>
 	<span class={circleClass} title={gradeLabel} aria-label={gradeLabel}></span>
 	{#if display && href}
-		<a
-			href={href}
-			target="_blank"
-			rel="noopener noreferrer"
-			class="inline-flex items-center gap-1 truncate max-w-[14rem] hover:underline"
-			title={url}
-		>
-			<span class="truncate">{display}</span>
-			<ExternalLink class="size-3.5 shrink-0" aria-hidden="true" />
-		</a>
+		<Tooltip.Root>
+			<Tooltip.Trigger>
+				{#snippet child({ props })}
+					<a
+						{...props}
+						href={href}
+						target="_blank"
+						rel="noopener noreferrer"
+						class={cn(
+							'inline-flex max-w-[14rem] items-center gap-1 truncate hover:underline',
+							props.class
+						)}
+					>
+						<span class="truncate">{display}</span>
+						<ExternalLink class="size-3.5 shrink-0" aria-hidden="true" />
+					</a>
+				{/snippet}
+			</Tooltip.Trigger>
+			<Tooltip.Content side="top" sideOffset={6} class="max-w-sm break-all">
+				{url}
+			</Tooltip.Content>
+		</Tooltip.Root>
 	{:else if display}
-		<span class="truncate max-w-[14rem]" title={url}>{display}</span>
+		<Tooltip.Root>
+			<Tooltip.Trigger>
+				{#snippet child({ props })}
+					<span {...props} class={cn('inline-block max-w-[14rem] truncate', props.class)}>{display}</span>
+				{/snippet}
+			</Tooltip.Trigger>
+			<Tooltip.Content side="top" sideOffset={6} class="max-w-sm break-all">
+				{url}
+			</Tooltip.Content>
+		</Tooltip.Root>
 	{:else}
 		—
 	{/if}

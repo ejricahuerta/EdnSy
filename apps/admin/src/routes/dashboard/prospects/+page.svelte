@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { applyAction, enhance } from '$app/forms';
 	import { browser } from '$app/environment';
+	import { applyAction, deserialize, enhance } from '$app/forms';
 	import { invalidateAll, invalidate, goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { getNextStep, getSimplifiedStatus } from '$lib/nextStep';
@@ -18,9 +18,8 @@
 		/** True when scraped/GBP data exists; required for "Create demo" next step. */
 		hasGbpData?: boolean;
 	};
-	import { X, ExternalLink, Mail, MessageSquare, Copy, Link2, Send, Eye, Globe, Phone, MapPin, Star, ListChecks, Briefcase, LoaderCircle, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Upload } from 'lucide-svelte';
+	import { X, ExternalLink, Mail, MessageSquare, Copy, Link2, Send, Eye, Globe, Phone, MapPin, Star, ListChecks, Briefcase, LoaderCircle, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Upload, RefreshCw } from 'lucide-svelte';
 	import SearchIcon from '@lucide/svelte/icons/search';
-	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
 	import {
 		type ColumnDef,
 		type ColumnFiltersState,
@@ -52,17 +51,20 @@
 	import * as Card from '$lib/components/ui/card';
 	import * as Table from '$lib/components/ui/table';
 	import { Button } from '$lib/components/ui/button';
-	import { Badge } from '$lib/components/ui/badge';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import * as Drawer from '$lib/components/ui/drawer';
-	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import * as Select from '$lib/components/ui/select';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { cn } from '$lib/utils';
 	import { toastSuccess, toastError, toastInfo, toastFromActionResult } from '$lib/toast';
-import { clientError } from '$lib/log';
+	import { clientError } from '$lib/log';
+	import {
+		maybeToastDemoJobsFromLoadData,
+		type DemoJobMapEntry
+	} from '$lib/client/prospectsJobRealtimeToast';
+	import { prospectJobLabelResolver } from '$lib/notificationHistory';
 
 	let { data, form } = $props<{
 		data: PageData;
@@ -72,6 +74,12 @@ import { clientError } from '$lib/log';
 		};
 	}>();
 	const prospects = $derived(data.prospects);
+
+	/** Latest list for Realtime toast labels (subscription closure must not use a stale snapshot). */
+	const prospectListRef = { list: [] as Prospect[] };
+	$effect(() => {
+		prospectListRef.list = data.prospects ?? [];
+	});
 	const plan = $derived(data.plan);
 	const demoLimit = $derived(data.demoLimit);
 	const demoCountThisMonth = $derived(data.demoCountThisMonth ?? 0);
@@ -143,6 +151,55 @@ import { clientError } from '$lib/log';
 		});
 	});
 
+	/** True while any background job may be in flight (Realtime fallback polls until terminal). */
+	const hasActivePipelineJobs = $derived.by(() => {
+		const demo = data.demoJobsByProspectId ?? {};
+		const gbp = data.gbpJobsByProspectId ?? {};
+		const ins = data.insightsJobsByProspectId ?? {};
+		for (const j of Object.values(demo)) {
+			if (j.status === 'pending' || j.status === 'creating') return true;
+		}
+		for (const j of Object.values(gbp)) {
+			if (j.status === 'pending' || j.status === 'running') return true;
+		}
+		for (const j of Object.values(ins)) {
+			if (j.status === 'pending' || j.status === 'running') return true;
+		}
+		return false;
+	});
+
+	const prevDemoJobsLoadRef: {
+		snapshot: Record<string, DemoJobMapEntry> | undefined;
+	} = { snapshot: undefined };
+
+	$effect(() => {
+		const raw = data.demoJobsByProspectId ?? {};
+		const next: Record<string, DemoJobMapEntry> = {};
+		for (const [k, v] of Object.entries(raw)) {
+			next[k] = {
+				jobId: v.jobId,
+				status: v.status,
+				errorMessage: v.errorMessage ?? null
+			};
+		}
+		if (prevDemoJobsLoadRef.snapshot !== undefined) {
+			maybeToastDemoJobsFromLoadData(prevDemoJobsLoadRef.snapshot, next, (pid) => {
+				const p = prospectListRef.list.find((x) => x.id === pid);
+				return (p?.companyName || p?.email || pid).trim() || pid.slice(0, 8);
+			});
+		}
+		prevDemoJobsLoadRef.snapshot = next;
+	});
+
+	$effect(() => {
+		if (!browser) return;
+		if (!hasActivePipelineJobs) return;
+		const id = setInterval(() => {
+			void invalidateAll();
+		}, 6000);
+		return () => clearInterval(id);
+	});
+
 	const approvedProspects = $derived(
 		prospects.filter((p) => trackingByProspectId[p.id]?.status === 'approved')
 	);
@@ -160,27 +217,6 @@ import { clientError } from '$lib/log';
 	);
 	/** Count of prospects in a queued automation status (may be stuck if no active job). */
 	const prospectsInQueueCount = $derived(prospects.filter((p) => isProspectQueuedStatus(p.status)).length);
-	const processingSummary = $derived.by(() => {
-		const gbpJobs = Object.values(data.gbpJobsByProspectId ?? {});
-		const insightsJobs = Object.values(data.insightsJobsByProspectId ?? {});
-		const demoJobs = Object.values(data.demoJobsByProspectId ?? {});
-		const gbpCount = gbpJobs.filter((j) => j.status === 'pending' || j.status === 'running').length;
-		const insightsCount = insightsJobs.filter((j) => j.status === 'pending' || j.status === 'running').length;
-		const demoCount = demoJobs.filter((j) => j.status === 'pending' || j.status === 'creating').length;
-		const parts: string[] = [];
-		if (gbpCount > 0) parts.push(`GBP ${gbpCount}`);
-		if (insightsCount > 0) parts.push(`Insights ${insightsCount}`);
-		if (demoCount > 0) parts.push(`Demo ${demoCount}`);
-		if (parts.length > 0) return parts.join(' · ');
-		// Cron or another tab may have updated jobs; SSR can be stale so maps are empty while CRM still shows queued.
-		const list = data.prospects ?? [];
-		const queuedNoDemo = list.some(
-			(p) => !(p.demoLink ?? '').trim() && isProspectQueuedStatus(p.status)
-		);
-		if (queuedNoDemo) return 'Checking queue…';
-		return '';
-	});
-
 	let generatingDemo = $state(false);
 	type ScrapedSummary = {
 		gbpCompletenessScore?: number | null;
@@ -262,28 +298,6 @@ import { clientError } from '$lib/log';
 		return isProspectQueuedStatus(p.status);
 	}
 
-	/** Build a short user-facing alert for demo job failure: "Error - Description." */
-	function formatDemoErrorAlert(errorMessage: string | undefined): string {
-		const raw = (errorMessage ?? 'Unknown error').trim();
-		const lower = raw.toLowerCase();
-		if (/gbp|not found|no search results|dataforseo|business profile|scraped data/.test(lower)) {
-			return 'Unable to create demo - GBP not found.';
-		}
-		// Only rewrite when error clearly refers to a CRM provider (sync/integrations), not generic "sync" or "invalid input" from demo/generator
-		if (/\b(crm|notion|pipedrive|hubspot|gohighlevel)\b/i.test(lower)) {
-			return 'Unable to sync CRM - invalid input.';
-		}
-		if (/out of scope|flagged/.test(lower)) {
-			return 'Unable to create demo - Client out of scope.';
-		}
-		if (/prospect not found/.test(lower)) {
-			return 'Unable to create demo - Prospect not found.';
-		}
-		// First sentence or first 80 chars
-		const first = raw.split(/[.!?]/)[0]?.trim() ?? raw;
-		const short = first.length > 80 ? first.slice(0, 77) + '…' : first;
-		return `Unable to create demo - ${short}${short.endsWith('.') ? '' : '.'}`;
-	}
 	function formatScrapedSummary(s: ScrapedSummary): string {
 		const parts: string[] = [];
 		if (s.gbpCompletenessLabel != null && s.gbpCompletenessLabel !== '') parts.push(s.gbpCompletenessLabel);
@@ -313,18 +327,37 @@ import { clientError } from '$lib/log';
 	});
 
 	let filterQuery = $state('');
+	/** `__all__` = no status filter */
+	let statusFilter = $state<string>('__all__');
 
-	const hasActiveFilters = $derived(filterQuery.trim() !== '');
-	const activeFilterCount = $derived(filterQuery.trim() ? 1 : 0);
-
-	function clearFilters() {
-		filterQuery = '';
-	}
+	const statusFilterOptions = $derived.by(() => {
+		const nextStepOpts = {
+			optimisticGbpIds: optimisticGbpProspectIds,
+			optimisticInsightsIds: optimisticInsightsProspectIds
+		};
+		const labels = new Set<string>();
+		for (const p of prospectsWithJobStatus) {
+			labels.add(
+				getSimplifiedStatus(p, { ...nextStepOpts, hasGbpData: p.hasGbpData }).label
+			);
+		}
+		return Array.from(labels).sort((a, b) => a.localeCompare(b));
+	});
 
 	const filteredProspects = $derived.by((): ProspectRow[] => {
 		let list: ProspectRow[] = prospectsWithJobStatus;
+		const nextStepOpts = {
+			optimisticGbpIds: optimisticGbpProspectIds,
+			optimisticInsightsIds: optimisticInsightsProspectIds
+		};
+		if (statusFilter !== '__all__') {
+			list = list.filter(
+				(p) =>
+					getSimplifiedStatus(p, { ...nextStepOpts, hasGbpData: p.hasGbpData }).label ===
+					statusFilter
+			);
+		}
 		const q = filterQuery.trim().toLowerCase();
-		const nextStepOpts = { optimisticGbpIds: optimisticGbpProspectIds, optimisticInsightsIds: optimisticInsightsProspectIds };
 		if (q) {
 			list = list.filter((p) => {
 				const statusLabel = getSimplifiedStatus(p, {
@@ -346,13 +379,6 @@ import { clientError } from '$lib/log';
 		goto(`/dashboard/prospects/${p.id}`);
 	}
 
-	/** Single coordinator for demo + GBP + insights queue polling (avoids triple timers and stacked invalidateAll). */
-	let jobQueuePollingActive = $state(false);
-	let jobPollInvalidateDebounce: ReturnType<typeof setTimeout> | null = null;
-	const JOB_POLL_INTERVAL_MS = 4000;
-	const JOB_POLL_MAX_ATTEMPTS = 50;
-	const JOB_POLL_INVALIDATE_DEBOUNCE_MS = 320;
-
 	let createDemosDialogOpen = $state(false);
 	let createDemosForm: HTMLFormElement | null = $state(null);
 	let createDemosSubmitting = $state(false);
@@ -372,6 +398,7 @@ import { clientError } from '$lib/log';
 	let importCsvOpen = $state(false);
 	let importCsvSubmitting = $state(false);
 	let pullGbpDentalSubmitting = $state(false);
+	let tableRefreshing = $state(false);
 	/** Prospect IDs we've just submitted for GBP/Insights so status updates immediately before server responds. */
 	let optimisticGbpProspectIds = $state<Set<string>>(new Set());
 	let optimisticInsightsProspectIds = $state<Set<string>>(new Set());
@@ -401,13 +428,28 @@ import { clientError } from '$lib/log';
 		sendDemosForm.requestSubmit();
 	}
 
+	async function refreshProspectsTable() {
+		if (tableRefreshing) return;
+		tableRefreshing = true;
+		try {
+			await invalidateAll();
+		} catch (err) {
+			clientError('refreshProspectsTable', err);
+		} finally {
+			tableRefreshing = false;
+		}
+	}
+
 	/** Run next step for one prospect (pull GBP, pull insights, or create demo). Used by per-row generate icon. */
 	async function handleProcessNextStep(prospectId: string) {
 		if (processNextStepId) return;
 		processNextStepId = prospectId;
 		const p = prospects.find((x) => x.id === prospectId);
 		const who = p?.companyName || p?.email || prospectId;
-		toastInfo('Next step', `Processing ${who}…`);
+		toastInfo(
+			'Next step',
+			`${who} — Queueing now. You will get another toast when the job finishes and what to do next.`
+		);
 		const formData = new FormData();
 		formData.set('prospectId', prospectId);
 		try {
@@ -416,37 +458,86 @@ import { clientError } from '$lib/log';
 				body: formData,
 				headers: { Accept: 'application/json' }
 			});
-			const raw = (await res.json().catch(() => ({}))) as {
-				type?: string;
-				data?: { success?: boolean; step?: string; queued?: boolean; prospectId?: string; companyName?: string; alreadyQueued?: boolean; message?: string };
+			let actionResult: ReturnType<typeof deserialize>;
+			try {
+				actionResult = deserialize(await res.text());
+			} catch {
+				toastError('Next step', 'Request failed.');
+				return;
+			}
+			if (actionResult.type === 'error') {
+				toastError('Next step', 'Request failed.');
+				return;
+			}
+			if (actionResult.type === 'failure') {
+				const fd = actionResult.data;
+				const msg =
+					fd && typeof fd === 'object' && 'message' in fd
+						? String((fd as { message?: string }).message)
+						: 'Request failed.';
+				if (msg === 'This prospect already has a demo.') {
+					toastInfo('Next step', msg);
+				} else {
+					toastError('Next step', msg);
+				}
+				return;
+			}
+			if (actionResult.type !== 'success' || actionResult.data == null || typeof actionResult.data !== 'object') {
+				toastError('Next step', res.ok ? 'Nothing to do for this prospect.' : 'Request failed.');
+				return;
+			}
+			const result = actionResult.data as {
+				success?: boolean;
+				step?: string;
+				queued?: boolean;
+				prospectId?: string;
+				companyName?: string;
+				alreadyQueued?: boolean;
 				message?: string;
 			};
-			const result = raw?.data ?? raw;
-			const success = result && typeof result === 'object' && 'success' in result && result.success;
-			const message = result?.message ?? raw?.message;
+			const success = result.success === true;
 			if (success && result.queued && result.step) {
 				if (result.step === 'gbp') {
 					optimisticGbpProspectIds = new Set([...optimisticGbpProspectIds, prospectId]);
-					startJobQueuePolling();
 				} else if (result.step === 'insights') {
 					optimisticInsightsProspectIds = new Set([...optimisticInsightsProspectIds, prospectId]);
-					startJobQueuePolling();
-				} else {
-					startJobQueuePolling();
 				}
-				toastSuccess(
-					result.alreadyQueued ? 'Already in progress' : 'Queued',
-					result.alreadyQueued
-						? 'Job is running. The list will update when ready.'
-						: result.step === 'demo'
-							? 'Demo usually takes 1–2 minutes. The list will update when ready.'
-							: 'The list will update when ready.',
-					result.prospectId ? { label: 'View prospect', onClick: () => goto(`/dashboard/prospects/${result.prospectId}`) } : undefined
-				);
+				const queuedDesc = (() => {
+					if (result.alreadyQueued) {
+						if (result.step === 'demo') {
+							return `${who} — Still processing: demo generation (often 1–2 min). Next when done: review, approve, send.`;
+						}
+						return `${who} — Still processing: pull data (GBP, site, AI grade). Next when done: Run next step to queue the demo.`;
+					}
+					if (result.step === 'demo') {
+						return `${who} — Now: demo generation queued (often 1–2 min). Next when finished: open the row, review, approve, send.`;
+					}
+					if (result.step === 'insights') {
+						return `${who} — Now: pull data queued (GBP, website, AI insights). Next when finished: Run next step again to queue demo creation.`;
+					}
+					return `${who} — Now: job queued. Next: watch for a finished toast with the exact next action.`;
+				})();
+				const queuedActivity =
+					result.step === 'demo'
+						? result.alreadyQueued
+							? `Still creating the demo for ${who}.`
+							: `Started creating the demo for ${who}.`
+						: result.step === 'insights'
+							? result.alreadyQueued
+								? `Still gathering profile and insights for ${who}.`
+								: `Started gathering profile and insights for ${who}.`
+							: result.step === 'gbp'
+								? result.alreadyQueued
+									? `Still syncing Google Business Profile for ${who}.`
+									: `Started Google Business Profile for ${who}.`
+								: `Started the next step for ${who}.`;
+				toastSuccess(result.alreadyQueued ? 'Already in progress' : 'Queued', queuedDesc, result.prospectId
+					? { label: 'View prospect', onClick: () => goto(`/dashboard/prospects/${result.prospectId}`) }
+					: undefined,
+					{ activity: queuedActivity });
 				await invalidateAll();
 			} else {
-				const msg = message ?? (res.ok ? 'Nothing to do for this prospect.' : 'Request failed.');
-				// Already has a demo is informational, not a failure
+				const msg = result.message ?? (res.ok ? 'Nothing to do for this prospect.' : 'Request failed.');
 				if (msg === 'This prospect already has a demo.') {
 					toastInfo('Next step', msg);
 				} else {
@@ -466,7 +557,10 @@ import { clientError } from '$lib/log';
 		if (singleCreateSubmitting) return;
 		singleCreateSubmitting = true;
 		const who = p.companyName || p.email || p.id;
-		toastInfo('Create demo', `Queuing demo for ${who}…`);
+		toastInfo(
+			'Create demo',
+			`${who} — Queueing demo generation. Another toast will fire when it finishes with what to do next.`
+		);
 		const formData = new FormData();
 		formData.set('prospectId', p.id);
 		try {
@@ -475,26 +569,53 @@ import { clientError } from '$lib/log';
 				body: formData,
 				headers: { Accept: 'application/json' }
 			});
-			const result = (await res.json().catch(() => ({}))) as {
+			let actionResult: ReturnType<typeof deserialize>;
+			try {
+				actionResult = deserialize(await res.text());
+			} catch {
+				toastError('Create demo', 'Request failed.');
+				return;
+			}
+			if (actionResult.type === 'error') {
+				toastError('Create demo', 'Request failed.');
+				return;
+			}
+			if (actionResult.type === 'failure') {
+				const fd = actionResult.data;
+				const msg =
+					fd && typeof fd === 'object' && 'message' in fd
+						? String((fd as { message?: string }).message)
+						: 'Failed to queue demo';
+				toastError('Create demo', msg);
+				return;
+			}
+			if (actionResult.type !== 'success' || actionResult.data == null || typeof actionResult.data !== 'object') {
+				toastError('Create demo', 'Failed to queue demo');
+				return;
+			}
+			const result = actionResult.data as {
 				queued?: boolean;
 				alreadyQueued?: boolean;
 				prospectId?: string;
 				companyName?: string;
-				message?: string;
 			};
 			if (result.queued && result.prospectId) {
+				const demoQueuedDesc = result.alreadyQueued
+					? `${who} — Still processing: demo generation (often 1–2 min). Next when done: review, approve, send.`
+					: `${who} — Now: demo generation queued (often 1–2 min). Next when finished: open the row, review, approve, send.`;
 				toastSuccess(
 					result.alreadyQueued ? 'Demo already in progress' : 'Demo queued',
-					result.alreadyQueued
-						? 'Creation is running. The list will update when ready.'
-						: 'Creation usually takes 1–2 minutes. The list will update when ready.',
-					{ label: 'View prospect', onClick: () => goto(`/dashboard/prospects/${p.id}`) }
+					demoQueuedDesc,
+					{ label: 'View prospect', onClick: () => goto(`/dashboard/prospects/${p.id}`) },
+					{
+						activity: result.alreadyQueued
+							? `Demo still generating for ${who}.`
+							: `Demo generation queued for ${who}.`
+					}
 				);
 				await invalidateAll();
-				startJobQueuePolling();
 			} else {
-				const msg = result.message ?? 'Failed to queue demo';
-				toastError('Create demo', msg);
+				toastError('Create demo', 'Failed to queue demo');
 			}
 		} catch (err) {
 			clientError('Create demo fetch', err);
@@ -503,190 +624,6 @@ import { clientError } from '$lib/log';
 			singleCreateSubmitting = false;
 		}
 	}
-
-	function scheduleInvalidateFromJobPoll() {
-		if (jobPollInvalidateDebounce) clearTimeout(jobPollInvalidateDebounce);
-		jobPollInvalidateDebounce = setTimeout(async () => {
-			jobPollInvalidateDebounce = null;
-			await invalidateAll();
-		}, JOB_POLL_INVALIDATE_DEBOUNCE_MS);
-	}
-
-	/**
-	 * Poll demo, GBP, and insights job endpoints together (one timer, Promise.all).
-	 * Debounces invalidate when work completes so we do not stack full-page reloads (main-thread jank).
-	 */
-	function startJobQueuePolling() {
-		if (jobQueuePollingActive) return;
-		jobQueuePollingActive = true;
-		let attempts = 0;
-		const run = async () => {
-			if (!jobQueuePollingActive) return;
-			if (attempts >= JOB_POLL_MAX_ATTEMPTS) {
-				jobQueuePollingActive = false;
-				return;
-			}
-			attempts++;
-			try {
-				const [demoRes, gbpRes, insightsRes] = await Promise.all([
-					fetch('/api/jobs/demo', { method: 'POST' }),
-					fetch('/api/jobs/gbp', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({})
-					}),
-					fetch('/api/jobs/insights', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({})
-					})
-				]);
-				type JobBody = {
-					processed?: boolean;
-					status?: string;
-					prospectId?: string;
-					companyName?: string;
-					errorMessage?: string;
-				};
-				const demoBody = (await demoRes.json().catch(() => ({}))) as JobBody;
-				const gbpBody = (await gbpRes.json().catch(() => ({}))) as JobBody;
-				const insightsBody = (await insightsRes.json().catch(() => ({}))) as JobBody;
-
-				let needsInvalidate = false;
-
-				if (demoBody.processed && demoBody.status === 'done') {
-					const prospectId = demoBody.prospectId;
-					const desc = demoBody.companyName ? `Demo ready for ${demoBody.companyName}` : 'Demo ready';
-					toastSuccess(
-						'Demo ready',
-						desc,
-						prospectId ? { label: 'View prospect', onClick: () => goto(`/dashboard/prospects/${prospectId}`) } : undefined
-					);
-					needsInvalidate = true;
-				} else if (demoBody.processed && demoBody.status === 'failed') {
-					const prospectId = demoBody.prospectId;
-					const desc = demoBody.errorMessage ? formatDemoErrorAlert(demoBody.errorMessage) : 'Demo creation failed';
-					addHttpCallLog({
-						action: 'createDemo',
-						result: 'failure',
-						message: demoBody.errorMessage ?? 'Demo creation failed',
-						context: demoBody.companyName ? `${demoBody.companyName}` : demoBody.prospectId,
-						responseData: demoBody,
-						skipClientConsole: true
-					});
-					toastError(
-						'Demo failed',
-						desc,
-						prospectId ? { label: 'View prospect', onClick: () => goto(`/dashboard/prospects/${prospectId}`) } : undefined
-					);
-					needsInvalidate = true;
-				}
-
-				const gbpViewAction = gbpBody.prospectId
-					? { label: 'View prospect' as const, onClick: () => goto(`/dashboard/prospects/${gbpBody.prospectId}`) }
-					: undefined;
-				if (gbpBody.processed === true && gbpBody.status === 'done') {
-					addHttpCallLog({
-						action: 'processGbpJob',
-						result: 'success',
-						message: gbpBody.companyName ? `GBP ready for ${gbpBody.companyName}` : '1 prospect moved to Insights',
-						status: gbpRes.status,
-						context: gbpBody.prospectId ?? undefined
-					});
-					toastSuccess(
-						'GBP',
-						gbpBody.companyName ? `GBP ready for ${gbpBody.companyName}` : '1 prospect moved to Insights',
-						gbpViewAction
-					);
-					needsInvalidate = true;
-				} else if (gbpBody.processed === true && gbpBody.status === 'failed') {
-					addHttpCallLog({
-						action: 'processGbpJob',
-						result: 'failure',
-						message: gbpBody.errorMessage ?? 'GBP job failed',
-						status: gbpRes.status,
-						context: gbpBody.companyName ? `${gbpBody.companyName}` : gbpBody.prospectId,
-						responseData: gbpBody,
-						skipClientConsole: true
-					});
-					toastError('GBP', gbpBody.errorMessage ?? 'Failed', gbpViewAction);
-					needsInvalidate = true;
-				}
-
-				const insightsViewAction = insightsBody.prospectId
-					? { label: 'View prospect' as const, onClick: () => goto(`/dashboard/prospects/${insightsBody.prospectId}`) }
-					: undefined;
-				if (insightsBody.processed === true && insightsBody.status === 'done') {
-					addHttpCallLog({
-						action: 'processInsightsJob',
-						result: 'success',
-						message: insightsBody.companyName
-							? `Insights ready for ${insightsBody.companyName}`
-							: '1 prospect moved to Demos',
-						status: insightsRes.status,
-						context: insightsBody.prospectId ?? undefined
-					});
-					toastSuccess(
-						'Insights',
-						insightsBody.companyName
-							? `Insights ready for ${insightsBody.companyName}`
-							: '1 prospect moved to Demos',
-						insightsViewAction
-					);
-					needsInvalidate = true;
-				} else if (insightsBody.processed === true && insightsBody.status === 'failed') {
-					addHttpCallLog({
-						action: 'processInsightsJob',
-						result: 'failure',
-						message: insightsBody.errorMessage ?? 'Insights job failed',
-						status: insightsRes.status,
-						context: insightsBody.companyName ? `${insightsBody.companyName}` : insightsBody.prospectId,
-						responseData: insightsBody,
-						skipClientConsole: true
-					});
-					toastError('Insights', insightsBody.errorMessage ?? 'Failed', insightsViewAction);
-					needsInvalidate = true;
-				}
-
-				const demoIdle = demoBody.processed === false;
-				const gbpIdle = gbpBody.processed === false;
-				const insightsIdle = insightsBody.processed === false;
-
-				if (demoIdle && gbpIdle && insightsIdle) {
-					jobQueuePollingActive = false;
-					if (jobPollInvalidateDebounce) {
-						clearTimeout(jobPollInvalidateDebounce);
-						jobPollInvalidateDebounce = null;
-					}
-					await invalidateAll();
-					return;
-				}
-
-				if (needsInvalidate) scheduleInvalidateFromJobPoll();
-
-				setTimeout(run, JOB_POLL_INTERVAL_MS);
-			} catch {
-				setTimeout(run, JOB_POLL_INTERVAL_MS);
-			}
-		};
-		setTimeout(run, 500);
-	}
-
-	$effect(() => {
-		if (!browser) return;
-		const jobs = data.demoJobsByProspectId ?? {};
-		const hasPending = Object.values(jobs).some((j) => j.status === 'pending' || j.status === 'creating');
-		const gbpJobs = data.gbpJobsByProspectId ?? {};
-		const hasGbpRows = Object.keys(gbpJobs).length > 0;
-		const insightsJobs = data.insightsJobsByProspectId ?? {};
-		const hasInsightsJobs = Object.keys(insightsJobs).length > 0;
-		const prospectsList = data.prospects ?? [];
-		const inQueueNoDemo = prospectsList.some(
-			(p: Prospect) => !(p.demoLink ?? '').trim() && isProspectQueuedStatus(p.status)
-		);
-		const shouldPoll = hasPending || hasGbpRows || hasInsightsJobs || inQueueNoDemo;
-		if (shouldPoll && !jobQueuePollingActive) startJobQueuePolling();
-	});
 
 	/** Clear optimistic status only when the prospect has moved to the next step (server data has gbpRaw or insight). */
 	$effect(() => {
@@ -736,13 +673,18 @@ import { clientError } from '$lib/log';
 					addHttpCallLog({ action: 'enqueueDemo', result: 'success', message: d.alreadyQueued ? 'Already queued' : 'Queued', status: 200, context: d.prospectId ?? undefined });
 					const prospect = prospects.find((p) => p.id === d.prospectId);
 					const desc = d.alreadyQueued ? 'Creation is running. The list will update when ready.' : (prospect ? (prospect.companyName || prospect.email || d.prospectId) : 'Demo will be generated shortly.');
+					const whoEnhance = prospect ? prospect.companyName || prospect.email || d.prospectId : d.prospectId;
 					toastSuccess(
 						d.alreadyQueued ? 'Demo already in progress' : 'Demo queued',
 						desc,
-						d.prospectId ? { label: 'View prospect', onClick: () => goto(`/dashboard/prospects/${d.prospectId}`) } : undefined
+						d.prospectId ? { label: 'View prospect', onClick: () => goto(`/dashboard/prospects/${d.prospectId}`) } : undefined,
+						{
+							activity: d.alreadyQueued
+								? `Still creating the demo for ${whoEnhance}.`
+								: `Started creating the demo for ${whoEnhance}.`
+						}
 					);
 					await invalidateAll();
-					startJobQueuePolling();
 				} else {
 					const msg = result.data && typeof result.data === 'object' && 'message' in result.data ? String((result.data as { message?: string }).message) : undefined;
 					const status = result.type === 'failure' ? (result as { status?: number }).status : undefined;
@@ -850,7 +792,9 @@ import { clientError } from '$lib/log';
 					hasGbpData
 				});
 				const statusSpinner =
-					status.label === 'Processing GBP' ||
+					p.demoJob?.status === 'creating' ||
+					p.insightsJob?.status === 'running' ||
+					p.gbpJob?.status === 'running' ||
 					status.label === 'Processing Demo' ||
 					status.label === 'Processing…';
 				// Map to distinct badge styles: success=primary, warning=secondary, destructive=red, muted=outline, default=secondary
@@ -882,10 +826,12 @@ import { clientError } from '$lib/log';
 					optimisticGbpIds: optimisticGbpProspectIds,
 					optimisticInsightsIds: optimisticInsightsProspectIds
 				});
+				const hasDemoLinkOnRow = !!(p.demoLink ?? '').trim();
 				// Show email icon whenever demo is approved and has a demo link (email required by server when sending)
-				const showSendDemo =
-					step.filterValue === 'approved' && !!(p.demoLink ?? '').trim();
+				const showSendDemo = step.filterValue === 'approved' && hasDemoLinkOnRow;
+				// With a demo URL, use Regenerate (in actions menu) — not Run next step — to avoid duplicate controls
 				const showGenerate =
+					!hasDemoLinkOnRow &&
 					!showSendDemo &&
 					(step.filterValue === 'pull_data' ||
 						step.filterValue === 'create_demo' ||
@@ -899,7 +845,7 @@ import { clientError } from '$lib/log';
 					processing: isRowProcessing(p),
 					generating: processNextStepId === p.id,
 					onProcessNextStep: handleProcessNextStep,
-					hasDemoLink: !!(p.demoLink ?? '').trim(),
+					hasDemoLink: hasDemoLinkOnRow,
 					demoJobStatus: demoStatus,
 					trackingStatus: p.tracking?.status as
 						| 'draft'
@@ -911,7 +857,7 @@ import { clientError } from '$lib/log';
 						| undefined,
 					showDelete: !p.flagged,
 					showRestore: !!p.flagged,
-					onRegenerateQueued: () => startJobQueuePolling(),
+					onRegenerateQueued: () => void invalidateAll(),
 					onSendDemoSuccess: () => invalidateAll()
 				});
 			}
@@ -1030,11 +976,18 @@ import { clientError } from '$lib/log';
 				if (result.type === 'success' && result.data && typeof result.data === 'object' && 'queued' in result.data && result.data.queued) {
 					const d = result.data as { alreadyQueued?: boolean };
 					await invalidateAll();
+					const pRow = prospects.find((x) => x.id === singleCreateProspectId);
+					const whoHidden = pRow?.companyName || pRow?.email || singleCreateProspectId;
 					toastSuccess(
 						d.alreadyQueued ? 'Demo already in progress' : 'Demo queued',
-						d.alreadyQueued ? 'Creation is running. The list will update when ready.' : 'Creation usually takes 1–2 minutes. The list will update when ready.'
+						d.alreadyQueued ? 'Creation is running. The list will update when ready.' : 'Creation usually takes 1–2 minutes. The list will update when ready.',
+						undefined,
+						{
+							activity: d.alreadyQueued
+								? `Still creating the demo for ${whoHidden}.`
+								: `Started creating the demo for ${whoHidden}.`
+						}
 					);
-					startJobQueuePolling();
 					await applyAction(result);
 				} else if (result.type === 'failure') {
 					const data = result.data as { message?: string } | undefined;
@@ -1054,11 +1007,118 @@ import { clientError } from '$lib/log';
 	</form>
 	<!-- Clients (CRM) – tasks-style layout -->
 	<Card.Root id="prospects">
-		<Card.Header class="space-y-1 pb-6">
-			<Card.Title class="text-2xl font-semibold tracking-tight">Welcome back!</Card.Title>
-			<Card.Description class="text-muted-foreground">
-				Here's a list of your prospects. Search and manage demos from the table.
-			</Card.Description>
+		<Card.Header class="pb-6">
+			<div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+				<div class="min-w-0 flex-1 space-y-1">
+					<Card.Title class="text-2xl font-semibold tracking-tight">Welcome back!</Card.Title>
+					<Card.Description class="text-muted-foreground">
+						Here's a list of your prospects. Search and manage demos from the table.
+					</Card.Description>
+				</div>
+				<div class="flex shrink-0 flex-wrap items-center justify-end gap-2">
+					{#if prospectsInQueueCount > 0}
+						<form
+							method="POST"
+							action="?/clearStuckQueueStatus"
+							use:enhance={() => {
+								clearStuckSubmitting = true;
+								return async ({ result }) => {
+									clearStuckSubmitting = false;
+									if (result.type === 'success' && result.data && typeof result.data === 'object') {
+										const d = result.data as { cleared?: number };
+										const cleared = d.cleared ?? 0;
+										if (cleared > 0) {
+											toastSuccess(
+												'Queue status',
+												cleared === 1
+													? 'Cleared 1 prospect from queue'
+													: `Cleared ${cleared} prospects from queue`
+											);
+											await invalidateAll();
+										} else {
+											toastInfo(
+												'Queue status',
+												'No stuck prospects found. All queue rows have an active job.'
+											);
+											await invalidateAll();
+										}
+									} else if (result.type === 'failure' && result.data?.message) {
+										toastError('Clear queue status', (result.data as { message?: string }).message);
+									}
+								};
+							}}
+							class="inline-flex"
+						>
+							<Button
+								type="submit"
+								variant="outline"
+								size="sm"
+								class="h-9 bg-background"
+								disabled={clearStuckSubmitting}
+								title="Clear stuck gbp queued / demo queued when no active job"
+							>
+								{#if clearStuckSubmitting}
+									<LoaderCircle class="mr-1.5 size-4 animate-spin" aria-hidden="true" />
+								{/if}
+								{clearStuckSubmitting ? 'Clearing…' : 'Clear stuck queue'}
+							</Button>
+						</form>
+					{/if}
+					<form
+						method="POST"
+						action="?/pullGbpDental"
+						use:enhance={() => {
+							pullGbpDentalSubmitting = true;
+							return async ({ result }) => {
+								pullGbpDentalSubmitting = false;
+								if (result.type === 'success' && result.data && typeof result.data === 'object') {
+									const d = result.data as { message?: string; added?: number };
+									toastSuccess('Lead discovery', d.message ?? `Added ${d.added ?? 0} prospect(s).`);
+									await invalidateAll();
+								} else if (result.type === 'failure' && result.data?.message) {
+									toastError('Lead discovery', (result.data as { message?: string }).message);
+									await applyAction(result);
+								}
+							};
+						}}
+						class="inline-flex"
+					>
+						<Button
+							type="submit"
+							variant="outline"
+							size="sm"
+							class="h-9 bg-background"
+							disabled={pullGbpDentalSubmitting || !placesApiConfigured || gbpDentalTodayCount >= gbpDentalDailyCap || gbpDentalPullLock.locked}
+							title={!placesApiConfigured
+								? 'Set GOOGLE_PLACES_API_KEY in .env'
+								: gbpDentalPullLock.locked
+									? `Locked for ${gbpDentalLockMinutesRemaining} more minute${gbpDentalLockMinutesRemaining === 1 ? '' : 's'}`
+									: `Today: ${gbpDentalTodayCount}/${gbpDentalDailyCap}`}
+						>
+							{#if pullGbpDentalSubmitting}
+								<LoaderCircle class="mr-2 size-4 animate-spin" aria-hidden="true" />
+							{:else}
+								<MapPin class="mr-2 size-4" aria-hidden="true" />
+							{/if}
+							{#if gbpDentalPullLock.locked}
+								Lead discovery locked
+							{:else}
+								Lead discovery (GBP)
+							{/if}
+						</Button>
+					</form>
+					<Button
+						type="button"
+						variant="outline"
+						size="sm"
+						class="h-9 bg-background"
+						onclick={() => (importCsvOpen = true)}
+					>
+						<Upload class="mr-2 size-4" aria-hidden="true" />
+						Import CSV
+					</Button>
+				</div>
+			</div>
 		</Card.Header>
 		<Dialog.Root bind:open={importCsvOpen}>
 			<Dialog.Content class="sm:max-w-md">
@@ -1163,71 +1223,11 @@ import { clientError } from '$lib/log';
 		{#if prospects.length > 0}
 			<div class="mx-4 mb-4 sm:mx-6">
 				<div
-					class="flex flex-col gap-4 rounded-lg border border-border/50 bg-muted/30 px-4 py-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-6"
+					class="flex flex-col gap-4 rounded-lg border border-border/50 bg-muted/30 px-4 py-4 md:flex-row md:items-center md:justify-between md:gap-6"
 					role="search"
-					aria-label="Filter prospects"
+					aria-label="Search and filter prospects"
 				>
-					{#if approvedSendableProspects.length > 0}
-						<form
-							bind:this={sendDemosForm}
-							method="POST"
-							action="?/sendDemos"
-							use:enhance={() => {
-								sendDemosSubmitting = true;
-								return async ({ result }) => {
-									try {
-										if (result.type === 'success' && result.data && typeof result.data === 'object' && 'success' in result.data && result.data.success) {
-											const d = result.data as { sent?: number; total?: number };
-											toastSuccess('Send demo', d.sent != null ? `Email sent to ${d.sent} prospect${d.sent === 1 ? '' : 's'}.` : 'Done.');
-											sendDemosDialogOpen = false;
-											await invalidateAll();
-										} else if (result.type === 'failure' && result.data?.message) {
-											toastError('Send demo', (result.data as { message?: string }).message);
-											await applyAction(result);
-										}
-									} finally {
-										sendDemosSubmitting = false;
-									}
-								};
-							}}
-							class="contents"
-						>
-							{#each approvedSendableProspects as p (p.id)}
-								<input type="hidden" name="prospectId" value={p.id} />
-							{/each}
-							<AlertDialog.Root bind:open={sendDemosDialogOpen}>
-								<AlertDialog.Trigger asChild>
-									{#snippet trigger({ props })}
-										<Button type="button" size="sm" class="h-9" {...props}>
-											<Send class="mr-2 size-4" aria-hidden="true" />
-											Send Demo
-										</Button>
-									{/snippet}
-								</AlertDialog.Trigger>
-								<AlertDialog.Content>
-									<AlertDialog.Header>
-										<AlertDialog.Title>Send demo to approved prospects?</AlertDialog.Title>
-										<AlertDialog.Description>
-											An email with the demo link will be sent to {approvedSendableProspects.length} prospect{approvedSendableProspects.length === 1 ? '' : 's'}.
-											<br><br>
-											<strong>Sending means you accept the Acceptable Use Policy (AUP).</strong>
-										</AlertDialog.Description>
-									</AlertDialog.Header>
-									<AlertDialog.Footer>
-										<AlertDialog.Cancel disabled={sendDemosSubmitting}>Cancel</AlertDialog.Cancel>
-										<AlertDialog.Action type="button" disabled={sendDemosSubmitting} onclick={submitSendDemosForm}>
-											{#if sendDemosSubmitting}
-												<LoaderCircle class="mr-2 size-4 animate-spin" aria-hidden="true" />
-											{/if}
-											{sendDemosSubmitting ? 'Sending…' : 'Send email'}
-										</AlertDialog.Action>
-									</AlertDialog.Footer>
-								</AlertDialog.Content>
-							</AlertDialog.Root>
-						</form>
-					{/if}
-					<!-- Search: theme colors only (no marketing-shell overrides) -->
-					<div class="prospects-search relative min-w-0 flex-1 basis-64 sm:max-w-xs">
+					<div class="prospects-search relative min-w-0 w-full md:max-w-xl md:flex-1">
 						<label for="lr-dash-filter" class="sr-only">Search prospects</label>
 						<SearchIcon
 							class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
@@ -1236,7 +1236,7 @@ import { clientError } from '$lib/log';
 						<Input
 							id="lr-dash-filter"
 							type="search"
-							placeholder="Search by company, email, website, status…"
+							placeholder="Search company, email, website…"
 							bind:value={filterQuery}
 							aria-label="Search prospects"
 							autocomplete="off"
@@ -1262,165 +1262,96 @@ import { clientError } from '$lib/log';
 							{/if}
 						</div>
 					</div>
-
-					{#if processingSummary}
-						<div class="flex items-center">
-							<Badge variant="outline" class="h-8 px-2 text-xs">
-								<LoaderCircle class="mr-1.5 size-3 animate-spin" aria-hidden="true" />
-								Now processing: {processingSummary}
-							</Badge>
-						</div>
-					{/if}
-
-					{#if prospectsInQueueCount > 0}
-						<div class="flex flex-wrap items-center gap-3 sm:gap-4">
-							<form
-								method="POST"
-								action="?/clearStuckQueueStatus"
-								use:enhance={() => {
-									clearStuckSubmitting = true;
-									return async ({ result }) => {
-										clearStuckSubmitting = false;
-										if (result.type === 'success' && result.data && typeof result.data === 'object') {
-											const d = result.data as { cleared?: number };
-											const cleared = d.cleared ?? 0;
-											if (cleared > 0) {
-												toastSuccess(
-													'Queue status',
-													cleared === 1
-														? 'Cleared 1 prospect from queue'
-														: `Cleared ${cleared} prospects from queue`
-												);
-												await invalidateAll();
-											} else {
-												toastInfo(
-													'Queue status',
-													'No stuck prospects found. All queue rows have an active job.'
-												);
-												await invalidateAll();
-											}
-										} else if (result.type === 'failure' && result.data?.message) {
-											toastError('Clear queue status', (result.data as { message?: string }).message);
-										}
-									};
+					<div
+						class="flex w-full shrink-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end md:ms-auto md:w-auto"
+					>
+						<div class="flex items-center gap-2 sm:justify-end">
+							<Label for="lr-prospect-status-filter" class="whitespace-nowrap text-sm text-muted-foreground">Status</Label>
+							<Select.Root
+								type="single"
+								value={statusFilter}
+								onValueChange={(v) => {
+									if (v != null) statusFilter = v;
 								}}
-								class="flex items-center"
 							>
-								<Button
-									type="submit"
-									variant="outline"
-									size="sm"
-									class="h-9"
-									disabled={clearStuckSubmitting}
-									title="Clear stuck gbp queued / demo queued when no active job"
-								>
-									{#if clearStuckSubmitting}
-										<LoaderCircle class="mr-1.5 size-4 animate-spin" aria-hidden="true" />
-									{/if}
-									{clearStuckSubmitting ? 'Clearing…' : 'Clear stuck queue'}
-								</Button>
-							</form>
+								<Select.Trigger id="lr-prospect-status-filter" size="sm" class="h-9 min-w-[11rem] border-border/50 bg-background">
+									{statusFilter === '__all__' ? 'All statuses' : statusFilter}
+								</Select.Trigger>
+								<Select.Content>
+									<Select.Item value="__all__">All statuses</Select.Item>
+									{#each statusFilterOptions as label (label)}
+										<Select.Item value={label}>{label}</Select.Item>
+									{/each}
+								</Select.Content>
+							</Select.Root>
 						</div>
-					{/if}
-
-					<!-- Clear filters + Import + Columns -->
-					<div class="flex shrink-0 items-center gap-2 border-t border-border/50 pt-4 sm:ms-auto sm:border-0 sm:pt-0">
-						<form
-							method="POST"
-							action="?/pullGbpDental"
-							use:enhance={() => {
-								pullGbpDentalSubmitting = true;
-								return async ({ result }) => {
-									pullGbpDentalSubmitting = false;
-									if (result.type === 'success' && result.data && typeof result.data === 'object') {
-										const d = result.data as { message?: string; added?: number };
-										toastSuccess('Lead discovery', d.message ?? `Added ${d.added ?? 0} prospect(s).`);
-										await invalidateAll();
-									} else if (result.type === 'failure' && result.data?.message) {
-										toastError('Lead discovery', (result.data as { message?: string }).message);
-										await applyAction(result);
-									}
-								};
-							}}
-						>
-							<Button
-								type="submit"
-								variant="outline"
-								size="sm"
-								class="h-9 bg-background"
-								disabled={pullGbpDentalSubmitting || !placesApiConfigured || gbpDentalTodayCount >= gbpDentalDailyCap || gbpDentalPullLock.locked}
-								title={!placesApiConfigured
-									? 'Set GOOGLE_PLACES_API_KEY in .env'
-									: gbpDentalPullLock.locked
-										? `Locked for ${gbpDentalLockMinutesRemaining} more minute${gbpDentalLockMinutesRemaining === 1 ? '' : 's'}`
-										: `Today: ${gbpDentalTodayCount}/${gbpDentalDailyCap}`}
-							>
-								{#if pullGbpDentalSubmitting}
-									<LoaderCircle class="mr-2 size-4 animate-spin" aria-hidden="true" />
-								{:else}
-									<MapPin class="mr-2 size-4" aria-hidden="true" />
-								{/if}
-								{#if gbpDentalPullLock.locked}
-									Lead discovery locked
-								{:else}
-									Lead discovery (GBP)
-								{/if}
-							</Button>
-						</form>
 						<Button
 							type="button"
 							variant="outline"
-							size="sm"
-							class="h-9 bg-background"
-							onclick={() => (importCsvOpen = true)}
+							size="icon"
+							class="h-9 w-9 shrink-0 bg-background"
+							disabled={tableRefreshing}
+							onclick={refreshProspectsTable}
+							aria-label="Refresh table"
+							title="Reload prospects and job status from the server"
 						>
-							<Upload class="mr-2 size-4" aria-hidden="true" />
-							Import CSV
+							<RefreshCw class={cn('size-4', tableRefreshing && 'animate-spin')} aria-hidden="true" />
 						</Button>
-						{#if hasActiveFilters}
-							<Button
-								type="button"
-								variant="ghost"
-								size="sm"
-								class="h-9 text-muted-foreground hover:text-foreground"
-								onclick={clearFilters}
-								aria-label="Clear all filters"
-							>
-								<X class="mr-1.5 size-3.5" />
-								Clear filters
-								{#if activeFilterCount > 1}
-									<Badge variant="secondary" class="ml-1.5 size-5 rounded-full px-0 text-[10px] font-medium">
-										{activeFilterCount}
-									</Badge>
-								{/if}
-							</Button>
-						{/if}
-						<DropdownMenu.Root>
-							<DropdownMenu.Trigger>
-								{#snippet child({ props })}
-									<Button {...props} variant="outline" size="sm" class="h-9 bg-background">
-										Columns
-										<ChevronDownIcon class="ms-2 size-4" />
-									</Button>
-								{/snippet}
-							</DropdownMenu.Trigger>
-							<DropdownMenu.Content align="end">
-								{#each table.getAllColumns().filter((col) => col.getCanHide()) as column (column.id)}
-									<DropdownMenu.CheckboxItem
-										class="capitalize"
-										checked={column.getIsVisible()}
-										onCheckedChange={(value) => column.toggleVisibility(!!value)}
-									>
-										{(column.columnDef.meta as { label?: string } | undefined)?.label ?? column.id}
-									</DropdownMenu.CheckboxItem>
-								{/each}
-							</DropdownMenu.Content>
-						</DropdownMenu.Root>
 					</div>
 				</div>
 			</div>
 			<!-- Prominent "Send email" bar when there are approved prospects -->
 			{#if approvedSendableProspects.length > 0}
+				<form
+					bind:this={sendDemosForm}
+					method="POST"
+					action="?/sendDemos"
+					use:enhance={() => {
+						sendDemosSubmitting = true;
+						return async ({ result }) => {
+							try {
+								if (result.type === 'success' && result.data && typeof result.data === 'object' && 'success' in result.data && result.data.success) {
+									const d = result.data as { sent?: number; total?: number };
+									toastSuccess('Send demo', d.sent != null ? `Email sent to ${d.sent} prospect${d.sent === 1 ? '' : 's'}.` : 'Done.');
+									sendDemosDialogOpen = false;
+									await invalidateAll();
+								} else if (result.type === 'failure' && result.data?.message) {
+									toastError('Send demo', (result.data as { message?: string }).message);
+									await applyAction(result);
+								}
+							} finally {
+								sendDemosSubmitting = false;
+							}
+						};
+					}}
+					class="hidden"
+					aria-hidden="true"
+				>
+					{#each approvedSendableProspects as p (p.id)}
+						<input type="hidden" name="prospectId" value={p.id} />
+					{/each}
+				</form>
+				<AlertDialog.Root bind:open={sendDemosDialogOpen}>
+					<AlertDialog.Content>
+						<AlertDialog.Header>
+							<AlertDialog.Title>Send demo to approved prospects?</AlertDialog.Title>
+							<AlertDialog.Description>
+								An email with the demo link will be sent to {approvedSendableProspects.length} prospect{approvedSendableProspects.length === 1 ? '' : 's'}.
+								<br /><br />
+								<strong>Sending means you accept the Acceptable Use Policy (AUP).</strong>
+							</AlertDialog.Description>
+						</AlertDialog.Header>
+						<AlertDialog.Footer>
+							<AlertDialog.Cancel disabled={sendDemosSubmitting}>Cancel</AlertDialog.Cancel>
+							<AlertDialog.Action type="button" disabled={sendDemosSubmitting} onclick={submitSendDemosForm}>
+								{#if sendDemosSubmitting}
+									<LoaderCircle class="mr-2 size-4 animate-spin" aria-hidden="true" />
+								{/if}
+								{sendDemosSubmitting ? 'Sending…' : 'Send email'}
+							</AlertDialog.Action>
+						</AlertDialog.Footer>
+					</AlertDialog.Content>
+				</AlertDialog.Root>
 				<div class="mx-4 mt-2 flex flex-wrap items-center gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 dark:border-green-800 dark:bg-green-950/40 sm:mx-6">
 					<span class="text-sm font-medium text-green-800 dark:text-green-200">
 						{approvedSendableProspects.length} approved demo{approvedSendableProspects.length === 1 ? '' : 's'} ready to send
@@ -1490,8 +1421,17 @@ import { clientError } from '$lib/log';
 														if (d.gbp?.enqueueFailed && d.gbp.enqueueFailed > 0) parts.push(`${d.gbp.enqueueFailed} pull data enqueue failed`);
 														if (d.demos && (d.demos.queued ?? 0) > 0) parts.push(`${d.demos.queued} queued for demo`);
 														if (d.restored && (d.restored.count ?? 0) > 0) parts.push(`${d.restored.count} restored`);
-														if (parts.length > 0) toastSuccess('Process next step', parts.join('. '));
-														else if (actionableCount > 0) toastInfo('Process next step', 'No new jobs queued (already in progress or skipped).');
+														if (parts.length > 0) {
+															toastSuccess(
+																'Process next step',
+																`${parts.join('. ')} Now: jobs are running in the background. Next: watch for finish toasts per client; the table refreshes automatically.`
+															);
+														} else if (actionableCount > 0) {
+															toastInfo(
+																'Process next step',
+																'No new jobs queued (already in progress or skipped). Next: wait for running jobs to finish, then try again if needed.'
+															);
+														}
 														addHttpCallLog({
 															action: 'bulkProcessNextStep',
 															result: 'success',
@@ -1501,9 +1441,6 @@ import { clientError } from '$lib/log';
 														});
 														rowSelection = {};
 														await invalidateAll();
-														if ((d.gbp?.queued ?? 0) > 0 || (d.demos?.queued ?? 0) > 0) {
-															startJobQueuePolling();
-														}
 														await invalidate('/dashboard/prospects');
 													} else if (result.type === 'failure' && result.data?.message) {
 														optimisticInsightsProspectIds = new Set([...optimisticInsightsProspectIds].filter((id) => !partition.pullData.includes(id)));
@@ -1691,7 +1628,10 @@ import { clientError } from '$lib/log';
 									: names.length <= 2
 										? names.join(', ')
 										: `${names.slice(0, 2).join(', ')} and ${names.length - 2} more`;
-							toastInfo('Create demos', `Creating demos for ${who}…`);
+							toastInfo(
+								'Create demos',
+								`${who} — Queueing demo jobs. You will get a toast per client when each demo finishes, with what to do next.`
+							);
 							createDemosSubmitting = true;
 							return async ({ result, formData }) => {
 								try {
@@ -1707,11 +1647,13 @@ import { clientError } from '$lib/log';
 										if (queued > 0) {
 											toastSuccess(
 												'Demos queued',
-												'Creation usually takes 1–2 minutes. The list will update when ready.'
+												`Now: ${queued} demo generation job(s) running (often 1–2 min each). Next: a finish toast per client; table refreshes automatically.`
 											);
-											startJobQueuePolling();
 										} else {
-											toastInfo('Create demos', 'No demos queued (selected already had demos or were skipped).');
+											toastInfo(
+												'Create demos',
+												'No demos queued (selected already had demos or were skipped). Next: pick clients without demos, then try again.'
+											);
 										}
 										rowSelection = {};
 										await invalidateAll();

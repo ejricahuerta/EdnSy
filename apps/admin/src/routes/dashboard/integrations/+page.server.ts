@@ -2,7 +2,7 @@ import { fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 import { markdownToHtml } from '$lib/markdown';
 import { INTEGRATION_HELP_DOCS, INTEGRATION_IDS } from '$lib/server/integrationHelpDocs';
-import { getSessionFromCookie, getSessionCookieName } from '$lib/server/session';
+import { getDashboardSessionUser } from '$lib/server/authDashboard';
 import { getPlanForUser } from '$lib/server/stripe';
 import { listCrmConnections, saveCrmConnection, deleteCrmConnection, getCrmConnection } from '$lib/server/crm';
 import { getGmailTokens, deleteGmailTokens } from '$lib/server/gmail';
@@ -30,9 +30,8 @@ function loadHelpDocs(): Record<string, string> {
 	return out;
 }
 
-export const load: PageServerLoad = async ({ cookies }) => {
-	const cookie = cookies.get(getSessionCookieName());
-	const user = await getSessionFromCookie(cookie);
+export const load: PageServerLoad = async (event) => {
+	const user = await getDashboardSessionUser(event);
 	if (!user) throw redirect(303, '/auth/login');
 	const plan = await getPlanForUser(user);
 	const connections = await listCrmConnections(user.id);
@@ -72,9 +71,9 @@ export const load: PageServerLoad = async ({ cookies }) => {
 };
 
 export const actions: Actions = {
-	getNotionDatabases: async ({ request, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	getNotionDatabases: async (event) => {
+		const { request, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
 		const formData = await request.formData();
 		const apiKey = (formData.get('apiKey') as string)?.trim();
@@ -83,9 +82,9 @@ export const actions: Actions = {
 		if ('error' in result) return fail(400, { message: result.error, databases: [] });
 		return { success: true, databases: result.databases };
 	},
-	connectNotion: async ({ request, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	connectNotion: async (event) => {
+		const { request, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
 		const formData = await request.formData();
 		const apiKey = (formData.get('apiKey') as string)?.trim();
@@ -95,17 +94,17 @@ export const actions: Actions = {
 		if (!result.ok) return fail(502, { message: result.error ?? 'Failed to save' });
 		return { success: true, message: 'Notion connected.' };
 	},
-	disconnectNotion: async ({ cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	disconnectNotion: async (event) => {
+		const { cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
 		const result = await deleteCrmConnection(user.id, 'notion');
 		if (!result.ok) return fail(502, { message: result.error ?? 'Failed to disconnect' });
 		return { success: true, message: 'Notion disconnected.' };
 	},
-	getNotionSchema: async ({ cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	getNotionSchema: async (event) => {
+		const { cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
 		const schemaResult = await getNotionDatabaseSchema(user.id);
 		if ('error' in schemaResult) return fail(502, { message: schemaResult.error, schema: null, fieldMapping: null });
@@ -117,9 +116,9 @@ export const actions: Actions = {
 			fieldMapping: fieldMapping ?? {}
 		};
 	},
-	saveNotionFieldMapping: async ({ request, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	saveNotionFieldMapping: async (event) => {
+		const { request, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
 		const conn = await getCrmConnection(user.id, 'notion');
 		if (!conn?.access_token || !conn.databaseId) return fail(400, { message: 'Notion not connected' });
@@ -137,9 +136,9 @@ export const actions: Actions = {
 		if (!result.ok) return fail(502, { message: result.error ?? 'Failed to save mapping' });
 		return { success: true, message: 'Field mapping saved.' };
 	},
-	syncNotion: async ({ cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	syncNotion: async (event) => {
+		const { cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
 		const conn = await getCrmConnection(user.id, 'notion');
 		if (!conn?.databaseId) return fail(400, { message: 'Notion not connected' });
@@ -165,9 +164,9 @@ export const actions: Actions = {
 		};
 	},
 	/** Save current mapping from form then run sync (single action for the Map headers popup). */
-	syncNotionWithMapping: async ({ request, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	syncNotionWithMapping: async (event) => {
+		const { request, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
 		const conn = await getCrmConnection(user.id, 'notion');
 		if (!conn?.access_token || !conn.databaseId) return fail(400, { message: 'Notion not connected' });
@@ -204,17 +203,17 @@ export const actions: Actions = {
 			message: `Inserted ${inserted} new row(s); skipped ${skipped} already in your dashboard (${result.prospects.length} total from Notion).`
 		};
 	},
-	disconnectGmail: async ({ cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	disconnectGmail: async (event) => {
+		const { cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
 		const result = await deleteGmailTokens(user.id);
 		if (!result.ok) return fail(502, { message: result.error ?? 'Failed to disconnect' });
 		return { success: true, message: 'Gmail disconnected.' };
 	},
-	pullGbpDental: async ({ cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	pullGbpDental: async (event) => {
+		const { cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
 		const result = await runPullGbpDental(user.id);
 		if (!result.ok) return fail(400, { message: result.message });

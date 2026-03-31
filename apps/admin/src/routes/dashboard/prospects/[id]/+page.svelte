@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { applyAction, enhance } from '$app/forms';
-	import { browser } from '$app/environment';
 	import { invalidateAll } from '$app/navigation';
 	import { getStatusDisplay } from '$lib/statusDisplay';
 	import { DEMO_TRACKING_OPTIONS, getDemoTrackingLabel, type DemoTrackingStatus, auditFromScrapedData } from '$lib/demo';
@@ -20,7 +19,6 @@
 		LoaderCircle,
 		Trash2,
 		Check,
-		Circle,
 		Send
 	} from 'lucide-svelte';
 	import * as Card from '$lib/components/ui/card';
@@ -36,7 +34,7 @@
 	import { toastSuccess, toastError } from '$lib/toast';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
-	import { tick } from 'svelte';
+	import { prospectJobLabelResolver } from '$lib/notificationHistory';
 
 	/** Safe return URL from ?returnTo= (only dashboard paths). Default: prospects list. */
 	const backHref = $derived.by(() => {
@@ -67,15 +65,23 @@
 	const needsWebsiteDemo = $derived(insight?.needsWebsiteDemo !== false);
 	const hasAnalysis = $derived(!!scrapedData && !!insight);
 
+	/** One line for the notification bell (matches list page pipeline summary for this prospect). */
+	const detailProcessingSummary = $derived.by(() => {
+		const who = prospect.companyName || prospect.email || prospect.id;
+		const parts: string[] = [];
+		if (gbpJob) parts.push('GBP 1');
+		if (insightsJob) parts.push('Insights 1');
+		if (demoJob?.status === 'creating') parts.push(`Processing Demo: ${who}`);
+		if (demoJob?.status === 'pending') parts.push('Demo Queued: 1');
+		return parts.length > 0 ? parts.join(' · ') : '';
+	});
+
 	let copied = $state(false);
 	let aupConfirmed = $state(false);
 	let generatingDemo = $state(false);
 	let regeneratingDemo = $state(false);
 	let analyzingBusiness = $state(false);
 	let regeneratingGbpInsights = $state(false);
-	let demoJobPollingActive = $state(false);
-	let insightsJobPollingActive = $state(false);
-	let gbpJobPollingActive = $state(false);
 	let deleteDialogOpen = $state(false);
 	let sendConfirmOpen = $state(false);
 	let sendAlternateConfirmOpen = $state(false);
@@ -99,13 +105,11 @@
 	});
 
 	$effect(() => {
-		if (!browser) return;
-		if (insightsJob && !insightsJobPollingActive) startInsightsJobPolling();
-	});
-
-	$effect(() => {
-		if (!browser) return;
-		if (gbpJob && !gbpJobPollingActive) startGbpJobPolling();
+		const prospectId = data.prospect?.id ?? '';
+		const prospectWho =
+			data.prospect?.companyName || data.prospect?.email || prospectId || 'This client';
+		prospectJobLabelResolver.set((pid) => (pid === prospectId ? prospectWho : pid.slice(0, 8)));
+		return () => prospectJobLabelResolver.set((id) => id.slice(0, 8));
 	});
 
 	type ProspectEventEntry = { key: string; label: string; at: string | null; seq: number };
@@ -327,7 +331,6 @@
 						d.alreadyQueued ? 'Creation is running. This page will update when ready.' : (prospect.companyName || prospect.email || prospect.id)
 					);
 					await invalidateAll();
-					startDemoJobPolling();
 				} else if (result.type === 'failure' && result.data) {
 					const msg =
 						result.data && typeof result.data === 'object' && 'message' in result.data
@@ -341,44 +344,6 @@
 			}
 		};
 	}
-
-	/** Poll process-demo-job until queue is empty or max attempts. */
-	function startDemoJobPolling() {
-		if (demoJobPollingActive) return;
-		demoJobPollingActive = true;
-		toastInfo('Demo', 'Processing demo job…');
-		const maxAttempts = 50;
-		let attempts = 0;
-		const run = async () => {
-			if (attempts >= maxAttempts) {
-				demoJobPollingActive = false;
-				return;
-			}
-			attempts++;
-			try {
-				const res = await fetch('/api/jobs/demo', { method: 'POST' });
-				const body = await res.json().catch(() => ({}));
-				if (body.processed && (body.status === 'done' || body.status === 'failed')) {
-					await invalidateAll();
-				}
-				if (body.processed === false) {
-					demoJobPollingActive = false;
-					return;
-				}
-				setTimeout(run, 3000);
-			} catch {
-				setTimeout(run, 3000);
-			}
-		};
-		setTimeout(run, 500);
-	}
-
-	$effect(() => {
-		if (!browser) return;
-		const s = demoJob?.status;
-		if ((s === 'pending' || s === 'creating') && !demoJobPollingActive) startDemoJobPolling();
-	});
-
 
 	function ensureAupInput(formEl: HTMLFormElement) {
 		let input = formEl.querySelector<HTMLInputElement>('input[name="aupConfirmed"]');
@@ -417,7 +382,6 @@
 							'You can leave this page. We’ll update when it’s done.'
 						);
 						await invalidateAll();
-						startInsightsJobPolling();
 					} else if ('analyzed' in result.data && result.data.analyzed) {
 						toastSuccess('Analysis complete', prospect.companyName || prospect.email || prospect.id);
 						await invalidateAll();
@@ -450,124 +414,15 @@
 							d.alreadyQueued ? 'Job is running. Page will update when done.' : 'Usually 1–2 minutes. Page will update when done.'
 						);
 						await invalidateAll();
-						startGbpJobPolling();
 					}
 				} else if (result.type === 'failure' && result.data?.message) {
 					toastError('Regenerate GBP and insights', result.data.message);
 					await applyAction(result);
-					regeneratingGbpInsights = false;
 				}
 			} finally {
-				// Keep regeneratingGbpInsights true while polling; startGbpJobPolling will set it false when done
-				if (result.type === 'failure') regeneratingGbpInsights = false;
+				regeneratingGbpInsights = false;
 			}
 		};
-	}
-
-	/** Poll process-gbp-job until this prospect's job is done or failed (or queue empty). */
-	function startGbpJobPolling() {
-		if (gbpJobPollingActive) return;
-		gbpJobPollingActive = true;
-		toastInfo('GBP', 'Processing GBP and insights…');
-		const prospectId = prospect.id;
-		const maxAttempts = 80;
-		let attempts = 0;
-		const run = async () => {
-			if (attempts >= maxAttempts) {
-				gbpJobPollingActive = false;
-				return;
-			}
-			attempts++;
-			try {
-				const res = await fetch('/api/jobs/gbp', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ prospectId })
-				});
-				const body = await res.json().catch(() => ({}));
-				if (body.processed && body.prospectId === prospectId) {
-					gbpJobPollingActive = false;
-					if (body.status === 'done') {
-						toastSuccess('GBP and insights updated', body.companyName ?? prospectId);
-						await invalidateAll();
-					} else if (body.status === 'failed') {
-						toastError('Regenerate GBP and insights', body.errorMessage ?? 'Job failed');
-						await invalidateAll();
-					}
-					regeneratingGbpInsights = false;
-					return;
-				}
-				if (body.currentJob && body.currentJob.prospectId === prospectId) {
-					gbpJobPollingActive = false;
-					if (body.currentJob.status === 'done') {
-						toastSuccess('GBP and insights updated', body.currentJob.companyName ?? prospectId);
-						await invalidateAll();
-					} else if (body.currentJob.status === 'failed') {
-						toastError('Regenerate GBP and insights', body.currentJob.errorMessage ?? 'Job failed');
-						await invalidateAll();
-					}
-					regeneratingGbpInsights = false;
-					return;
-				}
-				tick().then(() => setTimeout(run, 3000));
-			} catch {
-				tick().then(() => setTimeout(run, 3000));
-			}
-		};
-		tick().then(() => setTimeout(run, 500));
-	}
-
-	/** Poll process-insights-job until this prospect's job is done or failed (or queue empty). User can navigate away; polling stops. Sends prospectId so the API can return currentJob when status is already done/failed (e.g. another tab processed it). */
-	function startInsightsJobPolling() {
-		if (insightsJobPollingActive) return;
-		insightsJobPollingActive = true;
-		toastInfo('Insights', 'Processing insights job…');
-		const prospectId = prospect.id;
-		const maxAttempts = 80;
-		let attempts = 0;
-		const run = async () => {
-			if (attempts >= maxAttempts) {
-				insightsJobPollingActive = false;
-				return;
-			}
-			attempts++;
-			try {
-				const res = await fetch('/api/jobs/insights', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ prospectId })
-				});
-				const body = await res.json().catch(() => ({}));
-				// Completed by this request
-				if (body.processed && body.prospectId === prospectId) {
-					insightsJobPollingActive = false;
-					if (body.status === 'done') {
-						toastSuccess('Insights ready', body.companyName ?? prospectId);
-						await invalidateAll();
-					} else if (body.status === 'failed') {
-						toastError('Pull insights', body.errorMessage ?? 'Analysis failed');
-						await invalidateAll();
-					}
-					return;
-				}
-				// Already done/failed (e.g. another tab or earlier request processed it) — update status and stop polling
-				if (body.currentJob && body.currentJob.prospectId === prospectId) {
-					insightsJobPollingActive = false;
-					if (body.currentJob.status === 'done') {
-						toastSuccess('Insights ready', body.currentJob.companyName ?? prospectId);
-						await invalidateAll();
-					} else if (body.currentJob.status === 'failed') {
-						toastError('Pull insights', body.currentJob.errorMessage ?? 'Analysis failed');
-						await invalidateAll();
-					}
-					return;
-				}
-				tick().then(() => setTimeout(run, 3000));
-			} catch {
-				tick().then(() => setTimeout(run, 3000));
-			}
-		};
-		tick().then(() => setTimeout(run, 500));
 	}
 
 	/** Submit alternate-offer form (use:enhance handles the request with correct SvelteKit behavior). */
@@ -724,7 +579,6 @@
 											d.alreadyQueued ? 'Regeneration is running. Page will update when ready.' : 'Usually 1–2 minutes. Page will update when ready.'
 										);
 										await invalidateAll();
-										startDemoJobPolling();
 									} else {
 										toastSuccess('Demo regenerated', 'Content and images updated. Refresh the demo page to see changes.');
 										await invalidateAll();

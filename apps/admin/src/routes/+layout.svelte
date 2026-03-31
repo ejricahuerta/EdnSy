@@ -8,10 +8,10 @@
 	import { toggleMode } from 'mode-watcher';
 
 	injectAnalytics();
-	import { PLAN_LABELS } from '$lib/plans';
 	import { Toaster } from '$lib/components/ui/sonner';
 	import { Button } from '$lib/components/ui/button';
-	import { LayoutGrid, User, Users, Plug, CreditCard, Settings, PanelLeftClose, ChevronRight, Sun, Moon, Presentation, Bot, Menu, X } from 'lucide-svelte';
+	import NotificationBell from '$lib/components/dashboard/notification-bell.svelte';
+	import { LayoutGrid, Users, Plug, CreditCard, Settings, PanelLeftClose, ChevronRight, Sun, Moon, Presentation, Bot, Menu, X } from 'lucide-svelte';
 import { isEdnsyUser } from '$lib/plans';
 
 	let { data, children } = $props();
@@ -257,17 +257,8 @@ import { isEdnsyUser } from '$lib/plans';
 			</nav>
 			<div class="lr-dashboard-sidebar-footer">
 				<div class="lr-dashboard-sidebar-bottom">
-					<span class="lr-dashboard-sidebar-plan">{data.plan ? PLAN_LABELS[data.plan] : '—'}</span>
-					{#if data.plan === 'teams'}
-						<span class="lr-dashboard-sidebar-demos">Unlimited demos</span>
-					{:else}
-						<a href="/dashboard/billing" class="lr-dashboard-sidebar-upgrade" title="Upgrade your plan for unlimited demos">
-							Upgrade for unlimited demos
-						</a>
-					{/if}
-					<a href="https://ednsy.com" class="lr-dashboard-sidebar-powered" target="_blank" rel="noopener noreferrer" title="Ed & Sy">
-						Powered by Ed & Sy
-					</a>
+					<span class="lr-dashboard-sidebar-email" title={user.email}>{user.email}</span>
+					<a href="/auth/logout" class="lr-dashboard-sidebar-signout">Sign out</a>
 				</div>
 				<button
 					type="button"
@@ -285,7 +276,7 @@ import { isEdnsyUser } from '$lib/plans';
 			</div>
 		</aside>
 		<main class="lr-dashboard-main">
-			<header class="lr-dashboard-topnav" aria-label="Breadcrumb and user">
+			<header class="lr-dashboard-topnav" aria-label="Breadcrumb and toolbar">
 				<div class="lr-dashboard-topnav-left">
 					<button
 						type="button"
@@ -330,8 +321,7 @@ import { isEdnsyUser } from '$lib/plans';
 						<Sun class="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-transform dark:scale-0 dark:-rotate-90" />
 						<Moon class="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-transform dark:scale-100 dark:rotate-0" aria-hidden="true" />
 					</Button>
-					<span class="lr-dashboard-topnav-user" title={user.email}>{user.email}</span>
-					<a href="/auth/logout" class="lr-dashboard-topnav-logout">Sign out</a>
+					<NotificationBell />
 				</div>
 			</header>
 			{#if isInternalDashboardNav}

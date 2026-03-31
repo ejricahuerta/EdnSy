@@ -1343,40 +1343,8 @@ body {
 .admin-app-dashboard .lr-dashboard-sidebar-bottom {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-}
-.admin-app-dashboard .lr-dashboard-sidebar-plan {
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--ink);
-}
-.admin-app-dashboard .lr-dashboard-sidebar-demos {
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: var(--sage);
-}
-.admin-app-dashboard .lr-dashboard-sidebar-upgrade {
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: var(--sage);
-  text-decoration: none;
-  transition: color 0.15s;
-}
-.admin-app-dashboard .lr-dashboard-sidebar-upgrade:hover {
-  color: var(--primary);
-  text-decoration: underline;
-}
-.admin-app-dashboard .lr-dashboard-sidebar-powered {
-  font-size: 0.75rem;
-  color: var(--muted-foreground);
-  text-decoration: none;
-  transition: color 0.15s;
-  margin-top: 0.5rem;
-  padding-top: 0.5rem;
-  border-top: 1px solid var(--dashboard-divider);
-}
-.admin-app-dashboard .lr-dashboard-sidebar-powered:hover {
-  color: var(--foreground);
+  gap: 0.5rem;
+  min-width: 0;
 }
 .admin-app-dashboard .lr-dashboard-sidebar-email {
   font-size: 0.75rem;
@@ -1384,6 +1352,18 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.admin-app-dashboard .lr-dashboard-sidebar-signout {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--primary);
+  text-decoration: none;
+  transition: color 0.15s;
+  width: fit-content;
+}
+.admin-app-dashboard .lr-dashboard-sidebar-signout:hover {
+  color: var(--primary);
+  text-decoration: underline;
 }
 .admin-app-dashboard .lr-dashboard-sidebar-rail {
   position: absolute;
@@ -1641,24 +1621,6 @@ body {
   gap: 1rem;
   flex-shrink: 0;
 }
-.admin-app-dashboard .lr-dashboard-topnav-user {
-  font-size: 0.8125rem;
-  color: var(--foreground);
-  max-width: 12rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.admin-app-dashboard .lr-dashboard-topnav-logout {
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: var(--primary);
-  text-decoration: none;
-  transition: color 0.15s;
-}
-.admin-app-dashboard .lr-dashboard-topnav-logout:hover {
-  color: var(--primary);
-}
 .admin-app-dashboard .lr-dashboard-theme-toggle {
   position: relative;
 }
@@ -1787,15 +1749,8 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .admin-app-dashboard .lr-dashboard-topnav-user {
-    max-width: 6rem;
-    font-size: 0.75rem;
-  }
   .admin-app-dashboard .lr-dashboard-topnav-right {
     gap: 0.5rem;
-  }
-  .admin-app-dashboard .lr-dashboard-topnav-logout {
-    font-size: 0.75rem;
   }
 }
 

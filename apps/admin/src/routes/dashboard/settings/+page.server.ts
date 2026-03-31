@@ -1,12 +1,11 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
-import { getSessionFromCookie, getSessionCookieName } from '$lib/server/session';
+import { getDashboardSessionUser } from '$lib/server/authDashboard';
 import { getCrmIndustryFilter, setCrmIndustryFilter, getGbpDefaultLocation, setGbpDefaultLocation } from '$lib/server/userSettings';
 import { INDUSTRY_SLUGS, INDUSTRY_LABELS, type IndustrySlug } from '$lib/industries';
 
-export const load: PageServerLoad = async ({ cookies }) => {
-	const cookie = cookies.get(getSessionCookieName());
-	const user = await getSessionFromCookie(cookie);
+export const load: PageServerLoad = async (event) => {
+	const user = await getDashboardSessionUser(event);
 	if (!user) {
 		throw redirect(303, '/auth/login');
 	}
@@ -25,9 +24,9 @@ export const load: PageServerLoad = async ({ cookies }) => {
 };
 
 export const actions: Actions = {
-	saveCrmIndustryFilter: async ({ request, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	saveCrmIndustryFilter: async (event) => {
+		const { request, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) {
 			return fail(401, { message: 'Sign in required' });
 		}
@@ -40,9 +39,9 @@ export const actions: Actions = {
 		}
 		return { success: true };
 	},
-	saveGbpDefaultLocation: async ({ request, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	saveGbpDefaultLocation: async (event) => {
+		const { request, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) {
 			return fail(401, { message: 'Sign in required' });
 		}

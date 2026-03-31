@@ -1,5 +1,17 @@
 <script lang="ts">
-	// Login: card-style auth (like reportrosetta.com/auth/login), Google only
+	import type { PageData } from './$types';
+
+	let { data }: { data: PageData } = $props();
+
+	const authErrorMessage = $derived(
+		data.authError === 'auth'
+			? 'Sign-in could not be completed (Google callback failed). Try again, or use a private window if cookies are blocked.'
+			: data.authError === 'oauth'
+				? 'Could not start Google sign-in. Set AUTH_GOOGLE_CLIENT_ID and AUTH_GOOGLE_CLIENT_SECRET (or GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET), and add this redirect URI in Google Cloud: your app origin + /auth/callback (e.g. http://localhost:5173/auth/callback).'
+				: data.authError === 'session'
+					? 'Server SESSION_SECRET is missing or too short (16+ characters). Set it in .env to finish sign-in.'
+					: null
+	);
 </script>
 
 <div class="lr-auth-page">
@@ -10,6 +22,14 @@
 		</a>
 		<h1 class="lr-auth-card-title">Sign in</h1>
 		<p class="lr-auth-card-sub">Starter, Growth & Agency</p>
+		{#if authErrorMessage}
+			<p
+				class="lr-auth-card-error rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive mb-4"
+				role="alert"
+			>
+				{authErrorMessage}
+			</p>
+		{/if}
 		<a href="/auth/google" class="lr-btn-primary lr-auth-google-btn">
 			<svg class="lr-auth-google-icon" viewBox="0 0 24 24" aria-hidden="true">
 				<path
@@ -33,6 +53,18 @@
 		</a>
 		<p class="lr-auth-card-note">
 			You'll be redirected to Google. We only request your email and profile.
+		</p>
+		<p class="lr-auth-card-note text-xs leading-snug opacity-90">
+			<strong class="font-medium text-[var(--ink)]">Google Cloud:</strong> add this exact
+			<strong>Authorized redirect URI</strong> for your OAuth client (Credentials → Web client):
+			<code class="mt-1 block break-all rounded bg-muted/80 px-2 py-1 font-mono text-[11px]"
+				>{data.googleOAuthRedirectUri}</code
+			>
+			<span class="mt-1 block"
+				><code class="font-mono">localhost</code> and <code class="font-mono">127.0.0.1</code> are
+				different. The path must be <code class="font-mono">/auth/callback</code>, not
+				<code class="font-mono">/auth/google/callback</code>.</span
+			>
 		</p>
 		<a href="/try" class="lr-auth-card-return">← Try free: one demo</a>
 	</div>

@@ -34,7 +34,7 @@ import { DEFAULT_TONE } from '$lib/tones';
 import type { ToneSlug } from '$lib/tones';
 import type { PageServerLoad, Actions } from './$types';
 import { isValidDemoTrackingStatus } from '$lib/demo';
-import { getSessionFromCookie, getSessionCookieName } from '$lib/server/session';
+import { getDashboardSessionUser } from '$lib/server/authDashboard';
 import { getCrmIndustryFilter, getEffectiveEmailSenderName, getEmailSignatureOverride } from '$lib/server/userSettings';
 import { industryDisplayToSlug, parseIndustryValues } from '$lib/industries';
 
@@ -84,9 +84,8 @@ import {
 	isPlacesConfiguredForGbp
 } from '$lib/server/pullGbpDental';
 
-export const load: PageServerLoad = async ({ cookies }) => {
-	const cookie = cookies.get(getSessionCookieName());
-	const user = await getSessionFromCookie(cookie);
+export const load: PageServerLoad = async (event) => {
+	const user = await getDashboardSessionUser(event);
 	if (!user) {
 		throw redirect(303, '/auth/login');
 	}
@@ -138,18 +137,18 @@ export const load: PageServerLoad = async ({ cookies }) => {
 };
 
 export const actions: Actions = {
-	pullGbpDental: async ({ cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	pullGbpDental: async (event) => {
+		const { cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
 		const result = await runPullGbpDental(user.id);
 		if (!result.ok) return fail(400, { message: result.message });
 		return { success: true, message: result.message, added: result.added, leads: result.leads };
 	},
 	/** Enqueue a demo creation job; processing runs in background via API. */
-	enqueueDemo: async ({ request, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	enqueueDemo: async (event) => {
+		const { request, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) {
 			return fail(401, { message: 'Sign in required' });
 		}
@@ -206,9 +205,9 @@ export const actions: Actions = {
 	 * Process the next step for a single prospect: enqueue Pull data (GBP + website + insight) or Demo.
 	 * Pull data = one Insights job that does GBP → website → insight in a single process.
 	 */
-	processNextStep: async ({ request, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	processNextStep: async (event) => {
+		const { request, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
 		const formData = await request.formData();
 		const prospectId = formData.get('prospectId');
@@ -279,9 +278,9 @@ export const actions: Actions = {
 		}
 		return fail(400, { message: 'Nothing to do for this prospect right now.' });
 	},
-	generateDemo: async ({ request, url, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	generateDemo: async (event) => {
+		const { request, url, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) {
 			return fail(401, { message: 'Sign in required' });
 		}
@@ -372,9 +371,9 @@ export const actions: Actions = {
 		const scrapedSummary = buildScrapedSummary(scrapedData);
 		return { success: true, prospectId, demoLink: demoUrl, scrapedSummary };
 	},
-	updateDemoStatus: async ({ request, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	updateDemoStatus: async (event) => {
+		const { request, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) {
 			return fail(401, { message: 'Sign in required' });
 		}
@@ -394,9 +393,9 @@ export const actions: Actions = {
 		return { success: true, prospectId, status };
 	},
 	/** Regenerate demo: enqueue a job so Claude runs one-at-a-time (avoids rate limit when multiple demos created). */
-	regenerateDemo: async ({ request, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	regenerateDemo: async (event) => {
+		const { request, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) {
 			return fail(401, { message: 'Sign in required' });
 		}
@@ -423,9 +422,9 @@ export const actions: Actions = {
 		await updateDemoTrackingStatus(user.id, prospectId, { status: 'draft' });
 		return { success: true, prospectId, queued: true, jobId: result.jobId, alreadyQueued: !result.created };
 	},
-	bulkApproveDemos: async ({ request, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	bulkApproveDemos: async (event) => {
+		const { request, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) {
 			return fail(401, { message: 'Sign in required' });
 		}
@@ -446,9 +445,9 @@ export const actions: Actions = {
 		}
 		return { success: true, total: prospectIds.length };
 	},
-	bulkGenerateDemos: async ({ request, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	bulkGenerateDemos: async (event) => {
+		const { request, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) {
 			return fail(401, { message: 'Sign in required' });
 		}
@@ -499,9 +498,9 @@ export const actions: Actions = {
 			errors: errors.length > 0 ? errors.slice(0, 5) : undefined
 		};
 	},
-	sendDemos: async ({ request, url, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	sendDemos: async (event) => {
+		const { request, url, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) {
 			return fail(401, { message: 'Sign in required' });
 		}
@@ -624,9 +623,9 @@ export const actions: Actions = {
 			errors: errors.length > 0 ? errors.slice(0, 5) : undefined
 		};
 	},
-	deleteProspect: async ({ request, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	deleteProspect: async (event) => {
+		const { request, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
 		const formData = await request.formData();
 		const prospectId = formData.get('prospectId');
@@ -636,9 +635,9 @@ export const actions: Actions = {
 		return { success: true, prospectId };
 	},
 	/** Bulk enqueue GBP jobs for selected prospects (GBP queue tab). Inserts into gbp_jobs (status pending); cron processes them. */
-	bulkEnqueueGbp: async ({ request, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	bulkEnqueueGbp: async (event) => {
+		const { request, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
 		const formData = await request.formData();
 		const prospectIds = formData.getAll('prospectId') as string[];
@@ -663,9 +662,9 @@ export const actions: Actions = {
 		return { success: true, queued, total: prospectIds.length, skipped, enqueueFailed };
 	},
 	/** Bulk enqueue Insights jobs for selected prospects (Insights queue tab). */
-	bulkEnqueueInsights: async ({ request, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	bulkEnqueueInsights: async (event) => {
+		const { request, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
 		const formData = await request.formData();
 		const prospectIds = formData.getAll('prospectId') as string[];
@@ -683,9 +682,9 @@ export const actions: Actions = {
 		return { success: true, queued, total: prospectIds.length };
 	},
 	/** Soft delete: set flagged = true (moves to Deleted/not fit). */
-	setFlagged: async ({ request, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	setFlagged: async (event) => {
+		const { request, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
 		const formData = await request.formData();
 		const prospectId = formData.get('prospectId');
@@ -695,9 +694,9 @@ export const actions: Actions = {
 		return { success: true, prospectId };
 	},
 	/** Restore: set flagged = false (removes from Deleted/not fit). */
-	restoreProspect: async ({ request, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	restoreProspect: async (event) => {
+		const { request, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
 		const formData = await request.formData();
 		const prospectId = formData.get('prospectId');
@@ -707,9 +706,9 @@ export const actions: Actions = {
 		return { success: true, prospectId };
 	},
 	/** Bulk restore: set flagged = false for selected prospects (Deleted tab). */
-	bulkRestore: async ({ request, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	bulkRestore: async (event) => {
+		const { request, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
 		const formData = await request.formData();
 		const prospectIds = formData.getAll('prospectId') as string[];
@@ -726,9 +725,9 @@ export const actions: Actions = {
 	 * queue demos for create_demo/retry_demo, restore for flagged.
 	 * Client sends JSON arrays via form fields pullDataIds, demoIds, flaggedIds.
 	 */
-	bulkProcessNextStep: async ({ request, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	bulkProcessNextStep: async (event) => {
+		const { request, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
 		const formData = await request.formData();
 		const parseIds = (raw: FormDataEntryValue | null): string[] => {
@@ -807,9 +806,9 @@ export const actions: Actions = {
 	 * Clear queued status for prospects that have no active job (demo, GBP, or insights).
 	 * Use when prospects appear stuck (e.g. cron not running or jobs already finished).
 	 */
-	clearStuckQueueStatus: async ({ cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	clearStuckQueueStatus: async (event) => {
+		const { cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
 		const result = await listProspects(user.id);
 		const prospects = result.prospects ?? [];
@@ -833,9 +832,9 @@ export const actions: Actions = {
 		return { success: true, cleared };
 	},
 	/** Upload CSV: header row with company + email columns; optional website, phone, industry. Insert-only (skips existing). */
-	importCsv: async ({ request, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	importCsv: async (event) => {
+		const { request, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
 		const formData = await request.formData();
 		const file = formData.get('csvFile');

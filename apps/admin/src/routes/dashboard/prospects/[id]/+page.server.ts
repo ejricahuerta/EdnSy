@@ -16,7 +16,7 @@ import {
 	getGbpJobForProspect
 } from '$lib/server/supabase';
 import type { PageServerLoad, Actions } from './$types';
-import { getSessionFromCookie, getSessionCookieName } from '$lib/server/session';
+import { getDashboardSessionUser } from '$lib/server/authDashboard';
 import { getEffectiveEmailSenderName, getEmailSignatureOverride } from '$lib/server/userSettings';
 import { getPlanForUser } from '$lib/server/stripe';
 import { getDemoCreationLimit, canSendAutomated } from '$lib/plans';
@@ -44,9 +44,9 @@ import { generateEmailCopy } from '$lib/server/generateEmailCopy';
 import { getTemplates } from '$lib/server/templates';
 import { deleteProspect, updateProspectContact } from '$lib/server/prospects';
 
-export const load: PageServerLoad = async ({ params, cookies }) => {
-	const cookie = cookies.get(getSessionCookieName());
-	const user = await getSessionFromCookie(cookie);
+export const load: PageServerLoad = async (event) => {
+	const { params, cookies } = event;
+	const user = await getDashboardSessionUser(event);
 	if (!user) throw redirect(303, '/auth/login');
 
 	const prospectId = params.id;
@@ -70,6 +70,7 @@ export const load: PageServerLoad = async ({ params, cookies }) => {
 	const demoJob = demoJobMap[prospectId] ?? null;
 
 	return {
+		user,
 		prospect,
 		demoTracking,
 		scrapedData,
@@ -88,9 +89,9 @@ export const load: PageServerLoad = async ({ params, cookies }) => {
 };
 
 export const actions: Actions = {
-	analyzeBusiness: async ({ request, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	analyzeBusiness: async (event) => {
+		const { request, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
 		const formData = await request.formData();
 		const prospectId = formData.get('prospectId');
@@ -108,9 +109,9 @@ export const actions: Actions = {
 	},
 
 	/** Regenerate GBP and insights: enqueue a GBP job to re-fetch listing data and re-run AI grading + insight. */
-	regenerateGbpAndInsights: async ({ request, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	regenerateGbpAndInsights: async (event) => {
+		const { request, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
 		const formData = await request.formData();
 		const prospectId = formData.get('prospectId');
@@ -127,9 +128,9 @@ export const actions: Actions = {
 		return { queued: true, prospectId, companyName: prospect.companyName ?? undefined, alreadyQueued: !result.created };
 	},
 
-	enqueueDemo: async ({ request, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	enqueueDemo: async (event) => {
+		const { request, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
 		const plan = await getPlanForUser(user);
 		const demoLimit = getDemoCreationLimit(plan);
@@ -175,9 +176,9 @@ export const actions: Actions = {
 		};
 	},
 
-	updateDemoStatus: async ({ request, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	updateDemoStatus: async (event) => {
+		const { request, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
 		const formData = await request.formData();
 		const prospectId = formData.get('prospectId');
@@ -194,9 +195,9 @@ export const actions: Actions = {
 	},
 
 	/** Set demo to approved so the user can send email. Only allowed when current status is draft. */
-	approveDemo: async ({ request, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	approveDemo: async (event) => {
+		const { request, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
 		const formData = await request.formData();
 		const prospectId = formData.get('prospectId');
@@ -230,9 +231,9 @@ export const actions: Actions = {
 	},
 
 	/** Regenerate demo: enqueue a job so Claude runs one-at-a-time (avoids rate limit). */
-	regenerateDemo: async ({ request, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	regenerateDemo: async (event) => {
+		const { request, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
 		const formData = await request.formData();
 		const prospectId = formData.get('prospectId');
@@ -257,9 +258,9 @@ export const actions: Actions = {
 		return { success: true, prospectId, queued: true, jobId: result.jobId, alreadyQueued: !result.created };
 	},
 
-	sendDemos: async ({ request, url, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	sendDemos: async (event) => {
+		const { request, url, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
 		const plan = await getPlanForUser(user);
 		if (!canSendAutomated(plan)) {
@@ -365,9 +366,9 @@ export const actions: Actions = {
 		return { success: true, sent, prospectId };
 	},
 
-	sendAlternateOffer: async ({ request, url, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	sendAlternateOffer: async (event) => {
+		const { request, url, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
 		const plan = await getPlanForUser(user);
 		if (!canSendAutomated(plan)) {
@@ -410,9 +411,9 @@ export const actions: Actions = {
 		return { success: true, prospectId };
 	},
 
-	updateEmail: async ({ request, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	updateEmail: async (event) => {
+		const { request, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
 		const formData = await request.formData();
 		const prospectId = formData.get('prospectId');
@@ -428,9 +429,9 @@ export const actions: Actions = {
 		return { success: true, prospectId, email };
 	},
 
-	deleteProspect: async ({ request, cookies }) => {
-		const cookie = cookies.get(getSessionCookieName());
-		const user = await getSessionFromCookie(cookie);
+	deleteProspect: async (event) => {
+		const { request, cookies } = event;
+		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
 		const formData = await request.formData();
 		const prospectId = formData.get('prospectId');

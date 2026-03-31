@@ -43,12 +43,14 @@
 		onSendDemoSuccess?: () => void;
 	} = $props();
 
-	/** Allow sparkles when in queue so user can re-trigger or see status; only block while actively generating. */
-	const canGenerate = $derived(showGenerate && !generating);
+	/** Block while a job is in progress for this row or while the client request is in flight. */
+	const canGenerate = $derived(showGenerate && !generating && !processing);
 
 	let sendDemoDialogOpen = $state(false);
 	let sendDemoForm: HTMLFormElement | null = $state(null);
 	let sendingDemo = $state(false);
+
+	const who = $derived(prospectLabel.trim() || prospectId.slice(0, 8));
 
 	function ensureAupInput(formEl: HTMLFormElement | null) {
 		if (!formEl) return;
@@ -84,12 +86,16 @@
 				}) => {
 					try {
 						if (result.type === 'success' && result.data && typeof result.data === 'object' && 'success' in result.data && result.data.success) {
-							toastSuccess('Email sent', prospectLabel || prospectId);
+							toastSuccess('Email sent', prospectLabel || prospectId, undefined, {
+								activity: `Sent demo email to ${who}.`
+							});
 							sendDemoDialogOpen = false;
 							await invalidateAll();
 							onSendDemoSuccess?.();
 						} else if (result.type === 'failure' && result.data?.message) {
-							toastError('Send demo', (result.data as { message?: string }).message);
+							toastError('Send demo', (result.data as { message?: string }).message, undefined, {
+								activity: `Could not send demo email to ${who}.`
+							});
 							await applyAction(result);
 						}
 					} finally {
@@ -138,7 +144,10 @@
 				class={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), 'h-8 w-8 text-muted-foreground hover:text-foreground')}
 				disabled={!canGenerate}
 				aria-label="Run next step"
-				onclick={() => onProcessNextStep?.(prospectId)}
+				onclick={() => {
+					if (!canGenerate) return;
+					onProcessNextStep?.(prospectId);
+				}}
 			>
 				{#if generating}
 					<LoaderCircle class="size-4 animate-spin" aria-hidden="true" />
@@ -147,20 +156,19 @@
 				{/if}
 			</Tooltip.Trigger>
 			<Tooltip.Content side="top" sideOffset={6}>
-				{#if canGenerate}
-					Run next step: pull insights or create demo
-				{:else if generating}
+				{#if generating}
 					Processing…
 				{:else if processing}
-					Row is in queue; you can still run next step or other actions
+					Wait until this row finishes processing
 				{:else}
-					Run next step
+					Run next step: pull insights or create demo
 				{/if}
 			</Tooltip.Content>
 		</Tooltip.Root>
 	{/if}
 	<DataTableActionsCell
 		{prospectId}
+		{prospectLabel}
 		{hasDemoLink}
 		{demoJobStatus}
 		{trackingStatus}

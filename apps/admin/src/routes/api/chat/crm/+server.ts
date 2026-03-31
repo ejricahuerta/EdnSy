@@ -1,6 +1,6 @@
 import type { RequestHandler } from './$types';
 import { env } from '$env/dynamic/private';
-import { getSessionFromCookie, getSessionCookieName } from '$lib/server/session';
+import { getDashboardSessionUser } from '$lib/server/authDashboard';
 import { apiError, apiSuccess } from '$lib/server/apiResponse';
 import { listProspects } from '$lib/server/prospects';
 import { getDemoTrackingForUser } from '$lib/server/supabase';
@@ -43,9 +43,9 @@ function toGeminiContents(
 /**
  * POST /api/chat/crm — dashboard CRM chat. Resource-oriented; replaces legacy /api/dashboard/crm-chat.
  */
-export const POST: RequestHandler = async ({ request, cookies }) => {
-	const cookie = cookies.get(getSessionCookieName());
-	const user = await getSessionFromCookie(cookie);
+export const POST: RequestHandler = async (event) => {
+	const { request, cookies } = event;
+	const user = await getDashboardSessionUser(event);
 	if (!user) {
 		return apiError(401, 'Sign in required');
 	}

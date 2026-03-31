@@ -5,7 +5,7 @@
 
 import type { StatusVariant } from '$lib/statusDisplay';
 import { getStatusDisplay } from '$lib/statusDisplay';
-import { isProspectQueuedStatus } from '$lib/prospectStatus';
+import { isProspectQueuedStatus, PROSPECT_STATUS } from '$lib/prospectStatus';
 import { getDemoFailureLabel } from '$lib/constants/demoErrors';
 
 /** Minimal row shape needed to compute next step (prospect + jobs + tracking). */
@@ -76,11 +76,15 @@ export function getSimplifiedStatus(
 		return { label: 'Processing Demo', variant: 'warning' };
 	}
 	if (demoPending) {
-		return { label: 'Demo Queued', variant: 'warning' };
+		const q = getStatusDisplay(PROSPECT_STATUS.DEMO_QUEUED);
+		return { label: q.label, variant: q.variant };
 	}
 	if (inQueue && !hasDemo) {
 		const st = (row.status ?? '').trim().toLowerCase();
-		if (st === 'demo queued') return { label: 'Demo Queued', variant: 'warning' };
+		if (st === PROSPECT_STATUS.DEMO_QUEUED.toLowerCase()) {
+			const q = getStatusDisplay(PROSPECT_STATUS.DEMO_QUEUED);
+			return { label: q.label, variant: q.variant };
+		}
 		return { label: 'GBP Queued', variant: 'warning' };
 	}
 
