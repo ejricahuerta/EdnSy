@@ -348,17 +348,6 @@ body {
   justify-content: center;
   padding: var(--space-6) var(--space-4);
 }
-.admin-app .lr-auth-card-return {
-  display: block;
-  font-size: 0.8125rem;
-  color: var(--muted);
-  text-decoration: none;
-  margin-top: var(--space-4);
-  transition: color 0.2s;
-}
-.admin-app .lr-auth-card-return:hover {
-  color: var(--ink);
-}
 .admin-app .lr-auth-page {
   display: flex;
   flex-direction: column;
@@ -386,8 +375,8 @@ body {
   margin-bottom: var(--space-5);
 }
 .admin-app .lr-auth-card-logo img {
-  width: 3rem;
-  height: 3rem;
+  width: 7rem;
+  height: 7rem;
   object-fit: contain;
 }
 .admin-app .lr-auth-card-logo-text {
@@ -403,11 +392,6 @@ body {
   line-height: 1.2;
   letter-spacing: -0.02em;
   color: var(--ink);
-  margin: 0 0 var(--space-2);
-}
-.admin-app .lr-auth-card-sub {
-  font-size: 0.9375rem;
-  color: var(--muted);
   margin: 0 0 var(--space-6);
 }
 /* Style guide .btn-primary: amber, pill, 0.875rem 2rem, 100px radius (see style-guide.html) */
@@ -442,10 +426,6 @@ body {
   color: var(--color-text-muted);
   margin: var(--space-5) 0 0;
   max-width: none;
-}
-.admin-app .lr-auth-legal {
-  width: 100%;
-  max-width: 420px;
 }
 
 /* Max paragraph width per style guide (~68 characters) */

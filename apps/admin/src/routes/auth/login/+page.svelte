@@ -16,12 +16,10 @@
 
 <div class="lr-auth-page">
 	<div class="lr-auth-card">
-		<a href="/try" class="lr-auth-card-logo" aria-label="Ed & Sy Admin">
-			<img src="/logo/logo.png" alt="" width="48" height="48" />
-			<span class="lr-auth-card-logo-text">Ed & Sy <span>Admin</span></span>
+		<a href="/try" class="lr-auth-card-logo" aria-label="Ed & Sy">
+			<img src="/logo/logo.png" alt="" width="112" height="112" />
 		</a>
-		<h1 class="lr-auth-card-title">Sign in</h1>
-		<p class="lr-auth-card-sub">Starter, Growth & Agency</p>
+		<h1 class="lr-auth-card-title">Admin Sign In</h1>
 		{#if authErrorMessage}
 			<p
 				class="lr-auth-card-error rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive mb-4"
@@ -54,21 +52,5 @@
 		<p class="lr-auth-card-note">
 			You'll be redirected to Google. We only request your email and profile.
 		</p>
-		<p class="lr-auth-card-note text-xs leading-snug opacity-90">
-			<strong class="font-medium text-[var(--ink)]">Google Cloud:</strong> add this exact
-			<strong>Authorized redirect URI</strong> for your OAuth client (Credentials → Web client):
-			<code class="mt-1 block break-all rounded bg-muted/80 px-2 py-1 font-mono text-[11px]"
-				>{data.googleOAuthRedirectUri}</code
-			>
-			<span class="mt-1 block"
-				><code class="font-mono">localhost</code> and <code class="font-mono">127.0.0.1</code> are
-				different. The path must be <code class="font-mono">/auth/callback</code>, not
-				<code class="font-mono">/auth/google/callback</code>.</span
-			>
-		</p>
-		<a href="/try" class="lr-auth-card-return">← Try free: one demo</a>
 	</div>
-	<p class="lr-auth-legal text-xs text-[var(--muted)] mt-6 text-center">
-		By creating an account, you agree to Ed & Sy Inc.'s <a href="/terms" class="underline hover:text-[var(--ink)]">Terms of Service</a> and <a href="/aup" class="underline hover:text-[var(--ink)]">Acceptable Use Policy</a>, and acknowledge our <a href="/privacy" class="underline hover:text-[var(--ink)]">Privacy Policy</a>.
-	</p>
 </div>
