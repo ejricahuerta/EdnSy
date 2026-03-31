@@ -1172,6 +1172,36 @@
       display: grid;
       grid-template-columns: 1fr;
       gap: 36px;
+      align-items: start;
+    }
+
+    .footer-address {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.4);
+      font-weight: 300;
+      font-style: normal;
+      line-height: 1.75;
+      margin: 0;
+    }
+
+    .footer-col-contact .footer-links {
+      margin-bottom: 14px;
+    }
+
+    .footer-hours {
+      list-style: none;
+      margin: 14px 0 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .footer-hours li {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.4);
+      font-weight: 300;
+      line-height: 1.5;
     }
 
     .footer-brand-logo {
@@ -1267,10 +1297,10 @@
       font-weight: 500;
     }
 
-    /* Footer — sm breakpoint */
+    /* Footer — sm breakpoint: three equal columns + brand full width */
     @media (min-width: 640px) {
       .footer-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 40px;
       }
 
@@ -1286,7 +1316,7 @@
       }
 
       .footer-grid {
-        grid-template-columns: 2fr 1fr 1fr 1fr;
+        grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
         gap: 48px;
       }
 
@@ -1622,7 +1652,7 @@
       <div class="footer-grid">
 
         <div class="footer-brand">
-          <a href="#" class="footer-brand-logo">Lumina Dental</a>
+          <a href="#home" class="footer-brand-logo">Lumina Dental</a>
           <p class="footer-brand-desc">
             A boutique dental studio dedicated to precision, warmth, and the belief that every smile tells a story worth caring for.
           </p>
@@ -1663,14 +1693,17 @@
           </ul>
         </div>
 
-        <div class="footer-col">
+        <div class="footer-col footer-col-contact">
           <div class="footer-col-title">Contact</div>
           <ul class="footer-links">
             <li><a href="tel:+18005550199">(800) 555-0199</a></li>
             <li><a href="mailto:hello@luminadental.com">hello@luminadental.com</a></li>
-            <li><a href="#">1240 Brightwater Blvd<br>Suite 201<br>Tampa, FL 33602</a></li>
-            <li><a href="#">Mon–Fri: 8am – 6pm</a></li>
-            <li><a href="#">Saturday: 9am – 2pm</a></li>
+          </ul>
+          <address class="footer-address">1240 Brightwater Blvd<br>Suite 201<br>Tampa, FL 33602</address>
+          <ul class="footer-hours">
+            <li>Mon–Fri: 8am – 6pm</li>
+            <li>Saturday: 9am – 2pm</li>
+            <li>Sunday: Closed</li>
           </ul>
         </div>
 
@@ -1687,10 +1720,17 @@
 
   <!-- ─── SCRIPTS ──────────────────────────────────────────────── -->
   <script>
-    // Scroll behavior
-    window.addEventListener('scroll', () => {
-      document.querySelector('nav').classList.toggle('scrolled', window.scrollY > 80);
-    });
+    (function () {
+      var nav = document.querySelector('nav');
+      var hero = document.querySelector('.hero');
+      if (!nav || !hero) return;
+      function syncNavScrolled() {
+        nav.classList.toggle('scrolled', hero.getBoundingClientRect().bottom <= 1);
+      }
+      syncNavScrolled();
+      window.addEventListener('scroll', syncNavScrolled, { passive: true });
+      window.addEventListener('resize', syncNavScrolled);
+    })();
 
     // Mobile menu toggle
     document.querySelector('.nav-hamburger').addEventListener('click', () => {

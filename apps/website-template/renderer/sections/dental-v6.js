@@ -41,6 +41,24 @@ function pickStat(stats, matcher, fallback) {
     : fallback;
 }
 
+const WEEK_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+function formatAddressLines(address) {
+  if (typeof address !== "string" || !address.trim()) return null;
+  const t = address.trim();
+  if (t.includes("\n")) return t.split("\n").map((s) => s.trim()).filter(Boolean);
+  return t.split(",").map((s) => s.trim()).filter(Boolean);
+}
+
+function formatHoursLines(hours) {
+  if (!hours || typeof hours !== "object") return [];
+  return WEEK_DAYS.map((day) => {
+    const v = hours[day];
+    if (v == null || String(v).trim() === "") return null;
+    return `${day}: ${String(v).trim()}`;
+  }).filter(Boolean);
+}
+
 const DEFAULT_SERVICES = [
   { name: "General Dentistry", description: "Comprehensive preventive care, cleanings, fillings, and oral health exams designed to keep your teeth and gums healthy for life." },
   { name: "Teeth Whitening", description: "Professional-grade whitening treatments that deliver dramatically brighter results in a single visit or with our take-home system — safe, effective, and beautifully natural." },
@@ -103,6 +121,17 @@ function nav(data) {
         btn.setAttribute('aria-expanded', 'false');
       });
     });
+  })();
+  (function () {
+    var nav = document.querySelector('nav');
+    var hero = document.querySelector('.hero');
+    if (!nav || !hero) return;
+    function syncNavScrolled() {
+      nav.classList.toggle('scrolled', hero.getBoundingClientRect().bottom <= 1);
+    }
+    syncNavScrolled();
+    window.addEventListener('scroll', syncNavScrolled, { passive: true });
+    window.addEventListener('resize', syncNavScrolled);
   })();
 </script>`;
 }
@@ -334,11 +363,22 @@ function footer(data) {
   const instagramHref = typeof social.instagram === "string" ? social.instagram : "#";
   const facebookHref = typeof social.facebook === "string" ? social.facebook : "#";
 
+  const phone = b.phone || "(800) 555-0199";
+  const email = b.email || "hello@luminadental.com";
+  const phoneDigits = toTelDigits(phone) || "18005550199";
+  const addrLines = formatAddressLines(b.address) || ["1240 Brightwater Blvd", "Suite 201", "Tampa, FL 33602"];
+  const addressHtml = addrLines.map((line) => escapeHtml(line)).join("<br>");
+  let hourLines = formatHoursLines(b.hours);
+  if (hourLines.length === 0) {
+    hourLines = ["Mon–Fri: 8am – 6pm", "Saturday: 9am – 2pm", "Sunday: Closed"];
+  }
+  const hoursItems = hourLines.map((line) => `<li>${escapeHtml(line)}</li>`).join("\n        ");
+
   return `<footer id="contact">
   <div class="footer-inner">
     <div class="footer-grid">
       <div class="footer-brand">
-        <a href="#" class="footer-brand-logo">${escapeHtml(b.name || "Lumina Dental")}</a>
+        <a href="#home" class="footer-brand-logo">${escapeHtml(b.name || "Lumina Dental")}</a>
         <p class="footer-brand-desc">
           A boutique dental studio dedicated to precision, warmth, and the belief that every smile tells a story worth caring for.
         </p>
@@ -379,14 +419,15 @@ function footer(data) {
         </ul>
       </div>
 
-      <div class="footer-col">
+      <div class="footer-col footer-col-contact">
         <div class="footer-col-title">Contact</div>
         <ul class="footer-links">
-          <li><a href="tel:+${escapeHtml(toTelDigits(b.phone) || "18005550199")}">${escapeHtml(b.phone || "(800) 555-0199")}</a></li>
-          <li><a href="mailto:${escapeHtml(b.email || "hello@luminadental.com")}">${escapeHtml(b.email || "hello@luminadental.com")}</a></li>
-          <li><a href="#" aria-label="Address">1240 Brightwater Blvd<br>Suite 201<br>Tampa, FL 33602</a></li>
-          <li><a href="#">Mon–Fri: 8am – 6pm</a></li>
-          <li><a href="#">Saturday: 9am – 2pm</a></li>
+          <li><a href="tel:+${escapeHtml(phoneDigits)}">${escapeHtml(phone)}</a></li>
+          <li><a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a></li>
+        </ul>
+        <address class="footer-address">${addressHtml}</address>
+        <ul class="footer-hours">
+        ${hoursItems}
         </ul>
       </div>
     </div>
