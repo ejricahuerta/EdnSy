@@ -130,4 +130,5 @@ This keeps a single source of truth and avoids circular dependencies.
 - [Next steps (first send)](next-steps-first-send.md) — checklist for sending the first email.
 - [Integrations](integrations/) — HubSpot, GoHighLevel, Pipedrive, Notion.
 - [VERSION.md](VERSION.md) — versioning policy.
+- [CHANGELOG.md](CHANGELOG.md) — release history.
 - [README](../README.md) — env vars, migrations list, route map.

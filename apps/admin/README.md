@@ -2,7 +2,7 @@
 
 SvelteKit app for the Ed & Sy Admin CRM: Pro/Agency dashboard (prospects from connected CRM), industry demo pages, and (later) generate-demo + Resend email flow.
 
-**Version:** See `package.json` (`version`). History and release notes: [CHANGELOG.md](CHANGELOG.md). Versioning policy: [docs/VERSION.md](docs/VERSION.md).
+**Version:** See `package.json` (`version`). History and release notes: [docs/CHANGELOG.md](docs/CHANGELOG.md). Versioning policy: [docs/VERSION.md](docs/VERSION.md).
 
 ## Stack
 
