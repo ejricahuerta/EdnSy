@@ -15,6 +15,24 @@ export interface Env {
 	WEBSITE_TEMPLATE_URL?: string;
 }
 
+/** Avoid http→https redirects: fetch may drop Authorization on redirect, so cron gets 401. */
+function normalizeCronBase(url: string): string {
+	const trimmed = url.trim().replace(/\/$/, '');
+	if (!trimmed) return '';
+	try {
+		const u = new URL(trimmed);
+		const host = u.hostname.toLowerCase();
+		const isLocal = host === 'localhost' || host === '127.0.0.1' || host === '[::1]';
+		if (u.protocol === 'http:' && !isLocal) {
+			u.protocol = 'https:';
+			return u.toString().replace(/\/$/, '');
+		}
+	} catch {
+		return trimmed;
+	}
+	return trimmed;
+}
+
 async function callCron(url: string, secret: string): Promise<{ ok: boolean; status: number; text: string }> {
 	const res = await fetch(url, {
 		method: "GET",
@@ -32,8 +50,9 @@ async function pingHealth(url: string): Promise<{ ok: boolean; status: number; t
 
 export default {
 	async scheduled(controller: ScheduledController, env: Env, _ctx: ExecutionContext): Promise<void> {
-		const base = (env.CRON_TARGET_URL ?? "").replace(/\/$/, "");
-		const secret = env.CRON_SECRET ?? "";
+		// Trim: pasted secrets/URLs often include trailing newlines; Vercel trims CRON_SECRET so Bearer would mismatch.
+		const base = normalizeCronBase(env.CRON_TARGET_URL ?? "");
+		const secret = (env.CRON_SECRET ?? "").trim();
 
 		// scheduledTime is when this run was scheduled (ms). Use UTC minute for modulo alignment with each N-minute cron.
 		const minute = new Date(controller.scheduledTime).getUTCMinutes();
@@ -59,12 +78,18 @@ export default {
 				console.log(`[cron-worker] schedule/batch: ${r.status} ${r.ok ? "ok" : r.text}`);
 			}
 		} else {
-			console.error("[cron-worker] CRON_TARGET_URL and CRON_SECRET must be set for admin app crons");
+			const hasUrl = Boolean((env.CRON_TARGET_URL ?? "").trim());
+			const hasSecret = Boolean((env.CRON_SECRET ?? "").trim());
+			console.error(
+				`[cron-worker] admin crons skipped: CRON_TARGET_URL ${hasUrl ? "set" : "MISSING"}, CRON_SECRET ${hasSecret ? "set" : "MISSING"} (set via wrangler secret put CRON_SECRET; must match Vercel)`
+			);
 		}
 
 		// Every 14 min: Website Template warm (minute 0, 14, 28, 42, 56 UTC)
 		if (minute % 14 === 0) {
-			const websiteTemplateBase = (env.WEBSITE_TEMPLATE_URL ?? "https://website-template.ednsy.com").replace(/\/$/, "");
+			const websiteTemplateBase = normalizeCronBase(
+				(env.WEBSITE_TEMPLATE_URL ?? "https://website-template.ednsy.com").trim()
+			);
 			const r = await pingHealth(`${websiteTemplateBase}/api/health`);
 			console.log(`[cron-worker] website-template: ${r.status} ${r.ok ? "ok" : r.text}`);
 		}

@@ -7,6 +7,7 @@ import type { RequestHandler } from './$types';
 import { getProspectById } from '$lib/server/prospects';
 import { getFreeDemoRequestById } from '$lib/server/supabase';
 import { downloadDemoHtml } from '$lib/server/demo';
+import { rewriteCinematicDemoHtmlImageUrls } from '$lib/server/cinematicDemoImages';
 import { DEMO_ERROR } from '$lib/constants/demoErrors';
 
 export const GET: RequestHandler = async ({ params }) => {
@@ -24,8 +25,10 @@ export const GET: RequestHandler = async ({ params }) => {
 	}
 	if (!allowed) throw error(404, 'Not found');
 
-	const html = await downloadDemoHtml(slug);
-	if (!html) throw error(404, DEMO_ERROR.DEMO_NOT_FOUND);
+	const raw = await downloadDemoHtml(slug);
+	if (!raw) throw error(404, DEMO_ERROR.DEMO_NOT_FOUND);
+
+	const html = rewriteCinematicDemoHtmlImageUrls(raw);
 
 	return new Response(html, {
 		headers: {

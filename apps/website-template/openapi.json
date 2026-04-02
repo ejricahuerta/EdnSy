@@ -2,20 +2,177 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Website Template API",
-    "description": "HTTP API for generating landing pages from business/dental data. Use Bearer token (DEMO_GENERATOR_API_KEY or WEBSITE_TEMPLATE_API_KEY) for protected endpoints.",
-    "version": "1.0.0"
+    "description": "HTTP API for dental landing HTML (sync/async) plus static assets used by rendered pages.\n\n**Auth:** Protected POST routes use `Authorization: Bearer <API_KEY>` with `DEMO_GENERATOR_API_KEY` or `WEBSITE_TEMPLATE_API_KEY`. If no API key is set in the environment, all requests are allowed (local dev).\n\n**Async callbacks:** `POST /api/dental-async` requires `callbackUrl` to be `https:` or `http:` on localhost/127.0.0.1. If `ALLOWED_CALLBACK_ORIGINS` is set (comma-separated origins), the callback URL origin must match one of them.\n\n**Static images:** `GET /images/3x2/*` and `GET /images/9x16/*` serve dental stock photos referenced by rendered HTML. Ed & Sy Admin may rewrite those paths to this service origin (same host as `DEMO_GENERATOR_URL`) when serving cinematic demo HTML in an iframe.\n\n**Docs:** `GET /api/openapi.json` and `GET /api-docs` are omitted when `DISABLE_API_DOCS=1`.",
+    "version": "1.1.0"
   },
   "servers": [
     { "url": "http://localhost:3000", "description": "Local" }
   ],
   "tags": [
-    { "name": "Health", "description": "Readiness and liveness" },
+    { "name": "Meta", "description": "Service index" },
+    { "name": "Docs", "description": "OpenAPI spec and Swagger UI" },
+    { "name": "Static", "description": "Public image assets for dental templates" },
+    { "name": "Health", "description": "Readiness" },
     { "name": "Test", "description": "Development and testing" },
-    { "name": "Generate", "description": "AI-powered full generation (sync/async)" },
+    { "name": "Generate", "description": "Legacy generate endpoints (disabled)" },
     { "name": "Dental", "description": "Dental template render (sync/async)" }
   ],
   "security": [{ "bearerAuth": [] }],
   "paths": {
+    "/": {
+      "get": {
+        "operationId": "getRoot",
+        "tags": ["Meta"],
+        "summary": "Service index",
+        "description": "JSON map of available HTTP endpoints.",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "service": { "type": "string", "example": "Website Template Agent" },
+                    "version": { "type": "string", "example": "1.0.0" },
+                    "endpoints": {
+                      "type": "object",
+                      "additionalProperties": { "type": "string" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/openapi.json": {
+      "get": {
+        "operationId": "getOpenApiJson",
+        "tags": ["Docs"],
+        "summary": "OpenAPI 3 document (raw JSON)",
+        "description": "Returns this specification. Not registered when DISABLE_API_DOCS=1.",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OpenAPI JSON",
+            "content": {
+              "application/json": {
+                "schema": { "type": "object" }
+              }
+            }
+          },
+          "404": {
+            "description": "Disabled (DISABLE_API_DOCS=1) — route not mounted"
+          }
+        }
+      }
+    },
+    "/api-docs": {
+      "get": {
+        "operationId": "getApiDocs",
+        "tags": ["Docs"],
+        "summary": "Swagger UI",
+        "description": "Interactive API documentation. Not mounted when DISABLE_API_DOCS=1.",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Swagger UI HTML",
+            "content": {
+              "text/html": {
+                "schema": { "type": "string" }
+              }
+            }
+          },
+          "404": {
+            "description": "Disabled (DISABLE_API_DOCS=1)"
+          }
+        }
+      }
+    },
+    "/images/3x2/{filename}": {
+      "get": {
+        "operationId": "getImage3x2",
+        "tags": ["Static"],
+        "summary": "Dental stock image (3:2)",
+        "description": "JPEG assets used in dental style guides and cinematic demo HTML (`/images/3x2/...`). No authentication.",
+        "security": [],
+        "parameters": [
+          {
+            "name": "filename",
+            "in": "path",
+            "required": true,
+            "description": "File name (e.g. dental-cleaning-smile-3x2.jpg)",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Image",
+            "content": {
+              "image/jpeg": { "schema": { "type": "string", "format": "binary" } }
+            }
+          },
+          "404": { "description": "Not found" }
+        }
+      }
+    },
+    "/images/9x16/{filename}": {
+      "get": {
+        "operationId": "getImage9x16",
+        "tags": ["Static"],
+        "summary": "Dental stock image (9:16)",
+        "description": "JPEG assets used in dental style guides and cinematic demo HTML (`/images/9x16/...`). No authentication.",
+        "security": [],
+        "parameters": [
+          {
+            "name": "filename",
+            "in": "path",
+            "required": true,
+            "description": "File name (e.g. dental-chair-9x16.jpg)",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Image",
+            "content": {
+              "image/jpeg": { "schema": { "type": "string", "format": "binary" } }
+            }
+          },
+          "404": { "description": "Not found" }
+        }
+      }
+    },
+    "/style-guides/dental/images/{filename}": {
+      "get": {
+        "operationId": "getStyleGuideDentalImage",
+        "tags": ["Static"],
+        "summary": "Dental style-guide static image",
+        "description": "Optional assets under style-guides/dental/images. No authentication.",
+        "security": [],
+        "parameters": [
+          {
+            "name": "filename",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Image or other static file",
+            "content": {
+              "image/jpeg": { "schema": { "type": "string", "format": "binary" } },
+              "image/png": { "schema": { "type": "string", "format": "binary" } }
+            }
+          },
+          "404": { "description": "Not found" }
+        }
+      }
+    },
     "/api/health": {
       "get": {
         "operationId": "getHealth",
@@ -46,16 +203,37 @@
         "operationId": "getRenderTest",
         "tags": ["Test"],
         "summary": "Render test (dental HTML)",
-        "description": "Returns rendered dental HTML. Optional: json (fixture filename), style (dental-v1..dental-v6). Omit style for a random style guide. Optional layout=admin for the Ed & Sy Admin single layout (only when style is omitted).",
+        "description": "Returns rendered dental HTML. Optional: json (fixture filename), style (dental-v1..dental-v6). Omit style for a random style guide. Optional layout=admin or layout=lead-rosetta for the Ed & Sy Admin single layout (only when style is omitted).",
         "security": [],
         "parameters": [
-          { "name": "json", "in": "query", "description": "index.json | index-dental-riverside.json | index-dental-downtown.json", "schema": { "type": "string" } },
-          { "name": "style", "in": "query", "description": "dental-v1 | dental-v2 | dental-v3 | dental-v4 | dental-v6", "schema": { "type": "string" } },
-          { "name": "layout", "in": "query", "description": "admin — use Ed & Sy Admin layout instead of style guides (ignored if style is set)", "schema": { "type": "string" } }
+          {
+            "name": "json",
+            "in": "query",
+            "description": "index.json | index-dental-riverside.json | index-dental-downtown.json",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "style",
+            "in": "query",
+            "description": "dental-v1 | dental-v2 | dental-v3 | dental-v4 | dental-v6",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "layout",
+            "in": "query",
+            "description": "admin or lead-rosetta — use Ed & Sy Admin layout instead of style guides (ignored if style is set)",
+            "schema": { "type": "string" }
+          }
         ],
         "responses": {
-          "200": { "description": "HTML", "content": { "text/html": { "schema": { "type": "string" } } } },
-          "503": { "description": "No dental JSON found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+          "200": {
+            "description": "HTML",
+            "content": { "text/html": { "schema": { "type": "string" } } }
+          },
+          "503": {
+            "description": "No dental JSON found",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          }
         }
       }
     },
@@ -64,7 +242,7 @@
         "operationId": "postGenerate",
         "tags": ["Generate"],
         "summary": "Generate (sync) — DISABLED",
-        "description": "DISABLED. This endpoint returns 503. Use POST /api/dental or POST /api/dental-async instead. Previously: generated landing page from business data (id, publicUrl, plan, branding, no HTML).",
+        "description": "DISABLED. Returns 503. Use POST /api/dental or POST /api/dental-async instead.",
         "requestBody": {
           "required": true,
           "content": {
@@ -78,7 +256,7 @@
         },
         "responses": {
           "200": {
-            "description": "Success",
+            "description": "Success (not returned; endpoint disabled)",
             "content": {
               "application/json": {
                 "schema": {
@@ -93,10 +271,22 @@
               }
             }
           },
-          "400": { "description": "Invalid body", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
-          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
-          "500": { "description": "Generation failed", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
-          "503": { "description": "Endpoint disabled", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+          "400": {
+            "description": "Invalid body",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "500": {
+            "description": "Generation failed",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "503": {
+            "description": "Endpoint disabled",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          }
         }
       }
     },
@@ -105,7 +295,7 @@
         "operationId": "postGenerateAsync",
         "tags": ["Generate"],
         "summary": "Generate (async + callback) — DISABLED",
-        "description": "DISABLED. This endpoint returns 503. Use POST /api/dental-async instead. Previously: accepted job, returned 202, ran generate in background and POSTed result to callbackUrl.",
+        "description": "DISABLED. Returns 503. Use POST /api/dental-async instead.",
         "requestBody": {
           "required": true,
           "content": {
@@ -127,7 +317,7 @@
         },
         "responses": {
           "202": {
-            "description": "Accepted",
+            "description": "Accepted (not returned; endpoint disabled)",
             "content": {
               "application/json": {
                 "schema": {
@@ -140,9 +330,18 @@
               }
             }
           },
-          "400": { "description": "Invalid body or callback URL", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
-          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
-          "503": { "description": "Endpoint disabled", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+          "400": {
+            "description": "Invalid body or callback URL",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "503": {
+            "description": "Endpoint disabled",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          }
         }
       }
     },
@@ -151,7 +350,7 @@
         "operationId": "postDental",
         "tags": ["Dental"],
         "summary": "Dental render (sync)",
-        "description": "Renders dental HTML from JSON body. Picks a random dental style guide (dental-v1..dental-v6) unless optional styleId or dentalStyleId is set, or leadRosettaLayout is true.",
+        "description": "Renders dental HTML from JSON body. Picks a random dental style guide (dental-v1..dental-v6) unless optional styleId or dentalStyleId is set, or leadRosettaLayout is true. Response HTML is obfuscated. Render-control fields (styleId, dentalStyleId, leadRosettaLayout, callback fields, jobId, etc.) are stripped before rendering.",
         "requestBody": {
           "required": true,
           "content": {
@@ -164,10 +363,22 @@
           }
         },
         "responses": {
-          "200": { "description": "HTML", "content": { "text/html": { "schema": { "type": "string" } } } },
-          "400": { "description": "Invalid body", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
-          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
-          "500": { "description": "Render failed", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+          "200": {
+            "description": "HTML",
+            "content": { "text/html": { "schema": { "type": "string" } } }
+          },
+          "400": {
+            "description": "Invalid body",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "500": {
+            "description": "Render failed",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          }
         }
       }
     },
@@ -176,7 +387,7 @@
         "operationId": "postDentalAsync",
         "tags": ["Dental"],
         "summary": "Dental render (async + callback)",
-        "description": "Accepts job, returns 202. Renders dental HTML (random style guide unless styleId/dentalStyleId/leadRosettaLayout in body) and POSTs { jobId, prospectId, userId?, html } or { ..., error } to callbackUrl.",
+        "description": "Returns 202 immediately. Renders dental HTML in the background (same rules as POST /api/dental) and POSTs JSON to callbackUrl with `Authorization: Bearer callbackToken`. Success body: { jobId, prospectId, userId?, html }. Failure: { jobId, prospectId, userId?, error }. callbackUrl must be HTTPS or http on localhost/127.0.0.1; if ALLOWED_CALLBACK_ORIGINS is set, origin must match.",
         "requestBody": {
           "required": true,
           "content": {
@@ -211,8 +422,14 @@
               }
             }
           },
-          "400": { "description": "Invalid body or callback URL", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
-          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+          "400": {
+            "description": "Invalid body or callback URL not allowed",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          }
         }
       }
     }
@@ -223,7 +440,7 @@
         "type": "http",
         "scheme": "bearer",
         "bearerFormat": "API Key",
-        "description": "DEMO_GENERATOR_API_KEY or WEBSITE_TEMPLATE_API_KEY"
+        "description": "DEMO_GENERATOR_API_KEY or WEBSITE_TEMPLATE_API_KEY (optional in dev: if unset, POST routes do not require a token)"
       }
     },
     "schemas": {

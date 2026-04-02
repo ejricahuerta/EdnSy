@@ -82,6 +82,8 @@ npx wrangler tail
 
 Watch for `[cron-worker] demo:`, `gbp:`, `insights:`, `schedule/batch:`, and `website-template:` lines.
 
+If **queues never drain**, check logs for `401` on admin routes (usually `CRON_SECRET` mismatch or a newline in the Cloudflare secret; re-run `wrangler secret put CRON_SECRET` and paste the exact value from Vercel). Look for `admin crons skipped` (missing URL or secret). Use **`https://`** for `CRON_TARGET_URL`; `http://` redirects can drop the `Authorization` header.
+
 ## Limits (Cloudflare Workers)
 
 Per [account plan limits](https://developers.cloudflare.com/workers/platform/limits/#account-plan-limits):
