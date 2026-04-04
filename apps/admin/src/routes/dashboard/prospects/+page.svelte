@@ -50,7 +50,7 @@
 	} from '$lib/components/ui/data-table/index.js';
 	import * as Card from '$lib/components/ui/card';
 	import * as Table from '$lib/components/ui/table';
-	import { Button } from '$lib/components/ui/button';
+	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import * as Drawer from '$lib/components/ui/drawer';
@@ -1553,7 +1553,7 @@
 			{/snippet}
 			{@render selectionBar()}
 			<div class="overflow-x-auto mx-4 sm:mx-6 my-2">
-				<div class="rounded-md overflow-hidden">
+				<div class="rounded-md border bg-background overflow-hidden">
 					<Table.Root>
 						<Table.Header>
 							{#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
@@ -1779,6 +1779,7 @@
 										{callLogsResultFilter === 'errors' ? 'No errors in the log.' : 'No successful calls in the log.'}
 									</p>
 								{:else}
+									<div class="rounded-md border bg-background overflow-hidden">
 									<Table.Root class="w-full table-fixed">
 										<Table.Header>
 											<Table.Row>
@@ -1843,11 +1844,12 @@
 											{/each}
 										</Table.Body>
 									</Table.Root>
+									</div>
 								{/if}
 							</div>
 							<Drawer.Footer class="shrink-0 pt-2">
 								<Drawer.Close
-									class="inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
+									class={buttonVariants({ variant: 'outline' })}
 								>
 									Close
 								</Drawer.Close>

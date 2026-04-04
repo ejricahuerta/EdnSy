@@ -10,6 +10,7 @@
 	injectAnalytics();
 	import { Toaster } from '$lib/components/ui/sonner';
 	import { Button } from '$lib/components/ui/button';
+	import { Badge } from '$lib/components/ui/badge';
 	import NotificationBell from '$lib/components/dashboard/notification-bell.svelte';
 	import { LayoutGrid, Users, Plug, CreditCard, Settings, PanelLeftClose, ChevronRight, Sun, Moon, Presentation, Bot, Menu, X } from 'lucide-svelte';
 	import { isEdnsyUser } from '$lib/plans';
@@ -34,6 +35,9 @@
 	);
 	const user = $derived(data?.user ?? null);
 	const showAgentsLink = $derived(isEdnsyUser(user));
+	const supabaseDbSchema = $derived(data?.supabaseDbSchema ?? 'public');
+	const dbSchemaBadgeLabel = $derived(supabaseDbSchema === 'dev' ? 'dev' : 'live');
+	const dbSchemaBadgeVariant = $derived(supabaseDbSchema === 'dev' ? 'destructive' : 'outline');
 	/** Show loading bar only when navigating to a different dashboard page (internal navigation). Same-page goto (e.g. billing replaceState) does not show the bar. */
 	const isInternalDashboardNav = $derived(
 		$navigating?.to &&
@@ -264,6 +268,11 @@
 				</a>
 			</nav>
 			<div class="lr-dashboard-sidebar-footer">
+				<div class="lr-dashboard-sidebar-schema-env">
+					<Badge variant={dbSchemaBadgeVariant} class="lr-dashboard-sidebar-schema-badge uppercase tracking-wide" title="PostgREST schema: {supabaseDbSchema}">
+						{dbSchemaBadgeLabel}
+					</Badge>
+				</div>
 				<div class="lr-dashboard-sidebar-bottom">
 					<span class="lr-dashboard-sidebar-email" title={user.email}>{user.email}</span>
 					<a href="/auth/logout" class="lr-dashboard-sidebar-signout">Sign out</a>

@@ -283,7 +283,7 @@
 		</div>
 	</div>
 	<Tabs.Content value="outline" class="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
-		<div class="overflow-hidden rounded-lg border bg-background">
+		<div class="overflow-hidden rounded-md border bg-background">
 			<DragDropProvider
 				modifiers={[
 					// @ts-expect-error @dnd-kit/abstract types are botched atm

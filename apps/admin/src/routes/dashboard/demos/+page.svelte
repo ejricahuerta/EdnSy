@@ -36,6 +36,7 @@
 				</div>
 			{:else}
 				<div class="overflow-x-auto mx-4 sm:mx-6 my-2">
+					<div class="rounded-md border bg-background overflow-hidden">
 					<Table.Root>
 						<Table.Header>
 							<Table.Row>
@@ -92,6 +93,7 @@
 							{/each}
 						</Table.Body>
 					</Table.Root>
+					</div>
 				</div>
 			{/if}
 		</Card.Content>

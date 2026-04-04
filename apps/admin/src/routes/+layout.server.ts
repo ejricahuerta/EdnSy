@@ -4,6 +4,7 @@ import { getPlanForUser } from '$lib/server/stripe';
 import { getProspectOwnerId } from '$lib/server/prospects';
 import { getDemoBanner } from '$lib/server/userSettings';
 import { getSupabasePublicConfig } from '$lib/server/supabasePublicConfig';
+import { getSupabaseDbSchemaServer } from '$lib/server/dbSchemaEnv';
 
 export const load: LayoutServerLoad = async (event) => {
 	const { url } = event;
@@ -29,6 +30,7 @@ export const load: LayoutServerLoad = async (event) => {
 		plan,
 		siteOrigin: url.origin,
 		demoBanner,
-		supabasePublic
+		supabasePublic,
+		supabaseDbSchema: getSupabaseDbSchemaServer()
 	};
 };

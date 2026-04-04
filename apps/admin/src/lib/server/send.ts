@@ -33,10 +33,11 @@ export function getOriginForOutgoingLinks(requestOrigin: string): string {
 	const site = env.SITE_ORIGIN?.trim();
 	return site || requestOrigin;
 }
-import { LEGAL_COMPANY_ADDRESS, LEGAL_COMPANY_NAME, SIGNATURE_DOMAIN } from '$lib/constants';
+import { DEV_OUTBOUND_EMAIL, LEGAL_COMPANY_ADDRESS, LEGAL_COMPANY_NAME, SIGNATURE_DOMAIN } from '$lib/constants';
 import { getEffectiveEmailSenderName } from '$lib/server/userSettings';
 import { getGmailTokens, sendEmailViaGmail } from '$lib/server/gmail';
 import { serverInfo, serverError } from '$lib/server/logger';
+import { getSupabaseDbSchemaServer } from '$lib/server/dbSchemaEnv';
 
 function getTwilioConfig() {
 	const accountSid = env.TWILIO_ACCOUNT_SID;
@@ -229,6 +230,22 @@ export type SendEmailOptions = {
 	appUserEmail?: string | null;
 };
 
+/**
+ * Maps the intended recipient to the actual Gmail `to` address. In `dev` PostgREST schema,
+ * non-empty addresses are redirected to {@link DEV_OUTBOUND_EMAIL}.
+ */
+export function resolveOutboundEmailRecipient(originalTo: string): {
+	effectiveTo: string;
+	originalTo: string;
+	devRedirect: boolean;
+} {
+	const originalToTrimmed = originalTo.trim();
+	const devRedirect =
+		getSupabaseDbSchemaServer() === 'dev' && originalToTrimmed.length > 0;
+	const effectiveTo = devRedirect ? DEV_OUTBOUND_EMAIL : originalToTrimmed;
+	return { effectiveTo, originalTo: originalToTrimmed, devRedirect };
+}
+
 /** Whether the user can send email (Gmail connected in Integrations). */
 export async function getSendConfigured(userId: string | null): Promise<boolean> {
 	if (userId == null) return false;
@@ -246,19 +263,30 @@ export async function sendEmail(
 	options?: SendEmailOptions
 ): Promise<SendEmailResult> {
 	const userId = options?.userId;
+	const { effectiveTo, originalTo, devRedirect } = resolveOutboundEmailRecipient(to);
 	if (!userId) {
 		const err = 'Email sending requires Gmail. Connect Gmail in Dashboard → Integrations.';
-		serverError('email-send', err, { to });
+		serverError('email-send', err, { to: effectiveTo, originalTo, devRedirect });
 		return { ok: false, error: err };
 	}
 
 	const fromNameOverride = await getEffectiveEmailSenderName(userId, options?.appUserEmail);
-	const result = await sendEmailViaGmail(userId, to, subject, html, fromNameOverride);
+	const result = await sendEmailViaGmail(userId, effectiveTo, subject, html, fromNameOverride);
 	if (result.ok) {
-		serverInfo('email-send', 'Sent via Gmail', { to, id: result.id });
+		serverInfo('email-send', 'Sent via Gmail', {
+			to: effectiveTo,
+			originalTo: devRedirect ? originalTo : undefined,
+			devRedirect,
+			id: result.id
+		});
 		return result;
 	}
-	serverError('email-send', result.error, { to, provider: 'gmail' });
+	serverError('email-send', result.error, {
+		to: effectiveTo,
+		originalTo: devRedirect ? originalTo : undefined,
+		devRedirect,
+		provider: 'gmail'
+	});
 	return result;
 }
 
