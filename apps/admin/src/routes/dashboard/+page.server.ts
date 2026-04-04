@@ -82,6 +82,21 @@ export const load: PageServerLoad = async (event) => {
 		count: statusCounts.get(s.key.toLowerCase()) ?? 0
 	}));
 
+	const attentionStatusKeys = new Set(
+		[
+			PROSPECT_STATUS.NEW,
+			PROSPECT_STATUS.GBP_QUEUED,
+			PROSPECT_STATUS.DEMO_PENDING,
+			PROSPECT_STATUS.DEMO_QUEUED,
+			PROSPECT_STATUS.REVIEW
+		].map((s) => s.toLowerCase())
+	);
+	let prospectsNeedingAttention = 0;
+	for (const p of prospects) {
+		const key = (p.status ?? '').trim().toLowerCase();
+		if (attentionStatusKeys.has(key)) prospectsNeedingAttention++;
+	}
+
 	return {
 		user,
 		plan,
@@ -91,7 +106,9 @@ export const load: PageServerLoad = async (event) => {
 		insightsCountThisMonth,
 		placesCountThisMonth,
 		placesMonthlyLimit,
-		statusChartData
+		statusChartData,
+		prospectTotal: prospects.length,
+		prospectsNeedingAttention
 	};
 };
 

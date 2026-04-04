@@ -9,9 +9,12 @@ export function hasAllTierFeatures(plan: PlanTier): boolean {
 	return plan === 'teams';
 }
 
-/** True when the user's email domain is @ednsy.com. Used for internal-only features (e.g. AI Agent Page). */
+/** True when the user's email host is exactly ednsy.com (matches RLS and session gate). */
 export function isEdnsyUser(user: { email?: string } | null): boolean {
-	return (user?.email ?? '').toLowerCase().endsWith('@ednsy.com');
+	const raw = (user?.email ?? '').toLowerCase().trim();
+	if (!raw.includes('@')) return false;
+	const domain = raw.split('@').pop() ?? '';
+	return domain === 'ednsy.com';
 }
 
 /** Free tier: demos per month on /try (no account). One demo when not signed in; sign in for more. */

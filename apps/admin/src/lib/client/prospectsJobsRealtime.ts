@@ -1,5 +1,8 @@
 import type { RealtimePostgresChangesPayload, SupabaseClient } from '@supabase/supabase-js';
 
+type AppSupabaseClient = SupabaseClient<any, 'public' | 'dev', 'public' | 'dev'>;
+import { getSupabaseDbSchema } from '$lib/supabase/dbSchema';
+
 const TABLES = ['prospects', 'demo_jobs', 'gbp_jobs', 'insights_jobs'] as const;
 
 export type ProspectsJobRealtimeEvent = {
@@ -33,13 +36,14 @@ function normalizePayload(
  * Calls onEvent on INSERT/UPDATE; caller should invalidate SvelteKit load data (and may toast from payload).
  */
 export function subscribeProspectsJobsRealtime(
-	supabase: SupabaseClient,
+	supabase: AppSupabaseClient,
 	userId: string,
-	onEvent: (event: ProspectsJobRealtimeEvent) => void | Promise<void>
+	onEvent: (event: ProspectsJobRealtimeEvent) => void | Promise<void>,
+	dbSchema?: 'public' | 'dev'
 ): () => void {
 	let stopped = false;
 	let retryTimer: ReturnType<typeof setTimeout> | null = null;
-	let channel = buildChannel(supabase, userId, onEvent, scheduleRetry);
+	let channel = buildChannel(supabase, userId, onEvent, scheduleRetry, dbSchema);
 
 	function scheduleRetry() {
 		if (stopped) return;
@@ -52,7 +56,7 @@ export function subscribeProspectsJobsRealtime(
 			} catch {
 				/* ignore */
 			}
-			channel = buildChannel(supabase, userId, onEvent, scheduleRetry);
+			channel = buildChannel(supabase, userId, onEvent, scheduleRetry, dbSchema);
 		}, 2500);
 	}
 
@@ -68,17 +72,19 @@ export function subscribeProspectsJobsRealtime(
 }
 
 function buildChannel(
-	supabase: SupabaseClient,
+	supabase: AppSupabaseClient,
 	userId: string,
 	onEvent: (event: ProspectsJobRealtimeEvent) => void | Promise<void>,
-	onChannelProblem: () => void
+	onChannelProblem: () => void,
+	dbSchema?: 'public' | 'dev'
 ) {
 	const filter = `user_id=eq.${userId}`;
+	const schema = dbSchema ?? getSupabaseDbSchema();
 	const ch = supabase.channel(`prospects_jobs:${userId}`);
 	for (const table of TABLES) {
 		ch.on(
 			'postgres_changes',
-			{ event: '*', schema: 'public', table, filter },
+			{ event: '*', schema, table, filter },
 			(payload: RealtimePostgresChangesPayload<Record<string, unknown>>) => {
 				void onEvent(normalizePayload(payload));
 			}

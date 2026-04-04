@@ -5,12 +5,18 @@
 
 	let { data, children } = $props();
 	const supabasePublic = $derived(data?.supabasePublic);
-	const userId = $derived(data?.user?.id ?? '');
+	const hasDashboardUser = $derived(Boolean(data?.user));
+	const dashboardUserId = $derived(data?.user?.id ?? '');
+	const supabaseDbSchema = $derived(data?.supabaseDbSchema ?? 'public');
 </script>
 
 <TooltipProvider>
-	{#if userId && supabasePublic}
-		<DashboardProspectsRealtime {userId} supabasePublic={supabasePublic} />
+	{#if hasDashboardUser && supabasePublic && dashboardUserId}
+		<DashboardProspectsRealtime
+			userId={dashboardUserId}
+			supabasePublic={supabasePublic}
+			dbSchema={supabaseDbSchema}
+		/>
 	{/if}
 	{@render children()}
 </TooltipProvider>

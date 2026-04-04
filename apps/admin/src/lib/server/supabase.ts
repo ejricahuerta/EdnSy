@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { env } from '$env/dynamic/private';
+import { getSupabaseDbSchemaServer } from '$lib/server/dbSchemaEnv';
 import type { DemoTrackingStatus } from '$lib/demo';
 export type { DemoTrackingStatus };
 
@@ -16,7 +17,10 @@ function getConfig() {
 export function getSupabaseAdmin() {
 	const { url, key } = getConfig();
 	if (!url || !key) return null;
-	return createClient(url, key, { auth: { persistSession: false } });
+	return createClient(url, key, {
+		auth: { persistSession: false },
+		db: { schema: getSupabaseDbSchemaServer() }
+	});
 }
 
 export type DemoTrackingRow = {
@@ -67,6 +71,36 @@ export async function getDemoTrackingForUser(
 	for (const row of data) {
 		const pid = row.prospect_id;
 		if (pid) {
+			map[pid] = {
+				status: row.status,
+				send_time: row.send_time ?? null,
+				opened_at: row.opened_at ?? null,
+				clicked_at: row.clicked_at ?? null
+			};
+		}
+	}
+	return map;
+}
+
+/** All demo_tracking rows keyed by prospect_id (latest `updated_at` wins). For shared staff workspace. */
+export async function getDemoTrackingMapGlobal(): Promise<
+	Record<string, { status: string; send_time: string | null; opened_at: string | null; clicked_at: string | null }>
+> {
+	const supabase = getSupabaseAdmin();
+	if (!supabase) return {};
+	const { data, error } = await supabase
+		.from('demo_tracking')
+		.select('prospect_id, status, send_time, opened_at, clicked_at, updated_at')
+		.not('prospect_id', 'is', null)
+		.order('updated_at', { ascending: false });
+	if (error || !data) return {};
+	const map: Record<
+		string,
+		{ status: string; send_time: string | null; opened_at: string | null; clicked_at: string | null }
+	> = {};
+	for (const row of data) {
+		const pid = row.prospect_id;
+		if (pid && map[pid] === undefined) {
 			map[pid] = {
 				status: row.status,
 				send_time: row.send_time ?? null,
@@ -758,6 +792,27 @@ export async function getGbpJobForProspect(
 	};
 }
 
+/** Latest GBP job for a prospect (any owner). For shared staff workspace after queue processing. */
+export async function getGbpJobForProspectLatest(
+	prospectId: string
+): Promise<{ jobId: string; status: GbpJobStatus; errorMessage?: string | null } | null> {
+	const supabase = getSupabaseAdmin();
+	if (!supabase) return null;
+	const { data, error } = await supabase
+		.from('gbp_jobs')
+		.select('id, status, error_message')
+		.eq('prospect_id', prospectId)
+		.order('created_at', { ascending: false })
+		.limit(1)
+		.maybeSingle();
+	if (error || !data?.id) return null;
+	return {
+		jobId: data.id as string,
+		status: data.status as GbpJobStatus,
+		errorMessage: data.error_message ?? undefined
+	};
+}
+
 /** Map of prospect_id -> latest active (pending/running) GBP job for list status. */
 export async function getGbpJobsForUser(
 	userId: string
@@ -988,6 +1043,27 @@ export async function getInsightsJobForProspect(
 		.from('insights_jobs')
 		.select('id, status, error_message')
 		.eq('user_id', userId)
+		.eq('prospect_id', prospectId)
+		.order('created_at', { ascending: false })
+		.limit(1)
+		.maybeSingle();
+	if (error || !data?.id) return null;
+	return {
+		jobId: data.id as string,
+		status: data.status as InsightsJobStatus,
+		errorMessage: data.error_message ?? undefined
+	};
+}
+
+/** Latest insights job for a prospect (any owner). For shared staff workspace after queue processing. */
+export async function getInsightsJobForProspectLatest(
+	prospectId: string
+): Promise<{ jobId: string; status: InsightsJobStatus; errorMessage?: string | null } | null> {
+	const supabase = getSupabaseAdmin();
+	if (!supabase) return null;
+	const { data, error } = await supabase
+		.from('insights_jobs')
+		.select('id, status, error_message')
 		.eq('prospect_id', prospectId)
 		.order('created_at', { ascending: false })
 		.limit(1)

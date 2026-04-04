@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import type { Handle } from '@sveltejs/kit';
+import { getSupabaseDbSchemaServer } from '$lib/server/dbSchemaEnv';
 import { getSupabasePublicConfig } from '$lib/server/supabasePublicConfig';
 
 export const handle: Handle = async ({ event, resolve }) => {
@@ -12,6 +13,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 		);
 	}
 	event.locals.supabase = createServerClient(cfg.url, cfg.anonKey, {
+		db: { schema: getSupabaseDbSchemaServer() },
 		cookies: {
 			getAll: () => event.cookies.getAll(),
 			setAll: (cookiesToSet, headers) => {
