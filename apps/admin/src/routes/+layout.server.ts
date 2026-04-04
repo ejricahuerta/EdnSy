@@ -3,7 +3,6 @@ import { getDashboardSessionUser } from '$lib/server/authDashboard';
 import { getPlanForUser } from '$lib/server/stripe';
 import { getProspectOwnerId } from '$lib/server/prospects';
 import { getDemoBanner } from '$lib/server/userSettings';
-import { getSupabaseDbSchemaServer } from '$lib/server/dbSchemaEnv';
 import { getSupabasePublicConfig } from '$lib/server/supabasePublicConfig';
 
 export const load: LayoutServerLoad = async (event) => {
@@ -30,7 +29,6 @@ export const load: LayoutServerLoad = async (event) => {
 		plan,
 		siteOrigin: url.origin,
 		demoBanner,
-		supabasePublic,
-		supabaseDbSchema: getSupabaseDbSchemaServer()
+		supabasePublic
 	};
 };
