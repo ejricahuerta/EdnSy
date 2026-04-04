@@ -9,7 +9,7 @@ export const load: PageServerLoad = async (event) => {
 	if (!user) {
 		throw redirect(303, '/auth/login');
 	}
-	const result = await listProspects(user.id);
+	const result = await listProspects();
 	const prospects = (result.prospects ?? []).filter(
 		(p) => !p.flagged && (p.demoLink ?? '').trim().length > 0
 	);

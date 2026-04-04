@@ -77,7 +77,7 @@ export async function processOneGbpJob(): Promise<ProcessGbpJobResult> {
 
 		// Big corporations: flag and send straight to No Fit table (no demo, no further processing).
 		if (isOutOfScopeCompany(prospect.companyName) || isOutOfScopeCompany(gbp.name)) {
-			await setProspectFlagged(userId, prospectId, true, NO_FIT_BIG_CORP_REASON);
+			await setProspectFlagged(prospectId, true, NO_FIT_BIG_CORP_REASON);
 			await updateGbpJob(jobId, { status: 'failed', errorMessage: 'Big corporation – moved to No Fit' });
 			await updateProspectStatus(prospectId, PROSPECT_STATUS.NEW);
 			return {

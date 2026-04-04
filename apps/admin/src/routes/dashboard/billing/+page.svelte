@@ -5,7 +5,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
-	import { PLAN_LABELS } from '$lib/plans';
+	import { PLAN_LABELS, isEdnsyUser } from '$lib/plans';
 	import { LoaderCircle, CreditCard } from 'lucide-svelte';
 
 	let { data } = $props<{ data: PageData }>();
@@ -13,7 +13,7 @@
 	const subscription = $derived(data.subscription ?? null);
 	const priceIds = $derived(data.priceIds ?? { starter: '', pro: '', agency: '' });
 	const checkoutCanceled = $derived($page.url.searchParams.get('checkout') === 'canceled');
-	const isInternal = $derived((data.user?.email ?? '').toLowerCase().endsWith('@ednsy.com'));
+	const isInternal = $derived(isEdnsyUser(data.user ?? null));
 
 	let loadingPriceId = $state<string | null>(null);
 	let loadingPortal = $state(false);

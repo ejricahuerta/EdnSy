@@ -1,8 +1,8 @@
 import type { RequestHandler } from './$types';
 import { getDashboardSessionUser } from '$lib/server/authDashboard';
 import { processOneGbpJob } from '$lib/server/demo';
-import { getGbpJobForProspect } from '$lib/server/supabase';
-import { getProspectByIdForUser } from '$lib/server/prospects';
+import { getGbpJobForProspectLatest } from '$lib/server/supabase';
+import { getProspectById } from '$lib/server/prospects';
 import { apiError, apiSuccess } from '$lib/server/apiResponse';
 import { serverError } from '$lib/server/logger';
 
@@ -33,9 +33,9 @@ export const POST: RequestHandler = async (event) => {
 	const out: Record<string, unknown> = { ...result };
 
 	if (prospectIdFromBody) {
-		const job = await getGbpJobForProspect(user.id, prospectIdFromBody);
+		const job = await getGbpJobForProspectLatest(prospectIdFromBody);
 		if (job && (job.status === 'done' || job.status === 'failed')) {
-			const prospect = await getProspectByIdForUser(user.id, prospectIdFromBody);
+			const prospect = await getProspectById(prospectIdFromBody);
 			out.currentJob = {
 				prospectId: prospectIdFromBody,
 				status: job.status,

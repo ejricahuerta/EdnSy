@@ -9,6 +9,7 @@ import {
 	verifyGoogleIdToken
 } from '$lib/server/googleDashboardAuth';
 import { createSessionCookie, getSessionCookieName, getSessionCookieOptions } from '$lib/server/session';
+import { isEdnsyUser } from '$lib/plans';
 
 /**
  * Google OAuth callback: verify ID token, set signed app session cookie,
@@ -65,6 +66,10 @@ export const GET: RequestHandler = async (event) => {
 	} catch (e) {
 		console.error('[auth/callback] Google ID token verify:', e);
 		throw redirect(303, '/auth/login?error=auth');
+	}
+
+	if (!isEdnsyUser({ email: profile.email })) {
+		throw redirect(303, '/auth/login?error=forbidden');
 	}
 
 	let cookieValue: string;

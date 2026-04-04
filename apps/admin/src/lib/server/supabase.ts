@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { env } from '$env/dynamic/private';
+import { getSupabaseDbSchemaServer } from '$lib/server/dbSchemaEnv';
 import type { DemoTrackingStatus } from '$lib/demo';
 export type { DemoTrackingStatus };
 
@@ -16,7 +17,10 @@ function getConfig() {
 export function getSupabaseAdmin() {
 	const { url, key } = getConfig();
 	if (!url || !key) return null;
-	return createClient(url, key, { auth: { persistSession: false } });
+	return createClient(url, key, {
+		auth: { persistSession: false },
+		db: { schema: getSupabaseDbSchemaServer() }
+	});
 }
 
 export type DemoTrackingRow = {

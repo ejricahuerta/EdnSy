@@ -3,7 +3,7 @@ import { env } from '$env/dynamic/private';
 import { getDashboardSessionUser } from '$lib/server/authDashboard';
 import { apiError, apiSuccess } from '$lib/server/apiResponse';
 import { listProspects } from '$lib/server/prospects';
-import { getDemoTrackingForUser, getDashboardOverview, upsertDashboardOverview } from '$lib/server/supabase';
+import { getDemoTrackingMapGlobal, getDashboardOverview, upsertDashboardOverview } from '$lib/server/supabase';
 import { buildCrmContext } from '$lib/server/crmContext';
 import { OVERVIEW_REFRESH_COOLDOWN_MINUTES } from '$lib/constants';
 import { serverError } from '$lib/server/logger';
@@ -94,9 +94,9 @@ export const POST: RequestHandler = async (event) => {
 		}
 	}
 
-	const result = await listProspects(user.id);
+	const result = await listProspects();
 	const prospects = result.prospects;
-	const demoTrackingByProspectId = await getDemoTrackingForUser(user.id);
+	const demoTrackingByProspectId = await getDemoTrackingMapGlobal();
 	const systemContext = buildCrmContext(prospects, demoTrackingByProspectId);
 	const userPrompt = `${OVERVIEW_PROMPT}\n\n--- CRM DATA ---\n${systemContext}`;
 

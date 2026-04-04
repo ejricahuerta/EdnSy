@@ -10,7 +10,9 @@
 				? 'Could not start Google sign-in. Set AUTH_GOOGLE_CLIENT_ID and AUTH_GOOGLE_CLIENT_SECRET (or GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET), and add this redirect URI in Google Cloud: your app origin + /auth/callback (e.g. http://localhost:5173/auth/callback).'
 				: data.authError === 'session'
 					? 'Server SESSION_SECRET is missing or too short (16+ characters). Set it in .env to finish sign-in.'
-					: null
+					: data.authError === 'forbidden'
+						? 'This admin app is only for @ednsy.com Google accounts. Sign in with your Ed & Sy email.'
+						: null
 	);
 </script>
 

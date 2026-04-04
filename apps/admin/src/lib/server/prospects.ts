@@ -43,6 +43,7 @@ function rowToProspect(r: {
 	demo_link: string | null;
 	provider?: string;
 	provider_row_id?: string;
+	user_id?: string | null;
 	address?: string | null;
 	flagged?: boolean | null;
 	flagged_reason?: string | null;
@@ -60,6 +61,7 @@ function rowToProspect(r: {
 		flaggedReason: r.flagged_reason ?? undefined,
 		provider: r.provider as ProspectProvider | undefined,
 		provider_row_id: r.provider_row_id ?? undefined,
+		userId: r.user_id ?? undefined,
 		address: r.address ?? undefined
 	};
 }
@@ -69,15 +71,16 @@ export type ListProspectsResult =
 	| { prospects: []; error: 'not_configured' | 'api_error'; message?: string };
 
 /**
- * List prospects for the dashboard from Supabase (all providers for this user).
+ * List all prospects for the Ed & Sy internal dashboard (shared workspace).
  */
-export async function listProspects(userId: string): Promise<ListProspectsResult> {
+export async function listProspects(): Promise<ListProspectsResult> {
 	const supabase = getSupabaseAdmin();
 	if (!supabase) return { prospects: [], error: 'api_error', message: 'Database not configured' };
 	const { data, error } = await supabase
 		.from('prospects')
-		.select('id, company_name, email, website, phone, industry, status, demo_link, provider, provider_row_id, address, flagged, flagged_reason')
-		.eq('user_id', userId)
+		.select(
+			'id, company_name, email, website, phone, industry, status, demo_link, provider, provider_row_id, user_id, address, flagged, flagged_reason'
+		)
 		.order('updated_at', { ascending: false });
 	if (error) return { prospects: [], error: 'api_error', message: error.message };
 	const prospects = (data ?? []).map((r) => rowToProspect(r));
@@ -97,6 +100,29 @@ export async function getProspectById(id: string): Promise<Prospect | null> {
 		.maybeSingle();
 	if (error || !data) return null;
 	return rowToProspect(data);
+}
+
+/**
+ * Prospect row for dashboard detail (any teammate); includes createdAt and owner user_id (Google sub).
+ */
+export async function getProspectByIdWithCreated(
+	prospectId: string
+): Promise<(Prospect & { createdAt: string }) | null> {
+	const supabase = getSupabaseAdmin();
+	if (!supabase) return null;
+	const { data, error } = await supabase
+		.from('prospects')
+		.select(
+			'id, company_name, email, website, phone, industry, status, demo_link, provider, provider_row_id, user_id, address, flagged, flagged_reason, created_at'
+		)
+		.eq('id', prospectId)
+		.maybeSingle();
+	if (error || !data) return null;
+	const prospect = rowToProspect(data);
+	return {
+		...prospect,
+		createdAt: (data as { created_at?: string }).created_at ?? new Date().toISOString()
+	};
 }
 
 /**
@@ -366,49 +392,34 @@ export async function updateProspectStatus(
 }
 
 /**
- * Update email (and optionally phone) for a prospect. Only the owning user can update. Use when sync misses email or user wants to correct it.
+ * Update email (and optionally phone) for a prospect. Internal dashboard: any signed-in teammate.
  */
 export async function updateProspectContact(
-	userId: string,
 	prospectId: string,
 	fields: { email?: string; phone?: string }
 ): Promise<{ ok: boolean; error?: string }> {
 	const supabase = getSupabaseAdmin();
 	if (!supabase) return { ok: false, error: 'Database not configured' };
-	const { data: existing } = await supabase
-		.from('prospects')
-		.select('id')
-		.eq('id', prospectId)
-		.eq('user_id', userId)
-		.maybeSingle();
-	if (!existing) return { ok: false, error: 'Prospect not found or access denied' };
+	const { data: existing } = await supabase.from('prospects').select('id').eq('id', prospectId).maybeSingle();
+	if (!existing) return { ok: false, error: 'Prospect not found' };
 	const updates: Record<string, string | null> = { updated_at: new Date().toISOString() };
 	if (fields.email !== undefined) updates.email = (fields.email ?? '').trim().slice(0, 500);
 	if (fields.phone !== undefined) updates.phone = (fields.phone ?? '').trim().slice(0, 100) || null;
 	if (Object.keys(updates).length <= 1) return { ok: true };
-	const { error } = await supabase
-		.from('prospects')
-		.update(updates)
-		.eq('id', prospectId)
-		.eq('user_id', userId);
+	const { error } = await supabase.from('prospects').update(updates).eq('id', prospectId);
 	if (error) return { ok: false, error: error.message };
 	return { ok: true };
 }
 
 /**
- * Delete a prospect. Only the owning user can delete. Used to remove out-of-scope or unwanted rows.
+ * Delete a prospect. Internal dashboard: any signed-in teammate.
  */
-export async function deleteProspect(userId: string, prospectId: string): Promise<{ ok: boolean; error?: string }> {
+export async function deleteProspect(prospectId: string): Promise<{ ok: boolean; error?: string }> {
 	const supabase = getSupabaseAdmin();
 	if (!supabase) return { ok: false, error: 'Database not configured' };
-	const { data: existing } = await supabase
-		.from('prospects')
-		.select('id')
-		.eq('id', prospectId)
-		.eq('user_id', userId)
-		.maybeSingle();
-	if (!existing) return { ok: false, error: 'Prospect not found or access denied' };
-	const { error } = await supabase.from('prospects').delete().eq('id', prospectId).eq('user_id', userId);
+	const { data: existing } = await supabase.from('prospects').select('id').eq('id', prospectId).maybeSingle();
+	if (!existing) return { ok: false, error: 'Prospect not found' };
+	const { error } = await supabase.from('prospects').delete().eq('id', prospectId);
 	if (error) return { ok: false, error: error.message };
 	return { ok: true };
 }
@@ -417,20 +428,14 @@ export async function deleteProspect(userId: string, prospectId: string): Promis
  * Set or clear the flagged state on a prospect (e.g. manual "out of scope" or unflag).
  */
 export async function setProspectFlagged(
-	userId: string,
 	prospectId: string,
 	flagged: boolean,
 	reason?: string
 ): Promise<{ ok: boolean; error?: string }> {
 	const supabase = getSupabaseAdmin();
 	if (!supabase) return { ok: false, error: 'Database not configured' };
-	const { data: existing } = await supabase
-		.from('prospects')
-		.select('id')
-		.eq('id', prospectId)
-		.eq('user_id', userId)
-		.maybeSingle();
-	if (!existing) return { ok: false, error: 'Prospect not found or access denied' };
+	const { data: existing } = await supabase.from('prospects').select('id').eq('id', prospectId).maybeSingle();
+	if (!existing) return { ok: false, error: 'Prospect not found' };
 	const { error } = await supabase
 		.from('prospects')
 		.update({
@@ -438,8 +443,7 @@ export async function setProspectFlagged(
 			flagged_reason: flagged ? (reason ?? getDefaultFlaggedReason()).slice(0, 500) : null,
 			updated_at: new Date().toISOString()
 		})
-		.eq('id', prospectId)
-		.eq('user_id', userId);
+		.eq('id', prospectId);
 	if (error) return { ok: false, error: error.message };
 	return { ok: true };
 }

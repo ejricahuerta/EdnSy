@@ -3,7 +3,7 @@ import { env } from '$env/dynamic/private';
 import { getDashboardSessionUser } from '$lib/server/authDashboard';
 import { apiError, apiSuccess } from '$lib/server/apiResponse';
 import { listProspects } from '$lib/server/prospects';
-import { getDemoTrackingForUser } from '$lib/server/supabase';
+import { getDemoTrackingMapGlobal } from '$lib/server/supabase';
 import { buildCrmContext } from '$lib/server/crmContext';
 import { CHAT_DAILY_LIMIT } from '$lib/constants';
 import { serverError } from '$lib/server/logger';
@@ -75,9 +75,9 @@ export const POST: RequestHandler = async (event) => {
 		return apiError(400, 'messages array required');
 	}
 
-	const result = await listProspects(user.id);
+	const result = await listProspects();
 	const prospects = result.prospects;
-	const demoTrackingByProspectId = await getDemoTrackingForUser(user.id);
+	const demoTrackingByProspectId = await getDemoTrackingMapGlobal();
 	const systemInstruction = buildCrmContext(prospects, demoTrackingByProspectId);
 	const geminiContents = toGeminiContents(messages);
 
