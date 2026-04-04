@@ -237,147 +237,149 @@
 	<Separator />
 
 	<section class="space-y-4">
-		<div>
-			<h2 class="text-lg font-semibold tracking-tight">Usage</h2>
-			<p class="text-sm text-muted-foreground">
-				Monthly totals for your workspace: AI pulls (GBP qualify + insights), demos you generated, and
-				Places lookups (shared app quota).
-			</p>
-		</div>
-		<Card.Root class="border-border/80 shadow-sm">
-			<Card.Header class="pb-2">
-				<Card.Title class="text-base font-semibold">This month</Card.Title>
-				<Card.Description class="text-sm">
-					Bar height matches the numbers below (including zeros).
-				</Card.Description>
-			</Card.Header>
-			<Card.Content class="space-y-4 px-2 pt-2 sm:px-6 sm:pt-4">
-				<dl
-					class="grid grid-cols-1 gap-3 rounded-lg border border-border/60 bg-muted/30 px-3 py-3 sm:grid-cols-3"
-				>
-					<div class="space-y-0.5">
-						<dt class="text-muted-foreground text-xs font-medium">{usageMetricLabels['AI agent']}</dt>
-						<dd class="text-foreground text-lg font-semibold tabular-nums">{agentPullsTotal}</dd>
-					</div>
-					<div class="space-y-0.5">
-						<dt class="text-muted-foreground text-xs font-medium">{usageMetricLabels.Demos}</dt>
-						<dd class="text-foreground text-lg font-semibold tabular-nums">{demoCount}</dd>
-					</div>
-					<div class="space-y-0.5">
-						<dt class="text-muted-foreground text-xs font-medium">{usageMetricLabels['Places API']}</dt>
-						<dd class="text-foreground text-lg font-semibold tabular-nums">{placesCount}</dd>
-					</div>
-				</dl>
-				<div
-					class="border-border/50 relative w-full overflow-hidden rounded-md border bg-card"
-					style="height: 280px;"
-				>
-					<Chart.Container
-						config={usageChartConfig}
-						class="!aspect-auto h-full min-h-[240px] w-full [&_.lc-root-container]:h-full [&_.lc-root-container]:min-h-[220px]"
-					>
-						<BarChart
-							data={usageChartData}
-							xScale={scaleBand().padding(0.28)}
-							x="metric"
-							c="metric"
-							cRange={['var(--chart-1)', 'var(--chart-2)', 'var(--chart-3)']}
-							seriesLayout="group"
-							series={[
-								{
-									key: 'count',
-									label: usageChartConfig.count.label,
-									color: usageChartConfig.count.color
-								}
-							]}
-							props={{
-								bars: { fill: undefined },
-								xAxis: { format: formatUsageXAxis },
-								yAxis: { format: formatUsageYAxis }
-							}}
-						/>
-					</Chart.Container>
+		<div class="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
+			<div class="min-w-0 space-y-4">
+				<div>
+					<h2 class="text-lg font-semibold tracking-tight">Usage</h2>
+					<p class="text-sm text-muted-foreground">
+						Monthly totals for your workspace: AI pulls (GBP qualify + insights), demos you generated, and
+						Places lookups (shared app quota).
+					</p>
 				</div>
-			</Card.Content>
-		</Card.Root>
-	</section>
-
-	<Separator />
-
-	<section class="space-y-4">
-		<div>
-			<h2 class="text-lg font-semibold tracking-tight">Pipeline</h2>
-			<p class="text-sm text-muted-foreground">
-				Prospects grouped by CRM status, in workflow order. Bar length is relative to the busiest stage on
-				this list.
-			</p>
-		</div>
-		<Card.Root class="border-border/80 shadow-sm">
-			<Card.Header class="pb-3">
-				<div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-					<div>
-						<Card.Title class="text-base font-semibold">By status</Card.Title>
+				<Card.Root class="border-border/80 shadow-sm">
+					<Card.Header class="pb-2">
+						<Card.Title class="text-base font-semibold">This month</Card.Title>
 						<Card.Description class="text-sm">
-							{#if pipelineTotalCount === 0}
-								No prospects match these stages yet. Sync from your CRM or add them on Prospects.
-							{:else}
-								<span class="tabular-nums">{pipelineTotalCount}</span> total across
-								<span class="tabular-nums">{pipelineActiveStageCount}</span>
-								active stage{pipelineActiveStageCount === 1 ? '' : 's'}.
-							{/if}
+							Bar height matches the numbers below (including zeros).
 						</Card.Description>
-					</div>
-					<Button href="/dashboard/prospects" variant="outline" size="sm" class="w-fit shrink-0">
-						<Users class="size-4" aria-hidden="true" />
-						Open Prospects
-					</Button>
-				</div>
-			</Card.Header>
-			<Card.Content class="px-2 pb-2 sm:px-6 sm:pb-4">
-				<ol class="divide-y divide-border/60 border border-border/60 rounded-lg overflow-hidden bg-card">
-					{#each prospectStatusChartData as row, i (row.status)}
-						{@const barPct = pipelineMaxCount > 0 ? Math.min(100, (row.count / pipelineMaxCount) * 100) : 0}
-						{@const barColor = pipelineBarColors[i % pipelineBarColors.length]}
-						<li class="flex gap-3 px-3 py-3 sm:px-4 sm:py-3.5">
-							<div
-								class="text-muted-foreground flex size-8 shrink-0 items-center justify-center rounded-md bg-muted text-xs font-semibold tabular-nums"
-								aria-hidden="true"
+					</Card.Header>
+					<Card.Content class="space-y-4 px-2 pt-2 sm:px-6 sm:pt-4">
+						<dl
+							class="grid grid-cols-1 gap-3 rounded-lg border border-border/60 bg-muted/30 px-3 py-3 sm:grid-cols-3"
+						>
+							<div class="space-y-0.5">
+								<dt class="text-muted-foreground text-xs font-medium">{usageMetricLabels['AI agent']}</dt>
+								<dd class="text-foreground text-lg font-semibold tabular-nums">{agentPullsTotal}</dd>
+							</div>
+							<div class="space-y-0.5">
+								<dt class="text-muted-foreground text-xs font-medium">{usageMetricLabels.Demos}</dt>
+								<dd class="text-foreground text-lg font-semibold tabular-nums">{demoCount}</dd>
+							</div>
+							<div class="space-y-0.5">
+								<dt class="text-muted-foreground text-xs font-medium">{usageMetricLabels['Places API']}</dt>
+								<dd class="text-foreground text-lg font-semibold tabular-nums">{placesCount}</dd>
+							</div>
+						</dl>
+						<div
+							class="border-border/50 relative w-full overflow-hidden rounded-md border bg-card"
+							style="height: 280px;"
+						>
+							<Chart.Container
+								config={usageChartConfig}
+								class="!aspect-auto h-full min-h-[240px] w-full [&_.lc-root-container]:h-full [&_.lc-root-container]:min-h-[220px]"
 							>
-								{i + 1}
+								<BarChart
+									data={usageChartData}
+									xScale={scaleBand().padding(0.28)}
+									x="metric"
+									c="metric"
+									cRange={['var(--chart-1)', 'var(--chart-2)', 'var(--chart-3)']}
+									seriesLayout="group"
+									series={[
+										{
+											key: 'count',
+											label: usageChartConfig.count.label,
+											color: usageChartConfig.count.color
+										}
+									]}
+									props={{
+										bars: { fill: undefined },
+										xAxis: { format: formatUsageXAxis },
+										yAxis: { format: formatUsageYAxis }
+									}}
+								/>
+							</Chart.Container>
+						</div>
+					</Card.Content>
+				</Card.Root>
+			</div>
+
+			<div class="min-w-0 space-y-4">
+				<div>
+					<h2 class="text-lg font-semibold tracking-tight">Pipeline</h2>
+					<p class="text-sm text-muted-foreground">
+						Prospects grouped by CRM status, in workflow order. Bar length is relative to the busiest stage on
+						this list.
+					</p>
+				</div>
+				<Card.Root class="border-border/80 shadow-sm">
+					<Card.Header class="pb-3">
+						<div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+							<div>
+								<Card.Title class="text-base font-semibold">By status</Card.Title>
+								<Card.Description class="text-sm">
+									{#if pipelineTotalCount === 0}
+										No prospects match these stages yet. Sync from your CRM or add them on Prospects.
+									{:else}
+										<span class="tabular-nums">{pipelineTotalCount}</span> total across
+										<span class="tabular-nums">{pipelineActiveStageCount}</span>
+										active stage{pipelineActiveStageCount === 1 ? '' : 's'}.
+									{/if}
+								</Card.Description>
 							</div>
-							<div class="min-w-0 flex-1 space-y-2">
-								<div class="flex flex-wrap items-center justify-between gap-2">
-									<span
-										class="text-sm font-medium leading-tight"
-										class:text-muted-foreground={row.count === 0}
-										class:font-normal={row.count === 0}
-									>
-										{row.status}
-									</span>
-									<Badge
-										variant={row.count > 0 ? 'secondary' : 'outline'}
-										class="tabular-nums shrink-0 font-semibold"
-									>
-										{row.count}
-									</Badge>
-								</div>
-								<div
-									class="bg-muted/80 h-2 w-full overflow-hidden rounded-full"
-									role="presentation"
-									aria-hidden="true"
-								>
+							<Button href="/dashboard/prospects" variant="outline" size="sm" class="w-fit shrink-0">
+								<Users class="size-4" aria-hidden="true" />
+								Open Prospects
+							</Button>
+						</div>
+					</Card.Header>
+					<Card.Content class="px-2 pb-2 sm:px-6 sm:pb-4">
+						<ol class="divide-y divide-border/60 border border-border/60 rounded-lg overflow-hidden bg-card">
+							{#each prospectStatusChartData as row, i (row.status)}
+								{@const barPct = pipelineMaxCount > 0 ? Math.min(100, (row.count / pipelineMaxCount) * 100) : 0}
+								{@const barColor = pipelineBarColors[i % pipelineBarColors.length]}
+								<li class="flex gap-3 px-3 py-3 sm:px-4 sm:py-3.5">
 									<div
-										class="h-full rounded-full transition-[width] duration-300"
-										style:width="{barPct}%"
-										style:background-color={barColor}
-										class:opacity-40={row.count === 0}
-									></div>
-								</div>
-							</div>
-						</li>
-					{/each}
-				</ol>
-			</Card.Content>
-		</Card.Root>
+										class="text-muted-foreground flex size-8 shrink-0 items-center justify-center rounded-md bg-muted text-xs font-semibold tabular-nums"
+										aria-hidden="true"
+									>
+										{i + 1}
+									</div>
+									<div class="min-w-0 flex-1 space-y-2">
+										<div class="flex flex-wrap items-center justify-between gap-2">
+											<span
+												class="text-sm font-medium leading-tight"
+												class:text-muted-foreground={row.count === 0}
+												class:font-normal={row.count === 0}
+											>
+												{row.status}
+											</span>
+											<Badge
+												variant={row.count > 0 ? 'secondary' : 'outline'}
+												class="tabular-nums shrink-0 font-semibold"
+											>
+												{row.count}
+											</Badge>
+										</div>
+										<div
+											class="bg-muted/80 h-2 w-full overflow-hidden rounded-full"
+											role="presentation"
+											aria-hidden="true"
+										>
+											<div
+												class="h-full rounded-full transition-[width] duration-300"
+												style:width="{barPct}%"
+												style:background-color={barColor}
+												class:opacity-40={row.count === 0}
+											></div>
+										</div>
+									</div>
+								</li>
+							{/each}
+						</ol>
+					</Card.Content>
+				</Card.Root>
+			</div>
+		</div>
 	</section>
 </div>

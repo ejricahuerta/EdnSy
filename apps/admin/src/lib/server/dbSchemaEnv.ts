@@ -1,9 +1,10 @@
-import { env as privateEnv } from '$env/dynamic/private';
-import { env as publicEnv } from '$env/dynamic/public';
-import { parseSupabaseDbSchema } from '$lib/supabase/dbSchema';
+import { getSupabaseDbSchema } from '$lib/server/supabaseDbSchema';
 
-/** Server-only: `SUPABASE_DB_SCHEMA` overrides `PUBLIC_SUPABASE_DB_SCHEMA`. */
+/**
+ * Server-only PostgREST schema for SSR and service client.
+ * Reads private `SUPABASE_DB_SCHEMA` (see supabaseDbSchema.ts).
+ */
 export function getSupabaseDbSchemaServer(): 'public' | 'dev' {
-	const raw = (privateEnv.SUPABASE_DB_SCHEMA ?? publicEnv.PUBLIC_SUPABASE_DB_SCHEMA ?? '').trim();
-	return parseSupabaseDbSchema(raw);
+	const s = getSupabaseDbSchema();
+	return s === 'dev' ? 'dev' : 'public';
 }
