@@ -47,29 +47,13 @@
   {@html `<script type="application/ld+json">${JSON.stringify(faqSchema)}</script>`}
 </svelte:head>
 
-<!-- Hero: headline + CTA + hourglass (overflow-x only so tall content is not clipped vertically) -->
+<!-- Hero: headline + CTA -->
 <section
   class="relative flex min-h-[100svh] items-center overflow-x-hidden text-white lg:min-h-0"
   style="background: radial-gradient(ellipse 80% 70% at 50% 100%, #3a00ff 0%, #280066 25%, #1e004d 50%, #150033 75%, #0a0015 100%);"
 >
   <div class="absolute inset-0 bg-[radial-gradient(ellipse_140%_120%_at_50%_100%,rgba(58,0,255,0.25)_0%,transparent_50%)]"></div>
   <div class="absolute inset-x-0 top-0 h-px bg-white/10"></div>
-
-  <!-- Hourglass: anchored right, soft fade toward the left (into copy / gradient) -->
-  <div
-    class="pointer-events-none absolute inset-y-0 right-0 z-0 w-[min(92vw,28rem)] sm:w-[min(88vw,32rem)] md:w-[min(85vw,36rem)] lg:w-[min(42vw,28rem)] xl:w-[min(38vw,30rem)]"
-    aria-hidden="true"
-  >
-    <img
-      src="/images/hero-hourglass.png"
-      alt=""
-      class="hero-hourglass-img h-full w-full object-contain object-right"
-      loading="eager"
-      decoding="async"
-      width="480"
-      height="720"
-    />
-  </div>
 
   <div class="relative z-10 mx-auto w-full max-w-6xl px-6 py-24 md:py-32 lg:px-8 lg:pt-44 lg:pb-32">
     <div class="max-w-2xl">
@@ -120,22 +104,6 @@
   </div>
 </section>
 
-<style>
-  /* Fade hourglass toward the left so it blends into the purple hero gradient */
-  .hero-hourglass-img {
-    -webkit-mask-image: linear-gradient(to left, #000 28%, transparent 100%);
-    mask-image: linear-gradient(to left, #000 28%, transparent 100%);
-    -webkit-mask-size: 100% 100%;
-    mask-size: 100% 100%;
-  }
-  @media (min-width: 1024px) {
-    .hero-hourglass-img {
-      -webkit-mask-image: linear-gradient(to left, #000 35%, transparent 100%);
-      mask-image: linear-gradient(to left, #000 35%, transparent 100%);
-    }
-  }
-
-</style>
 
 <section
   class="relative overflow-hidden py-16 text-white md:py-20"
