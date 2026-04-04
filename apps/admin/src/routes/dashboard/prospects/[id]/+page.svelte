@@ -36,6 +36,8 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { prospectJobLabelResolver } from '$lib/notificationHistory';
+	import { DEV_OUTBOUND_EMAIL } from '$lib/constants';
+	import { Switch } from '$lib/components/ui/switch';
 
 	/** Safe return URL from ?returnTo= (only dashboard paths). Default: prospects list. */
 	const backHref = $derived.by(() => {
@@ -95,6 +97,15 @@
 	let approvedJustNow = $state(false);
 	let editingEmail = $state(false);
 	let updatingEmail = $state(false);
+	/** Dev schema: reveal stored prospect email under the outbound redirect display. */
+	let showRealProspectEmail = $state(false);
+
+	const isDevSchema = $derived(data.supabaseDbSchema === 'dev');
+	const hasProspectEmail = $derived(!!(prospect.email ?? '').trim());
+	/** Address messages and send confirmations use this (dev → hello@ednsy.com when a prospect email exists). */
+	const outboundEmailTargetDisplay = $derived(
+		isDevSchema && hasProspectEmail ? DEV_OUTBOUND_EMAIL : (prospect.email ?? '').trim() || '(no email set)'
+	);
 
 	let demoStatus = $state<DemoTrackingStatus>(() =>
 		(demoTracking?.status as DemoTrackingStatus) ?? 'draft'
@@ -501,7 +512,7 @@
 							<AlertDialog.Header>
 								<AlertDialog.Title>Send outreach email?</AlertDialog.Title>
 								<AlertDialog.Description>
-									An email about AI agent, voice AI, and SEO will be sent to {prospect.email}. No demo link will be included.
+									An email about AI agent, voice AI, and SEO will be sent to {outboundEmailTargetDisplay}. No demo link will be included.
 									<br><br>
 									<strong>Sending means you accept the Acceptable Use Policy (AUP).</strong>
 								</AlertDialog.Description>
@@ -660,7 +671,7 @@
 							<AlertDialog.Header>
 								<AlertDialog.Title>Send demo to this client?</AlertDialog.Title>
 								<AlertDialog.Description>
-									An email with the demo link will be sent to {prospect.email || '(no email set)'}.
+									An email with the demo link will be sent to {outboundEmailTargetDisplay}.
 									<br><br>
 									<strong>Sending means you accept the Acceptable Use Policy (AUP).</strong>
 								</AlertDialog.Description>
@@ -743,9 +754,29 @@
 										{/if}
 									</form>
 								{:else}
-									<dd class="text-sm mt-0.5 flex items-center gap-2">
-										<a href="mailto:{prospect.email}" class="text-primary hover:underline break-all">{prospect.email}</a>
-										<Button type="button" variant="ghost" size="sm" class="h-7 text-muted-foreground" onclick={() => editingEmail = true}>Edit</Button>
+									<dd class="text-sm mt-0.5 space-y-2">
+										{#if isDevSchema && hasProspectEmail}
+											<div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+												<a href="mailto:{DEV_OUTBOUND_EMAIL}" class="text-primary hover:underline break-all">{DEV_OUTBOUND_EMAIL}</a>
+												<span class="text-xs text-muted-foreground">(outbound in dev)</span>
+												<Button type="button" variant="ghost" size="sm" class="h-7 text-muted-foreground" onclick={() => editingEmail = true}>Edit</Button>
+											</div>
+											<div class="flex items-center gap-2">
+												<Switch id="prospect-show-real-email" bind:checked={showRealProspectEmail} size="sm" />
+												<Label for="prospect-show-real-email" class="text-xs font-normal text-muted-foreground cursor-pointer">Show prospect address</Label>
+											</div>
+											{#if showRealProspectEmail}
+												<p class="text-xs text-muted-foreground break-all">
+													Stored:
+													<a href="mailto:{prospect.email}" class="text-primary hover:underline">{prospect.email}</a>
+												</p>
+											{/if}
+										{:else}
+											<div class="flex items-center gap-2">
+												<a href="mailto:{prospect.email}" class="text-primary hover:underline break-all">{prospect.email}</a>
+												<Button type="button" variant="ghost" size="sm" class="h-7 text-muted-foreground" onclick={() => editingEmail = true}>Edit</Button>
+											</div>
+										{/if}
 									</dd>
 								{/if}
 							</div>

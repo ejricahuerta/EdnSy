@@ -16,6 +16,10 @@ declare global {
 			/** Injected when using SUPABASE_URL + SUPABASE_ANON_KEY without PUBLIC_* */
 			supabasePublic?: { url: string; anonKey: string } | null;
 		}
+		interface LayoutData {
+			/** PostgREST schema from private `SUPABASE_DB_SCHEMA` (public → live UI, dev → dev UI). */
+			supabaseDbSchema: 'public' | 'dev';
+		}
 	}
 }
 

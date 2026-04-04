@@ -31,3 +31,9 @@ export const LEGAL_COMPANY_ADDRESS = 'Ontario, Canada';
 
 /** Signature domain shown in AI-generated outreach emails (e.g. "— Ed | ednsy.com"). */
 export const SIGNATURE_DOMAIN = 'ednsy.com';
+
+/**
+ * When the app uses the `dev` PostgREST schema (`SUPABASE_DB_SCHEMA=dev`), outbound prospect
+ * emails are delivered here instead of the prospect's stored address.
+ */
+export const DEV_OUTBOUND_EMAIL = 'hello@ednsy.com';
