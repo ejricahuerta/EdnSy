@@ -17,6 +17,8 @@
     "demo:download-images": "node ../scripts/download-demo-images.mjs",
     "db:link": "supabase link",
     "db:push": "supabase db push",
+    "db:push:dev": "node scripts/apply-migrations-dev.mjs",
+    "db:sync-migrations-dev": "node scripts/sync-migrations-dev.mjs",
     "db:status": "supabase db remote status",
     "pull-gbp-dental": "node scripts/pull-gbp-dental.mjs"
   },
@@ -41,6 +43,7 @@
     "dotenv": "^16.4.5",
     "layerchart": "2.0.0-next.43",
     "mode-watcher": "^1.1.0",
+    "postgres": "3.4.7",
     "supabase": "^2.76.15",
     "svelte": "^5.0.0",
     "svelte-check": "^4.0.0",

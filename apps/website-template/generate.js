@@ -25,10 +25,12 @@ import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import { config } from "dotenv";
 import { obfuscateHtml } from "./renderer/obfuscate.js";
+import { supabaseDbClientOptions } from "./supabaseDbSchema.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// Load .env from agent folder or parent (website-template)
+// Shared Supabase (and other) vars: apps/admin/.env when in monorepo; then local overrides.
+config({ path: resolve(__dirname, "../admin/.env") });
 config({ path: resolve(__dirname, ".env") });
 config({ path: resolve(__dirname, "../.env") });
 
@@ -124,7 +126,7 @@ async function uploadToSupabase(html, idFromData) {
   const fileName = `${id}.html`;
   const storagePath = `${SUPABASE_STORAGE_PREFIX}/${fileName}`;
   debug("uploadToSupabase: starting", { id, storagePath, htmlLength: html?.length });
-  const supabase = createClient(config.url, config.key);
+  const supabase = createClient(config.url, config.key, supabaseDbClientOptions());
   const { data, error } = await supabase.storage
     .from(SUPABASE_STORAGE_BUCKET)
     .upload(storagePath, html, { contentType: "text/html", upsert: true });

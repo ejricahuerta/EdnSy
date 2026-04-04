@@ -1,0 +1,25 @@
+---
+description: Server-only Supabase DB schema env and twin dev-schema migrations for admin
+globs: apps/admin/supabase/**/*.sql, apps/admin/src/lib/server/supabase*.ts, apps/admin/src/hooks.server.ts, apps/website-template/**/*.js
+alwaysApply: false
+---
+
+# Supabase `SUPABASE_DB_SCHEMA` and dev migrations
+
+## Server schema variable
+
+- **`SUPABASE_DB_SCHEMA`** (private env, default `public`) controls PostgREST `db.schema` for:
+  - `apps/admin`: `getSupabaseAdmin()` and `createServerClient` in `hooks.server.ts` via `$lib/server/supabaseDbSchema`.
+  - `apps/website-template`: `createClient` options from `supabaseDbSchema.js`.
+- Do **not** add `PUBLIC_SUPABASE_DB_SCHEMA` unless product explicitly needs the schema name in the browser bundle; prefer server-only env and docs in [apps/admin/docs/supabase-schema.md](mdc:apps/admin/docs/supabase-schema.md).
+
+## When adding a new migration under `apps/admin/supabase/migrations/`
+
+1. Add the standard file under `migrations/` for **`public`** (normal CLI flow).
+2. From `apps/admin`, run **`pnpm run db:sync-migrations-dev`** to regenerate the twin under `migrations_dev/` (see [migrations_dev/README.md](mdc:apps/admin/supabase/migrations_dev/README.md)). Fix the generated SQL by hand only if the sync script misses an edge case.
+3. Apply **`public`** with `pnpm run db:push` (`supabase db push`). Apply **`dev`** with `pnpm run db:push:dev` using **`SUPABASE_DATABASE_URL`** in `apps/admin/.env` (Postgres URI from Dashboard → Database), or run the dev SQL manually. See [supabase-schema.md](mdc:apps/admin/docs/supabase-schema.md).
+4. Ensure hosted Supabase exposes the `dev` schema in API settings when using `dev` locally or remotely; local `config.toml` lists `dev` under `[api].schemas`.
+
+## Browser / Realtime
+
+If tables used from the browser or Realtime live only in `non-public` schema, the client must use the same `db.schema` (or stay on `public`). Call out the mismatch in PRs when changing schema usage.
