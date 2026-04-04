@@ -5,6 +5,7 @@
 	import * as Table from "$lib/components/ui/table";
 	import { Button } from "$lib/components/ui/button";
 	import { ExternalLink, ChevronRight } from "lucide-svelte";
+	import { normalizeExternalHref } from "$lib/externalUrl";
 
 	let { data } = $props<{ data: PageData }>();
 
@@ -54,8 +55,9 @@
 									</Table.Cell>
 									<Table.Cell>
 										{#if p.demoLink}
+											{@const demoHref = normalizeExternalHref(p.demoLink)}
 											<a
-												href={p.demoLink}
+												href={demoHref ?? p.demoLink}
 												target="_blank"
 												rel="noopener noreferrer"
 												class="inline-flex items-center gap-1.5 text-primary hover:underline truncate max-w-[280px]"

@@ -20,6 +20,7 @@ module.exports = {
         serif: ["Playfair Display", ...fontFamily.serif],
         heading: ["Inter", ...fontFamily.sans], // Links use Inter for readability
         display: ["Marck Script", "cursive"], // Using logo font for display
+        editorial: ["Instrument Serif", "Georgia", "Times New Roman", "serif"],
       },
       colors: {
         border: "hsl(var(--border))",

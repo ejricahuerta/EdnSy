@@ -30,6 +30,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import * as Select from '$lib/components/ui/select';
 	import { cn } from '$lib/utils';
+	import { normalizeExternalHref } from '$lib/externalUrl';
 	import { buttonVariants } from '$lib/components/ui/button';
 	import { toastSuccess, toastError } from '$lib/toast';
 	import { goto } from '$app/navigation';
@@ -49,6 +50,8 @@
 		$props();
 
 	const prospect = $derived(data.prospect);
+	const prospectWebsiteHref = $derived(normalizeExternalHref(prospect.website));
+	const prospectDemoHref = $derived(normalizeExternalHref(prospect.demoLink));
 	const demoTracking = $derived(data.demoTracking);
 	const scrapedData = $derived(data.scrapedData ?? null);
 	const demoJob = $derived(data.demoJob);
@@ -531,7 +534,7 @@
 			</div>
 		{:else if primaryAction?.type === 'review' && prospect.demoLink}
 			<div class="flex flex-wrap items-center gap-2 shrink-0">
-				<Button size="lg" href={prospect.demoLink} target="_blank" rel="noopener noreferrer">
+				<Button size="lg" href={prospectDemoHref ?? prospect.demoLink} target="_blank" rel="noopener noreferrer">
 					<Link2 class="size-4 mr-2" />
 					Review demo page
 				</Button>
@@ -750,7 +753,7 @@
 						{#if prospect.website}
 							<div class="flex gap-3">
 								<Globe class="size-4 shrink-0 mt-0.5 text-muted-foreground" />
-								<div><dt class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Website</dt><dd class="text-sm mt-0.5"><a href={prospect.website} target="_blank" rel="noopener noreferrer" class="text-primary hover:underline break-all">{prospect.website}</a></dd></div>
+								<div><dt class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Website</dt><dd class="text-sm mt-0.5"><a href={prospectWebsiteHref ?? prospect.website} target="_blank" rel="noopener noreferrer" class="text-primary hover:underline break-all">{prospect.website}</a></dd></div>
 							</div>
 						{/if}
 						{#if prospect.phone}
@@ -987,7 +990,7 @@
 									variant="ghost"
 									size="icon"
 									class="shrink-0 rounded-none border-l border-input h-auto size-9"
-									href={demoUrl}
+									href={normalizeExternalHref(demoUrl) ?? demoUrl}
 									target="_blank"
 									rel="noopener noreferrer"
 									aria-label="Open in new tab"
