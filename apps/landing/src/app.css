@@ -1,6 +1,5 @@
-/* Import modern fonts first */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Marck+Script&display=swap');
+/* Fonts: Inter (UI), Marck Script (brand), Instrument Serif (editorial headlines, Span-style) */
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700;800;900&family=Marck+Script&display=swap');
 
 @import "tailwindcss";
 
@@ -43,6 +42,70 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+}
+
+/* Hero trust strip: infinite horizontal marquee (content moves right → left) */
+@keyframes home-ticker-marquee {
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.home-ticker {
+  overflow: hidden;
+  /* Narrower side fades: readable band stays closer to full horizontal width */
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 1.5%,
+    black 98.5%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 1.5%,
+    black 98.5%,
+    transparent
+  );
+}
+
+.home-ticker-track {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  width: max-content;
+  animation: home-ticker-marquee 50s linear infinite;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-ticker {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .home-ticker-track {
+    animation: none;
+    width: 100%;
+    max-width: 48rem;
+    margin-left: auto;
+    margin-right: auto;
+    justify-content: center;
+  }
+
+  .home-ticker-segment {
+    flex-shrink: 1;
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 0.5rem;
+    column-gap: 2rem;
+  }
+
+  .home-ticker-duplicate {
+    display: none;
+  }
 }
 
 /* Hero: 800px height, centered copy, inverted (dark bg, light text). */

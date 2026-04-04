@@ -6,6 +6,8 @@
     "cron:mock-gbp": "node scripts/cron-mock.mjs",
     "env:sync-keys": "node scripts/sync-keys-to-env.mjs",
     "demo:download-images": "node scripts/download-demo-images.mjs",
+    "scrape:places-emails": "node scripts/scrape-places-emails.mjs",
+    "scrape:places-emails:migrate-csv": "node scripts/scrape-places-emails.mjs --migrate-csv-only",
     "notion:check-properties": "node scripts/check-notion-properties.mjs",
     "supabase:ref": "node scripts/get-supabase-ref.mjs"
   }

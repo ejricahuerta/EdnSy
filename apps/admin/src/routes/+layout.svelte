@@ -12,7 +12,8 @@
 	import { Button } from '$lib/components/ui/button';
 	import NotificationBell from '$lib/components/dashboard/notification-bell.svelte';
 	import { LayoutGrid, Users, Plug, CreditCard, Settings, PanelLeftClose, ChevronRight, Sun, Moon, Presentation, Bot, Menu, X } from 'lucide-svelte';
-import { isEdnsyUser } from '$lib/plans';
+	import { isEdnsyUser } from '$lib/plans';
+	import { normalizeExternalHref, isSameOriginPathHref } from '$lib/externalUrl';
 
 	let { data, children } = $props();
 	const siteOrigin = $derived(data?.siteOrigin ?? '');
@@ -22,6 +23,8 @@ import { isEdnsyUser } from '$lib/plans';
 	const bannerText = $derived(demoBanner?.text ?? 'Want this live in 48 hours?');
 	const bannerCtaLabel = $derived(demoBanner?.ctaLabel ?? 'Try free →');
 	const bannerCtaHref = $derived(demoBanner?.ctaHref ?? '/try');
+	const bannerCtaLinkHref = $derived(normalizeExternalHref(bannerCtaHref) ?? bannerCtaHref);
+	const bannerCtaNewTab = $derived(!isSameOriginPathHref(bannerCtaHref));
 	// Demo: /demo/[slug] — slug is prospect id; theme is determined by industry (v1.3 themes).
 	const isDemoRoute = $derived(pathSegments[0] === 'demo' && pathSegments.length >= 2);
 	const demoTheme = $derived(isDemoRoute ? (pathSegments[1] ?? '') : '');
@@ -154,7 +157,12 @@ import { isEdnsyUser } from '$lib/plans';
 				<div class="demo-admin-banner-right-stack">
 					<span class="demo-admin-banner-urgency">{bannerText}</span>
 					<div class="demo-admin-banner-actions">
-						<a href={bannerCtaHref} class="demo-admin-banner-cta">{bannerCtaLabel}</a>
+						<a
+							href={bannerCtaLinkHref}
+							class="demo-admin-banner-cta"
+							target={bannerCtaNewTab ? '_blank' : undefined}
+							rel={bannerCtaNewTab ? 'noopener noreferrer' : undefined}
+						>{bannerCtaLabel}</a>
 					</div>
 				</div>
 			</div>

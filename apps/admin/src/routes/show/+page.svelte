@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { normalizeExternalHref } from '$lib/externalUrl';
 	import { MapPin, Building2, Globe, Phone, Star, Clock, CheckCircle, AlertCircle } from 'lucide-svelte';
 	import type { GbpData } from '$lib/server/gbp';
 	import type { GeminiInsight } from '$lib/types/demo';
@@ -130,7 +131,11 @@
 						{#if lookupData.gbp.website}
 							<div class="show-gbp-row">
 								<Globe size={16} aria-hidden="true" />
-								<a href={lookupData.gbp.website} target="_blank" rel="noopener noreferrer">{lookupData.gbp.website}</a>
+								<a
+									href={normalizeExternalHref(lookupData.gbp.website) ?? lookupData.gbp.website}
+									target="_blank"
+									rel="noopener noreferrer"
+								>{lookupData.gbp.website}</a>
 							</div>
 						{/if}
 						<div class="show-gbp-meta">

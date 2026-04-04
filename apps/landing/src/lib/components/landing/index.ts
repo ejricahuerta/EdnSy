@@ -10,3 +10,4 @@ export { default as CtaSection } from './cta-section.svelte';
 export { default as SuccessSection } from './success-section.svelte';
 export { default as TestimonialSection } from './testimonial-section.svelte';
 export { default as RosettaSuiteCta } from './rosetta-suite-cta.svelte';
+export { default as SiteHeader } from './site-header.svelte';

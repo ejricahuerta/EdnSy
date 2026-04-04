@@ -1,13 +1,14 @@
 <script lang="ts">
 	import { ExternalLink } from 'lucide-svelte';
 	import { cn } from '$lib/utils';
+	import { normalizeExternalHref } from '$lib/externalUrl';
 	import type { DemoAudit } from '$lib/demo';
 	import * as Tooltip from '$lib/components/ui/tooltip';
 
 	let { website, audit = null }: { website: string | null | undefined; audit?: DemoAudit | null } = $props();
 
 	const url = $derived((website ?? '').trim());
-	const href = $derived(url && /^https?:\/\//i.test(url) ? url : url ? `https://${url}` : null);
+	const href = $derived(normalizeExternalHref(url));
 	const display = $derived(url.length > 40 ? url.slice(0, 37) + '…' : url || null);
 
 	const overallGrade = $derived(

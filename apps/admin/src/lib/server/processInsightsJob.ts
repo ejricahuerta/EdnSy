@@ -22,6 +22,7 @@ import { generateInsightForProspect, generateInsightFromBusinessName, inferIndus
 import type { GbpData } from '$lib/server/gbp';
 import { NO_FIT_GBP_REASON } from '$lib/server/qualify';
 import { analyzeWebsiteAndProduceDemoJson } from '$lib/ai-agents';
+import { normalizeExternalHref } from '$lib/externalUrl';
 import { notionIndustryToSlug } from '$lib/industryMapping';
 import { INDUSTRY_LABELS } from '$lib/industries';
 import { PROSPECT_STATUS } from '$lib/prospectStatus';
@@ -90,11 +91,12 @@ export async function processOneInsightsJob(): Promise<ProcessInsightsJobResult>
 			// Flow: GBP (already present) → website → industry → insight
 			const gbp = (existingScraped as { gbpRaw: GbpData }).gbpRaw;
 			scrapedData = { ...existingScraped } as Record<string, unknown>;
-			// Step 2: website
-			if (prospect.website?.trim().startsWith('http')) {
+			// Step 2: website (CRM may store domain without scheme)
+			const websiteUrlForFetch = normalizeExternalHref(prospect.website);
+			if (websiteUrlForFetch && /^https?:\/\//i.test(websiteUrlForFetch)) {
 				const gbpSummary = { name: gbp.name, address: gbp.address, category: gbp.industry };
 				const websiteResult = await analyzeWebsiteAndProduceDemoJson({
-					websiteUrl: prospect.website.trim(),
+					websiteUrl: websiteUrlForFetch,
 					prospect,
 					gbpSummary
 				});
@@ -187,13 +189,14 @@ export async function processOneInsightsJob(): Promise<ProcessInsightsJobResult>
 			if (fromRealGbp && gbpFromResult) {
 				await updateProspectFromGbp(prospectId, gbpFromResult);
 			}
-			// Step 2: website
-			if (prospect.website?.trim().startsWith('http')) {
+			// Step 2: website (CRM may store domain without scheme)
+			const websiteUrlForFetch2 = normalizeExternalHref(prospect.website);
+			if (websiteUrlForFetch2 && /^https?:\/\//i.test(websiteUrlForFetch2)) {
 				const gbpSummary = gbpFromResult
 					? { name: gbpFromResult.name, address: gbpFromResult.address, category: gbpFromResult.industry }
 					: undefined;
 				const websiteResult = await analyzeWebsiteAndProduceDemoJson({
-					websiteUrl: prospect.website.trim(),
+					websiteUrl: websiteUrlForFetch2,
 					prospect,
 					gbpSummary
 				});

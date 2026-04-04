@@ -47,11 +47,113 @@ export const hero = {
   h1: "We give your time back",
   headline: "We give your time back",
   subhead:
-    "Ed & Sy helps Toronto service businesses answer every call, automate follow-ups, and eliminate admin using Voice AI and smart automation.",
+    "Toronto service businesses: answer every call, kill the admin pile, and stop losing leads to slow follow-up.",
   ctaPrimary: "Book a free call →",
-  ctaSecondary: "See services",
+  ctaSecondary: "See a real result ↓",
   tagline: "",
 } as const;
+
+/** Homepage: directly under hero. Replace quote when OhMyGlass owner approves final wording. */
+export const homeFeaturedTestimonial = {
+  quote:
+    "We were so happy with the results that we wanted to take things to the next level. We are now expanding the partnership to include a long-term SEO strategy and Voice AI.",
+  attributionName: "OhMyGlass",
+  attributionBusiness: "Toronto Window Glass Repair",
+} as const;
+
+/** OhMyGlass preview table (homepage). Tighten "after" cells when you have confirmed numbers. */
+export const caseStudyPreviewOhMyGlass = {
+  clientName: "OhMyGlass",
+  clientSubtitle: "Toronto Window Glass Repair",
+  href: "/case-studies/website-seo-toronto-window-glass-repair",
+  clientSiteHref: "https://ohmyglass.ca",
+  logoSrc: "/images/case-studies/ohmyglass-logo.png",
+  cta: "Read the full case study",
+  rows: [
+    {
+      before: "Site hacked — gambling & crypto spam in blog",
+      did: "Full recovery, spam removal, site secured",
+      after: "Clean site, no spam, trusted by Google",
+    },
+    {
+      before: "Invisible in local search",
+      did: "On-page SEO, technical fixes, Core Web Vitals",
+      after: "Organic traffic up —% (confirm before publish)",
+    },
+    {
+      before: "Weak Google Business Profile",
+      did: "GBP rebuilt and optimized for Toronto + GTA",
+      after: "Stronger map pack visibility — rank TBC",
+    },
+    {
+      before: "No clear service positioning",
+      did: "Rebuilt site around emergency glass, windows, mirrors",
+      after: "More qualified leads from search",
+    },
+  ],
+} as const;
+
+/** Legacy homepage lead block (replaced by hero quiz). Kept for copy reference / deep link id on quiz card. */
+export const leadCaptureCopy = {
+  id: "lead-capture",
+  headline: "Not ready to talk? Tell us your biggest leak.",
+  subhead: "We'll reply same day — no pitch, no pressure.",
+  submit: "Send it — we'll reply same day →",
+  trust: [
+    "No commitment",
+    "Ed or Sy replies personally",
+    "Toronto-based team",
+  ],
+} as const;
+
+/** Two-step MC quiz + email capture in the homepage hero lead card. */
+export const homeLeadQuiz = {
+  cardEyebrow: "Same-day reply",
+  cardTitle: "Quick fit check",
+  cardSubtitle: "Two questions — then we send your recap. No pitch, no spam.",
+  steps: [
+    {
+      id: "pain" as const,
+      shortLabel: "Pain",
+      question: "What's costing you the most right now?",
+      options: [
+        { value: "missed-calls", label: "Missed calls & voicemail" },
+        { value: "admin-time", label: "Admin & busywork" },
+        { value: "cold-leads", label: "Leads going cold" },
+        { value: "website-seo", label: "Website / local search" },
+        { value: "other", label: "Something else" },
+      ],
+    },
+    {
+      id: "timeline" as const,
+      shortLabel: "Timeline",
+      question: "When do you want to move on this?",
+      options: [
+        { value: "urgent", label: "As soon as possible" },
+        { value: "month", label: "This month" },
+        { value: "quarter", label: "Next few months" },
+        { value: "exploring", label: "Just looking" },
+      ],
+    },
+  ],
+  contactTitle: "Where should we send your recap?",
+  contactSub: "We reply same day. No pitch, no spam.",
+  nameLabel: "Name",
+  emailLabel: "Email",
+  submit: "Send my recap →",
+  back: "Back",
+  successTitle: "You're in.",
+  successBody: "We'll reply same day. Urgent? Email ",
+  restart: "Start over",
+} as const;
+
+export const leadProblemOptions = [
+  { value: "missed-calls", label: "Missed calls / voicemail" },
+  { value: "admin-time", label: "Too much time on admin" },
+  { value: "cold-leads", label: "Leads going cold too fast" },
+  { value: "website-seo", label: "Weak website / not ranking" },
+  { value: "other", label: "Something else" },
+] as const;
 
 /** About Ed & Sy (single short block) */
 export const valueProposition = {
@@ -88,12 +190,39 @@ export const problemsWeSolve = [
   },
 ] as const;
 
-export const stats = [
-  { value: "24/7", label: "Call coverage", sublabel: "" },
-  { value: "15–20h", label: "Saved weekly", sublabel: "" },
-  { value: "<30d", label: "Typical ROI", sublabel: "" },
-  { value: "$0", label: "Strategy call", sublabel: "" },
-] as const;
+/** Homepage KPI band: structural facts and honest scope — no vanity totals or unverified timelines. */
+export const homeKpiSection = {
+  headline: "Why Toronto service businesses work with us",
+  introSegments: [
+    { text: "We're a " },
+    { text: "two-person implementation team", accent: true },
+    { text: ", not a deck shop. " },
+    { text: "Voice AI, automation, and local SEO", accent: true },
+    { text: " for real workflows. " },
+    { text: "We aim for same-business-day replies", accent: true },
+    { text: " — clear scope, fixed phases, systems you can run without hiring a dev." },
+  ],
+  kpis: [
+    {
+      value: "2",
+      label: "People on the account",
+      description:
+        "Ed and Sy scope, build, and support the work. Not a rotating cast of juniors or an offshore bench.",
+    },
+    {
+      value: "24/7",
+      label: "What your stack runs",
+      description:
+        "Voice AI and automations answer, route, and follow up around the clock. That's the stack working — not a claim the founders are personally on call every hour.",
+    },
+    {
+      value: "0",
+      label: "Handoff layers",
+      description:
+        "No account-manager tree between you and the builders. Decisions and quality stay with the same two founders.",
+    },
+  ],
+} as const;
 
 export const servicesIntro =
   "Three solutions. One leaky bucket fixed.";
