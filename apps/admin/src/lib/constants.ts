@@ -36,4 +36,4 @@ export const SIGNATURE_DOMAIN = 'ednsy.com';
  * When the app uses the `dev` PostgREST schema (`SUPABASE_DB_SCHEMA=dev`), outbound prospect
  * emails are delivered here instead of the prospect's stored address.
  */
-export const DEV_OUTBOUND_EMAIL = 'hello@ednsy.com';
+export const DEV_OUTBOUND_EMAIL = 'test@ednsy.com';

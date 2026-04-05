@@ -30,15 +30,13 @@ function canRunInsightsAndDemo(prospect: { flagged?: boolean; flaggedReason?: st
 import {
 	sendEmail,
 	sendSms,
-	getDefaultEmailSubject,
 	getAlternateOfferSubject,
-	buildEmailBodyForUser,
-	buildEmailBodyFromAiIntro,
 	buildEmailBodyAlternateOffer,
 	buildSmsBody,
 	getSendConfigured,
 	getOriginForOutgoingLinks,
-	isTwilioConfigured
+	isTwilioConfigured,
+	resolveDemoOutreachEmail
 } from '$lib/server/send';
 import { generateEmailCopy } from '$lib/server/generateEmailCopy';
 import { getTemplates } from '$lib/server/templates';
@@ -314,31 +312,18 @@ export const actions: Actions = {
 		let sent = 0;
 		if (prospect.email?.trim()) {
 			const ai = await generateEmailCopy(prospect, senderName);
-			if (!ai.copy && ai.promptSource === 'override') {
-				return fail(502, {
-					message:
-						ai.error ??
-						'AI email generation failed while a custom Email AI prompt override is active. The email was not sent.'
-				});
+			const resolved = resolveDemoOutreachEmail(
+				prospect,
+				senderName,
+				linkOrigin,
+				templates.emailHtml,
+				emailSignatureOverride,
+				ai
+			);
+			if ('error' in resolved) {
+				return fail(502, { message: resolved.error });
 			}
-			const subject =
-				ai.copy?.subject ?? getDefaultEmailSubject(prospect.companyName || 'your business');
-			const html = ai.copy
-				? buildEmailBodyFromAiIntro(
-						prospect,
-						prospect.demoLink,
-						senderName,
-						linkOrigin,
-						ai.copy.bodyIntro,
-						emailSignatureOverride
-					)
-				: buildEmailBodyForUser(
-						prospect,
-						prospect.demoLink,
-						senderName,
-						linkOrigin,
-						templates.emailHtml
-					);
+			const { subject, html } = resolved;
 			const result = await sendEmail(prospect.email.trim(), subject, html, {
 				userId: user.id,
 				appUserEmail: user.email

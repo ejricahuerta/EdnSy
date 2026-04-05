@@ -91,8 +91,6 @@
 	let sendConfirmOpen = $state(false);
 	let sendAlternateConfirmOpen = $state(false);
 	let sendingEmail = $state(false);
-	let sendForm: HTMLFormElement | null = $state(null);
-	let sendAlternateForm: HTMLFormElement | null = $state(null);
 	/** Set true after Approve demo succeeds so Send button appears immediately before refetch. */
 	let approvedJustNow = $state(false);
 	let editingEmail = $state(false);
@@ -102,7 +100,7 @@
 
 	const isDevSchema = $derived(data.supabaseDbSchema === 'dev');
 	const hasProspectEmail = $derived(!!(prospect.email ?? '').trim());
-	/** Address messages and send confirmations use this (dev → hello@ednsy.com when a prospect email exists). */
+	/** Address messages and send confirmations use this (dev → test@ednsy.com when a prospect email exists). */
 	const outboundEmailTargetDisplay = $derived(
 		isDevSchema && hasProspectEmail ? DEV_OUTBOUND_EMAIL : (prospect.email ?? '').trim() || '(no email set)'
 	);
@@ -372,12 +370,7 @@
 		}
 	}
 
-	/** Submit send-demo form (use:enhance handles the request with correct SvelteKit behavior). */
-	function submitSend() {
-		if (!sendForm || sendingEmail) return;
-		ensureAupInput(sendForm);
-		sendForm.requestSubmit();
-	}
+	const sendDemoFormId = $derived(`send-demo-form-${prospect.id}`);
 
 	function enhanceAnalyze(input: FormData | { formData: FormData }) {
 		const formData = input instanceof FormData ? input : input?.formData;
@@ -439,12 +432,7 @@
 		};
 	}
 
-	/** Submit alternate-offer form (use:enhance handles the request with correct SvelteKit behavior). */
-	function submitSendAlternate() {
-		if (!sendAlternateForm || sendingEmail) return;
-		ensureAupInput(sendAlternateForm);
-		sendAlternateForm.requestSubmit();
-	}
+	const sendAlternateFormId = $derived(`send-alternate-form-${prospect.id}`);
 </script>
 
 <svelte:head>
@@ -476,9 +464,10 @@
 		{:else if primaryAction?.type === 'sendAlternateOffer'}
 			<div class="shrink-0">
 				<form
-					bind:this={sendAlternateForm}
+					id={sendAlternateFormId}
 					method="POST"
 					action="?/sendAlternateOffer"
+					onsubmit={(e) => ensureAupInput(e.currentTarget)}
 					use:enhance={() => {
 						sendingEmail = true;
 						return async ({ result }) => {
@@ -513,13 +502,22 @@
 								<AlertDialog.Title>Send outreach email?</AlertDialog.Title>
 								<AlertDialog.Description>
 									An email about AI agent, voice AI, and SEO will be sent to {outboundEmailTargetDisplay}. No demo link will be included.
+									{#if !canSend}
+										<span class="mt-3 block text-destructive">
+											Connect Gmail in Dashboard → Integrations before sending.
+										</span>
+									{/if}
 									<br><br>
 									<strong>Sending means you accept the Acceptable Use Policy (AUP).</strong>
 								</AlertDialog.Description>
 							</AlertDialog.Header>
 							<AlertDialog.Footer>
 								<AlertDialog.Cancel disabled={sendingEmail}>Cancel</AlertDialog.Cancel>
-								<AlertDialog.Action type="button" disabled={sendingEmail} onclick={() => { submitSendAlternate(); }}>
+								<AlertDialog.Action
+									type="submit"
+									form={sendAlternateFormId}
+									disabled={sendingEmail || !canSend || !(prospect.email ?? '').trim()}
+								>
 									{#if sendingEmail}<LoaderCircle class="size-4 mr-2 animate-spin" aria-hidden="true" />{/if}
 									{sendingEmail ? 'Sending…' : 'Send email'}
 								</AlertDialog.Action>
@@ -627,9 +625,10 @@
 		{:else if isApprovedForSend}
 			<div class="shrink-0">
 				<form
-					bind:this={sendForm}
+					id={sendDemoFormId}
 					method="POST"
 					action="?/sendDemos"
+					onsubmit={(e) => ensureAupInput(e.currentTarget)}
 					use:enhance={() => {
 						sendingEmail = true;
 						return async ({ result }) => {
@@ -654,14 +653,8 @@
 						<AlertDialog.Trigger
 							type="button"
 							class={cn(buttonVariants({ size: 'lg' }), 'inline-flex items-center justify-center')}
-							disabled={!canSend || !(prospect.email ?? '').trim()}
-							title={
-								!(prospect.email ?? '').trim()
-									? 'Add an email for this prospect to send'
-									: !canSend
-										? 'Connect Gmail in Integrations to send email'
-										: ''
-							}
+							disabled={!(prospect.email ?? '').trim()}
+							title={!(prospect.email ?? '').trim() ? 'Add an email for this prospect to send' : ''}
 							onclick={() => (sendConfirmOpen = true)}
 						>
 							<Send class="size-4 mr-2" />
@@ -672,13 +665,22 @@
 								<AlertDialog.Title>Send demo to this client?</AlertDialog.Title>
 								<AlertDialog.Description>
 									An email with the demo link will be sent to {outboundEmailTargetDisplay}.
+									{#if !canSend}
+										<span class="mt-3 block text-destructive">
+											Connect Gmail in Dashboard → Integrations before sending.
+										</span>
+									{/if}
 									<br><br>
 									<strong>Sending means you accept the Acceptable Use Policy (AUP).</strong>
 								</AlertDialog.Description>
 							</AlertDialog.Header>
 							<AlertDialog.Footer>
 								<AlertDialog.Cancel disabled={sendingEmail}>Cancel</AlertDialog.Cancel>
-								<AlertDialog.Action type="button" disabled={sendingEmail} onclick={() => { submitSend(); }}>
+								<AlertDialog.Action
+									type="submit"
+									form={sendDemoFormId}
+									disabled={sendingEmail || !canSend || !(prospect.email ?? '').trim()}
+								>
 									{#if sendingEmail}<LoaderCircle class="size-4 mr-2 animate-spin" aria-hidden="true" />{/if}
 									{sendingEmail ? 'Sending…' : 'Send email'}
 								</AlertDialog.Action>

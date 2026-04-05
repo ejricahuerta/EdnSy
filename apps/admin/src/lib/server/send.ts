@@ -46,9 +46,15 @@ function getTwilioConfig() {
 	return { accountSid, authToken, fromNumber };
 }
 
-/** Default email subject per PRD (fallback when AI is not used). */
+/** Demo outreach subject: "{company} / site upgrade prototype" (company lowercased). */
+export function getUpgradePitchSubject(companyName: string): string {
+	const c = (companyName || 'your business').trim() || 'your business';
+	return `${c.toLowerCase()} / site upgrade prototype`;
+}
+
+/** @deprecated Use {@link getUpgradePitchSubject}; kept for call sites that still reference the old name. */
 export function getDefaultEmailSubject(companyName: string): string {
-	return `I built something for ${companyName}`;
+	return getUpgradePitchSubject(companyName);
 }
 
 /** Subject for alternate-offer email (AI agent, voice AI, SEO — no demo). */
@@ -99,36 +105,78 @@ export function getEmailSignatureLine(
 	return `- ${senderName} | ${SIGNATURE_DOMAIN}`;
 }
 
+/** Plain closing line after "Best," (no leading dash). */
+function getEmailClosingSignatureLine(senderName: string, signatureOverride: string | null): string {
+	const line = getEmailSignatureLine(senderName, signatureOverride);
+	return line.replace(/^\s*-\s+/, '').trim() || `${senderName} | ${SIGNATURE_DOMAIN}`;
+}
+
+function techStackPhraseForIndustry(industry: string): string {
+	const i = (industry || '').toLowerCase();
+	if (/(dental|dentist|orthodont)/.test(i)) return 'at the clinic';
+	if (/(medical|health|clinic|physician|doctor|vet|veterinary)/.test(i)) return 'at your practice';
+	return 'for your business';
+}
+
+function defaultUpgradeOpeningParagraph(company: string): string {
+	const c = company.trim() || 'your business';
+	return `I noticed a few performance gaps on the current ${c} site—specifically regarding mobile lead capture and how after-hours calls are handled.`;
+}
+
 /**
- * Build email HTML from AI-generated body intro (plain text paragraphs). Appends CTA link
- * (👉 VIEW YOUR DEMO), closing line, signature (user override or default - Name | ednsy.com), legal footer, and open pixel.
- * Tracking is active: link = /api/demo/click, pixel = /api/demo/open.
+ * High-conversion demo outreach HTML: upgrade pitch, trackable CTA, four pillars, 24h close.
+ * Tracking: link = /api/demo/click, pixel = /api/demo/open.
+ */
+export function buildEmailBodyUpgradePitch(
+	prospect: Prospect,
+	senderName: string,
+	origin: string,
+	signatureOverride: string | null | undefined,
+	options?: { openingHook?: string | null }
+): string {
+	const company = (prospect.companyName || 'your business').trim() || 'your business';
+	const companyCta = escapeHtml(company.toUpperCase());
+	const trackableLink = `${origin}/api/demo/click?p=${encodeURIComponent(prospect.id)}`;
+	const pixelUrl = `${origin}/api/demo/open?p=${encodeURIComponent(prospect.id)}`;
+	const openingPlain = (options?.openingHook ?? '').trim() || defaultUpgradeOpeningParagraph(company);
+	const openingHtml = `<p>${escapeHtml(openingPlain).replace(/\n/g, '<br />\n')}</p>`;
+	const closingSig = escapeHtml(getEmailClosingSignatureLine(senderName, signatureOverride ?? null));
+	const stackPhrase = escapeHtml(techStackPhraseForIndustry(prospect.industry ?? ''));
+	const html = `
+<p>Hi there,</p>
+${openingHtml}
+<p>Instead of sending a list of suggestions, I just went ahead and built a high-performance version of the site to show you the difference.</p>
+<p><a href="${trackableLink}">👉 VIEW THE ${companyCta} UPGRADE</a></p>
+<p>I&apos;ve integrated four specific upgrades into this demo:</p>
+<ul style="margin:0 0 1em 1.25em;padding:0;">
+<li><strong>Voice AI:</strong> It answers your office line when the front desk is busy or closed to book patients.</li>
+<li><strong>Chat AI:</strong> Handles insurance and basic FAQ instantly to stop &quot;bounce rates.&quot;</li>
+<li><strong>Lead Capture:</strong> A high-conversion flow designed to get more bookings from your existing traffic.</li>
+<li><strong>SEO Core:</strong> Rebuilt the metadata and site speed to rank higher in local search.</li>
+</ul>
+<p>I&apos;m not sure if you&apos;re currently looking to upgrade the tech stack ${stackPhrase}, but I thought you&apos;d want to see what&apos;s possible with the new AI tools.</p>
+<p>If you like the speed and the AI features, I can show you how to swap this with your current site in about 24 hours.</p>
+<p>Best,</p>
+<p>${closingSig}</p>
+<img src="${pixelUrl}" width="1" height="1" alt="" style="display:block;width:1px;height:1px;border:0;" />
+`.trim();
+	return html;
+}
+
+/**
+ * @deprecated Prefer {@link buildEmailBodyUpgradePitch}. Kept for any external references.
  */
 export function buildEmailBodyFromAiIntro(
 	prospect: Prospect,
-	demoLink: string,
+	_demoLink: string,
 	senderName: string,
 	origin: string,
 	bodyIntro: string,
 	signatureOverride?: string | null
 ): string {
-	const trackableLink = `${origin}/api/demo/click?p=${encodeURIComponent(prospect.id)}`;
-	const pixelUrl = `${origin}/api/demo/open?p=${encodeURIComponent(prospect.id)}`;
-	const paragraphs = bodyIntro
-		.split(/\n\n+/)
-		.map((p) => p.trim())
-		.filter(Boolean)
-		.map((p) => `<p>${escapeHtml(p)}</p>`)
-		.join('\n');
-	const signatureLine = getEmailSignatureLine(senderName, signatureOverride ?? null);
-	const html = `
-${paragraphs}
-<p><a href="${trackableLink}">👉 VIEW YOUR DEMO</a></p>
-<p>Take a look and let us know what you think.</p>
-<p>${escapeHtml(signatureLine)}</p>
-<img src="${pixelUrl}" width="1" height="1" alt="" style="display:block;width:1px;height:1px;border:0;" />
-`.trim();
-	return html;
+	return buildEmailBodyUpgradePitch(prospect, senderName, origin, signatureOverride ?? null, {
+		openingHook: bodyIntro
+	});
 }
 
 /**
@@ -137,22 +185,11 @@ ${paragraphs}
  */
 export function buildEmailBody(
 	prospect: Prospect,
-	demoLink: string,
+	_demoLink: string,
 	senderName: string,
 	origin: string
 ): string {
-	const company = prospect.companyName || 'your business';
-	const trackableLink = `${origin}/api/demo/click?p=${encodeURIComponent(prospect.id)}`;
-	const pixelUrl = `${origin}/api/demo/open?p=${encodeURIComponent(prospect.id)}`;
-	const html = `
-<p>Hi,</p>
-<p>I built a free website demo for ${company}. Take 30 seconds to see it:</p>
-<p><a href="${trackableLink}">View your demo</a></p>
-<p>${trackableLink}</p>
-<p>— ${senderName}</p>
-<img src="${pixelUrl}" width="1" height="1" alt="" style="display:block;width:1px;height:1px;border:0;" />
-`.trim();
-	return html;
+	return buildEmailBodyUpgradePitch(prospect, senderName, origin, null, {});
 }
 
 export type EmailTemplateVars = {
@@ -212,6 +249,55 @@ export function buildEmailBodyForUser(
 		return buildEmailBodyFromTemplate(customEmailHtml.trim(), vars);
 	}
 	return buildEmailBody(prospect, demoLink, senderName, origin);
+}
+
+/** Optional AI paragraph for the upgrade-pitch template (see {@link buildEmailBodyUpgradePitch}). */
+export type DemoEmailAiCopy = { openingHook?: string; bodyIntro?: string };
+
+export type DemoEmailGenerationResult = {
+	copy: DemoEmailAiCopy | null;
+	promptSource: 'override' | 'default';
+	error?: string;
+};
+
+/**
+ * Subject + HTML for “send demo” email: upgrade-pitch template, optional custom user HTML template,
+ * optional AI opening paragraph. Fails when a custom Email AI prompt is active but generation returned no copy.
+ */
+export function resolveDemoOutreachEmail(
+	prospect: Prospect,
+	senderName: string,
+	linkOrigin: string,
+	emailHtmlTemplate: string | null,
+	emailSignatureOverride: string | null,
+	ai: DemoEmailGenerationResult
+): { subject: string; html: string } | { error: string } {
+	if (ai.copy === null && ai.promptSource === 'override') {
+		return {
+			error:
+				ai.error ??
+				'AI email generation failed while a custom Email AI prompt override is active. The email was not sent.'
+		};
+	}
+	const subject = getUpgradePitchSubject(prospect.companyName || 'your business');
+	const hookRaw = ai.copy?.openingHook?.trim() || ai.copy?.bodyIntro?.trim();
+	const openingHook = hookRaw && hookRaw.length > 0 ? hookRaw : null;
+	if (emailHtmlTemplate?.trim()) {
+		return {
+			subject,
+			html: buildEmailBodyForUser(
+				prospect,
+				prospect.demoLink ?? '',
+				senderName,
+				linkOrigin,
+				emailHtmlTemplate
+			)
+		};
+	}
+	return {
+		subject,
+		html: buildEmailBodyUpgradePitch(prospect, senderName, linkOrigin, emailSignatureOverride, { openingHook })
+	};
 }
 
 /** Default SMS body per PRD. First name not in schema; use company or "there". CASL: opt-out. */
