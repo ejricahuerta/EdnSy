@@ -6,42 +6,35 @@ import { serverError } from '$lib/server/logger';
 const GEMINI_API_KEY = env.GEMINI_API_KEY;
 const GEMINI_MODEL = 'gemini-2.5-flash';
 
-/** AI-generated subject and body intro in "Prospects Receive" style: cheeky, fun, not too serious. */
-export type EmailCopy = { subject: string; bodyIntro: string };
+/**
+ * Optional AI-written opening paragraph for the fixed upgrade-pitch email template in send.ts.
+ * Subject line and the rest of the body are assembled server-side.
+ */
+export type EmailCopy = { openingHook?: string; bodyIntro?: string };
 export type GenerateEmailCopyResult = {
+	/** null = generation failed (e.g. API/parse error). Empty object = use template default opening. */
 	copy: EmailCopy | null;
 	promptSource: 'override' | 'default';
 	error?: string;
 };
 
 const EMAIL_COPY_JSON_SCHEMA_INLINE = `
-Return ONLY a single JSON object (no markdown, no explanation) with these exact keys:
+Return ONLY a single JSON object (no markdown, no explanation) with this key:
 {
-  "subject": "string (one short line, friendly subject line for the email)",
-  "bodyIntro": "string (exactly 3 parts, plain text, separated by double newlines. Part 1: Greeting only, e.g. 'Hey there,' or 'Hi there,'. Do NOT use company name in the greeting. Part 2: One short paragraph: we built a free demo site for [company] using their Google listing — their services, their location, their reviews. Part 3: One short paragraph: we also added an AI agent that handles inquiries and books consultations automatically. Do NOT include the demo link, 'Take a look...', or signature; we add those. Use the business/company name naturally in paragraph 2/3.)"
+  "openingHook": "string (one short paragraph, plain text). Describe specific performance or conversion gaps on their current site: mobile experience, lead capture, after-hours calls, or speed. Mention the business name naturally. Do NOT include a greeting (we add Hi there), bullet lists, demo link, CTA, signature, or markdown."
 }`.trim();
 
-/** Default prompt template for email copy. Use {{company}}, {{industry}}, {{senderName}}. */
-export const DEFAULT_EMAIL_COPY_PROMPT = `You are writing a short cold outreach email for Ed & Sy Admin. The sender has already built a personalized demo website for this prospect using their Google Business Profile. Your job is to write a subject line and the body intro only. Tone: friendly, clear, confident. Not corporate.
-
-Required structure for bodyIntro (3 parts, separate with double newlines):
-1. Greeting: "Hey there," or "Hi there,". Do NOT use company name in the greeting.
-2. One short paragraph: We built a free demo site for [company] using their Google listing — their services, their location, their reviews. Keep it natural and specific to the business.
-3. One short paragraph: We also added an AI agent that handles inquiries and books consultations automatically.
-
-Example flow (adapt to company/industry):
-Hey [Name],
-We built a free demo site for [Company] using your Google listing — your services, your location, your reviews.
-Also added an AI agent that handles inquiries and books consultations automatically.
+/** Default prompt for the optional opening paragraph. Use {{company}}, {{industry}}, {{senderName}}. */
+export const DEFAULT_EMAIL_COPY_PROMPT = `You help write one optional paragraph for a cold outreach email. The email uses a fixed HTML template: the sender already built a high-performance demo site for the prospect. Your only job is the openingHook: one paragraph that sounds observant and professional about gaps on their current site (mobile, lead capture, after-hours handling, speed, SEO—pick what fits {{industry}}).
 
 Context:
 - Business/company name: {{company}}
 - Industry: {{industry}}
-- Sender name (used in signature by us): {{senderName}}
+- Sender name (signature is added separately): {{senderName}}
 
 Rules:
-- subject: One short line. Friendly, clear, can mention demo or free site.
-- bodyIntro: Exactly the 3 parts above. No demo link, no "Take a look...", no signature — we add those. Use the business/company name naturally.
+- openingHook: A single paragraph only. No Hi/Hello, no bullets, no link, no signature.
+- Tone: confident, consultative, like the example: "I noticed a few performance gaps on the current [Company] site—specifically regarding…"
 
 ${EMAIL_COPY_JSON_SCHEMA_INLINE}`;
 
@@ -81,19 +74,14 @@ function repairJsonNewlines(raw: string): string {
 	return result;
 }
 
-/** Accept common field variants Gemini may return for body intro content. */
-function normalizeEmailCopyShape(input: unknown): { subject?: string; bodyIntro?: string } {
+/** Accept common field variants Gemini may return for the opening paragraph. */
+function normalizeEmailCopyShape(input: unknown): { openingHook?: string } {
 	if (typeof input !== 'object' || input === null) return {};
 	const obj = input as Record<string, unknown>;
-	const subjectCandidates: unknown[] = [
-		obj.subject,
-		obj.subject_line,
-		obj.subjectLine,
-		obj.title,
-		obj.headline
-	];
-	const subject = subjectCandidates.find((v) => typeof v === 'string') as string | undefined;
-	const bodyIntroCandidates: unknown[] = [
+	const candidates: unknown[] = [
+		obj.openingHook,
+		obj.opening_hook,
+		obj.hook,
 		obj.bodyIntro,
 		obj.body_intro,
 		obj.body,
@@ -103,112 +91,64 @@ function normalizeEmailCopyShape(input: unknown): { subject?: string; bodyIntro?
 		obj.email_body,
 		obj.copy
 	];
-	let bodyIntro = bodyIntroCandidates.find((v) => typeof v === 'string') as string | undefined;
-	if (!bodyIntro) {
+	let openingHook = candidates.find((v) => typeof v === 'string') as string | undefined;
+	if (!openingHook) {
 		const paragraphs = obj.paragraphs;
 		if (Array.isArray(paragraphs)) {
 			const textParts = paragraphs.filter((p) => typeof p === 'string') as string[];
-			if (textParts.length > 0) bodyIntro = textParts.join('\n\n');
+			if (textParts.length > 0) openingHook = textParts.join('\n\n');
 		}
 	}
-	if (!subject || !bodyIntro) {
-		const nestedCandidates = [obj.data, obj.result, obj.output, obj.email, obj.response];
-		for (const candidate of nestedCandidates) {
+	if (!openingHook) {
+		for (const candidate of [obj.data, obj.result, obj.output, obj.email, obj.response]) {
 			const nested = normalizeEmailCopyShape(candidate);
-			if (!bodyIntro && nested.bodyIntro) bodyIntro = nested.bodyIntro;
-			if (!subject && nested.subject) {
-				return { subject: nested.subject, bodyIntro };
-			}
+			if (nested.openingHook) return nested;
 		}
 	}
-	return { subject, bodyIntro };
+	return { openingHook };
 }
 
-function parsePlainTextEmailCopy(text: string): { subject?: string; bodyIntro?: string } {
+function parsePlainTextEmailCopy(text: string): { openingHook?: string } {
 	const cleaned = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
 	if (!cleaned) return {};
 	const lines = cleaned.split('\n').map((line) => line.trim()).filter(Boolean);
 	if (lines.length === 0) return {};
-	const subjectLine = lines.find((line) => /^subject\s*:/i.test(line));
-	let subject = subjectLine?.replace(/^subject\s*:/i, '').trim();
-	let bodyLines = lines;
-	if (subjectLine) {
-		const idx = lines.indexOf(subjectLine);
-		bodyLines = lines.slice(0, idx).concat(lines.slice(idx + 1));
-	}
-	const bodyIntro = bodyLines.join('\n');
-	if (!subject && bodyIntro) subject = lines[0].slice(0, 90);
-	return { subject, bodyIntro: bodyIntro || undefined };
+	const hookLine = lines.find((line) => /^openinghook\s*:/i.test(line));
+	let openingHook = hookLine?.replace(/^openinghook\s*:/i, '').trim();
+	if (!openingHook) openingHook = lines.join('\n');
+	return { openingHook: openingHook || undefined };
 }
 
-function sanitizeSubject(raw: string): string {
-	let s = raw.replace(/\r/g, '').trim();
-	// Subject must be one line; keep only first non-empty line.
-	s = s.split('\n').map((line) => line.trim()).find(Boolean) ?? '';
-	// Strip common leaked tokens and markdown noise.
-	s = s.replace(/^subject\s*:\s*/i, '').replace(/^["']|["']$/g, '').trim();
-	// If still obviously a body/CTA artifact, reject.
-	const lower = s.toLowerCase();
-	if (
-		!s ||
-		lower.includes('view your demo') ||
-		lower.includes('take a look') ||
-		lower.includes('ednsy.com') ||
-		lower.includes('http://') ||
-		lower.includes('https://')
-	) {
-		return '';
-	}
-	// Very short/weak subject lines (e.g. "A") look broken in inboxes.
-	if (s.length < 8) return '';
-	const wordCount = s.split(/\s+/).filter(Boolean).length;
-	if (wordCount < 2) return '';
-	return s.slice(0, 110).trim();
-}
-
-function sanitizeBodyIntro(raw: string): string {
+function sanitizeOpeningHook(raw: string): string {
 	let text = raw.replace(/\r/g, '').trim();
-	// Remove CTA/signature/footer fragments that must be appended by send.ts only.
-	const bannedLine = /(view your demo|take a look and let us know|ednsy\.com|^-\s|http:\/\/|https:\/\/)/i;
+	const bannedLine =
+		/(view your demo|view the .* upgrade|take a look|ednsy\.com|^-\s|http:\/\/|https:\/\/)/i;
 	const kept = text
 		.split('\n')
 		.map((line) => line.trim())
-		.filter((line) => line.length > 0 && !bannedLine.test(line));
-	text = kept.join('\n');
-	// Normalize excessive blank lines.
-	text = text.replace(/\n{3,}/g, '\n\n').trim();
+		.filter((line) => line.length > 0 && !bannedLine.test(line) && !/^(hi|hey|hello)[,!\s]*$/i.test(line));
+	text = kept.join(' ').replace(/\s{2,}/g, ' ').trim();
+	if (text.length > 600) text = text.slice(0, 600).trim();
 	return text;
 }
 
-function looksLikeBrokenModelOutput(subject: string, bodyIntro: string): boolean {
-	const combined = `${subject}\n${bodyIntro}`.toLowerCase();
-	// Reject obvious JSON fragments or leaked schema/output wrappers.
+function looksLikeBrokenModelOpening(opening: string): boolean {
+	const combined = opening.toLowerCase();
 	if (
-		combined.includes('"subject"') ||
+		combined.includes('"openinghook"') ||
 		combined.includes('"bodyintro"') ||
-		combined.includes('"body_intro"') ||
 		combined.includes('return only a single json object')
 	) {
 		return true;
 	}
-	// Reject braces-heavy fragments that usually indicate partial JSON.
 	const braceCount = (combined.match(/[{}]/g) ?? []).length;
 	if (braceCount >= 2) return true;
 	return false;
 }
 
-function buildDeterministicBodyIntro(company: string): string {
-	return [
-		`Hi there,`,
-		`We built a free demo site for ${company} using your Google listing — your services, your location, and your reviews.`,
-		`We also added an AI agent that handles inquiries and books consultations automatically.`
-	].join('\n\n');
-}
-
 /**
- * Generate subject line and email body intro for a prospect. Structure: greeting, demo-from-Google
- * message, AI-agent message. CTA link, closing line, and signature are added in send.ts.
- * Returns null if Gemini is not configured or the request fails.
+ * Optional AI opening paragraph for the upgrade-pitch template. Returns copy: null on hard failure;
+ * copy: {} when generation succeeded but the hook is omitted or stripped (use default opening in send.ts).
  */
 export async function generateEmailCopy(
 	prospect: Prospect,
@@ -283,28 +223,21 @@ export async function generateEmailCopy(
 		if (typeof parsed !== 'object' || parsed === null) {
 			return { copy: null, promptSource: resolved.source, error: 'Gemini response was not a JSON object' };
 		}
-		let { subject, bodyIntro } = normalizeEmailCopyShape(parsed);
-		if (!subject || !bodyIntro) {
+		let { openingHook } = normalizeEmailCopyShape(parsed);
+		if (!openingHook?.trim()) {
 			const plainTextParsed = parsePlainTextEmailCopy(text);
-			if (!subject && plainTextParsed.subject) subject = plainTextParsed.subject;
-			if (!bodyIntro && plainTextParsed.bodyIntro) bodyIntro = plainTextParsed.bodyIntro;
+			if (plainTextParsed.openingHook) openingHook = plainTextParsed.openingHook;
 		}
-		if (typeof subject !== 'string' || typeof bodyIntro !== 'string') {
-			return { copy: null, promptSource: resolved.source, error: 'Gemini response missed subject or bodyIntro' };
+		if (typeof openingHook !== 'string' || !openingHook.trim()) {
+			return { copy: {}, promptSource: resolved.source };
 		}
-		const cleanSubject = sanitizeSubject(subject);
-		const cleanBodyIntro = sanitizeBodyIntro(bodyIntro);
-		if (!cleanBodyIntro) {
-			return { copy: null, promptSource: resolved.source, error: 'Gemini response had empty fields' };
-		}
-		const finalSubject = cleanSubject || `I built something for ${company}`;
-		let finalBodyIntro = cleanBodyIntro;
-		if (looksLikeBrokenModelOutput(finalSubject, finalBodyIntro)) {
-			finalBodyIntro = buildDeterministicBodyIntro(company);
+		let clean = sanitizeOpeningHook(openingHook);
+		if (!clean || looksLikeBrokenModelOpening(clean)) {
+			return { copy: {}, promptSource: resolved.source };
 		}
 
 		return {
-			copy: { subject: finalSubject, bodyIntro: finalBodyIntro },
+			copy: { openingHook: clean },
 			promptSource: resolved.source
 		};
 	} catch (e) {
