@@ -4,6 +4,7 @@
  * Cloudflare Worker: runs on a schedule.
  * - Admin app: calls cron endpoints (demo, GBP, insights, batch). Set CRON_TARGET_URL (vars) and CRON_SECRET (secret).
  * - Website Template: pings health endpoint to keep the service warm. Set WEBSITE_TEMPLATE_URL (vars, optional).
+ * - Stitch (Render): pings GET /api/health to keep the service warm. Set STITCH_URL (vars, optional).
  *
  * One Cron Trigger (every minute) plus UTC minute modulo matches separate 1/2/3/5/14 minute schedules
  * and stays under the Free tier cap of 5 Cron Triggers per account (see Cloudflare Workers limits).
@@ -13,6 +14,8 @@ export interface Env {
 	CRON_SECRET: string;
 	CRON_TARGET_URL: string;
 	WEBSITE_TEMPLATE_URL?: string;
+	/** Base URL for Stitch on Render (GET /api/health). */
+	STITCH_URL?: string;
 }
 
 /** Avoid http→https redirects: fetch may drop Authorization on redirect, so cron gets 401. */
@@ -92,6 +95,12 @@ export default {
 			);
 			const r = await pingHealth(`${websiteTemplateBase}/api/health`);
 			console.log(`[cron-worker] website-template: ${r.status} ${r.ok ? "ok" : r.text}`);
+
+			const stitchBase = normalizeCronBase((env.STITCH_URL ?? "https://stitch-svw5.onrender.com").trim());
+			if (stitchBase) {
+				const rStitch = await pingHealth(`${stitchBase}/api/health`);
+				console.log(`[cron-worker] stitch: ${rStitch.status} ${rStitch.ok ? "ok" : rStitch.text.slice(0, 200)}`);
+			}
 		}
 	},
 };
