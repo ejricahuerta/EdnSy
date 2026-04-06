@@ -28,9 +28,16 @@ export type Prospect = {
 	provider_row_id?: string;
 	/** Set when loading from DB; used for custom demo template lookup */
 	userId?: string;
+	/** Gmail API draft id when CRM outreach draft exists and is not sent yet */
+	gmailOutreachDraftId?: string;
+	gmailOutreachDraftKind?: GmailOutreachDraftKind;
+	gmailOutreachDraftCreatedAt?: string;
 };
 
 export type ProspectProvider = 'notion' | 'hubspot' | 'gohighlevel' | 'pipedrive' | 'manual' | 'gbp';
+
+/** Which CRM outreach template the Gmail draft was built from. */
+export type GmailOutreachDraftKind = 'demo' | 'alternate';
 
 function rowToProspect(r: {
 	id: string;
@@ -47,6 +54,9 @@ function rowToProspect(r: {
 	address?: string | null;
 	flagged?: boolean | null;
 	flagged_reason?: string | null;
+	gmail_outreach_draft_id?: string | null;
+	gmail_outreach_draft_kind?: string | null;
+	gmail_outreach_draft_created_at?: string | null;
 }): Prospect {
 	return {
 		id: r.id,
@@ -62,7 +72,13 @@ function rowToProspect(r: {
 		provider: r.provider as ProspectProvider | undefined,
 		provider_row_id: r.provider_row_id ?? undefined,
 		userId: r.user_id ?? undefined,
-		address: r.address ?? undefined
+		address: r.address ?? undefined,
+		gmailOutreachDraftId: r.gmail_outreach_draft_id ?? undefined,
+		gmailOutreachDraftKind:
+			r.gmail_outreach_draft_kind === 'alternate' || r.gmail_outreach_draft_kind === 'demo'
+				? r.gmail_outreach_draft_kind
+				: undefined,
+		gmailOutreachDraftCreatedAt: r.gmail_outreach_draft_created_at ?? undefined
 	};
 }
 
@@ -88,6 +104,27 @@ export async function listProspects(): Promise<ListProspectsResult> {
 }
 
 /**
+ * Prospects with a demo link, not flagged (Demos list page). Trims empty/whitespace links after fetch.
+ */
+export async function listDemosProspects(): Promise<ListProspectsResult> {
+	const supabase = getSupabaseAdmin();
+	if (!supabase) return { prospects: [], error: 'api_error', message: 'Database not configured' };
+	const { data, error } = await supabase
+		.from('prospects')
+		.select(
+			'id, company_name, email, website, phone, industry, status, demo_link, provider, provider_row_id, user_id, address, flagged, flagged_reason'
+		)
+		.eq('flagged', false)
+		.not('demo_link', 'is', null)
+		.order('updated_at', { ascending: false });
+	if (error) return { prospects: [], error: 'api_error', message: error.message };
+	const prospects = (data ?? [])
+		.map((r) => rowToProspect(r))
+		.filter((p) => (p.demoLink ?? '').trim().length > 0);
+	return { prospects };
+}
+
+/**
  * Get a single prospect by our id (uuid). Used for dashboard actions and demo page.
  */
 export async function getProspectById(id: string): Promise<Prospect | null> {
@@ -95,7 +132,9 @@ export async function getProspectById(id: string): Promise<Prospect | null> {
 	if (!supabase) return null;
 	const { data, error } = await supabase
 		.from('prospects')
-		.select('id, company_name, email, website, phone, industry, status, demo_link, provider, provider_row_id, user_id, address, flagged, flagged_reason')
+		.select(
+			'id, company_name, email, website, phone, industry, status, demo_link, provider, provider_row_id, user_id, address, flagged, flagged_reason, gmail_outreach_draft_id, gmail_outreach_draft_kind, gmail_outreach_draft_created_at'
+		)
 		.eq('id', id)
 		.maybeSingle();
 	if (error || !data) return null;
@@ -113,7 +152,7 @@ export async function getProspectByIdWithCreated(
 	const { data, error } = await supabase
 		.from('prospects')
 		.select(
-			'id, company_name, email, website, phone, industry, status, demo_link, provider, provider_row_id, user_id, address, flagged, flagged_reason, created_at'
+			'id, company_name, email, website, phone, industry, status, demo_link, provider, provider_row_id, user_id, address, flagged, flagged_reason, created_at, gmail_outreach_draft_id, gmail_outreach_draft_kind, gmail_outreach_draft_created_at'
 		)
 		.eq('id', prospectId)
 		.maybeSingle();
@@ -136,7 +175,9 @@ export async function getProspectByIdForUser(
 	if (!supabase) return null;
 	const { data, error } = await supabase
 		.from('prospects')
-		.select('id, company_name, email, website, phone, industry, status, demo_link, provider, provider_row_id, user_id, address, flagged, flagged_reason, created_at')
+		.select(
+			'id, company_name, email, website, phone, industry, status, demo_link, provider, provider_row_id, user_id, address, flagged, flagged_reason, created_at, gmail_outreach_draft_id, gmail_outreach_draft_kind, gmail_outreach_draft_created_at'
+		)
 		.eq('id', prospectId)
 		.eq('user_id', userId)
 		.maybeSingle();
@@ -387,6 +428,43 @@ export async function updateProspectStatus(
 		.from('prospects')
 		.update({ status: value, updated_at: new Date().toISOString() })
 		.eq('id', prospectId);
+	if (error) return { ok: false, error: error.message };
+	return { ok: true };
+}
+
+/**
+ * Set or clear Gmail outreach draft metadata on a prospect (after drafts.create or drafts.send).
+ */
+export async function updateProspectGmailOutreachDraft(
+	prospectId: string,
+	fields:
+		| {
+				draftId: string;
+				kind: GmailOutreachDraftKind;
+				createdAt?: string;
+		  }
+		| { clear: true }
+): Promise<{ ok: boolean; error?: string }> {
+	const supabase = getSupabaseAdmin();
+	if (!supabase) return { ok: false, error: 'Database not configured' };
+	const now = new Date().toISOString();
+	let updates: Record<string, unknown>;
+	if ('clear' in fields && fields.clear) {
+		updates = {
+			gmail_outreach_draft_id: null,
+			gmail_outreach_draft_kind: null,
+			gmail_outreach_draft_created_at: null,
+			updated_at: now
+		};
+	} else {
+		updates = {
+			gmail_outreach_draft_id: fields.draftId,
+			gmail_outreach_draft_kind: fields.kind,
+			gmail_outreach_draft_created_at: fields.createdAt ?? now,
+			updated_at: now
+		};
+	}
+	const { error } = await supabase.from('prospects').update(updates).eq('id', prospectId);
 	if (error) return { ok: false, error: error.message };
 	return { ok: true };
 }

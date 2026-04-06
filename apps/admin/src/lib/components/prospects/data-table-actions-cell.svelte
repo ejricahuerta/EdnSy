@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { applyAction, enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
-	import { ChevronRight, LoaderCircle, Wand, Trash2, RotateCcw } from 'lucide-svelte';
+	import { ChevronRight, LoaderCircle, Wand, Ban, RotateCcw } from 'lucide-svelte';
 	import { buttonVariants } from '$lib/components/ui/button';
 	import { cn } from '$lib/utils';
 	import * as Tooltip from '$lib/components/ui/tooltip';
@@ -24,7 +24,7 @@
 		prospectLabel?: string;
 		hasDemoLink?: boolean;
 		demoJobStatus?: 'pending' | 'creating' | 'done' | 'failed';
-		trackingStatus?: 'draft' | 'approved' | 'sent' | 'opened' | 'clicked' | 'replied';
+		trackingStatus?: 'draft' | 'approved' | 'email_draft' | 'sent' | 'opened' | 'clicked' | 'replied';
 		detailHref?: string;
 		/** Show soft-delete icon (set flagged = true). */
 		showDelete?: boolean;
@@ -44,7 +44,8 @@
 
 	const demoJobActive = $derived(demoJobStatus === 'pending' || demoJobStatus === 'creating');
 	const canRegenerate = $derived(
-		hasDemoLink && !['approved', 'sent', 'opened', 'clicked', 'replied'].includes(trackingStatus ?? '')
+		hasDemoLink &&
+			!['approved', 'email_draft', 'sent', 'opened', 'clicked', 'replied'].includes(trackingStatus ?? '')
 	);
 	/** When in queue, allow all actions except undo (restore). */
 	const regenerateDisabled = $derived(false);
@@ -172,14 +173,14 @@
 					<Tooltip.Root>
 						<Tooltip.Trigger
 							type="submit"
-							class={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), 'h-8 w-8 text-muted-foreground hover:text-destructive')}
+							class={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), 'h-8 w-8 text-muted-foreground hover:text-amber-600 dark:hover:text-amber-500')}
 							disabled={flagging}
-							aria-label="Remove from pipeline"
+							aria-label="Remove from pipeline (not a fit)"
 						>
 							{#if flagging}
 								<LoaderCircle class="size-4 animate-spin" aria-hidden="true" />
 							{:else}
-								<Trash2 class="size-4" aria-hidden="true" />
+								<Ban class="size-4" aria-hidden="true" />
 							{/if}
 						</Tooltip.Trigger>
 						<Tooltip.Content side="top" sideOffset={6}>

@@ -1,6 +1,6 @@
 # Next steps: sending your first email
 
-Checklist for sending the first lead demo email from Lead Rosetta (dashboard/CRM only; not from /try or /upload).
+Checklist for sending the first lead demo email from Lead Rosetta (dashboard/CRM only; not from the CSV upload page alone).
 
 ## Prerequisites
 

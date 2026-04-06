@@ -107,6 +107,22 @@ export async function getValidAccessToken(userId: string): Promise<string | null
 
 export type SendEmailResult = { ok: true; id?: string } | { ok: false; error: string };
 
+export type GmailDraftResult =
+	| { ok: true; draftId: string; messageId?: string }
+	| { ok: false; error: string };
+
+function gmailApiErrorHint(status: number, message: string): string {
+	if (status === 404 || /not found|notFound/i.test(message)) {
+		return 'Draft no longer exists in Gmail (deleted or already sent). Create a new draft.';
+	}
+	if (status === 403 || /insufficient|permission|scope|access_denied|test|testing|not verified/i.test(message)) {
+		return `${message} Reconnect Gmail in Dashboard → Integrations to grant draft access (includes gmail.compose). If the OAuth app is in Testing mode, add your Gmail as a Test user in Google Cloud Console.`;
+	}
+	return message;
+}
+
+type PreparedMime = { accessToken: string; raw: string };
+
 /**
  * Build a simple RFC 2822 MIME message for sending via Gmail API.
  * fromEmail should be the authenticated Gmail address; fromName is optional display name.
@@ -140,16 +156,13 @@ function toBase64Url(buffer: Uint8Array): string {
 	return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
-/**
- * Send an email via Gmail API as the authenticated user. Uses getValidAccessToken(userId).
- */
-export async function sendEmailViaGmail(
+async function prepareGmailMimeRaw(
 	userId: string,
 	to: string,
 	subject: string,
 	html: string,
 	fromName?: string | null
-): Promise<SendEmailResult> {
+): Promise<{ ok: false; error: string } | { ok: true } & PreparedMime> {
 	const accessToken = await getValidAccessToken(userId);
 	if (!accessToken) {
 		return { ok: false, error: 'Gmail not connected or token expired. Reconnect in Integrations.' };
@@ -157,16 +170,14 @@ export async function sendEmailViaGmail(
 
 	let tokens = await getGmailTokens(userId);
 	let fromEmail = tokens?.email;
-	// Gmail API requires From to be the authenticated account; fetch profile if we never stored email
 	if (!fromEmail?.trim()) {
 		try {
 			const profile = await getGmailProfile(accessToken);
 			fromEmail = profile.emailAddress?.trim() || undefined;
 			if (fromEmail && tokens) {
 				await setGmailTokens(userId, { ...tokens, email: fromEmail });
-				tokens = { ...tokens, email: fromEmail };
 			}
-		} catch (e) {
+		} catch {
 			const hint =
 				'Reconnect Gmail in Dashboard → Integrations so we can read your Gmail address. If the app is in Testing mode, add your Gmail as a Test user in Google Cloud Console.';
 			return { ok: false, error: `Could not determine Gmail address. ${hint}` };
@@ -183,20 +194,41 @@ export async function sendEmailViaGmail(
 	const displayName = fromName?.trim() || null;
 	const mime = buildMimeMessage(to, subject, html, fromEmail, displayName);
 	const raw = toBase64Url(new TextEncoder().encode(mime));
+	return { ok: true, accessToken, raw };
+}
+
+/**
+ * Web URL to open the drafts folder; Gmail may focus a draft when compose id matches API draft id.
+ */
+export function gmailDraftWebComposeUrl(draftId: string): string {
+	return `https://mail.google.com/mail/u/0/#drafts?compose=${encodeURIComponent(draftId)}`;
+}
+
+/**
+ * Send an email via Gmail API as the authenticated user. Uses getValidAccessToken(userId).
+ */
+export async function sendEmailViaGmail(
+	userId: string,
+	to: string,
+	subject: string,
+	html: string,
+	fromName?: string | null
+): Promise<SendEmailResult> {
+	const prepared = await prepareGmailMimeRaw(userId, to, subject, html, fromName);
+	if (!prepared.ok) return prepared;
 
 	const res = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
 		method: 'POST',
 		headers: {
-			Authorization: `Bearer ${accessToken}`,
+			Authorization: `Bearer ${prepared.accessToken}`,
 			'Content-Type': 'application/json'
 		},
-		body: JSON.stringify({ raw })
+		body: JSON.stringify({ raw: prepared.raw })
 	});
 
 	if (!res.ok) {
 		const err = await res.text();
 		let message = err || `Gmail API error ${res.status}`;
-		// When OAuth app is in "Testing" mode, only listed test users can use Gmail
 		if (res.status === 403 || /access_denied|test|testing|not verified/i.test(message)) {
 			message += ' To use Gmail, add your Gmail address as a Test user in Google Cloud Console → OAuth consent screen → Test users.';
 		}
@@ -205,4 +237,94 @@ export async function sendEmailViaGmail(
 
 	const data = (await res.json()) as { id?: string };
 	return { ok: true, id: data?.id };
+}
+
+/**
+ * Create a Gmail draft (users/me/drafts). Requires gmail.compose scope.
+ */
+export async function createDraftViaGmail(
+	userId: string,
+	to: string,
+	subject: string,
+	html: string,
+	fromName?: string | null
+): Promise<GmailDraftResult> {
+	const prepared = await prepareGmailMimeRaw(userId, to, subject, html, fromName);
+	if (!prepared.ok) return prepared;
+
+	const res = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/drafts', {
+		method: 'POST',
+		headers: {
+			Authorization: `Bearer ${prepared.accessToken}`,
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({ message: { raw: prepared.raw } })
+	});
+
+	if (!res.ok) {
+		const err = await res.text();
+		const message = err || `Gmail drafts API error ${res.status}`;
+		return { ok: false, error: gmailApiErrorHint(res.status, message) };
+	}
+
+	const data = (await res.json()) as { id?: string; message?: { id?: string } };
+	const draftId = data?.id;
+	if (!draftId) return { ok: false, error: 'Gmail draft created but no draft id returned.' };
+	return { ok: true, draftId, messageId: data.message?.id };
+}
+
+/**
+ * Send an existing draft (users/me/drafts/send).
+ */
+export async function sendDraftViaGmail(userId: string, draftId: string): Promise<SendEmailResult> {
+	const accessToken = await getValidAccessToken(userId);
+	if (!accessToken) {
+		return { ok: false, error: 'Gmail not connected or token expired. Reconnect in Integrations.' };
+	}
+
+	const res = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/drafts/send', {
+		method: 'POST',
+		headers: {
+			Authorization: `Bearer ${accessToken}`,
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({ id: draftId })
+	});
+
+	if (!res.ok) {
+		const err = await res.text();
+		const message = err || `Gmail drafts/send error ${res.status}`;
+		return { ok: false, error: gmailApiErrorHint(res.status, message) };
+	}
+
+	const data = (await res.json()) as { id?: string };
+	return { ok: true, id: data?.id };
+}
+
+/**
+ * Delete a draft. Ignores 404 (already deleted in Gmail UI).
+ */
+export async function deleteDraftViaGmail(
+	userId: string,
+	draftId: string
+): Promise<{ ok: true } | { ok: false; error: string }> {
+	const accessToken = await getValidAccessToken(userId);
+	if (!accessToken) {
+		return { ok: false, error: 'Gmail not connected or token expired. Reconnect in Integrations.' };
+	}
+
+	const res = await fetch(
+		`https://gmail.googleapis.com/gmail/v1/users/me/drafts/${encodeURIComponent(draftId)}`,
+		{
+			method: 'DELETE',
+			headers: { Authorization: `Bearer ${accessToken}` }
+		}
+	);
+
+	if (res.status === 404) return { ok: true };
+	if (!res.ok) {
+		const err = await res.text();
+		return { ok: false, error: gmailApiErrorHint(res.status, err || `Gmail draft delete ${res.status}`) };
+	}
+	return { ok: true };
 }

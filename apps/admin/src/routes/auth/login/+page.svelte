@@ -18,7 +18,7 @@
 
 <div class="lr-auth-page">
 	<div class="lr-auth-card">
-		<a href="/try" class="lr-auth-card-logo" aria-label="Ed & Sy">
+		<a href="/" class="lr-auth-card-logo" aria-label="Ed & Sy">
 			<img src="/logo/logo.png" alt="" width="112" height="112" />
 		</a>
 		<h1 class="lr-auth-card-title">Admin Sign In</h1>

@@ -12,7 +12,7 @@ export function normalizeExternalHref(raw: string | null | undefined): string | 
 	return `https://${trimmed}`;
 }
 
-/** True for same-site paths like /try or /dashboard/foo (not //evil.com). */
+/** True for same-site paths like /dashboard/foo (not //evil.com). */
 export function isSameOriginPathHref(href: string | null | undefined): boolean {
 	const t = (href ?? '').trim();
 	return t.startsWith('/') && !t.startsWith('//');

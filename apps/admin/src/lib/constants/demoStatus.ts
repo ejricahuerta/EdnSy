@@ -4,10 +4,11 @@
  * - Filter options and labels are defined here so the UI and server stay in sync.
  */
 
-/** Valid demo_tracking.status values (pipeline: draft → approved → sent → opened → clicked → replied). */
+/** Valid demo_tracking.status values (pipeline: draft → approved → email_draft → sent → opened → clicked → replied). */
 export const DEMO_TRACKING_STATUSES = [
 	'draft',
 	'approved',
+	'email_draft',
 	'sent',
 	'opened',
 	'clicked',
@@ -27,6 +28,7 @@ export function isValidDemoTrackingStatus(value: unknown): value is DemoTracking
 export const DEMO_TRACKING_OPTIONS: { value: DemoTrackingStatus; label: string }[] = [
 	{ value: 'draft', label: 'Review' },
 	{ value: 'approved', label: 'Ready' },
+	{ value: 'email_draft', label: 'Outreach draft · Gmail' },
 	{ value: 'sent', label: 'Demo Sent' },
 	{ value: 'opened', label: 'Demo Opened · Email' },
 	{ value: 'clicked', label: 'Demo Opened · Link' },
@@ -85,6 +87,7 @@ export const STATUS_FILTER_OPTIONS: StatusFilterOption[] = [
 	{ value: 'in_queue', label: 'GBP Queued · Wait', group: 'demo' },
 	{ value: 'draft', label: 'Review', group: 'demo' },
 	{ value: 'approved', label: 'Ready', group: 'demo' },
+	{ value: 'email_draft', label: 'Outreach draft · Gmail', group: 'demo' },
 	{ value: 'sent', label: 'Demo Sent', group: 'demo' },
 	{ value: 'opened', label: 'Demo Opened · Email', group: 'engagement' },
 	{ value: 'clicked', label: 'Demo Opened · Link', group: 'engagement' },

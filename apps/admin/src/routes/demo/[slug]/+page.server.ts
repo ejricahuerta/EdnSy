@@ -23,7 +23,7 @@ export const load: PageServerLoad = async ({ params }) => {
 	if (!slug) throw error(404, 'Demo not found');
 
 	let prospect = await getProspectById(slug);
-	// Free (try) demo: slug may be free_demo_requests.id
+	// Free demo request: slug may be free_demo_requests.id
 	if (!prospect) {
 		const freeDemo = await getFreeDemoRequestById(slug);
 		if (freeDemo) {
@@ -39,7 +39,8 @@ export const load: PageServerLoad = async ({ params }) => {
 			if (freeDemo.status === 'failed') {
 				return {
 					freeDemoFailed: true,
-					errorMessage: freeDemo.error_message ?? 'Demo generation failed. Try again from the Try free page.'
+					errorMessage:
+						freeDemo.error_message ?? 'Demo generation failed. Sign in and create a demo from the dashboard, or contact support if this persists.'
 				};
 			}
 			if (freeDemo.status === 'done' && freeDemo.demo_link) {

@@ -22,8 +22,8 @@
 	const pathSegments = $derived($page.url.pathname.split('/').filter(Boolean));
 	const demoBanner = $derived(data?.demoBanner ?? null);
 	const bannerText = $derived(demoBanner?.text ?? 'Want this live in 48 hours?');
-	const bannerCtaLabel = $derived(demoBanner?.ctaLabel ?? 'Try free →');
-	const bannerCtaHref = $derived(demoBanner?.ctaHref ?? '/try');
+	const bannerCtaLabel = $derived(demoBanner?.ctaLabel ?? 'Connect with Ed & Sy');
+	const bannerCtaHref = $derived(demoBanner?.ctaHref ?? '/auth/login');
 	const bannerCtaLinkHref = $derived(normalizeExternalHref(bannerCtaHref) ?? bannerCtaHref);
 	const bannerCtaNewTab = $derived(!isSameOriginPathHref(bannerCtaHref));
 	// Demo: /demo/[slug] — slug is prospect id; theme is determined by industry (v1.3 themes).
@@ -373,8 +373,7 @@
 				{:else}
 					<li><a href="/#how">How it works</a></li>
 					<li><a href="/#pricing">Pricing</a></li>
-					<li><a href="/auth/login">Sign in</a></li>
-					<li><a href="/try" class="btn-nav">Try free →</a></li>
+					<li><a href="/auth/login" class="btn-nav">Sign in</a></li>
 				{/if}
 			</ul>
 			<button
@@ -411,8 +410,7 @@
 						</li>
 						<li><a href="/auth/logout" class="landing-nav-mobile-link">Sign out</a></li>
 					{:else}
-						<li><a href="/auth/login" class="landing-nav-mobile-link">Sign in</a></li>
-						<li><a href="/try" class="landing-nav-mobile-link landing-nav-mobile-cta">Try free →</a></li>
+						<li><a href="/auth/login" class="landing-nav-mobile-link landing-nav-mobile-cta">Sign in</a></li>
 					{/if}
 				</ul>
 			</div>

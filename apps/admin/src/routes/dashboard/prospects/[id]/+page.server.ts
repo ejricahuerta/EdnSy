@@ -13,11 +13,11 @@ import {
 	enqueueInsightsJob,
 	enqueueGbpJob,
 	getInsightsJobForProspect,
-	getGbpJobForProspect
+	getGbpJobForProspect,
+	getGmailOutreachEventsForProspect
 } from '$lib/server/supabase';
 import type { PageServerLoad, Actions } from './$types';
 import { getDashboardSessionUser } from '$lib/server/authDashboard';
-import { getEffectiveEmailSenderName, getEmailSignatureOverride } from '$lib/server/userSettings';
 import { getPlanForUser } from '$lib/server/stripe';
 import { getDemoCreationLimit, canSendAutomated } from '$lib/plans';
 import { isValidDemoTrackingStatus, type DemoTrackingStatus } from '$lib/demo';
@@ -27,20 +27,14 @@ import { NO_FIT_GBP_REASON } from '$lib/server/qualify';
 function canRunInsightsAndDemo(prospect: { flagged?: boolean; flaggedReason?: string | null }): boolean {
 	return !prospect.flagged || prospect.flaggedReason === NO_FIT_GBP_REASON;
 }
-import {
-	sendEmail,
-	sendSms,
-	getAlternateOfferSubject,
-	buildEmailBodyAlternateOffer,
-	buildSmsBody,
-	getSendConfigured,
-	getOriginForOutgoingLinks,
-	isTwilioConfigured,
-	resolveDemoOutreachEmail
-} from '$lib/server/send';
-import { generateEmailCopy } from '$lib/server/generateEmailCopy';
-import { getTemplates } from '$lib/server/templates';
+import { getSendConfigured, getOriginForOutgoingLinks } from '$lib/server/send';
 import { deleteProspect, updateProspectContact } from '$lib/server/prospects';
+import { prepareCrmOutreachEmail, type CrmOutreachKind } from '$lib/server/crmOutreachEmail';
+import {
+	executeCreateGmailOutreachDraft,
+	executeSendGmailOutreachDraft
+} from '$lib/server/crmOutreachGmail';
+import { DEV_OUTBOUND_EMAIL } from '$lib/constants';
 
 export const load: PageServerLoad = async (event) => {
 	const { params, cookies } = event;
@@ -51,7 +45,7 @@ export const load: PageServerLoad = async (event) => {
 	const prospect = await getProspectByIdForUser(user.id, prospectId);
 	if (!prospect) throw redirect(303, '/dashboard/prospects');
 
-	const [demoTracking, scrapedData, demoJobMap, insightsJob, gbpJob, plan, demoCountThisMonth, sendConfigured] =
+	const [demoTracking, scrapedData, demoJobMap, insightsJob, gbpJob, plan, demoCountThisMonth, sendConfigured, gmailOutreachEvents] =
 		await Promise.all([
 			getDemoTrackingForProspect(user.id, prospectId),
 			getScrapedDataForProspect(prospectId),
@@ -60,7 +54,8 @@ export const load: PageServerLoad = async (event) => {
 			getGbpJobForProspect(user.id, prospectId),
 			getPlanForUser(user),
 			getDemoCountThisMonth(user.id),
-			getSendConfigured(user.id)
+			getSendConfigured(user.id),
+			getGmailOutreachEventsForProspect(prospectId)
 		]);
 
 	const demoLimit = getDemoCreationLimit(plan);
@@ -82,7 +77,8 @@ export const load: PageServerLoad = async (event) => {
 		canSend: canSend && sendConfigured,
 		atDemoLimit:
 			demoLimit !== null && demoLimit > 0 && (demoCountThisMonth ?? 0) >= demoLimit,
-		showInsightsAndDemo: canRunInsightsAndDemo(prospect)
+		showInsightsAndDemo: canRunInsightsAndDemo(prospect),
+		gmailOutreachEvents
 	};
 };
 
@@ -256,113 +252,166 @@ export const actions: Actions = {
 		return { success: true, prospectId, queued: true, jobId: result.jobId, alreadyQueued: !result.created };
 	},
 
-	sendDemos: async (event) => {
-		const { request, url, cookies } = event;
+	/** Load outreach email preview for the modal (no Gmail API call). */
+	previewOutreachEmail: async (event) => {
+		const { request, url } = event;
 		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
 		const plan = await getPlanForUser(user);
 		if (!canSendAutomated(plan)) {
-			return fail(403, { message: 'Automated send is available on Starter, Growth, and Agency plans.' });
+			return fail(403, { message: 'Outreach is available on Starter, Growth, and Agency plans.' });
+		}
+		const formData = await request.formData();
+		const prospectId = formData.get('prospectId');
+		const kindRaw = formData.get('outreachKind');
+		if (!prospectId || typeof prospectId !== 'string') {
+			return fail(400, { message: 'Missing prospect ID' });
+		}
+		const kind: CrmOutreachKind =
+			kindRaw === 'alternate' ? 'alternate' : kindRaw === 'demo' ? 'demo' : 'demo';
+		const prospect = await getProspectByIdForUser(user.id, prospectId);
+		if (!prospect) return fail(404, { message: 'Prospect not found' });
+		if (prospect.flagged && prospect.flaggedReason !== NO_FIT_GBP_REASON) {
+			return fail(400, { message: 'Prospect out of scope.' });
+		}
+		if (kind === 'demo') {
+			if (!prospect.demoLink) {
+				return fail(400, { message: 'No demo link. Create a demo first.' });
+			}
+			const demoTracking = await getDemoTrackingForProspect(user.id, prospectId);
+			if (
+				demoTracking &&
+				demoTracking.status !== 'approved' &&
+				demoTracking.status !== 'email_draft'
+			) {
+				return fail(400, {
+					message: 'Demo must be approved (or already have a draft) before creating a Gmail draft.'
+				});
+			}
+		}
+		const linkOrigin = getOriginForOutgoingLinks(url.origin);
+		const prepared = await prepareCrmOutreachEmail({
+			kind,
+			prospect,
+			userId: user.id,
+			appUserEmail: user.email,
+			linkOrigin
+		});
+		if (!prepared.ok) return fail(502, { message: prepared.error });
+		const toDisplay = prepared.devRedirect ? DEV_OUTBOUND_EMAIL : prepared.originalTo;
+		return {
+			preview: true as const,
+			subject: prepared.subject,
+			html: prepared.html,
+			toDisplay,
+			kind: prepared.kind,
+			devRedirect: prepared.devRedirect,
+			prospectId
+		};
+	},
+
+	/** Create or replace a Gmail draft (demo with demo link, or alternate offer). */
+	createGmailOutreachDraft: async (event) => {
+		const { request, url } = event;
+		const user = await getDashboardSessionUser(event);
+		if (!user) return fail(401, { message: 'Sign in required' });
+		const plan = await getPlanForUser(user);
+		if (!canSendAutomated(plan)) {
+			return fail(403, { message: 'Outreach is available on Starter, Growth, and Agency plans.' });
 		}
 		if (!(await getSendConfigured(user.id))) {
 			return fail(503, {
-				message: 'Email sending is not configured. Connect Gmail in Integrations.'
+				message: 'Gmail is not connected. Connect Gmail in Dashboard → Integrations (include draft access).'
 			});
 		}
 		const formData = await request.formData();
 		if (formData.get('aupConfirmed') !== 'on') {
 			return fail(400, {
-				message: 'You must confirm compliance with the Acceptable Use Policy before sending.'
+				message: 'You must confirm compliance with the Acceptable Use Policy before creating a draft.'
 			});
 		}
-		const prospectIds = formData.getAll('prospectId');
-		if (prospectIds.length === 0) {
-			return fail(400, { message: 'Select at least one prospect to send.' });
+		const prospectId = formData.get('prospectId');
+		const kindRaw = formData.get('outreachKind');
+		if (!prospectId || typeof prospectId !== 'string') {
+			return fail(400, { message: 'Missing prospect ID' });
 		}
-		const prospectId = prospectIds[0] as string;
+		const kind: CrmOutreachKind = kindRaw === 'alternate' ? 'alternate' : 'demo';
 		const prospect = await getProspectByIdForUser(user.id, prospectId);
 		if (!prospect) return fail(404, { message: 'Prospect not found' });
-		if (!prospect.demoLink || (prospect.flagged && prospect.flaggedReason !== NO_FIT_GBP_REASON)) {
-			return fail(400, { message: 'No demo link or prospect out of scope.' });
+		if (prospect.flagged && prospect.flaggedReason !== NO_FIT_GBP_REASON) {
+			return fail(400, { message: 'Prospect out of scope.' });
 		}
-		let demoTracking = await getDemoTrackingForProspect(user.id, prospectId);
-		if (!demoTracking && (prospect.demoLink ?? '').trim()) {
-			// Legacy: create demo_tracking as approved so send can proceed
-			await upsertDemoTrackingForProspect(
-				user.id,
-				prospectId,
-				prospect.provider ?? 'manual',
-				prospect.provider_row_id ?? prospectId,
-				(prospect.demoLink ?? '').trim(),
-				'approved'
-			);
-			demoTracking = await getDemoTrackingForProspect(user.id, prospectId);
-		}
-		if (!demoTracking || demoTracking.status !== 'approved') {
-			return fail(400, {
-				message: 'Demo must be approved before sending. Open the prospect and click Approve demo.'
-			});
-		}
-		const [senderName, emailSignatureOverride] = await Promise.all([
-			getEffectiveEmailSenderName(user.id, user.email),
-			getEmailSignatureOverride(user.id)
-		]);
-		const templates = await getTemplates(user.id);
 		const linkOrigin = getOriginForOutgoingLinks(url.origin);
-		let sent = 0;
-		if (prospect.email?.trim()) {
-			const ai = await generateEmailCopy(prospect, senderName);
-			const resolved = resolveDemoOutreachEmail(
-				prospect,
-				senderName,
-				linkOrigin,
-				templates.emailHtml,
-				emailSignatureOverride,
-				ai
-			);
-			if ('error' in resolved) {
-				return fail(502, { message: resolved.error });
+		let demoTracking = await getDemoTrackingForProspect(user.id, prospectId);
+
+		if (kind === 'demo') {
+			if (!prospect.demoLink) {
+				return fail(400, { message: 'No demo link or prospect out of scope.' });
 			}
-			const { subject, html } = resolved;
-			const result = await sendEmail(prospect.email.trim(), subject, html, {
-				userId: user.id,
-				appUserEmail: user.email
-			});
-			if (result.ok) {
-				sent++;
-				await updateDemoTrackingStatus(user.id, prospectId, { status: 'sent' });
-			} else {
-				return fail(502, { message: result.error });
+			if (!demoTracking && (prospect.demoLink ?? '').trim()) {
+				await upsertDemoTrackingForProspect(
+					user.id,
+					prospectId,
+					prospect.provider ?? 'manual',
+					prospect.provider_row_id ?? prospectId,
+					(prospect.demoLink ?? '').trim(),
+					'approved'
+				);
+				demoTracking = await getDemoTrackingForProspect(user.id, prospectId);
 			}
-		}
-		if (prospect.phone?.trim() && isTwilioConfigured()) {
-			const body = buildSmsBody(prospect, prospect.demoLink, senderName);
-			const result = await sendSms(prospect.phone.trim(), body);
-			if (result.ok) sent++;
-		}
-		if (sent === 0) {
-			if (!(prospect.email ?? '').trim() && !(prospect.phone ?? '').trim()) {
+			if (
+				!demoTracking ||
+				(demoTracking.status !== 'approved' && demoTracking.status !== 'email_draft')
+			) {
 				return fail(400, {
-					message: 'No email or phone to send to. Add an email (or phone for SMS) on this prospect first.'
+					message: 'Demo must be approved before creating a Gmail draft. Open the prospect and click Approve demo.'
 				});
 			}
-			return fail(502, { message: 'Email could not be sent. Check Integrations (Gmail) and try again.' });
+		} else if (!prospect.email?.trim()) {
+			return fail(400, { message: 'No email to send to.' });
 		}
-		return { success: true, sent, prospectId };
+		if (kind === 'demo' && !(prospect.email ?? '').trim()) {
+			return fail(400, { message: 'No email to send to.' });
+		}
+
+		let sent = 0;
+		if (prospect.email?.trim()) {
+			const ex = await executeCreateGmailOutreachDraft({
+				userId: user.id,
+				appUserEmail: user.email,
+				prospect,
+				prospectId,
+				kind,
+				linkOrigin,
+				setDemoTrackingEmailDraft: kind === 'demo' && !!demoTracking
+			});
+			if (!ex.ok) return fail(502, { message: ex.error });
+			sent++;
+		}
+		if (sent === 0) {
+			if (!(prospect.email ?? '').trim()) {
+				return fail(400, {
+					message: 'No email to reach. Add an email on this prospect first.'
+				});
+			}
+			return fail(502, {
+				message: 'Could not create Gmail draft. Check Integrations and reconnect Gmail if needed.'
+			});
+		}
+		return { success: true, sent, prospectId, draftCreated: true };
 	},
 
-	sendAlternateOffer: async (event) => {
-		const { request, url, cookies } = event;
+	/** Send the stored Gmail draft via Gmail API (drafts.send). */
+	sendGmailOutreachDraft: async (event) => {
+		const { request } = event;
 		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
 		const plan = await getPlanForUser(user);
 		if (!canSendAutomated(plan)) {
-			return fail(403, { message: 'Automated send is available on Starter, Growth, and Agency plans.' });
+			return fail(403, { message: 'Outreach is available on Starter, Growth, and Agency plans.' });
 		}
 		if (!(await getSendConfigured(user.id))) {
-			return fail(503, {
-				message: 'Email sending is not configured. Connect Gmail in Integrations.'
-			});
+			return fail(503, { message: 'Gmail is not connected. Connect Gmail in Integrations.' });
 		}
 		const formData = await request.formData();
 		if (formData.get('aupConfirmed') !== 'on') {
@@ -376,24 +425,89 @@ export const actions: Actions = {
 		}
 		const prospect = await getProspectByIdForUser(user.id, prospectId);
 		if (!prospect) return fail(404, { message: 'Prospect not found' });
-		if (prospect.flagged && prospect.flaggedReason !== NO_FIT_GBP_REASON) {
-			return fail(400, { message: 'Prospect out of scope.' });
-		}
-		if (!prospect.email?.trim()) {
-			return fail(400, { message: 'No email to send to.' });
-		}
-		const [senderName] = await Promise.all([
-			getEffectiveEmailSenderName(user.id, user.email)
-		]);
-		const linkOrigin = getOriginForOutgoingLinks(url.origin);
-		const subject = getAlternateOfferSubject(prospect.companyName || 'your business');
-		const html = buildEmailBodyAlternateOffer(prospect, senderName, linkOrigin);
-		const result = await sendEmail(prospect.email.trim(), subject, html, {
+		const ex = await executeSendGmailOutreachDraft({
 			userId: user.id,
-			appUserEmail: user.email
+			prospect,
+			prospectId
 		});
-		if (!result.ok) return fail(502, { message: result.error });
-		return { success: true, prospectId };
+		if (!ex.ok) return fail(502, { message: ex.error });
+		return { success: true, prospectId, messageId: ex.messageId };
+	},
+
+	/** @deprecated Prefer createGmailOutreachDraft with outreachKind=demo. Kept for row "send" forms that still post here. */
+	sendDemos: async (event) => {
+		const { request, url } = event;
+		const user = await getDashboardSessionUser(event);
+		if (!user) return fail(401, { message: 'Sign in required' });
+		const plan = await getPlanForUser(user);
+		if (!canSendAutomated(plan)) {
+			return fail(403, { message: 'Outreach is available on Starter, Growth, and Agency plans.' });
+		}
+		if (!(await getSendConfigured(user.id))) {
+			return fail(503, {
+				message: 'Gmail is not configured. Connect Gmail in Dashboard → Integrations.'
+			});
+		}
+		const formData = await request.formData();
+		if (formData.get('aupConfirmed') !== 'on') {
+			return fail(400, {
+				message: 'You must confirm compliance with the Acceptable Use Policy before creating drafts.'
+			});
+		}
+		const prospectIds = formData.getAll('prospectId');
+		if (prospectIds.length === 0) {
+			return fail(400, { message: 'Select at least one prospect.' });
+		}
+		const prospectId = prospectIds[0] as string;
+		const prospect = await getProspectByIdForUser(user.id, prospectId);
+		if (!prospect) return fail(404, { message: 'Prospect not found' });
+		if (!prospect.demoLink || (prospect.flagged && prospect.flaggedReason !== NO_FIT_GBP_REASON)) {
+			return fail(400, { message: 'No demo link or prospect out of scope.' });
+		}
+		let demoTracking = await getDemoTrackingForProspect(user.id, prospectId);
+		if (!demoTracking && (prospect.demoLink ?? '').trim()) {
+			await upsertDemoTrackingForProspect(
+				user.id,
+				prospectId,
+				prospect.provider ?? 'manual',
+				prospect.provider_row_id ?? prospectId,
+				(prospect.demoLink ?? '').trim(),
+				'approved'
+			);
+			demoTracking = await getDemoTrackingForProspect(user.id, prospectId);
+		}
+		if (
+			!demoTracking ||
+			(demoTracking.status !== 'approved' && demoTracking.status !== 'email_draft')
+		) {
+			return fail(400, {
+				message: 'Demo must be approved before creating a Gmail draft.'
+			});
+		}
+		const linkOrigin = getOriginForOutgoingLinks(url.origin);
+		let sent = 0;
+		if (prospect.email?.trim()) {
+			const ex = await executeCreateGmailOutreachDraft({
+				userId: user.id,
+				appUserEmail: user.email,
+				prospect,
+				prospectId,
+				kind: 'demo',
+				linkOrigin,
+				setDemoTrackingEmailDraft: true
+			});
+			if (!ex.ok) return fail(502, { message: ex.error });
+			sent++;
+		}
+		if (sent === 0) {
+			if (!(prospect.email ?? '').trim()) {
+				return fail(400, {
+					message: 'No email to reach. Add an email on this prospect first.'
+				});
+			}
+			return fail(502, { message: 'Could not create Gmail draft. Check Integrations (Gmail).' });
+		}
+		return { success: true, sent, prospectId, draftCreated: true };
 	},
 
 	updateEmail: async (event) => {
@@ -404,10 +518,12 @@ export const actions: Actions = {
 		const prospectId = formData.get('prospectId');
 		const email = (formData.get('email') as string)?.trim() ?? '';
 		if (!prospectId || typeof prospectId !== 'string') return fail(400, { message: 'Missing prospect ID' });
-		const result = await updateProspectContact(user.id, prospectId, { email });
+		const result = await updateProspectContact(prospectId, { email });
 		if (!result.ok) {
 			return fail(
-				result.error === 'Prospect not found or access denied' ? 404 : 502,
+				result.error === 'Prospect not found' || result.error === 'Prospect not found or access denied'
+					? 404
+					: 502,
 				{ message: result.error ?? 'Failed to update email' }
 			);
 		}
@@ -423,10 +539,12 @@ export const actions: Actions = {
 		if (!prospectId || typeof prospectId !== 'string') {
 			return fail(400, { message: 'Missing prospect ID' });
 		}
-		const result = await deleteProspect(user.id, prospectId);
+		const result = await deleteProspect(prospectId);
 		if (!result.ok) {
 			return fail(
-				result.error === 'Prospect not found or access denied' ? 404 : 502,
+				result.error === 'Prospect not found' || result.error === 'Prospect not found or access denied'
+					? 404
+					: 502,
 				{ message: result.error ?? 'Failed to delete' }
 			);
 		}

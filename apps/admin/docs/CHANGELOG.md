@@ -19,7 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **Theme:** Dark mode readability and parity with the marketing site; simplified login page (larger logo); sidebar brand row (logo + “Admin”) and nav type scale.
 - **Job polling:** Consolidated polling for demo jobs, GBP jobs, and insights; polling runs **in the browser only** to avoid SSR duplicate requests.
 - **Supabase client:** `@supabase/supabase-js` bumped for `@supabase/ssr` compatibility; browser client uses **dynamic public env** for URL/anon key (Vercel-safe).
-- **Documentation:** PRD implementation snapshot and pre-launch checklist updates; demo payload doc aligned with Website Template async endpoint used by `processDemoJob`; Taskmaster tasks (e.g. Stripe billing task marked done, dashboard/CRM wording); README route list (`/demo/...`, `/try`, `/show`).
+- **Documentation:** PRD implementation snapshot and pre-launch checklist updates; demo payload doc aligned with Website Template async endpoint used by `processDemoJob`; Taskmaster tasks (e.g. Stripe billing task marked done, dashboard/CRM wording); README route list (`/demo/...`, `/show`). Standalone `/try` route removed (redirect to `/auth/login`).
 
 ### Fixed
 

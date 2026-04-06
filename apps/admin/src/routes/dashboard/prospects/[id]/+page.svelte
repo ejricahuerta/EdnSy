@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { tick } from 'svelte';
 	import { applyAction, enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
 	import { getStatusDisplay } from '$lib/statusDisplay';
@@ -23,9 +24,11 @@
 	} from 'lucide-svelte';
 	import * as Card from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
+	import * as ButtonGroup from '$lib/components/ui/button-group';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Separator } from '$lib/components/ui/separator';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
+	import * as Dialog from '$lib/components/ui/dialog';
 	import { Label } from '$lib/components/ui/label';
 	import { Input } from '$lib/components/ui/input';
 	import * as Select from '$lib/components/ui/select';
@@ -54,6 +57,7 @@
 	const prospect = $derived(data.prospect);
 	const prospectWebsiteHref = $derived(normalizeExternalHref(prospect.website));
 	const prospectDemoHref = $derived(normalizeExternalHref(prospect.demoLink));
+	const prospectDemoLinkRaw = $derived(prospect.demoLink ?? '');
 	const demoTracking = $derived(data.demoTracking);
 	const scrapedData = $derived(data.scrapedData ?? null);
 	const demoJob = $derived(data.demoJob);
@@ -61,7 +65,9 @@
 	const insightsJobActive = $derived(!!insightsJob);
 	const gbpJob = $derived(data.gbpJob ?? null);
 	const gbpJobActive = $derived(!!gbpJob);
+	const gmailConnected = $derived(data.sendConfigured ?? false);
 	const canSend = $derived(data.canSend ?? false);
+	const integrationsGmailHref = '/dashboard/integrations';
 	const atDemoLimit = $derived(data.atDemoLimit ?? false);
 	const showInsightsAndDemo = $derived(data.showInsightsAndDemo ?? !prospect.flagged);
 	const gbpAudit = $derived(scrapedData ? auditFromScrapedData(scrapedData) : null);
@@ -88,9 +94,17 @@
 	let analyzingBusiness = $state(false);
 	let regeneratingGbpInsights = $state(false);
 	let deleteDialogOpen = $state(false);
-	let sendConfirmOpen = $state(false);
-	let sendAlternateConfirmOpen = $state(false);
-	let sendingEmail = $state(false);
+	let outreachDialogOpen = $state(false);
+	let currentOutreachKind = $state<'demo' | 'alternate'>('demo');
+	let previewSubject = $state('');
+	let previewHtml = $state('');
+	let previewTo = $state('');
+	let previewLoading = $state(false);
+	let previewError = $state('');
+	let previewFormEl = $state<HTMLFormElement | null>(null);
+	let creatingDraft = $state(false);
+	let sendingDraft = $state(false);
+	let sendDraftConfirmOpen = $state(false);
 	/** Set true after Approve demo succeeds so Send button appears immediately before refetch. */
 	let approvedJustNow = $state(false);
 	let editingEmail = $state(false);
@@ -104,6 +118,24 @@
 	const outboundEmailTargetDisplay = $derived(
 		isDevSchema && hasProspectEmail ? DEV_OUTBOUND_EMAIL : (prospect.email ?? '').trim() || '(no email set)'
 	);
+
+	const hasGmailOutreachDraft = $derived(!!(prospect.gmailOutreachDraftId ?? '').trim());
+	const gmailDraftComposeUrl = $derived(
+		hasGmailOutreachDraft
+			? `https://mail.google.com/mail/u/0/#drafts?compose=${encodeURIComponent(prospect.gmailOutreachDraftId!.trim())}`
+			: ''
+	);
+
+	async function openOutreachDialog(kind: 'demo' | 'alternate') {
+		currentOutreachKind = kind;
+		previewSubject = '';
+		previewHtml = '';
+		previewTo = '';
+		previewError = '';
+		outreachDialogOpen = true;
+		await tick();
+		previewFormEl?.requestSubmit();
+	}
 
 	let demoStatus = $state<DemoTrackingStatus>(() =>
 		(demoTracking?.status as DemoTrackingStatus) ?? 'draft'
@@ -187,6 +219,16 @@
 		if (demoTracking?.status === 'replied') {
 			pushEvent('follow_up', 'Follow-up / replied', demoTracking.updated_at ?? null);
 		}
+		const outreachTimeline = data.gmailOutreachEvents ?? [];
+		for (const ev of outreachTimeline) {
+			if (ev.event_type === 'gmail_outreach_draft_created') {
+				pushEvent(`gmail_draft_${ev.created_at}`, 'Gmail outreach draft created', ev.created_at);
+			} else if (ev.event_type === 'gmail_outreach_sent') {
+				pushEvent(`gmail_sent_${ev.created_at}`, 'Outreach email sent from Gmail', ev.created_at);
+			} else if (ev.event_type === 'gmail_outreach_draft_expired') {
+				pushEvent(`gmail_expired_${ev.created_at}`, 'Draft expired (deleted or sent from Gmail)', ev.created_at);
+			}
+		}
 		return events
 			.slice()
 			.sort((a, b) => {
@@ -222,8 +264,10 @@
 		const isApproved =
 			!demoTracking ||
 			demoTracking.status === 'approved' ||
+			demoTracking.status === 'email_draft' ||
 			approvedJustNow ||
-			demoStatus === 'approved';
+			demoStatus === 'approved' ||
+			demoStatus === 'email_draft';
 		if (isApproved) return { type: 'send' };
 		if (demoTracking?.status === 'draft' || demoStatus === 'draft') return { type: 'review' };
 		return null;
@@ -232,10 +276,12 @@
 	/** True when demo is approved (any source) or has demo but no tracking row (legacy). Used to show Send by email in header. */
 	const isApprovedForSend = $derived(
 		!!(prospect.demoLink ?? '').trim() &&
-		(!demoTracking ||
-			demoTracking.status === 'approved' ||
-			approvedJustNow ||
-			demoStatus === 'approved')
+			(!demoTracking ||
+				demoTracking.status === 'approved' ||
+				demoTracking.status === 'email_draft' ||
+				approvedJustNow ||
+				demoStatus === 'approved' ||
+				demoStatus === 'email_draft')
 	);
 
 	/** Short label for failed demo badge (avoids long error text in header). */
@@ -250,6 +296,7 @@
 		if (demoTracking?.status) {
 			if (demoTracking.status === 'draft') return getDemoTrackingLabel('draft');
 			if (demoTracking.status === 'approved') return getDemoTrackingLabel('approved');
+			if (demoTracking.status === 'email_draft') return getDemoTrackingLabel('email_draft');
 			if (demoTracking.status === 'sent' && demoTracking.send_time) {
 				try {
 					const d = new Date(demoTracking.send_time);
@@ -289,7 +336,9 @@
 		if (demoTracking?.status) {
 			return ['sent', 'opened', 'clicked', 'replied'].includes(demoTracking.status)
 				? 'default'
-				: demoTracking.status === 'approved' || demoTracking.status === 'draft'
+				: demoTracking.status === 'approved' ||
+					  demoTracking.status === 'email_draft' ||
+					  demoTracking.status === 'draft'
 					? 'default'
 					: 'outline';
 		}
@@ -370,8 +419,6 @@
 		}
 	}
 
-	const sendDemoFormId = $derived(`send-demo-form-${prospect.id}`);
-
 	function enhanceAnalyze(input: FormData | { formData: FormData }) {
 		const formData = input instanceof FormData ? input : input?.formData;
 		if (formData) analyzingBusiness = true;
@@ -432,7 +479,66 @@
 		};
 	}
 
-	const sendAlternateFormId = $derived(`send-alternate-form-${prospect.id}`);
+	const createGmailDraftFormId = $derived(`create-gmail-draft-${prospect.id}`);
+	const sendGmailDraftFormId = $derived(`send-gmail-draft-${prospect.id}`);
+	const regenerateDemoFormId = $derived(`regenerate-demo-${prospect.id}`);
+
+	function enhancePreviewOutreach() {
+		previewLoading = true;
+		previewError = '';
+		return async ({ result }: { result: import('$app/forms').ActionResult }) => {
+			previewLoading = false;
+			if (result.type === 'success' && result.data && typeof result.data === 'object') {
+				const rec = result.data as Record<string, unknown>;
+				if (rec.preview === true) {
+					previewSubject = String(rec.subject ?? '');
+					previewHtml = String(rec.html ?? '');
+					previewTo = String(rec.toDisplay ?? '');
+				}
+			} else if (result.type === 'failure' && result.data?.message) {
+				previewError = result.data.message;
+				await applyAction(result);
+			}
+		};
+	}
+
+	function enhanceRegenerateDemo() {
+		regeneratingDemo = true;
+		const timeoutMs = 150_000;
+		const t = setTimeout(() => {
+			regeneratingDemo = false;
+		}, timeoutMs);
+		return async ({ result }: { result: import('$app/forms').ActionResult }) => {
+			try {
+				if (result.type === 'success' && result.data && typeof result.data === 'object') {
+					const rec = result.data as Record<string, unknown>;
+					if (rec.success === true) {
+						if (rec.queued === true) {
+							toastSuccess(
+								rec.alreadyQueued === true ? 'Demo already in progress' : 'Regeneration queued',
+								rec.alreadyQueued === true
+									? 'Regeneration is running. Page will update when ready.'
+									: 'Usually 1–2 minutes. Page will update when ready.'
+							);
+							await invalidateAll();
+						} else {
+							toastSuccess(
+								'Demo regenerated',
+								'Content and images updated. Refresh the demo page to see changes.'
+							);
+							await invalidateAll();
+						}
+					}
+				} else if (result.type === 'failure' && result.data?.message) {
+					toastError('Regenerate demo', result.data.message);
+					await applyAction(result);
+				}
+			} finally {
+				clearTimeout(t);
+				regeneratingDemo = false;
+			}
+		};
+	}
 </script>
 
 <svelte:head>
@@ -440,6 +546,19 @@
 </svelte:head>
 
 <div class="flex flex-col gap-6 pb-10">
+	<form
+		bind:this={previewFormEl}
+		class="hidden"
+		aria-hidden="true"
+		method="POST"
+		action="?/previewOutreachEmail"
+		use:enhance={enhancePreviewOutreach}
+	>
+		<input type="hidden" name="prospectId" value={prospect.id} />
+		<input type="hidden" name="outreachKind" value={currentOutreachKind} />
+		<button type="submit" tabindex="-1">preview</button>
+	</form>
+
 	<!-- Header: who + one primary action -->
 	<header class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
 		<div class="space-y-1.5 min-w-0">
@@ -462,69 +581,110 @@
 				</Button>
 			</form>
 		{:else if primaryAction?.type === 'sendAlternateOffer'}
-			<div class="shrink-0">
-				<form
-					id={sendAlternateFormId}
-					method="POST"
-					action="?/sendAlternateOffer"
-					onsubmit={(e) => ensureAupInput(e.currentTarget)}
-					use:enhance={() => {
-						sendingEmail = true;
-						return async ({ result }) => {
-							try {
-								if (result.type === 'success' && result.data && typeof result.data === 'object' && 'success' in result.data && result.data.success) {
-									toastSuccess('Email sent', prospect.companyName || prospect.email);
-									await invalidateAll();
-								} else if (result.type === 'failure') {
-									toastError('Send email', result.data?.message ?? 'Something went wrong. Try again or connect Gmail in Integrations.');
-									await applyAction(result);
+			<div
+				class="flex w-full min-w-0 flex-row flex-wrap items-center justify-end gap-2 sm:flex-1"
+			>
+				{#if !gmailConnected}
+					<Button size="lg" href={integrationsGmailHref}>
+						<Mail class="size-4 mr-2" aria-hidden="true" />
+						Connect Gmail
+					</Button>
+				{:else if hasGmailOutreachDraft}
+					<Button
+						type="button"
+						size="lg"
+						variant="secondary"
+						disabled={!canSend || !(prospect.email ?? '').trim()}
+						onclick={() => openOutreachDialog('alternate')}
+					>
+						Replace draft
+					</Button>
+					<Button size="lg" variant="outline" href={gmailDraftComposeUrl} target="_blank" rel="noopener noreferrer">
+						<ExternalLink class="size-4 mr-2" />
+						Open draft
+					</Button>
+					<form
+						id={sendGmailDraftFormId}
+						method="POST"
+						action="?/sendGmailOutreachDraft"
+						onsubmit={(e) => ensureAupInput(e.currentTarget)}
+						class="inline"
+						use:enhance={() => {
+							sendingDraft = true;
+							return async ({ result }) => {
+								try {
+									if (
+										result.type === 'success' &&
+										result.data &&
+										typeof result.data === 'object' &&
+										'success' in result.data &&
+										result.data.success
+									) {
+										toastSuccess('Email sent', prospect.companyName || prospect.email);
+										sendDraftConfirmOpen = false;
+										await invalidateAll();
+									} else if (result.type === 'failure') {
+										toastError(
+											'Send email',
+											result.data?.message ??
+												'Something went wrong. Reconnect Gmail in Integrations if needed.'
+										);
+										await applyAction(result);
+									}
+								} finally {
+									sendingDraft = false;
 								}
-							} finally {
-								sendingEmail = false;
-								sendAlternateConfirmOpen = false;
-							}
-						};
-					}}
-					class="inline"
-				>
-					<input type="hidden" name="prospectId" value={prospect.id} />
-					<AlertDialog.Root bind:open={sendAlternateConfirmOpen}>
+							};
+						}}
+					>
+						<input type="hidden" name="prospectId" value={prospect.id} />
+					</form>
+					<AlertDialog.Root bind:open={sendDraftConfirmOpen}>
 						<AlertDialog.Trigger
 							type="button"
 							class={cn(buttonVariants({ size: 'lg' }), 'inline-flex items-center justify-center')}
-							onclick={() => (sendAlternateConfirmOpen = true)}
+							disabled={!canSend}
+							onclick={() => (sendDraftConfirmOpen = true)}
 						>
 							<Send class="size-4 mr-2" />
-							Send email (AI agent, voice AI & SEO)
+							Send email
 						</AlertDialog.Trigger>
 						<AlertDialog.Content>
 							<AlertDialog.Header>
-								<AlertDialog.Title>Send outreach email?</AlertDialog.Title>
+								<AlertDialog.Title>Send this draft now?</AlertDialog.Title>
 								<AlertDialog.Description>
-									An email about AI agent, voice AI, and SEO will be sent to {outboundEmailTargetDisplay}. No demo link will be included.
+									The message will be sent from your connected Gmail. This cannot be undone.
 									{#if !canSend}
-										<span class="mt-3 block text-destructive">
-											Connect Gmail in Dashboard → Integrations before sending.
-										</span>
+										<span class="mt-3 block text-destructive">Connect Gmail in Integrations first.</span>
 									{/if}
-									<br><br>
+									<br /><br />
 									<strong>Sending means you accept the Acceptable Use Policy (AUP).</strong>
 								</AlertDialog.Description>
 							</AlertDialog.Header>
 							<AlertDialog.Footer>
-								<AlertDialog.Cancel disabled={sendingEmail}>Cancel</AlertDialog.Cancel>
+								<AlertDialog.Cancel disabled={sendingDraft}>Cancel</AlertDialog.Cancel>
 								<AlertDialog.Action
 									type="submit"
-									form={sendAlternateFormId}
-									disabled={sendingEmail || !canSend || !(prospect.email ?? '').trim()}
+									form={sendGmailDraftFormId}
+									disabled={sendingDraft || !canSend}
 								>
-									{#if sendingEmail}<LoaderCircle class="size-4 mr-2 animate-spin" aria-hidden="true" />{/if}
-									{sendingEmail ? 'Sending…' : 'Send email'}
+									{#if sendingDraft}<LoaderCircle class="size-4 mr-2 animate-spin" aria-hidden="true" />{/if}
+									{sendingDraft ? 'Sending…' : 'Send email'}
 								</AlertDialog.Action>
 							</AlertDialog.Footer>
 						</AlertDialog.Content>
 					</AlertDialog.Root>
-				</form>
+				{:else}
+					<Button
+						type="button"
+						size="lg"
+						disabled={!canSend || !(prospect.email ?? '').trim()}
+						onclick={() => openOutreachDialog('alternate')}
+					>
+						<Send class="size-4 mr-2" />
+						Create Gmail draft (AI agent, voice AI &amp; SEO)
+					</Button>
+				{/if}
 			</div>
 		{:else if primaryAction?.type === 'generate'}
 			<div class="flex flex-col gap-1 shrink-0">
@@ -543,10 +703,41 @@
 			</div>
 		{:else if primaryAction?.type === 'review' && prospect.demoLink}
 			<div class="flex flex-wrap items-center gap-2 shrink-0">
-				<Button size="lg" href={prospectDemoHref ?? prospect.demoLink} target="_blank" rel="noopener noreferrer">
-					<Link2 class="size-4 mr-2" />
-					Review demo page
-				</Button>
+				<ButtonGroup.Root aria-label="Demo page actions">
+					<Button
+						variant="outline"
+						size="lg"
+						href={prospectDemoHref ?? prospect.demoLink}
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						<Link2 class="size-4 mr-2" />
+						Review demo page
+					</Button>
+					<Button
+						type="submit"
+						form={regenerateDemoFormId}
+						variant="outline"
+						size="lg"
+						disabled={regeneratingDemo || demoJob?.status === 'pending' || demoJob?.status === 'creating'}
+						title={demoJob?.status === 'pending' || demoJob?.status === 'creating' ? 'Demo is being created; wait before regenerating' : 'Regenerate demo (can take 1–2 minutes)'}
+					>
+						{#if regeneratingDemo}
+							<LoaderCircle class="size-4 mr-2 animate-spin" aria-hidden="true" />
+						{/if}
+						{regeneratingDemo ? 'Regenerating…' : 'Regenerate'}
+					</Button>
+				</ButtonGroup.Root>
+				<form
+					id={regenerateDemoFormId}
+					class="hidden"
+					method="POST"
+					action="?/regenerateDemo"
+					use:enhance={enhanceRegenerateDemo}
+					aria-hidden="true"
+				>
+					<input type="hidden" name="prospectId" value={prospect.id} />
+				</form>
 				{#if !demoTracking || demoTracking.status === 'draft'}
 					<form
 						method="POST"
@@ -555,7 +746,7 @@
 							return async ({ result }) => {
 								if (result.type === 'success') {
 									approvedJustNow = true;
-									toastSuccess('Demo approved', 'You can now send the email.');
+									toastSuccess('Demo approved', 'You can create a Gmail draft from the button above.');
 									await invalidateAll();
 								} else if (result.type === 'failure' && result.data?.message) {
 									toastError('Approve demo', result.data.message);
@@ -572,125 +763,203 @@
 						</Button>
 					</form>
 				{/if}
-				<form
-					method="POST"
-					action="?/regenerateDemo"
-					use:enhance={(input) => {
-						regeneratingDemo = true;
-						const timeoutMs = 150_000; // 2.5 min fallback so spinner never sticks
-						const t = setTimeout(() => {
-							regeneratingDemo = false;
-						}, timeoutMs);
-						return async ({ result }) => {
-							try {
-								if (result.type === 'success' && result.data && typeof result.data === 'object' && 'success' in result.data && result.data.success) {
-									const d = result.data as { queued?: boolean; alreadyQueued?: boolean };
-									if (d.queued) {
-										toastSuccess(
-											d.alreadyQueued ? 'Demo already in progress' : 'Regeneration queued',
-											d.alreadyQueued ? 'Regeneration is running. Page will update when ready.' : 'Usually 1–2 minutes. Page will update when ready.'
-										);
-										await invalidateAll();
-									} else {
-										toastSuccess('Demo regenerated', 'Content and images updated. Refresh the demo page to see changes.');
-										await invalidateAll();
-									}
-								} else if (result.type === 'failure' && result.data?.message) {
-									toastError('Regenerate demo', result.data.message);
-									await applyAction(result);
-								}
-							} finally {
-								clearTimeout(t);
-								regeneratingDemo = false;
-							}
-						};
-					}}
-					class="inline"
-				>
-					<input type="hidden" name="prospectId" value={prospect.id} />
-					<Button
-						type="submit"
-						variant="outline"
-						size="lg"
-						disabled={regeneratingDemo || demoJob?.status === 'pending' || demoJob?.status === 'creating'}
-						title={demoJob?.status === 'pending' || demoJob?.status === 'creating' ? 'Demo is being created; wait before regenerating' : 'Regenerate demo (can take 1–2 minutes)'}
-					>
-						{#if regeneratingDemo}
-							<LoaderCircle class="size-4 mr-2 animate-spin" aria-hidden="true" />
-						{/if}
-						{regeneratingDemo ? 'Regenerating…' : 'Regenerate'}
-					</Button>
-				</form>
 			</div>
 		{:else if isApprovedForSend}
-			<div class="shrink-0">
-				<form
-					id={sendDemoFormId}
-					method="POST"
-					action="?/sendDemos"
-					onsubmit={(e) => ensureAupInput(e.currentTarget)}
-					use:enhance={() => {
-						sendingEmail = true;
-						return async ({ result }) => {
-							try {
-								if (result.type === 'success' && result.data && typeof result.data === 'object' && 'success' in result.data && result.data.success) {
-									toastSuccess('Email sent', prospect.companyName || prospect.email);
-									await invalidateAll();
-								} else if (result.type === 'failure') {
-									toastError('Send email', result.data?.message ?? 'Something went wrong. Try again or connect Gmail in Integrations.');
-									await applyAction(result);
+			<div
+				class="flex w-full min-w-0 flex-row flex-wrap items-center justify-end gap-2 sm:flex-1"
+			>
+				{#if !gmailConnected}
+					<Button size="lg" href={integrationsGmailHref}>
+						<Mail class="size-4 mr-2" aria-hidden="true" />
+						Connect Gmail
+					</Button>
+				{:else if hasGmailOutreachDraft}
+					<Button
+						type="button"
+						size="lg"
+						variant="secondary"
+						disabled={!canSend || !(prospect.email ?? '').trim()}
+						title={!(prospect.email ?? '').trim() ? 'Add an email for this prospect' : ''}
+						onclick={() => openOutreachDialog('demo')}
+					>
+						Replace draft
+					</Button>
+					<Button size="lg" variant="outline" href={gmailDraftComposeUrl} target="_blank" rel="noopener noreferrer">
+						<ExternalLink class="size-4 mr-2" />
+						Open draft
+					</Button>
+					<form
+						id={sendGmailDraftFormId}
+						method="POST"
+						action="?/sendGmailOutreachDraft"
+						onsubmit={(e) => ensureAupInput(e.currentTarget)}
+						class="inline"
+						use:enhance={() => {
+							sendingDraft = true;
+							return async ({ result }) => {
+								try {
+									if (
+										result.type === 'success' &&
+										result.data &&
+										typeof result.data === 'object' &&
+										'success' in result.data &&
+										result.data.success
+									) {
+										toastSuccess('Email sent', prospect.companyName || prospect.email);
+										sendDraftConfirmOpen = false;
+										await invalidateAll();
+									} else if (result.type === 'failure') {
+										toastError(
+											'Send email',
+											result.data?.message ??
+												'Something went wrong. Reconnect Gmail in Integrations if needed.'
+										);
+										await applyAction(result);
+									}
+								} finally {
+									sendingDraft = false;
 								}
-							} finally {
-								sendingEmail = false;
-								sendConfirmOpen = false;
-							}
-						};
-					}}
-					class="inline"
-				>
-					<input type="hidden" name="prospectId" value={prospect.id} />
-					<AlertDialog.Root bind:open={sendConfirmOpen}>
+							};
+						}}
+					>
+						<input type="hidden" name="prospectId" value={prospect.id} />
+					</form>
+					<AlertDialog.Root bind:open={sendDraftConfirmOpen}>
 						<AlertDialog.Trigger
 							type="button"
 							class={cn(buttonVariants({ size: 'lg' }), 'inline-flex items-center justify-center')}
-							disabled={!(prospect.email ?? '').trim()}
-							title={!(prospect.email ?? '').trim() ? 'Add an email for this prospect to send' : ''}
-							onclick={() => (sendConfirmOpen = true)}
+							disabled={!canSend || !(prospect.email ?? '').trim()}
+							title={!(prospect.email ?? '').trim() ? 'Add an email for this prospect' : ''}
+							onclick={() => (sendDraftConfirmOpen = true)}
 						>
 							<Send class="size-4 mr-2" />
-							Send by email
+							Send email
 						</AlertDialog.Trigger>
 						<AlertDialog.Content>
 							<AlertDialog.Header>
-								<AlertDialog.Title>Send demo to this client?</AlertDialog.Title>
+								<AlertDialog.Title>Send demo email now?</AlertDialog.Title>
 								<AlertDialog.Description>
-									An email with the demo link will be sent to {outboundEmailTargetDisplay}.
+									The draft will be sent from your Gmail to {outboundEmailTargetDisplay}.
 									{#if !canSend}
 										<span class="mt-3 block text-destructive">
-											Connect Gmail in Dashboard → Integrations before sending.
+											Connect Gmail in Integrations first (reconnect to grant draft access if needed).
 										</span>
 									{/if}
-									<br><br>
+									<br /><br />
 									<strong>Sending means you accept the Acceptable Use Policy (AUP).</strong>
 								</AlertDialog.Description>
 							</AlertDialog.Header>
 							<AlertDialog.Footer>
-								<AlertDialog.Cancel disabled={sendingEmail}>Cancel</AlertDialog.Cancel>
+								<AlertDialog.Cancel disabled={sendingDraft}>Cancel</AlertDialog.Cancel>
 								<AlertDialog.Action
 									type="submit"
-									form={sendDemoFormId}
-									disabled={sendingEmail || !canSend || !(prospect.email ?? '').trim()}
+									form={sendGmailDraftFormId}
+									disabled={sendingDraft || !canSend || !(prospect.email ?? '').trim()}
 								>
-									{#if sendingEmail}<LoaderCircle class="size-4 mr-2 animate-spin" aria-hidden="true" />{/if}
-									{sendingEmail ? 'Sending…' : 'Send email'}
+									{#if sendingDraft}<LoaderCircle class="size-4 mr-2 animate-spin" aria-hidden="true" />{/if}
+									{sendingDraft ? 'Sending…' : 'Send email'}
 								</AlertDialog.Action>
 							</AlertDialog.Footer>
 						</AlertDialog.Content>
 					</AlertDialog.Root>
-				</form>
+				{:else}
+					<Button
+						type="button"
+						size="lg"
+						disabled={!canSend || !(prospect.email ?? '').trim()}
+						title={!(prospect.email ?? '').trim() ? 'Add an email for this prospect' : ''}
+						onclick={() => openOutreachDialog('demo')}
+					>
+						<Send class="size-4 mr-2" />
+						Create Gmail draft
+					</Button>
+				{/if}
 			</div>
 		{/if}
 	</header>
+
+	<Dialog.Root bind:open={outreachDialogOpen}>
+		<Dialog.Content class="max-w-3xl max-h-[90vh] flex flex-col gap-0 sm:max-w-3xl">
+			<Dialog.Header>
+				<Dialog.Title>Review outreach email</Dialog.Title>
+				<Dialog.Description>
+					Preview the message, then create a draft in your Gmail. Reconnect Gmail in Integrations if draft creation fails (OAuth needs gmail.compose).
+				</Dialog.Description>
+			</Dialog.Header>
+			<div class="min-h-0 flex flex-col gap-3 py-2 overflow-hidden">
+				{#if previewLoading}
+					<div class="flex items-center gap-2 text-sm text-muted-foreground py-8 justify-center">
+						<LoaderCircle class="size-5 animate-spin" aria-hidden="true" />
+						Building preview…
+					</div>
+				{:else if previewError}
+					<p class="text-sm text-destructive">{previewError}</p>
+				{:else if previewHtml}
+					<div class="space-y-2 text-sm shrink-0">
+						<p><span class="text-muted-foreground">To:</span> {previewTo}</p>
+						<p><span class="text-muted-foreground">Subject:</span> {previewSubject}</p>
+					</div>
+					<div class="border rounded-md min-h-[200px] max-h-[50vh] overflow-auto bg-muted/30">
+						<iframe
+							class="w-full min-h-[240px] border-0 bg-background"
+							title="Email preview"
+							srcdoc={previewHtml}
+							sandbox="allow-same-origin"
+						></iframe>
+					</div>
+				{:else}
+					<p class="text-sm text-muted-foreground py-4">Open this dialog again to load a preview.</p>
+				{/if}
+			</div>
+			<Dialog.Footer class="gap-2 sm:gap-2 flex-col sm:flex-row sm:justify-end">
+				<Button type="button" variant="outline" onclick={() => (outreachDialogOpen = false)}>Cancel</Button>
+				{#if !gmailConnected}
+					<Button href={integrationsGmailHref}>
+						<Mail class="size-4 mr-2" aria-hidden="true" />
+						Connect Gmail
+					</Button>
+				{:else}
+					<form
+						id={createGmailDraftFormId}
+						method="POST"
+						action="?/createGmailOutreachDraft"
+						onsubmit={(e) => ensureAupInput(e.currentTarget)}
+						class="contents"
+						use:enhance={() => {
+							creatingDraft = true;
+							return async ({ result }) => {
+								creatingDraft = false;
+								if (
+									result.type === 'success' &&
+									result.data &&
+									typeof result.data === 'object' &&
+									'success' in result.data &&
+									result.data.success
+								) {
+									toastSuccess('Gmail draft created', prospect.companyName || prospect.email);
+									outreachDialogOpen = false;
+									await invalidateAll();
+								} else if (result.type === 'failure' && result.data?.message) {
+									toastError('Create draft', result.data.message);
+									await applyAction(result);
+								}
+							};
+						}}
+					>
+						<input type="hidden" name="prospectId" value={prospect.id} />
+						<input type="hidden" name="outreachKind" value={currentOutreachKind} />
+						<Button
+							type="submit"
+							disabled={creatingDraft || previewLoading || !!previewError || !previewHtml || !canSend}
+						>
+							{#if creatingDraft}<LoaderCircle class="size-4 mr-2 animate-spin" aria-hidden="true" />{/if}
+							{creatingDraft ? 'Creating…' : 'Create draft in Gmail'}
+						</Button>
+					</form>
+				{/if}
+			</Dialog.Footer>
+		</Dialog.Content>
+	</Dialog.Root>
 
 	<Separator />
 
@@ -997,14 +1266,13 @@
 						{/if}
 					{:else}
 						<!-- Demo link + share -->
-						{@const demoUrl = prospect.demoLink ?? ''}
 						<div class="space-y-3">
 							<p class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Share demo</p>
 							<div class="flex rounded-md border border-input bg-muted/30 overflow-hidden focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background">
 								<input
 									type="text"
 									readonly
-									value={demoUrl}
+									value={prospectDemoLinkRaw}
 									aria-label="Demo URL"
 									class="min-w-0 flex-1 border-0 bg-transparent px-3 py-2 font-mono text-xs text-foreground outline-none placeholder:text-muted-foreground disabled:cursor-default"
 								/>
@@ -1023,7 +1291,7 @@
 									variant="ghost"
 									size="icon"
 									class="shrink-0 rounded-none border-l border-input h-auto size-9"
-									href={normalizeExternalHref(demoUrl) ?? demoUrl}
+									href={normalizeExternalHref(prospectDemoLinkRaw) ?? prospectDemoLinkRaw}
 									target="_blank"
 									rel="noopener noreferrer"
 									aria-label="Open in new tab"

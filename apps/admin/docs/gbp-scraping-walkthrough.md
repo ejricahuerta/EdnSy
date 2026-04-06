@@ -2,7 +2,7 @@
 
 ## Implemented flow
 
-1. **Input** — User provides business name (min); optional URL, location. Prospect comes from Dashboard → Prospects (CRM or Add test client), or /try, /upload.
+1. **Input** — User provides business name (min); optional URL, location. Prospect comes from Dashboard → Prospects (CRM or Add test client), or `/upload` when that flow applies.
 
 2. **GBP fetch** — Implemented in `src/lib/server/gbp.ts` and `src/lib/server/placesApi.ts`.
    - When **Google Places API** is configured (`GOOGLE_PLACES_API_KEY` or `GOOGLE_MAPS_API_KEY`), the app calls Places API (New): **Text Search** (business name + location) to get a place ID, then **Place Details** to get name, address, phone, website, rating, hours.

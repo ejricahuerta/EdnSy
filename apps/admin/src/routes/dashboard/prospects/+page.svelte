@@ -55,6 +55,7 @@
 	import * as Dialog from '$lib/components/ui/dialog';
 	import * as Drawer from '$lib/components/ui/drawer';
 	import * as Select from '$lib/components/ui/select';
+	import * as ToggleGroup from '$lib/components/ui/toggle-group';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { cn } from '$lib/utils';
@@ -65,6 +66,7 @@
 		type DemoJobMapEntry
 	} from '$lib/client/prospectsJobRealtimeToast';
 	import { prospectJobLabelResolver } from '$lib/notificationHistory';
+	import { canSendAutomated } from '$lib/plans';
 
 	let { data, form } = $props<{
 		data: PageData;
@@ -81,6 +83,8 @@
 		prospectListRef.list = data.prospects ?? [];
 	});
 	const plan = $derived(data.plan);
+	const sendConfigured = $derived(data.sendConfigured ?? false);
+	const canOutreachSend = $derived(canSendAutomated(plan) && sendConfigured);
 	const demoLimit = $derived(data.demoLimit);
 	const demoCountThisMonth = $derived(data.demoCountThisMonth ?? 0);
 	const atDemoLimit = $derived(
@@ -201,7 +205,10 @@
 	});
 
 	const approvedProspects = $derived(
-		prospects.filter((p) => trackingByProspectId[p.id]?.status === 'approved')
+		prospects.filter((p) => {
+			const s = trackingByProspectId[p.id]?.status;
+			return s === 'approved' || s === 'email_draft';
+		})
 	);
 	const noDemoProspects = $derived(
 		prospects.filter((p) => !p.flagged && (p.email ?? '').trim().length > 0 && !(p.demoLink ?? '').trim())
@@ -397,18 +404,36 @@
 	let sendDemosSubmitting = $state(false);
 	let importCsvOpen = $state(false);
 	let importCsvSubmitting = $state(false);
+	let bulkSendDraftsDialogOpen = $state(false);
+	let bulkSendDraftsForm: HTMLFormElement | null = $state(null);
+	let bulkSendDraftsSubmitting = $state(false);
 	let pullGbpDentalSubmitting = $state(false);
 	let tableRefreshing = $state(false);
 	/** Prospect IDs we've just submitted for GBP/Insights so status updates immediately before server responds. */
 	let optimisticGbpProspectIds = $state<Set<string>>(new Set());
 	let optimisticInsightsProspectIds = $state<Set<string>>(new Set());
 
-	/** Approved prospects that have a demo and email (can be sent). */
+	/** Approved or Gmail-draft-stage prospects with demo + email (bulk create/replace Gmail drafts). */
 	const approvedSendableProspects = $derived(
 		approvedProspects.filter(
 			(p) => (p.demoLink ?? '').trim().length > 0 && (p.email ?? '').trim().length > 0
 		)
 	);
+
+	/** Prospects with a Gmail outreach draft on file (bulk send from header). */
+	const prospectsWithGmailDraft = $derived(
+		(prospects ?? []).filter(
+			(p) => (p.gmailOutreachDraftId ?? '').trim().length > 0 && !p.flagged
+		)
+	);
+	const prospectsWithGmailDraftCount = $derived(prospectsWithGmailDraft.length);
+	const showBulkSendDraftsButton = $derived(
+		prospectsWithGmailDraftCount > 0 && canOutreachSend
+	);
+	const showBulkSendConnectGmail = $derived(
+		prospectsWithGmailDraftCount > 0 && !sendConfigured
+	);
+	const integrationsGmailHref = '/dashboard/integrations';
 
 	function ensureAupInput(formEl: HTMLFormElement | null) {
 		if (!formEl) return;
@@ -426,6 +451,12 @@
 		if (!sendDemosForm || sendDemosSubmitting) return;
 		ensureAupInput(sendDemosForm);
 		sendDemosForm.requestSubmit();
+	}
+
+	function submitBulkSendDraftsForm() {
+		if (!bulkSendDraftsForm || bulkSendDraftsSubmitting) return;
+		ensureAupInput(bulkSendDraftsForm);
+		bulkSendDraftsForm.requestSubmit();
 	}
 
 	async function refreshProspectsTable() {
@@ -827,7 +858,7 @@
 					optimisticInsightsIds: optimisticInsightsProspectIds
 				});
 				const hasDemoLinkOnRow = !!(p.demoLink ?? '').trim();
-				// Show email icon whenever demo is approved and has a demo link (email required by server when sending)
+				// Show email icon when next step is "ready to send" (approved or Gmail draft) and demo exists
 				const showSendDemo = step.filterValue === 'approved' && hasDemoLinkOnRow;
 				// With a demo URL, use Regenerate (in actions menu) — not Run next step — to avoid duplicate controls
 				const showGenerate =
@@ -841,6 +872,7 @@
 					prospectId: p.id,
 					showGenerate,
 					showSendDemo,
+					gmailConnected: sendConfigured,
 					prospectLabel: p.companyName || p.email || p.id,
 					processing: isRowProcessing(p),
 					generating: processNextStepId === p.id,
@@ -850,6 +882,7 @@
 					trackingStatus: p.tracking?.status as
 						| 'draft'
 						| 'approved'
+						| 'email_draft'
 						| 'sent'
 						| 'opened'
 						| 'clicked'
@@ -1117,9 +1150,93 @@
 						<Upload class="mr-2 size-4" aria-hidden="true" />
 						Import CSV
 					</Button>
+					{#if showBulkSendDraftsButton}
+						<Button
+							type="button"
+							variant="default"
+							size="sm"
+							class="h-9"
+							title="Send all Gmail outreach drafts now (same as Send now on each prospect)"
+							onclick={() => (bulkSendDraftsDialogOpen = true)}
+						>
+							<Send class="mr-2 size-4" aria-hidden="true" />
+							Bulk send ({prospectsWithGmailDraftCount})
+						</Button>
+					{:else if showBulkSendConnectGmail}
+						<Button
+							variant="default"
+							size="sm"
+							class="h-9"
+							href={integrationsGmailHref}
+							title="Connect Gmail in Integrations to send saved drafts"
+						>
+							<Mail class="mr-2 size-4" aria-hidden="true" />
+							Connect Gmail ({prospectsWithGmailDraftCount} draft{prospectsWithGmailDraftCount === 1 ? '' : 's'})
+						</Button>
+					{/if}
 				</div>
 			</div>
 		</Card.Header>
+		<form
+			bind:this={bulkSendDraftsForm}
+			method="POST"
+			action="?/sendGmailOutreachDraftsBulk"
+			class="hidden"
+			aria-hidden="true"
+			use:enhance={() => {
+				bulkSendDraftsSubmitting = true;
+				return async ({ result }) => {
+					try {
+						if (
+							result.type === 'success' &&
+							result.data &&
+							typeof result.data === 'object' &&
+							'success' in result.data &&
+							result.data.success
+						) {
+							const d = result.data as { sent?: number; total?: number; errors?: string[] };
+							const extra =
+								d.errors?.length && d.errors.length > 0
+									? ` Some failed: ${d.errors.slice(0, 2).join('; ')}`
+									: '';
+							toastSuccess(
+								'Bulk send',
+								d.sent != null && d.total != null
+									? `Sent ${d.sent} of ${d.total} draft${d.total === 1 ? '' : 's'}.${extra}`
+									: 'Done.'
+							);
+							bulkSendDraftsDialogOpen = false;
+							await invalidateAll();
+						} else if (result.type === 'failure' && result.data?.message) {
+							toastError('Bulk send', (result.data as { message?: string }).message);
+							await applyAction(result);
+						}
+					} finally {
+						bulkSendDraftsSubmitting = false;
+					}
+				};
+			}}
+		></form>
+		<AlertDialog.Root bind:open={bulkSendDraftsDialogOpen}>
+			<AlertDialog.Content>
+				<AlertDialog.Header>
+					<AlertDialog.Title>Send all Gmail drafts now?</AlertDialog.Title>
+					<AlertDialog.Description>
+						This will send {prospectsWithGmailDraftCount} outreach email{prospectsWithGmailDraftCount === 1 ? '' : 's'} from your
+						connected Gmail (drafts are removed after send). You accept the Acceptable Use Policy (AUP).
+					</AlertDialog.Description>
+				</AlertDialog.Header>
+				<AlertDialog.Footer>
+					<AlertDialog.Cancel disabled={bulkSendDraftsSubmitting}>Cancel</AlertDialog.Cancel>
+					<AlertDialog.Action type="button" disabled={bulkSendDraftsSubmitting} onclick={submitBulkSendDraftsForm}>
+						{#if bulkSendDraftsSubmitting}
+							<LoaderCircle class="mr-2 size-4 animate-spin" aria-hidden="true" />
+						{/if}
+						{bulkSendDraftsSubmitting ? 'Sending…' : 'Send now'}
+					</AlertDialog.Action>
+				</AlertDialog.Footer>
+			</AlertDialog.Content>
+		</AlertDialog.Root>
 		<Dialog.Root bind:open={importCsvOpen}>
 			<Dialog.Content class="sm:max-w-md">
 				<Dialog.Header>
@@ -1227,7 +1344,7 @@
 					role="search"
 					aria-label="Search and filter prospects"
 				>
-					<div class="prospects-search relative min-w-0 w-full md:max-w-xl md:flex-1">
+					<div class="prospects-search relative min-w-0 w-full shrink-0 md:max-w-sm">
 						<label for="lr-dash-filter" class="sr-only">Search prospects</label>
 						<SearchIcon
 							class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
@@ -1265,31 +1382,28 @@
 					<div
 						class="flex w-full shrink-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end md:ms-auto md:w-auto"
 					>
-						<div class="flex items-center gap-2 sm:justify-end">
-							<Label for="lr-prospect-status-filter" class="whitespace-nowrap text-sm text-muted-foreground">Status</Label>
-							<Select.Root
+						<div class="flex flex-wrap items-center gap-2 sm:justify-end">
+							<ToggleGroup.Root
 								type="single"
 								value={statusFilter}
 								onValueChange={(v) => {
-									if (v != null) statusFilter = v;
+									statusFilter = v ?? '__all__';
 								}}
+								variant="outline"
+								size="sm"
+								class="flex-wrap"
 							>
-								<Select.Trigger id="lr-prospect-status-filter" size="sm" class="h-9 min-w-[11rem] border-border/50 bg-background">
-									{statusFilter === '__all__' ? 'All statuses' : statusFilter}
-								</Select.Trigger>
-								<Select.Content>
-									<Select.Item value="__all__">All statuses</Select.Item>
-									{#each statusFilterOptions as label (label)}
-										<Select.Item value={label}>{label}</Select.Item>
-									{/each}
-								</Select.Content>
-							</Select.Root>
+								<ToggleGroup.Item value="__all__" class="h-8 px-3 text-xs">All</ToggleGroup.Item>
+								{#each statusFilterOptions as label (label)}
+									<ToggleGroup.Item value={label} class="h-8 px-3 text-xs">{label}</ToggleGroup.Item>
+								{/each}
+							</ToggleGroup.Root>
 						</div>
 						<Button
 							type="button"
 							variant="outline"
 							size="icon"
-							class="h-9 w-9 shrink-0 bg-background"
+							class="shrink-0 bg-background"
 							disabled={tableRefreshing}
 							onclick={refreshProspectsTable}
 							aria-label="Refresh table"
@@ -1312,11 +1426,16 @@
 							try {
 								if (result.type === 'success' && result.data && typeof result.data === 'object' && 'success' in result.data && result.data.success) {
 									const d = result.data as { sent?: number; total?: number };
-									toastSuccess('Send demo', d.sent != null ? `Email sent to ${d.sent} prospect${d.sent === 1 ? '' : 's'}.` : 'Done.');
+									toastSuccess(
+										'Gmail drafts',
+										d.sent != null
+											? `Created or updated ${d.sent} draft${d.sent === 1 ? '' : 's'}.`
+											: 'Done.'
+									);
 									sendDemosDialogOpen = false;
 									await invalidateAll();
 								} else if (result.type === 'failure' && result.data?.message) {
-									toastError('Send demo', (result.data as { message?: string }).message);
+									toastError('Gmail drafts', (result.data as { message?: string }).message);
 									await applyAction(result);
 								}
 							} finally {
@@ -1334,11 +1453,13 @@
 				<AlertDialog.Root bind:open={sendDemosDialogOpen}>
 					<AlertDialog.Content>
 						<AlertDialog.Header>
-							<AlertDialog.Title>Send demo to approved prospects?</AlertDialog.Title>
+							<AlertDialog.Title>Create Gmail drafts for selected prospects?</AlertDialog.Title>
 							<AlertDialog.Description>
-								An email with the demo link will be sent to {approvedSendableProspects.length} prospect{approvedSendableProspects.length === 1 ? '' : 's'}.
+								A draft with the demo link will be created in your Gmail for each of
+								{approvedSendableProspects.length} prospect{approvedSendableProspects.length === 1 ? '' : 's'} (existing
+								drafts are replaced).
 								<br /><br />
-								<strong>Sending means you accept the Acceptable Use Policy (AUP).</strong>
+								<strong>You accept the Acceptable Use Policy (AUP).</strong>
 							</AlertDialog.Description>
 						</AlertDialog.Header>
 						<AlertDialog.Footer>
@@ -1352,20 +1473,6 @@
 						</AlertDialog.Footer>
 					</AlertDialog.Content>
 				</AlertDialog.Root>
-				<div class="mx-4 mt-2 flex flex-wrap items-center gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 dark:border-green-800 dark:bg-green-950/40 sm:mx-6">
-					<span class="text-sm font-medium text-green-800 dark:text-green-200">
-						{approvedSendableProspects.length} approved demo{approvedSendableProspects.length === 1 ? '' : 's'} ready to send
-					</span>
-					<Button
-						type="button"
-						size="sm"
-						class="h-9 bg-green-700 text-white hover:bg-green-800 dark:bg-green-600 dark:hover:bg-green-700"
-						onclick={() => (sendDemosDialogOpen = true)}
-					>
-						<Send class="mr-2 size-4" aria-hidden="true" />
-						Send email
-					</Button>
-				</div>
 			{/if}
 		{/if}
 		<Card.Content class="lr-dash-card-content lr-prospects-content p-0">

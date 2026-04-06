@@ -9,36 +9,26 @@ import {
 import {
 	getSupabaseAdmin,
 	getDemoCountThisMonth,
-	getDemoTrackingForUser,
 	getGbpCountThisMonth,
 	getInsightsCountThisMonth,
 	getPlacesCountThisMonth,
 	getPlacesMonthlyLimit,
 	updateDemoTrackingStatus,
 	upsertDemoTrackingForProspect,
-	enqueueDemoJob
+	enqueueDemoJob,
+	getDemoTrackingForProspect
 } from '$lib/server/supabase';
 import { getScrapedDataForDemo, formatScrapedDataErrorMessage } from '$lib/server/gbp';
 import type { PageServerLoad, Actions } from './$types';
 import { getDashboardSessionUser } from '$lib/server/authDashboard';
 import { env } from '$env/dynamic/private';
-import { getCrmIndustryFilter, getGbpDefaultLocation, getEffectiveEmailSenderName, getEmailSignatureOverride } from '$lib/server/userSettings';
+import { getCrmIndustryFilter, getGbpDefaultLocation } from '$lib/server/userSettings';
 import { isValidDemoTrackingStatus } from '$lib/demo';
 import { getPlanForUser, getUpcomingInvoiceForUser } from '$lib/server/stripe';
 import { getDemoCreationLimit, canSendAutomated } from '$lib/plans';
 import { serverInfo, serverError } from '$lib/server/logger';
-import {
-	sendEmail,
-	sendSms,
-	buildSmsBody,
-	getSendConfigured,
-	getOriginForOutgoingLinks,
-	getDemoPublicOrigin,
-	isTwilioConfigured,
-	resolveDemoOutreachEmail
-} from '$lib/server/send';
-import { generateEmailCopy } from '$lib/server/generateEmailCopy';
-import { getTemplates } from '$lib/server/templates';
+import { getSendConfigured, getOriginForOutgoingLinks, getDemoPublicOrigin } from '$lib/server/send';
+import { executeCreateGmailOutreachDraft } from '$lib/server/crmOutreachGmail';
 import { PROSPECT_STATUS } from '$lib/prospectStatus';
 
 export const load: PageServerLoad = async (event) => {
@@ -300,94 +290,74 @@ export const actions: Actions = {
 		};
 	},
 	sendDemos: async (event) => {
-		const { request, url, cookies } = event;
+		const { request, url } = event;
 		const user = await getDashboardSessionUser(event);
 		if (!user) {
 			return fail(401, { message: 'Sign in required' });
 		}
 		const plan = await getPlanForUser(user);
 		if (!canSendAutomated(plan)) {
-			return fail(403, { message: 'Automated send is available on Starter, Growth, and Agency plans.' });
+			return fail(403, { message: 'Outreach is available on Starter, Growth, and Agency plans.' });
 		}
 		if (!(await getSendConfigured(user.id))) {
-			return fail(503, { message: 'Email sending is not configured. Connect Gmail in Integrations.' });
+			return fail(503, {
+				message: 'Gmail is not configured. Connect Gmail in Integrations (draft access required).'
+			});
 		}
 		const formData = await request.formData();
 		if (formData.get('aupConfirmed') !== 'on') {
-			return fail(400, { message: 'You must confirm compliance with the Acceptable Use Policy before sending.' });
+			return fail(400, {
+				message: 'You must confirm compliance with the Acceptable Use Policy before creating drafts.'
+			});
 		}
 		const prospectIds = formData.getAll('prospectId');
 		if (prospectIds.length === 0) {
-			return fail(400, { message: 'Select at least one client to send.' });
+			return fail(400, { message: 'Select at least one client.' });
 		}
-		serverInfo('sendDemos', 'Started', { prospectCount: prospectIds.length });
-		const demoTracking = await getDemoTrackingForUser(user.id);
-		const templates = await getTemplates(user.id);
-		const [senderName, emailSignatureOverride] = await Promise.all([
-			getEffectiveEmailSenderName(user.id, user.email),
-			getEmailSignatureOverride(user.id)
-		]);
-		const supabase = getSupabaseAdmin();
+		serverInfo('sendDemos', 'Started (Gmail drafts)', { prospectCount: prospectIds.length });
+		const linkOrigin = getOriginForOutgoingLinks(url.origin);
 		let sent = 0;
 		const errors: string[] = [];
 		for (const id of prospectIds) {
 			if (typeof id !== 'string') continue;
-			const tracking = demoTracking[id];
-			if (!tracking || tracking.status !== 'approved') continue;
 			const prospect = await getProspectById(id);
 			if (!prospect?.demoLink || prospect.flagged) continue;
-			const demoLink = prospect.demoLink;
-			let anySent = false;
-			if (prospect.email?.trim()) {
-				const linkOrigin = getOriginForOutgoingLinks(url.origin);
-				const ai = await generateEmailCopy(prospect, senderName);
-				const resolved = resolveDemoOutreachEmail(
-					prospect,
-					senderName,
-					linkOrigin,
-					templates.emailHtml,
-					emailSignatureOverride,
-					ai
+			let row = await getDemoTrackingForProspect(user.id, id);
+			if (!row && (prospect.demoLink ?? '').trim()) {
+				await upsertDemoTrackingForProspect(
+					user.id,
+					id,
+					prospect.provider ?? 'manual',
+					prospect.provider_row_id ?? id,
+					(prospect.demoLink ?? '').trim(),
+					'approved'
 				);
-				if ('error' in resolved) {
-					const reason = resolved.error;
-					errors.push(`${prospect.companyName || id}: ${reason} Email not sent.`);
-					serverError('sendDemos', reason, { prospectId: id, to: prospect.email.trim() });
-					continue;
-				}
-				const { subject, html } = resolved;
-				const result = await sendEmail(prospect.email.trim(), subject, html, {
+				row = await getDemoTrackingForProspect(user.id, id);
+			}
+			if (!row || (row.status !== 'approved' && row.status !== 'email_draft')) continue;
+			if (prospect.email?.trim()) {
+				const ex = await executeCreateGmailOutreachDraft({
 					userId: user.id,
-					appUserEmail: user.email
+					appUserEmail: user.email,
+					prospect,
+					prospectId: id,
+					kind: 'demo',
+					linkOrigin,
+					setDemoTrackingEmailDraft: true
 				});
-				if (result.ok) {
+				if (ex.ok) {
 					sent++;
-					anySent = true;
-					serverInfo('sendDemos', 'Email sent', { to: prospect.email.trim(), prospectId: id });
+					serverInfo('sendDemos', 'Gmail draft created', { to: prospect.email.trim(), prospectId: id });
 				} else {
-					errors.push(`${prospect.companyName || id}: ${result.error}`);
-					serverError('sendDemos', result.error, { to: prospect.email.trim(), prospectId: id });
+					errors.push(`${prospect.companyName || id}: ${ex.error}`);
+					serverError('sendDemos', ex.error, { prospectId: id, to: prospect.email.trim() });
 				}
-			}
-			if (prospect.phone?.trim() && isTwilioConfigured()) {
-				const body = buildSmsBody(prospect, demoLink, senderName);
-				const result = await sendSms(prospect.phone.trim(), body);
-				if (result.ok) {
-					sent++;
-					anySent = true;
-				} else {
-					errors.push(`SMS ${prospect.companyName || id}: ${result.error}`);
-				}
-			}
-			if (anySent && supabase) {
-				await updateDemoTrackingStatus(user.id, id, { status: 'sent' });
-			}
-			if (!prospect.email?.trim() && !prospect.phone?.trim()) {
-				errors.push(`${prospect.companyName || id}: No email or phone`);
+			} else {
+				errors.push(`${prospect.companyName || id}: No email (add one on the prospect page to create a Gmail draft)`);
 			}
 		}
 		if (sent === 0 && errors.length > 0) {
-			serverError('sendDemos', 'No emails sent', { sent, errors });
+			serverError('sendDemos', 'No drafts created', { sent, errors });
 			return fail(502, { message: errors.slice(0, 3).join('; ') });
 		}
 		serverInfo('sendDemos', 'Completed', { sent, total: prospectIds.length, errors: errors.length > 0 ? errors : undefined });

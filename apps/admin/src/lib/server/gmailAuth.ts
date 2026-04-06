@@ -3,12 +3,14 @@ import { env } from '$env/dynamic/private';
 const TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 
-/** Gmail send scope (required for sending). */
+/** Gmail send scope (immediate send via messages.send; try/free flows). */
 const GMAIL_SEND_SCOPE = 'https://www.googleapis.com/auth/gmail.send';
+/** Create, update, delete drafts and send via drafts.send (CRM outreach). */
+const GMAIL_COMPOSE_SCOPE = 'https://www.googleapis.com/auth/gmail.compose';
 /** Gmail metadata scope (required for users.getProfile to read email address). gmail.send alone cannot read profile. */
 const GMAIL_METADATA_SCOPE = 'https://www.googleapis.com/auth/gmail.metadata';
-/** Combined scopes: send + profile so we can store and display the connected Gmail address. */
-const GMAIL_SCOPE = `${GMAIL_SEND_SCOPE} ${GMAIL_METADATA_SCOPE}`;
+/** Combined scopes: compose + send + profile. Reconnect Integrations after adding compose. */
+const GMAIL_SCOPE = `${GMAIL_COMPOSE_SCOPE} ${GMAIL_SEND_SCOPE} ${GMAIL_METADATA_SCOPE}`;
 
 function getGmailClientId(): string {
 	const id = env.GMAIL_GOOGLE_CLIENT_ID;

@@ -40,7 +40,8 @@ export type DemoTrackingRow = {
 };
 
 /**
- * Demo funnel (order is strict): sent → opened → clicked → replied
+ * Demo funnel (order is strict): approved → email_draft → sent → opened → clicked → replied
+ * - email_draft: Gmail outreach draft created; send_time not set until sent.
  * - sent: email sent (send_time set).
  * - opened: email open recorded (pixel or demo page_view fallback); opened_at set.
  * - clicked: demo link clicked; clicked_at set.
@@ -543,7 +544,7 @@ export async function resetStaleFreeDemoCreatingToPending(): Promise<void> {
 		.lt('updated_at', before);
 }
 
-// --- Free demo requests (try free demo: anonymous, keyed by email + company) ---
+// --- Free demo requests (email + company; created from authenticated flows e.g. /show) ---
 
 /** Base columns always present (first migration). Tracking columns from second migration. */
 const FREE_DEMO_BASE_COLUMNS =
@@ -1243,6 +1244,32 @@ export async function recordDemoEvent(
 		event_type: eventType,
 		payload: payload ?? null
 	});
+}
+
+export const GMAIL_OUTREACH_EVENT_DRAFT_CREATED = 'gmail_outreach_draft_created';
+export const GMAIL_OUTREACH_EVENT_SENT = 'gmail_outreach_sent';
+export const GMAIL_OUTREACH_EVENT_DRAFT_EXPIRED = 'gmail_outreach_draft_expired';
+
+export type GmailOutreachDemoEventRow = {
+	event_type: string;
+	payload: Record<string, unknown> | null;
+	created_at: string;
+};
+
+/** Timeline rows for CRM Gmail draft / send history. */
+export async function getGmailOutreachEventsForProspect(
+	prospectId: string
+): Promise<GmailOutreachDemoEventRow[]> {
+	const supabase = getSupabaseAdmin();
+	if (!supabase) return [];
+	const { data, error } = await supabase
+		.from('demo_events')
+		.select('event_type, payload, created_at')
+		.eq('prospect_id', prospectId)
+		.in('event_type', [GMAIL_OUTREACH_EVENT_DRAFT_CREATED, GMAIL_OUTREACH_EVENT_SENT, GMAIL_OUTREACH_EVENT_DRAFT_EXPIRED])
+		.order('created_at', { ascending: true });
+	if (error || !data) return [];
+	return data as GmailOutreachDemoEventRow[];
 }
 
 /** Dashboard overview row (AI-generated). */

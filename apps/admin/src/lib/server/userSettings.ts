@@ -233,8 +233,8 @@ export async function setEmailSignatureOverride(
 
 const DEFAULT_DEMO_BANNER: DemoBannerSettings = {
 	text: 'Want this live in 48 hours?',
-	ctaLabel: 'Try free →',
-	ctaHref: '/try'
+	ctaLabel: 'Connect with Ed & Sy',
+	ctaHref: '/auth/login'
 };
 
 /**
