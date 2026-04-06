@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { INDUSTRY_LABELS, INDUSTRY_SLUGS, type IndustrySlug } from '$lib/industries';
-	import { notionIndustryToSlug } from '$lib/industryMapping';
+	import { notionIndustryToSlug } from '$lib/industries';
 	import { canUploadCsv } from '$lib/plans';
 	import type { PageData } from './$types';
 

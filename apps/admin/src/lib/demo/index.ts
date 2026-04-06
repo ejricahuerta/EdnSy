@@ -7,26 +7,11 @@ export {
 	DEMO_TRACKING_STATUSES,
 	VALID_DEMO_TRACKING_STATUSES,
 	DEMO_TRACKING_OPTIONS,
-	STATUS_FILTER_OPTIONS,
-	STATUS_GROUP_HEADINGS,
-	ENGAGED_STATUSES,
 	isValidDemoTrackingStatus,
-	getDemoTrackingLabel,
-	getStatusFilterOptionsForPipelineTab,
-	getValidStatusFilterValuesForPipelineTab,
-	getUnifiedStatusOptionsByGroup,
-	getValidStatusFilterValues
+	getDemoTrackingLabel
 } from '$lib/constants/demoStatus';
 
-export type {
-	DemoTrackingStatus,
-	DemoStatusFilterValue,
-	StatusFilterGroup,
-	StatusFilterOption,
-	PipelineTabId,
-	StatusOptionsByGroup,
-	StageFilterValue
-} from '$lib/constants/demoStatus';
+export type { DemoTrackingStatus } from '$lib/constants/demoStatus';
 
 export {
 	V13_THEMES,

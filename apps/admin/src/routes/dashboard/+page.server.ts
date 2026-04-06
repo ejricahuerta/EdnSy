@@ -25,10 +25,8 @@ import { env } from '$env/dynamic/private';
 import { getCrmIndustryFilter, getGbpDefaultLocation } from '$lib/server/userSettings';
 import { isValidDemoTrackingStatus } from '$lib/demo';
 import { getPlanForUser, getUpcomingInvoiceForUser } from '$lib/server/stripe';
-import { getDemoCreationLimit, canSendAutomated } from '$lib/plans';
-import { serverInfo, serverError } from '$lib/server/logger';
-import { getSendConfigured, getOriginForOutgoingLinks, getDemoPublicOrigin } from '$lib/server/send';
-import { executeCreateGmailOutreachDraft } from '$lib/server/crmOutreachGmail';
+import { getDemoCreationLimit } from '$lib/plans';
+import { getOriginForOutgoingLinks, getDemoPublicOrigin } from '$lib/server/send';
 import { PROSPECT_STATUS } from '$lib/prospectStatus';
 
 export const load: PageServerLoad = async (event) => {
@@ -285,85 +283,6 @@ export const actions: Actions = {
 			created: enqueued,
 			enqueued,
 			queued: enqueued,
-			total: prospectIds.length,
-			errors: errors.length > 0 ? errors.slice(0, 5) : undefined
-		};
-	},
-	sendDemos: async (event) => {
-		const { request, url } = event;
-		const user = await getDashboardSessionUser(event);
-		if (!user) {
-			return fail(401, { message: 'Sign in required' });
-		}
-		const plan = await getPlanForUser(user);
-		if (!canSendAutomated(plan)) {
-			return fail(403, { message: 'Outreach is available on Starter, Growth, and Agency plans.' });
-		}
-		if (!(await getSendConfigured(user.id))) {
-			return fail(503, {
-				message: 'Gmail is not configured. Connect Gmail in Integrations (draft access required).'
-			});
-		}
-		const formData = await request.formData();
-		if (formData.get('aupConfirmed') !== 'on') {
-			return fail(400, {
-				message: 'You must confirm compliance with the Acceptable Use Policy before creating drafts.'
-			});
-		}
-		const prospectIds = formData.getAll('prospectId');
-		if (prospectIds.length === 0) {
-			return fail(400, { message: 'Select at least one client.' });
-		}
-		serverInfo('sendDemos', 'Started (Gmail drafts)', { prospectCount: prospectIds.length });
-		const linkOrigin = getOriginForOutgoingLinks(url.origin);
-		let sent = 0;
-		const errors: string[] = [];
-		for (const id of prospectIds) {
-			if (typeof id !== 'string') continue;
-			const prospect = await getProspectById(id);
-			if (!prospect?.demoLink || prospect.flagged) continue;
-			let row = await getDemoTrackingForProspect(user.id, id);
-			if (!row && (prospect.demoLink ?? '').trim()) {
-				await upsertDemoTrackingForProspect(
-					user.id,
-					id,
-					prospect.provider ?? 'manual',
-					prospect.provider_row_id ?? id,
-					(prospect.demoLink ?? '').trim(),
-					'approved'
-				);
-				row = await getDemoTrackingForProspect(user.id, id);
-			}
-			if (!row || (row.status !== 'approved' && row.status !== 'email_draft')) continue;
-			if (prospect.email?.trim()) {
-				const ex = await executeCreateGmailOutreachDraft({
-					userId: user.id,
-					appUserEmail: user.email,
-					prospect,
-					prospectId: id,
-					kind: 'demo',
-					linkOrigin,
-					setDemoTrackingEmailDraft: true
-				});
-				if (ex.ok) {
-					sent++;
-					serverInfo('sendDemos', 'Gmail draft created', { to: prospect.email.trim(), prospectId: id });
-				} else {
-					errors.push(`${prospect.companyName || id}: ${ex.error}`);
-					serverError('sendDemos', ex.error, { prospectId: id, to: prospect.email.trim() });
-				}
-			} else {
-				errors.push(`${prospect.companyName || id}: No email (add one on the prospect page to create a Gmail draft)`);
-			}
-		}
-		if (sent === 0 && errors.length > 0) {
-			serverError('sendDemos', 'No drafts created', { sent, errors });
-			return fail(502, { message: errors.slice(0, 3).join('; ') });
-		}
-		serverInfo('sendDemos', 'Completed', { sent, total: prospectIds.length, errors: errors.length > 0 ? errors : undefined });
-		return {
-			success: true,
-			sent,
 			total: prospectIds.length,
 			errors: errors.length > 0 ? errors.slice(0, 5) : undefined
 		};

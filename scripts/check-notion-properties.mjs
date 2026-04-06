@@ -100,10 +100,10 @@ async function main() {
 	console.log('  email        ← email: "Email" | rich_text fallback');
 	console.log('  website      ← url: "Website" | rich_text fallback');
 	console.log('  phone        ← phone_number: "Phone" | rich_text fallback');
-	console.log('  industry     ← select: "Industry" | "Vertical" → slug via src/lib/industryMapping.ts');
+	console.log('  industry     ← select: "Industry" | "Vertical" → slug via src/lib/industries.ts');
 	console.log('  status       ← status: "Client Status" | "Demo Status"');
 	console.log('  demoLink     ← rich_text: "Demo Link"');
-	console.log('\n  Industry → slug: see src/lib/industryMapping.ts (NOTION_INDUSTRY_TO_SLUG)');
+	console.log('\n  Industry → slug: see src/lib/industries.ts (NOTION_INDUSTRY_TO_SLUG)');
 }
 
 main().catch((e) => {

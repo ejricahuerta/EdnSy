@@ -23,7 +23,7 @@ import type { GbpData } from '$lib/server/gbp';
 import { NO_FIT_GBP_REASON } from '$lib/server/qualify';
 import { analyzeWebsiteAndProduceDemoJson } from '$lib/ai-agents';
 import { normalizeExternalHref } from '$lib/externalUrl';
-import { notionIndustryToSlug } from '$lib/industryMapping';
+import { notionIndustryToSlug } from '$lib/industries';
 import { INDUSTRY_LABELS } from '$lib/industries';
 import { PROSPECT_STATUS } from '$lib/prospectStatus';
 
