@@ -106,6 +106,9 @@ export function getSimplifiedStatus(
 	if (trackingStatus === 'approved') {
 		return { label: 'Ready to send', variant: 'success' };
 	}
+	if (trackingStatus === 'email_draft') {
+		return { label: 'Gmail draft', variant: 'warning' };
+	}
 	if (trackingStatus === 'sent') {
 		return { label: 'Demo Sent', variant: 'muted' };
 	}
@@ -207,6 +210,9 @@ export function getNextStep(
 	}
 	if (trackingStatus === 'approved') {
 		return { label: 'Ready to send', variant: 'default', filterValue: 'approved' };
+	}
+	if (trackingStatus === 'email_draft') {
+		return { label: 'Gmail draft ready', variant: 'default', filterValue: 'approved' };
 	}
 	if (trackingStatus === 'sent') {
 		return { label: 'Demo Sent', variant: 'muted', filterValue: 'sent' };

@@ -46,25 +46,99 @@ function getTwilioConfig() {
 	return { accountSid, authToken, fromNumber };
 }
 
-/** Demo outreach subject: "{company} / site upgrade prototype" (company lowercased). */
-export function getUpgradePitchSubject(companyName: string): string {
+function subjectTemplateHash(salt: string): number {
+	let h = 0;
+	for (let i = 0; i < salt.length; i++) h = (Math.imul(31, h) + salt.charCodeAt(i)) >>> 0;
+	return h;
+}
+
+/** Curiosity-style fallbacks (not "idea for {name}"). Same prospect id always picks the same line. */
+const UPGRADE_PITCH_SUBJECT_TEMPLATES: ReadonlyArray<(c: string) => string> = [
+	(c) => `quick reaction to ${c}'s site`,
+	(c) => `loose homepage sketch for ${c}`,
+	(c) => `${c}, worth two minutes?`,
+	(c) => `had a thought after ${c}'s site`,
+	(c) => `softer first impression for ${c}?`,
+	(c) => `what if ${c} converted a bit easier`
+];
+
+/**
+ * Fallback demo subject when AI does not supply one. Varies by prospect so inboxes look less templated.
+ * Pass `prospect.id` as salt when available. Company name keeps CRM title case.
+ */
+export function getUpgradePitchSubject(companyName: string, salt?: string): string {
 	const c = (companyName || 'your business').trim() || 'your business';
-	return `${c.toLowerCase()} / site upgrade prototype`;
+	if (/^your business$/i.test(c)) {
+		return 'loose sketch for your site if it helps';
+	}
+	const idx = salt ? subjectTemplateHash(salt) % UPGRADE_PITCH_SUBJECT_TEMPLATES.length : 0;
+	return UPGRADE_PITCH_SUBJECT_TEMPLATES[idx](c);
+}
+
+const SUBJECT_STOPWORDS = new Set([
+	'the',
+	'and',
+	'of',
+	'for',
+	'a',
+	'an',
+	'in',
+	'at',
+	'to',
+	'or',
+	'as',
+	'on',
+	'by'
+]);
+
+function escapeRegex(s: string): string {
+	return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * After AI lowercasing, restore the business name to match prospect.companyName (title case from CRM).
+ */
+export function applyCompanyNameCasingInSubject(
+	subject: string,
+	companyName: string | null | undefined
+): string {
+	const company = (companyName ?? '').trim();
+	if (!subject.trim() || !company || /^your business$/i.test(company)) {
+		return subject;
+	}
+	const subLower = subject.toLowerCase();
+	const compLower = company.toLowerCase();
+
+	if (subLower.includes(compLower)) {
+		const re = new RegExp(escapeRegex(compLower), 'gi');
+		return subject.replace(re, company);
+	}
+
+	const tokens = company.split(/\s+/).filter(Boolean);
+	let out = subject;
+	for (const tok of tokens) {
+		const plain = tok.replace(/[^a-z0-9']/gi, '').toLowerCase();
+		if (plain.length < 3 || SUBJECT_STOPWORDS.has(plain)) continue;
+		if (!subLower.includes(plain)) continue;
+		const re = new RegExp(`\\b${escapeRegex(plain)}\\b`, 'gi');
+		out = out.replace(re, tok);
+	}
+	return out;
 }
 
 /** @deprecated Use {@link getUpgradePitchSubject}; kept for call sites that still reference the old name. */
 export function getDefaultEmailSubject(companyName: string): string {
-	return getUpgradePitchSubject(companyName);
+	return getUpgradePitchSubject(companyName, undefined);
 }
 
-/** Subject for alternate-offer email (AI agent, voice AI, SEO — no demo). */
+/** Subject for alternate-offer email (AI agent, voice AI, SEO; no demo). */
 export function getAlternateOfferSubject(companyName: string): string {
 	return `Quick idea for ${companyName}`;
 }
 
 /**
  * Build email HTML for alternate offer (AI agent, voice AI, SEO) when we're not sending a website demo.
- * No demo link; pitch is about 24/7 voice AI, local SEO, and getting more calls.
+ * No demo link; short outcome-focused pitch and soft CTA.
  */
 export function buildEmailBodyAlternateOffer(
 	prospect: Prospect,
@@ -74,15 +148,11 @@ export function buildEmailBodyAlternateOffer(
 	const company = escapeHtml(prospect.companyName || 'your business');
 	const safeSender = escapeHtml(senderName);
 	const html = `
-<p>Hi,</p>
-<p>I took a quick look at ${company}'s online presence and had a couple of ideas that could help you get more calls and better visibility.</p>
-<p>Many local businesses we work with see the biggest wins from:</p>
-<ul>
-<li><strong>24/7 voice AI</strong> — so you never miss a call (we can handle after-hours and overflow).</li>
-<li><strong>Local SEO &amp; Google Business Profile</strong> — so you show up when people search for what you do.</li>
-</ul>
-<p>If you'd like a short conversation about what would make sense for ${company}, reply to this email or give me a quick call.</p>
-<p>— ${safeSender}</p>
+<p>Hi there,</p>
+<p>I had a quick look at how ${company} shows up online. A lot of local businesses like yours leave calls and bookings on the table after hours or when the desk is slammed, and it&apos;s hard to stay visible in local search without constant attention.</p>
+<p>We help with 24/7 phone coverage (AI answers and books) and tightening local SEO / Google Business so more people find you when they search. If that sounds worth a short chat, reply here and we can figure out what would actually help ${company}.</p>
+<p>Best,</p>
+<p>${safeSender}</p>
 <hr style="margin-top:1.5em; border:none; border-top:1px solid #eee;" />
 <p style="font-size:0.85em; color:#666;">${LEGAL_COMPANY_NAME} | ${LEGAL_COMPANY_ADDRESS}</p>
 `.trim();
@@ -111,20 +181,13 @@ function getEmailClosingSignatureLine(senderName: string, signatureOverride: str
 	return line.replace(/^\s*-\s+/, '').trim() || `${senderName} | ${SIGNATURE_DOMAIN}`;
 }
 
-function techStackPhraseForIndustry(industry: string): string {
-	const i = (industry || '').toLowerCase();
-	if (/(dental|dentist|orthodont)/.test(i)) return 'at the clinic';
-	if (/(medical|health|clinic|physician|doctor|vet|veterinary)/.test(i)) return 'at your practice';
-	return 'for your business';
-}
-
 function defaultUpgradeOpeningParagraph(company: string): string {
 	const c = company.trim() || 'your business';
-	return `I noticed a few performance gaps on the current ${c} site—specifically regarding mobile lead capture and how after-hours calls are handled.`;
+	return `I was thinking about how ${c} reads to a first-time visitor who is still deciding if they're in the right place. I noticed a few spots where the next step could feel clearer.`;
 }
 
 /**
- * High-conversion demo outreach HTML: upgrade pitch, trackable CTA, four pillars, 24h close.
+ * Short demo outreach HTML: AI opener + prototype CTA + soft close. No feature bullet list.
  * Tracking: link = /api/demo/click, pixel = /api/demo/open.
  */
 export function buildEmailBodyUpgradePitch(
@@ -135,27 +198,19 @@ export function buildEmailBodyUpgradePitch(
 	options?: { openingHook?: string | null }
 ): string {
 	const company = (prospect.companyName || 'your business').trim() || 'your business';
-	const companyCta = escapeHtml(company.toUpperCase());
+	const companySafe = escapeHtml(company);
 	const trackableLink = `${origin}/api/demo/click?p=${encodeURIComponent(prospect.id)}`;
 	const pixelUrl = `${origin}/api/demo/open?p=${encodeURIComponent(prospect.id)}`;
 	const openingPlain = (options?.openingHook ?? '').trim() || defaultUpgradeOpeningParagraph(company);
 	const openingHtml = `<p>${escapeHtml(openingPlain).replace(/\n/g, '<br />\n')}</p>`;
 	const closingSig = escapeHtml(getEmailClosingSignatureLine(senderName, signatureOverride ?? null));
-	const stackPhrase = escapeHtml(techStackPhraseForIndustry(prospect.industry ?? ''));
+	const linkLabel = `See the ${companySafe} prototype`;
 	const html = `
 <p>Hi there,</p>
 ${openingHtml}
-<p>Instead of sending a list of suggestions, I just went ahead and built a high-performance version of the site to show you the difference.</p>
-<p><a href="${trackableLink}">👉 VIEW THE ${companyCta} UPGRADE</a></p>
-<p>I&apos;ve integrated four specific upgrades into this demo:</p>
-<ul style="margin:0 0 1em 1.25em;padding:0;">
-<li><strong>Voice AI:</strong> It answers your office line when the front desk is busy or closed to book patients.</li>
-<li><strong>Chat AI:</strong> Handles insurance and basic FAQ instantly to stop &quot;bounce rates.&quot;</li>
-<li><strong>Lead Capture:</strong> A high-conversion flow designed to get more bookings from your existing traffic.</li>
-<li><strong>SEO Core:</strong> Rebuilt the metadata and site speed to rank higher in local search.</li>
-</ul>
-<p>I&apos;m not sure if you&apos;re currently looking to upgrade the tech stack ${stackPhrase}, but I thought you&apos;d want to see what&apos;s possible with the new AI tools.</p>
-<p>If you like the speed and the AI features, I can show you how to swap this with your current site in about 24 hours.</p>
+<p>I mocked that up as a simple interactive draft for ${companySafe}. Easier to skim than a long write-up. If you have two minutes:</p>
+<p><a href="${trackableLink}">${linkLabel}</a></p>
+<p>No strings attached. Just curious what you think.</p>
 <p>Best,</p>
 <p>${closingSig}</p>
 <img src="${pixelUrl}" width="1" height="1" alt="" style="display:block;width:1px;height:1px;border:0;" />
@@ -251,8 +306,51 @@ export function buildEmailBodyForUser(
 	return buildEmailBody(prospect, demoLink, senderName, origin);
 }
 
+/** Banned openings that read as empty "name-only" subjects. */
+function isGenericSubjectShell(s: string): boolean {
+	const t = s.trim().toLowerCase().replace(/\s+/g, ' ');
+	const weakStarts = [
+		'idea for ',
+		'thought about ',
+		'something for ',
+		'a thought for ',
+		'quick idea for ',
+		'thought on ',
+		'something about ',
+		'note for ',
+		'a note for '
+	];
+	if (weakStarts.some((b) => t.startsWith(b))) return true;
+	const words = t.split(' ').filter(Boolean);
+	if (words.length <= 5 && /, quick thought$/i.test(t)) return true;
+	return false;
+}
+
+/**
+ * Reject one-word or generic AI subjects (e.g. "dental") and subjects that ignore the company name.
+ */
+function isAcceptableAiOutreachSubject(subject: string, companyName: string): boolean {
+	const s = subject.trim().toLowerCase().replace(/\s+/g, ' ');
+	if (s.length < 6) return false;
+	if (isGenericSubjectShell(s)) return false;
+	const words = s.split(' ').filter(Boolean);
+	if (words.length < 2) return false;
+	const company = (companyName || '').trim().toLowerCase();
+	if (!company || company === 'your business') {
+		return words.length >= 4;
+	}
+	const significant = company
+		.split(/\s+/)
+		.map((p) => p.replace(/[^a-z0-9']/gi, '').replace(/'/g, ''))
+		.filter((p) => p.length >= 3);
+	if (significant.length === 0) {
+		return words.length >= 4;
+	}
+	return significant.some((tok) => s.includes(tok));
+}
+
 /** Optional AI paragraph for the upgrade-pitch template (see {@link buildEmailBodyUpgradePitch}). */
-export type DemoEmailAiCopy = { openingHook?: string; bodyIntro?: string };
+export type DemoEmailAiCopy = { openingHook?: string; bodyIntro?: string; subjectLine?: string };
 
 export type DemoEmailGenerationResult = {
 	copy: DemoEmailAiCopy | null;
@@ -279,7 +377,12 @@ export function resolveDemoOutreachEmail(
 				'AI email generation failed while a custom Email AI prompt override is active. The email was not sent.'
 		};
 	}
-	const subject = getUpgradePitchSubject(prospect.companyName || 'your business');
+	const aiSubject = ai.copy?.subjectLine?.trim();
+	const baseSubject =
+		aiSubject && isAcceptableAiOutreachSubject(aiSubject, prospect.companyName || '')
+			? aiSubject
+			: getUpgradePitchSubject(prospect.companyName || 'your business', prospect.id);
+	const subject = applyCompanyNameCasingInSubject(baseSubject, prospect.companyName);
 	const hookRaw = ai.copy?.openingHook?.trim() || ai.copy?.bodyIntro?.trim();
 	const openingHook = hookRaw && hookRaw.length > 0 ? hookRaw : null;
 	if (emailHtmlTemplate?.trim()) {
@@ -303,7 +406,7 @@ export function resolveDemoOutreachEmail(
 /** Default SMS body per PRD. First name not in schema; use company or "there". CASL: opt-out. */
 export function buildSmsBody(prospect: Prospect, demoLink: string, senderName: string): string {
 	const company = prospect.companyName || 'your business';
-	return `Hey there — I built a free website demo for ${company}. 30 seconds to see it: ${demoLink} — ${senderName}. Reply STOP to opt out.`;
+	return `Hey there, I built a free website demo for ${company}. 30 seconds to see it: ${demoLink} (${senderName}). Reply STOP to opt out.`;
 }
 
 export type SendEmailResult = { ok: true; id?: string } | { ok: false; error: string };

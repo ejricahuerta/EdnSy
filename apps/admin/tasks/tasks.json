@@ -8,21 +8,21 @@
         "status": "done",
         "priority": "high",
         "dependencies": [],
-        "details": "Landing at / with hero, 4-step flow, problem/solution, pricing (Free/Pro/Agency), testimonials, CTAs to /try and /auth/login. Uses style guide tokens (cream, ink, sage, amber). No shadcn on landing.",
-        "testStrategy": "Visual review against style-guide.html; mobile responsiveness; CTA links to /try and /auth/login.",
+        "details": "Landing at / with hero, 4-step flow, problem/solution, pricing (Free/Pro/Agency), testimonials, CTAs to /auth/login and in-page anchors. Uses style guide tokens (cream, ink, sage, amber). No shadcn on landing.",
+        "testStrategy": "Visual review against style-guide.html; mobile responsiveness; CTA links to /auth/login and pricing/how-it-works anchors.",
         "subtasks": []
       },
       {
         "id": 2,
-        "title": "Free tier Try flow (one demo, no account)",
-        "description": "Implement free tier flow: land on /try, enter one business (form or CSV row 1), generate demo, user copies link and sends manually. No lead data stored after session.",
+        "title": "Free tier flow (cookie limits, no standalone /try)",
+        "description": "Free tier: cookie-limited demos via /upload row flow and sign-in paths (Dashboard → Prospects, Show). Standalone /try removed; redirect to /auth/login.",
         "status": "done",
         "priority": "high",
         "dependencies": [
           1
         ],
-        "details": "/try form: company name, email, website (optional), industry, compliance confirm. Free limit enforced via cookie (getFreeBriefingsState, incrementFreeBriefings). Redirect to /{industry}/demo with prospect in cookie (setFreeDemoCookie). Privacy-first: no storage of prospect data beyond session cookie for demo view.",
-        "testStrategy": "Submit form → redirect to /construction/demo (or chosen industry); demo shows cookie data; free limit message when at limit.",
+        "details": "/upload and dashboard flows: free limit enforced via cookie (getFreeDemosState, incrementFreeDemos). setFreeDemoCookie and redirect to /{industry}/demo for cookie-based preview where applicable. free_demo_requests still used from authenticated Show flow.",
+        "testStrategy": "Upload row or dashboard demo → redirect to demo; free limit message when at limit; /try redirects to sign-in.",
         "subtasks": []
       },
       {
@@ -34,7 +34,7 @@
         "dependencies": [
           2
         ],
-        "details": "freeLimit from getFreeBriefingsState(cookies); atLimit and message on try and upload; link to /auth/login for Starter/Pro.",
+        "details": "freeLimit from getFreeDemosState(cookies); atLimit and message on upload; link to /auth/login for Starter/Pro.",
         "testStrategy": "Exhaust limit → see at-limit alert and sign-in CTA.",
         "subtasks": []
       },
@@ -48,7 +48,7 @@
           2
         ],
         "details": "Routes: construction, healthcare, dental, salons, real-estate, legal, fitness, solo-professionals with [id]. getProspectForDemoPage(id, industrySlug, cookies): id=demo → getFreeDemoProspect from cookie; else getProspectById from dashboard (provider + id). Each route uses industry Landing template + content from lib/content. Layout: demo-route, demo-lr-banner (Lead Rosetta style guide).",
-        "testStrategy": "Visit /construction/demo after try flow; visit /construction/{prospectId} when logged in (prospect from connected CRM); 404 for invalid id.",
+        "testStrategy": "Visit /construction/demo after upload cookie flow; visit /construction/{prospectId} when logged in (prospect from connected CRM); 404 for invalid id.",
         "subtasks": []
       },
       {
@@ -111,8 +111,8 @@
         "dependencies": [
           1
         ],
-        "details": "/terms exists with compliance note. /privacy linked from try page. No tracking of prospect data (free tier).",
-        "testStrategy": "Visit /terms; links from /try to /privacy and /terms work.",
+        "details": "/terms exists with compliance note. /privacy linked from landing footer. No tracking of prospect data (free tier) beyond product flows.",
+        "testStrategy": "Visit /terms; footer links to /privacy and /terms work from landing.",
         "subtasks": []
       },
       {

@@ -75,7 +75,7 @@ Technology stack, request lifecycle, Website Template integration, core engines 
 
    **Prospects / dashboard:** The dashboard shows prospects from whatever CRM you connect (HubSpot, GoHighLevel, Pipedrive, or Notion). There is no single required database; connect at least one integration in Dashboard → Integrations. Each prospect is stored with **provider** and **provider_row_id**; we sync status and tracking by id. Without any connected integration, the dashboard list is empty. Without Google/SESSION_SECRET, **Sign in** and `/dashboard` require auth to be configured.
 
-   **Send email to clients (v1):** The send flow is **dashboard/CRM only** (create the demo in Dashboard → Prospects, then send from there; not from /try or /upload). You need: (1) `RESEND_API_KEY` and `RESEND_FROM_EMAIL` (and optionally `RESEND_FROM_NAME`); verify your domain in [Resend](https://resend.com); (2) at least one prospect with an **email** and a **demo** created in the dashboard; (3) set the prospect's status to **Approved**; (4) check the Acceptable Use Policy box and click **Send** in Dashboard → Prospects. Starter and above can use the Send button. You can add a **test client** (no CRM) from Dashboard → Prospects → **Add test client**. Full checklist: [docs/next-steps-first-send.md](docs/next-steps-first-send.md).
+   **Send email to clients (v1):** The send flow is **dashboard/CRM only** (create the demo in Dashboard → Prospects, then send from there; not from /upload bulk flow alone). You need: (1) `RESEND_API_KEY` and `RESEND_FROM_EMAIL` (and optionally `RESEND_FROM_NAME`); verify your domain in [Resend](https://resend.com); (2) at least one prospect with an **email** and a **demo** created in the dashboard; (3) set the prospect's status to **Approved**; (4) check the Acceptable Use Policy box and click **Send** in Dashboard → Prospects. Starter and above can use the Send button. You can add a **test client** (no CRM) from Dashboard → Prospects → **Add test client**. Full checklist: [docs/next-steps-first-send.md](docs/next-steps-first-send.md).
 
 3. **Database migrations (Supabase)**
 
@@ -149,8 +149,8 @@ If you see "an empty prospects list" on Vercel, connect at least one integration
 ## Routes
 
 - `/` - Ed & Sy Admin home (marketing-style landing for the product)
-- `/try` - free-tier try flow (one demo per month rules via cookie)
-- `/upload` - CSV upload (Starter+)
+- `/try` - removed; requests redirect to `/auth/login` (see `hooks.server.ts`)
+- `/upload` - CSV upload (Starter+); free tier uses cookie limits where the page allows
 - `/show` - internal client lookup / demo tool (Ed & Sy)
 - `/dashboard` - dashboard (prospects, demos, integrations, billing); **requires Google sign-in**
 - `/auth/login` - sign-in (Google)

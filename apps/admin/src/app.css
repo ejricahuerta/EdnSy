@@ -632,7 +632,7 @@ html {
   transition: color 0.2s;
 }
 .admin-app .nav-links a:hover { color: var(--ink); }
-/* Try free: amber CTA so it doesn’t blend with dark UI (e.g. Crisp recording bar) */
+/* Landing nav primary CTA (amber) so it doesn’t blend with dark UI (e.g. Crisp recording bar) */
 /* Nav CTA: style guide .btn-nav (style-guide.html) — sage pill */
 .admin-app .btn-nav {
   background: var(--sage);

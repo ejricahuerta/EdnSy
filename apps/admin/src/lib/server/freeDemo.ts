@@ -34,7 +34,7 @@ export function setFreeDemoCookie(cookies: ServerCookies, payload: FreeDemoPaylo
 
 /**
  * Read free-demo prospect from cookie. Returns null if missing or industry mismatch.
- * Call when params.id === 'demo' to serve the Try free demo page.
+ * Call when params.id === 'demo' to serve the cookie-based free preview (e.g. from /upload).
  */
 export function getFreeDemoProspect(cookies: ServerCookies, industrySlug: string): Prospect | null {
 	const raw = cookies.get(COOKIE_NAME);
@@ -66,7 +66,7 @@ export type DemoPageData = {
 	audit: DemoAudit;
 	/** F1a: data confidence 0–100; below DATA_CONFIDENCE_MIN we show low-data message */
 	dataConfidenceScore?: number;
-	/** F1a: true when score < 50 — do not show full demo; show reason and link to try */
+	/** F1a: true when score < 50 — do not show full demo; show reason and link to sign in / upload */
 	lowData?: boolean;
 	lowDataReason?: string;
 	/** Custom demo HTML from user template (dashboard prospect path) */
@@ -91,7 +91,7 @@ export async function getProspectForDemoPage(
 ): Promise<DemoPageData> {
 	if (id === 'demo') {
 		const prospect = getFreeDemoProspect(cookies, industrySlug);
-		if (!prospect) throw error(404, 'Demo not found or expired. Try again from the Try free page.');
+		if (!prospect) throw error(404, 'Demo not found or expired. Create a new demo from Upload or the dashboard.');
 		throw error(
 			503,
 			'No audit data for this preview. Sign in and create a demo from the dashboard with DataForSEO or Gemini configured.'

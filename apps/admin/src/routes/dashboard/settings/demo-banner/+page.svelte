@@ -44,7 +44,7 @@
 			<Card.Header>
 				<Card.Title>Banner content</Card.Title>
 				<Card.Description>
-					Text and button shown in the fixed bar at the top of each demo (e.g. “Want this live in 48 hours?” with a “Try free →” button).
+					Text and button shown in the fixed bar at the top of each demo (e.g. “Want this live in 48 hours?” with a “Connect with Ed & Sy” button).
 				</Card.Description>
 			</Card.Header>
 			<Card.Content class="space-y-4">
@@ -64,7 +64,7 @@
 						id="cta-label"
 						name="ctaLabel"
 						type="text"
-						placeholder="e.g. Try free →"
+						placeholder="e.g. Connect with Ed & Sy"
 						bind:value={ctaLabel}
 					/>
 				</div>
@@ -74,11 +74,11 @@
 						id="cta-href"
 						name="ctaHref"
 						type="text"
-						placeholder="e.g. /try or https://..."
+						placeholder="e.g. /auth/login or https://..."
 						bind:value={ctaHref}
 					/>
 					<p class="text-xs text-muted-foreground">
-						Use a path like <code class="rounded bg-muted px-1">/try</code> for an in-app link, or a full URL for an external link.
+						Use a path like <code class="rounded bg-muted px-1">/auth/login</code> for an in-app link, or a full URL for an external link.
 					</p>
 				</div>
 			</Card.Content>

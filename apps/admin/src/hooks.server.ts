@@ -1,9 +1,12 @@
 import { createServerClient } from '@supabase/ssr';
-import type { Handle } from '@sveltejs/kit';
+import { redirect, type Handle } from '@sveltejs/kit';
 import { getSupabaseDbSchemaServer } from '$lib/server/dbSchemaEnv';
 import { getSupabasePublicConfig } from '$lib/server/supabasePublicConfig';
 
 export const handle: Handle = async ({ event, resolve }) => {
+	if (event.url.pathname === '/try' || event.url.pathname === '/try/') {
+		throw redirect(302, '/auth/login');
+	}
 	const cfg = getSupabasePublicConfig();
 	if (!cfg) {
 		throw new Error(

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { applyAction, enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
-	import { Sparkles, LoaderCircle, Send } from 'lucide-svelte';
+	import { Sparkles, LoaderCircle, Send, Mail } from 'lucide-svelte';
 	import { buttonVariants } from '$lib/components/ui/button';
 	import { cn } from '$lib/utils';
 	import * as Tooltip from '$lib/components/ui/tooltip';
@@ -13,6 +13,7 @@
 		prospectId,
 		showGenerate = false,
 		showSendDemo = false,
+		gmailConnected = true,
 		prospectLabel = '',
 		processing = false,
 		generating = false,
@@ -36,7 +37,7 @@
 		detailHref?: string;
 		hasDemoLink?: boolean;
 		demoJobStatus?: 'pending' | 'creating' | 'done' | 'failed';
-		trackingStatus?: 'draft' | 'approved' | 'sent' | 'opened' | 'clicked' | 'replied';
+		trackingStatus?: 'draft' | 'approved' | 'email_draft' | 'sent' | 'opened' | 'clicked' | 'replied';
 		showDelete?: boolean;
 		showRestore?: boolean;
 		onRegenerateQueued?: () => void;
@@ -72,7 +73,19 @@
 </script>
 
 <div class="flex items-center justify-end gap-1">
-	{#if showSendDemo}
+	{#if showSendDemo && !gmailConnected}
+		<a
+			href="/dashboard/integrations"
+			class={cn(
+				buttonVariants({ variant: 'ghost', size: 'icon' }),
+				'h-8 w-8 text-muted-foreground hover:text-foreground'
+			)}
+			aria-label="Connect Gmail"
+			title="Connect Gmail in Integrations to create drafts"
+		>
+			<Mail class="size-4" aria-hidden="true" />
+		</a>
+	{:else if showSendDemo}
 		<form
 			bind:this={sendDemoForm}
 			method="POST"
@@ -86,15 +99,15 @@
 				}) => {
 					try {
 						if (result.type === 'success' && result.data && typeof result.data === 'object' && 'success' in result.data && result.data.success) {
-							toastSuccess('Email sent', prospectLabel || prospectId, undefined, {
-								activity: `Sent demo email to ${who}.`
+							toastSuccess('Gmail draft created', prospectLabel || prospectId, undefined, {
+								activity: `Created Gmail draft for ${who}.`
 							});
 							sendDemoDialogOpen = false;
 							await invalidateAll();
 							onSendDemoSuccess?.();
 						} else if (result.type === 'failure' && result.data?.message) {
-							toastError('Send demo', (result.data as { message?: string }).message, undefined, {
-								activity: `Could not send demo email to ${who}.`
+							toastError('Gmail draft', (result.data as { message?: string }).message, undefined, {
+								activity: `Could not create Gmail draft for ${who}.`
 							});
 							await applyAction(result);
 						}
@@ -110,19 +123,19 @@
 				<AlertDialog.Trigger
 					type="button"
 					class={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), 'h-8 w-8 text-muted-foreground hover:text-foreground')}
-					aria-label="Send Email"
-					title="Send Email"
+					aria-label="Create Gmail draft"
+					title="Create Gmail draft"
 					onclick={() => (sendDemoDialogOpen = true)}
 				>
 					<Send class="size-4" aria-hidden="true" />
 				</AlertDialog.Trigger>
 				<AlertDialog.Content>
 					<AlertDialog.Header>
-						<AlertDialog.Title>Send demo to this client?</AlertDialog.Title>
+						<AlertDialog.Title>Create Gmail draft for this client?</AlertDialog.Title>
 						<AlertDialog.Description>
-							An email with the demo link will be sent to {prospectLabel || prospectId}.
-							<br><br>
-							<strong>Sending means you accept the Acceptable Use Policy (AUP).</strong>
+							A draft with the demo link will be created in your Gmail for {prospectLabel || prospectId}. Any previous draft for this prospect is replaced.
+							<br /><br />
+							<strong>You accept the Acceptable Use Policy (AUP).</strong>
 						</AlertDialog.Description>
 					</AlertDialog.Header>
 					<AlertDialog.Footer>
@@ -131,7 +144,7 @@
 							{#if sendingDemo}
 								<LoaderCircle class="mr-2 size-4 animate-spin" aria-hidden="true" />
 							{/if}
-							{sendingDemo ? 'Sending…' : 'Send email'}
+							{sendingDemo ? 'Working…' : 'Create draft'}
 						</AlertDialog.Action>
 					</AlertDialog.Footer>
 				</AlertDialog.Content>

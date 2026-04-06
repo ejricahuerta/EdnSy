@@ -17,7 +17,7 @@ export function isEdnsyUser(user: { email?: string } | null): boolean {
 	return domain === 'ednsy.com';
 }
 
-/** Free tier: demos per month on /try (no account). One demo when not signed in; sign in for more. */
+/** Free tier: demos per month via cookie (e.g. /upload single-row flow) when not on a paid plan. Sign in for dashboard CRM and higher limits. */
 export const FREE_DEMOS_PER_MONTH = 1;
 
 /** Display labels for plan (Starter, Growth, Agency). Internal tier "pro" displays as "Growth". */

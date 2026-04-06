@@ -92,7 +92,9 @@
 {#if !allowCsvUpload}
 	<div class="lr-alert lr-alert-warning mb-6">
 		<p style="font-weight: 500;">CSV upload is not available on the free tier</p>
-		<p class="mt-1 text-sm">Sign in and upgrade to Starter or Growth to upload CSV. Free users can try one demo at a time on the <a href="/try" class="underline" style="color: var(--sage);">Try free</a> page.</p>
+		<p class="mt-1 text-sm">
+			Sign in and upgrade to Starter or Growth to upload CSV. To create demos without CSV, sign in and use Dashboard → Prospects (or the Show flow while signed in).
+		</p>
 		<a href="/auth/login" class="lr-btn-primary mt-3 inline-flex">Sign in to upload CSV →</a>
 	</div>
 {:else if atLimit}

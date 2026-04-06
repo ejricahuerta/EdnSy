@@ -93,7 +93,10 @@
 	$effect(() => {
 		const gmail = $page.url.searchParams.get('gmail');
 		if (gmail === 'connected') {
-			toastSuccess('Gmail connected', 'You can send emails from your Gmail address.');
+			toastSuccess(
+				'Gmail connected',
+				'You can create outreach drafts and send from the dashboard using your Gmail address.'
+			);
 			goto($page.url.pathname, { replaceState: true });
 		} else if (gmail === 'error') {
 			const msg = $page.url.searchParams.get('message');
@@ -220,7 +223,9 @@
 					</div>
 					<div class="min-w-0 space-y-1">
 						<Card.Title class="mb-0">Gmail</Card.Title>
-						<Card.Description>Send demo emails from your Gmail. Connect once to use when you click Send in Clients.</Card.Description>
+						<Card.Description>
+							Create demo outreach as Gmail drafts and send from Clients. Uses Gmail send and compose scopes; reconnect if draft creation fails after an app update.
+						</Card.Description>
 					</div>
 				</div>
 				{#if gmailConnected}

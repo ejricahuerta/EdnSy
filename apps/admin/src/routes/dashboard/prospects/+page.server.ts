@@ -35,7 +35,7 @@ import type { ToneSlug } from '$lib/tones';
 import type { PageServerLoad, Actions } from './$types';
 import { isValidDemoTrackingStatus } from '$lib/demo';
 import { getDashboardSessionUser } from '$lib/server/authDashboard';
-import { getCrmIndustryFilter, getEffectiveEmailSenderName, getEmailSignatureOverride } from '$lib/server/userSettings';
+import { getCrmIndustryFilter } from '$lib/server/userSettings';
 import { industryDisplayToSlug, parseIndustryValues } from '$lib/industries';
 
 /** Summary of scraped/GBP data for call log display (serializable). */
@@ -61,18 +61,8 @@ function buildScrapedSummary(data: Record<string, unknown>): ScrapedSummary {
 import { getPlanForUser } from '$lib/server/stripe';
 import { getDemoCreationLimit, canSendAutomated } from '$lib/plans';
 import { serverInfo, serverError } from '$lib/server/logger';
-import {
-	sendEmail,
-	sendSms,
-	buildSmsBody,
-	getSendConfigured,
-	getOriginForOutgoingLinks,
-	getDemoPublicOrigin,
-	isTwilioConfigured,
-	resolveDemoOutreachEmail
-} from '$lib/server/send';
-import { generateEmailCopy } from '$lib/server/generateEmailCopy';
-import { getTemplates } from '$lib/server/templates';
+import { getSendConfigured, getOriginForOutgoingLinks, getDemoPublicOrigin } from '$lib/server/send';
+import { executeCreateGmailOutreachDraft, executeSendGmailOutreachDraft } from '$lib/server/crmOutreachGmail';
 import { PROSPECT_STATUS, isProspectQueuedStatus } from '$lib/prospectStatus';
 import { importProspectsFromCsv } from '$lib/server/csvImport';
 import {
@@ -504,26 +494,25 @@ export const actions: Actions = {
 		}
 		const plan = await getPlanForUser(user);
 		if (!canSendAutomated(plan)) {
-			return fail(403, { message: 'Automated send is available on Starter, Growth, and Agency plans.' });
+			return fail(403, { message: 'Outreach is available on Starter, Growth, and Agency plans.' });
 		}
 		if (!(await getSendConfigured(user.id))) {
-			return fail(503, { message: 'Email sending is not configured. Connect Gmail in Integrations.' });
+			return fail(503, {
+				message: 'Gmail is not configured. Connect Gmail in Integrations (draft access required).'
+			});
 		}
 		const formData = await request.formData();
 		if (formData.get('aupConfirmed') !== 'on') {
-			return fail(400, { message: 'You must confirm compliance with the Acceptable Use Policy before sending.' });
+			return fail(400, {
+				message: 'You must confirm compliance with the Acceptable Use Policy before creating drafts.'
+			});
 		}
 		const prospectIds = formData.getAll('prospectId');
 		if (prospectIds.length === 0) {
-			return fail(400, { message: 'Select at least one prospect to send.' });
+			return fail(400, { message: 'Select at least one prospect.' });
 		}
-		serverInfo('sendDemos', 'Started', { prospectCount: prospectIds.length });
-		const templates = await getTemplates(user.id);
-		const [senderName, emailSignatureOverride] = await Promise.all([
-			getEffectiveEmailSenderName(user.id, user.email),
-			getEmailSignatureOverride(user.id)
-		]);
-		const supabase = getSupabaseAdmin();
+		serverInfo('sendDemos', 'Started (Gmail drafts)', { prospectCount: prospectIds.length });
+		const linkOrigin = getOriginForOutgoingLinks(url.origin);
 		let sent = 0;
 		const errors: string[] = [];
 		for (const id of prospectIds) {
@@ -542,65 +531,41 @@ export const actions: Actions = {
 				);
 				demoTracking = await getDemoTrackingForProspect(user.id, id);
 			}
-			if (!demoTracking || demoTracking.status !== 'approved') continue;
-			const demoLink = prospect.demoLink;
-			let anySent = false;
+			if (
+				!demoTracking ||
+				(demoTracking.status !== 'approved' && demoTracking.status !== 'email_draft')
+			) {
+				continue;
+			}
 			if (prospect.email?.trim()) {
-				const linkOrigin = getOriginForOutgoingLinks(url.origin);
-				const ai = await generateEmailCopy(prospect, senderName);
-				const resolved = resolveDemoOutreachEmail(
-					prospect,
-					senderName,
-					linkOrigin,
-					templates.emailHtml,
-					emailSignatureOverride,
-					ai
-				);
-				if ('error' in resolved) {
-					const reason = resolved.error;
-					errors.push(`${prospect.companyName || id}: ${reason} Email not sent.`);
-					serverError('sendDemos', reason, { prospectId: id, to: prospect.email.trim() });
-					continue;
-				}
-				const { subject, html } = resolved;
-				const result = await sendEmail(prospect.email.trim(), subject, html, {
+				const ex = await executeCreateGmailOutreachDraft({
 					userId: user.id,
-					appUserEmail: user.email
+					appUserEmail: user.email,
+					prospect,
+					prospectId: id,
+					kind: 'demo',
+					linkOrigin,
+					setDemoTrackingEmailDraft: true
 				});
-				if (result.ok) {
+				if (ex.ok) {
 					sent++;
-					anySent = true;
-					serverInfo('sendDemos', 'Email sent', { to: prospect.email.trim(), prospectId: id });
+					serverInfo('sendDemos', 'Gmail draft created', { to: prospect.email.trim(), prospectId: id });
 				} else {
-					errors.push(`${prospect.companyName || id}: ${result.error}`);
-					serverError('sendDemos', result.error, { to: prospect.email.trim(), prospectId: id });
+					errors.push(`${prospect.companyName || id}: ${ex.error}`);
+					serverError('sendDemos', ex.error, { prospectId: id, to: prospect.email.trim() });
 				}
-			}
-			if (prospect.phone?.trim() && isTwilioConfigured()) {
-				const body = buildSmsBody(prospect, demoLink, senderName);
-				const result = await sendSms(prospect.phone.trim(), body);
-				if (result.ok) {
-					sent++;
-					anySent = true;
-				} else {
-					errors.push(`SMS ${prospect.companyName || id}: ${result.error}`);
-				}
-			}
-			if (anySent && supabase) {
-				await updateDemoTrackingStatus(user.id, id, { status: 'sent' });
-			}
-			if (!prospect.email?.trim() && !prospect.phone?.trim()) {
-				errors.push(`${prospect.companyName || id}: No email or phone`);
+			} else {
+				errors.push(`${prospect.companyName || id}: No email (add one on the prospect page to create a Gmail draft)`);
 			}
 		}
 		if (sent === 0 && errors.length > 0) {
-			serverError('sendDemos', 'No emails sent', { sent, errors });
+			serverError('sendDemos', 'No drafts created', { sent, errors });
 			return fail(502, { message: errors.slice(0, 3).join('; ') });
 		}
 		if (sent === 0) {
 			return fail(400, {
 				message:
-					'No email was sent. Each prospect needs a demo link, approved status, and an email address. Add an email on the prospect detail page if missing.'
+					'No Gmail draft was created. Each prospect needs a demo link, approved (or draft) status, and usually an email. Add an email on the prospect detail page if missing.'
 			});
 		}
 		serverInfo('sendDemos', 'Completed', { sent, total: prospectIds.length, errors: errors.length > 0 ? errors : undefined });
@@ -611,6 +576,65 @@ export const actions: Actions = {
 			errors: errors.length > 0 ? errors.slice(0, 5) : undefined
 		};
 	},
+	/** Send every stored Gmail outreach draft (drafts.send) for prospects that have gmail_outreach_draft_id. */
+	sendGmailOutreachDraftsBulk: async (event) => {
+		const { request } = event;
+		const user = await getDashboardSessionUser(event);
+		if (!user) return fail(401, { message: 'Sign in required' });
+		const plan = await getPlanForUser(user);
+		if (!canSendAutomated(plan)) {
+			return fail(403, { message: 'Outreach is available on Starter, Growth, and Agency plans.' });
+		}
+		if (!(await getSendConfigured(user.id))) {
+			return fail(503, { message: 'Gmail is not connected. Connect Gmail in Integrations.' });
+		}
+		const formData = await request.formData();
+		if (formData.get('aupConfirmed') !== 'on') {
+			return fail(400, {
+				message: 'You must confirm compliance with the Acceptable Use Policy before sending.'
+			});
+		}
+		const listResult = await listProspects();
+		const rows = 'prospects' in listResult ? listResult.prospects : [];
+		const withDraft = rows.filter(
+			(p) => (p.gmailOutreachDraftId ?? '').trim().length > 0 && !p.flagged
+		);
+		if (withDraft.length === 0) {
+			return fail(400, { message: 'No Gmail drafts on file. Create drafts from prospect rows or the detail page first.' });
+		}
+		serverInfo('sendGmailOutreachDraftsBulk', 'Started', { count: withDraft.length });
+		let sent = 0;
+		const errors: string[] = [];
+		for (const row of withDraft) {
+			const prospect = await getProspectById(row.id);
+			if (!prospect || !(prospect.gmailOutreachDraftId ?? '').trim()) continue;
+			const ex = await executeSendGmailOutreachDraft({
+				userId: user.id,
+				prospect,
+				prospectId: row.id
+			});
+			if (ex.ok) {
+				sent++;
+				serverInfo('sendGmailOutreachDraftsBulk', 'Sent', { prospectId: row.id });
+			} else {
+				errors.push(`${prospect.companyName || row.id}: ${ex.error}`);
+				serverError('sendGmailOutreachDraftsBulk', ex.error, { prospectId: row.id });
+			}
+		}
+		if (sent === 0 && errors.length > 0) {
+			return fail(502, { message: errors.slice(0, 3).join('; ') });
+		}
+		if (sent === 0) {
+			return fail(400, { message: 'No draft could be sent. Check Gmail and recreate drafts if needed.' });
+		}
+		serverInfo('sendGmailOutreachDraftsBulk', 'Completed', { sent, total: withDraft.length, errors: errors.length });
+		return {
+			success: true,
+			sent,
+			total: withDraft.length,
+			errors: errors.length > 0 ? errors.slice(0, 5) : undefined
+		};
+	},
 	deleteProspect: async (event) => {
 		const { request, cookies } = event;
 		const user = await getDashboardSessionUser(event);
@@ -618,8 +642,14 @@ export const actions: Actions = {
 		const formData = await request.formData();
 		const prospectId = formData.get('prospectId');
 		if (!prospectId || typeof prospectId !== 'string') return fail(400, { message: 'Missing prospect ID' });
-		const result = await deleteProspect(user.id, prospectId);
-		if (!result.ok) return fail(result.error === 'Prospect not found or access denied' ? 404 : 502, { message: result.error ?? 'Failed to delete' });
+		const result = await deleteProspect(prospectId);
+		if (!result.ok)
+			return fail(
+				result.error === 'Prospect not found' || result.error === 'Prospect not found or access denied'
+					? 404
+					: 502,
+				{ message: result.error ?? 'Failed to delete' }
+			);
 		return { success: true, prospectId };
 	},
 	/** Bulk enqueue GBP jobs for selected prospects (GBP queue tab). Inserts into gbp_jobs (status pending); cron processes them. */
@@ -677,7 +707,7 @@ export const actions: Actions = {
 		const formData = await request.formData();
 		const prospectId = formData.get('prospectId');
 		if (!prospectId || typeof prospectId !== 'string') return fail(400, { message: 'Missing prospect ID' });
-		const result = await setProspectFlagged(user.id, prospectId, true);
+		const result = await setProspectFlagged(prospectId, true);
 		if (!result.ok) return fail(502, { message: result.error ?? 'Failed to update' });
 		return { success: true, prospectId };
 	},
@@ -689,7 +719,7 @@ export const actions: Actions = {
 		const formData = await request.formData();
 		const prospectId = formData.get('prospectId');
 		if (!prospectId || typeof prospectId !== 'string') return fail(400, { message: 'Missing prospect ID' });
-		const result = await setProspectFlagged(user.id, prospectId, false);
+		const result = await setProspectFlagged(prospectId, false);
 		if (!result.ok) return fail(502, { message: result.error ?? 'Failed to restore' });
 		return { success: true, prospectId };
 	},
@@ -703,7 +733,7 @@ export const actions: Actions = {
 		if (prospectIds.length === 0) return fail(400, { message: 'Select at least one prospect' });
 		let restored = 0;
 		for (const prospectId of prospectIds) {
-			const result = await setProspectFlagged(user.id, prospectId, false);
+			const result = await setProspectFlagged(prospectId, false);
 			if (result.ok) restored++;
 		}
 		return { success: true, restored, total: prospectIds.length };
@@ -779,7 +809,7 @@ export const actions: Actions = {
 		// Restore (unflag)
 		let restored = 0;
 		for (const prospectId of flaggedIds) {
-			const result = await setProspectFlagged(user.id, prospectId, false);
+			const result = await setProspectFlagged(prospectId, false);
 			if (result.ok) restored++;
 		}
 

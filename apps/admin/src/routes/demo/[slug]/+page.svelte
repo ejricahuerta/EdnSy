@@ -168,7 +168,7 @@
 		<div class="max-w-md">
 			<h1 class="text-xl font-semibold text-stone-800">Demo couldn’t be created</h1>
 			<p class="mt-2 text-stone-600">{freeDemoErrorMessage}</p>
-			<a href="/try" class="mt-6 inline-block rounded-md bg-stone-800 px-4 py-2 text-sm font-medium text-white hover:bg-stone-700">Try again</a>
+			<a href="/auth/login" class="mt-6 inline-block rounded-md bg-stone-800 px-4 py-2 text-sm font-medium text-white hover:bg-stone-700">Sign in</a>
 		</div>
 	</div>
 {:else if useCinematicDemo}

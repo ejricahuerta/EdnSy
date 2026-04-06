@@ -6,6 +6,17 @@
 alter table dev.prospects
   drop constraint if exists prospects_provider_check;
 
+update dev.prospects
+set provider = case lower(trim(provider))
+    when 'notion' then 'notion'
+    when 'hubspot' then 'hubspot'
+    when 'gohighlevel' then 'gohighlevel'
+    when 'pipedrive' then 'pipedrive'
+    when 'manual' then 'manual'
+    when 'gbp' then 'gbp'
+    else 'manual'
+  end;
+
 alter table dev.prospects
   add constraint prospects_provider_check
   check (provider in ('notion', 'hubspot', 'gohighlevel', 'pipedrive', 'manual', 'gbp'));

@@ -27,14 +27,14 @@ These match `tasks.json` “done” or are implemented but were still marked pen
 | Id | Title | Notes |
 |----|--------|--------|
 | 1 | Landing page and lead-rosetta site | `/`, hero, pricing, CTAs, style guide. |
-| 2 | Free tier Try flow | `/try`, one demo, no account, cookie-based. |
+| 2 | Free tier flow | Cookie limits (`/upload` where enabled); `/try` removed (redirect to sign-in). |
 | 3 | Free tier monthly limit | `getFreeBriefingsState`, at-limit UX, sign-in CTA. |
 | 4 | Industry demo pages | `/{industry}/[id]`, templates, prospect from CRM or cookie. |
 | 5 | Design system and style guides | Style guides + industry themes; shadcn only in dashboard. |
 | 6 | CSV upload and parsing | `/upload`, column mapping, free first row; redirect to demo. |
 | 7 | Dashboard and prospects | **Implementation:** Prospects in **Supabase**; CRMs (Notion, HubSpot, GHL, Pipedrive) sync into dashboard. Task text said “from Notion” — now “from connected CRM or manual (Add test client)”. |
 | 8 | Auth (Google OAuth) | `/auth/login`, Google OAuth, session, dashboard protected. |
-| 9 | Privacy and Terms pages | `/terms`, `/privacy`, linked from try and footer. |
+| 9 | Privacy and Terms pages | `/terms`, `/privacy`, linked from landing footer. |
 | 10 | Demo view tracking API | `/api/demo/track`, open/click; used for F5. |
 | 11 | F1 — Demo generation (GBP-first) | DataForSEO + ScrapingBee, cache, &lt;90s target. |
 | 13 | F3 — Review and approve queue | Confidence visible, approve gate, disclaimer, statuses, bulk approve, send. |
@@ -92,7 +92,7 @@ These match `tasks.json` “done” or are implemented but were still marked pen
 ## 7. Quick Reference: Routes and Features
 
 - **Landing:** `/` — hero, pricing (Free / Starter / Pro / Agency with Contact us), CTAs.
-- **Try:** `/try` — free demo, monthly limit, redirect to `/{industry}/[id]`.
+- **Free demos:** Cookie-based limits on `/upload` where applicable; legacy `/try` redirects to `/auth/login`.
 - **Upload:** `/upload` — CSV, first row free; redirect to demo.
 - **Auth:** `/auth/login`, `/auth/google`, `/auth/logout`.
 - **Dashboard:** `/dashboard` (overview), `/dashboard/prospects` (Prospects — table, create demo, approve, send; `/dashboard/clients` redirects here), `/dashboard/prospects/[id]` (prospect detail), `/dashboard/integrations`, `/dashboard/billing`, `/dashboard/settings`, etc.

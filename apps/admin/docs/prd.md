@@ -3,10 +3,10 @@
 **Version:** 0.2 (Pre-launch, Updated)
 **Owner:** Ed (Ed & Sy Inc.)
 **Status:** In Development
-**Last Updated:** March 2026
+**Last Updated:** April 2026
 **Changes from v0.1:** Positioning expanded, pricing restructured, data stack updated, bulletproofing measures added, distribution plan added, competitive landscape added.
 
-**Implementation snapshot (apps/admin, March 2026):** The SvelteKit app ships Google OAuth, Supabase-backed prospects and demo tracking, CRM integrations (HubSpot, GoHighLevel, Pipedrive, Notion), Stripe subscriptions (`getPlanForUser`), dashboard review queue with confidence scores, email/SMS template flows, insights and demo jobs (Places/Gemini/Claude paths per env), and billing portal. Industry-hosted demos are served under `/demo/[industrySlug]/[id]` (and related `/demo/[slug]` routes). Remaining gaps vs this PRD include CSV AI mapping (F2), guided onboarding (Section 5.4), deliverability checklist (F7), on-demand refresh (F6), and compliance items in Section 12 (Termly, signup checkbox, unsubscribe link polish). Task list: `apps/admin/tasks/tasks.json`.
+**Implementation snapshot (apps/admin, April 2026):** The SvelteKit app ships Google OAuth, Supabase-backed prospects and demo tracking, CRM integrations (HubSpot, GoHighLevel, Pipedrive, Notion), Stripe subscriptions (`getPlanForUser`), dashboard review queue with confidence scores, email/SMS template flows, insights and demo jobs (Places/Gemini/Claude paths per env), and billing portal. **CRM outreach (Clients):** Connecting Gmail grants send + compose + metadata scopes; approved demos create a **Gmail draft** first (preview modal on the prospect page), with **Send now** from the admin to call Gmail `drafts.send`. `demo_tracking` includes status `email_draft`; `demo_events` records `gmail_outreach_draft_created` and `gmail_outreach_sent`. **Default demo email** is intentionally short: subject line is **AI-generated** by Gemini (must add a hook beyond the name; weak opens like "idea for …" are rejected; business name restored to CRM title case; deterministic multi-template fallback per prospect, e.g. "quick reaction to {Company}'s site"), Gemini-generated 1–2 sentence industry-specific opener (override via Agents → Email copy prompt), fixed body with a single trackable “See the {company} prototype” link, soft close (“curious what you think”), open pixel + click tracking—no long feature bullet list. Free-try and transactional paths keep immediate `messages.send` where applicable. Industry-hosted demos are served under `/demo/[industrySlug]/[id]` (and related `/demo/[slug]` routes). Remaining gaps vs this PRD include CSV AI mapping (F2), guided onboarding (Section 5.4), deliverability checklist (F7), on-demand refresh (F6), and compliance items in Section 12 (Termly, signup checkbox, unsubscribe link polish). Task list: `apps/admin/tasks/tasks.json`.
 
 ---
 
@@ -42,7 +42,7 @@ Building a custom demo for each prospect manually takes hours. Ed & Sy Admin mak
 - Ed & Sy Admin scrapes their Google Business Profile, Google Reviews, and social media
 - AI generates a personalized outreach page using their real branding, real services, real customer language
 - User reviews and approves before sending
-- System provides a pre-written email template + demo link ready to send
+- System provides a pre-written email template + demo link; CRM flow creates a **Gmail draft** in the user’s mailbox (preview in app), then the user can send from Gmail or via **Send now** in the dashboard
 - Prospect receives a link to their own personalized page — reply rate increases dramatically
 
 **Key differentiator:** Works even if the prospect has no website. Most competitors (including GenPage) require an existing website to scrape. Ed & Sy Admin builds from GBP and reviews alone.
@@ -305,24 +305,27 @@ Every generated demo automatically produces three ready-to-copy templates:
 - Missing GBP info → *"Your Google profile is missing your hours and service list."*
 - Low photos → *"Your competitors have 40+ photos on Google. You have 2."*
 
-**Default cold email template (based on OhMyGlass outreach):**
+**Default cold email (CRM / system template, HTML + tracking):**
 ```
-Subject: I built something for [Business Name]
+Subject: [AI-generated; curiosity or industry angle, not name-only; weak shells rejected; business name in CRM title case; fallback rotates per prospect, e.g. "quick reaction to {CompanyName}'s site", "{CompanyName}, worth two minutes?"]
 
-Hey [First Name],
+Hi there,
 
-[Personalized one-liner about their specific online gap]
+[Gemini: 1-2 short sentences, industry-grounded, names the business; no greeting or links in this block. Avoid em dashes; commas or periods read more human.]
 
-So we built you something — [Business Name], done right.
+I mocked that up as a simple interactive draft for [Business Name]. Easier to skim than a long write-up. If you have two minutes:
 
-View your demo → [demo link]
+See the [Business Name] prototype → [trackable link]
 
-No catch. Have a look when you get a sec.
+No strings attached. Just curious what you think.
 
-— [Sender Name]
+Best,
+[Sender line from settings or default]
 
-(We might send a follow-up.)
+[1×1 open pixel]
 ```
+
+Alternate path (no demo): short paragraphs on calls/bookings + local SEO, soft reply CTA, legal footer line. Users with a **custom HTML template** in settings still use placeholders (`{{companyName}}`, `{{trackableLink}}`, etc.) and bypass this default body.
 
 **Note:** Users copy and paste into their own sending tool (Instantly, Smartlead, Gmail, etc.). Ed & Sy Admin does not own sending infrastructure for cold outreach. Pro users can use automated sending via Resend for transactional/notification emails only.
 
@@ -366,8 +369,8 @@ Warning shown if user skips. Deliverability guide linked in onboarding.
 
 ```
 Land on homepage
-→ Click "Try free — one demo"
-→ Enter business name (minimum) + optional location
+→ Sign in (or use cookie-limited flows such as /upload where product allows)
+→ Enter business name (minimum) + optional location (Dashboard → Prospects, Show, or upload flow)
 → Ed & Sy Admin scrapes GBP + reviews + socials automatically
 → Data confidence score calculated
 → Demo generated (< 90 seconds)
@@ -572,7 +575,7 @@ Simple, transparent pricing — pay for the value you get. 1 demo = 1 prospect.
 
 | Plan | Demo limit (code) | Send (automated) | Notes |
 |---|---|---|---|
-| Free | 5/month on /try (cookie) | No | Try before you commit |
+| Free | Cookie-limited demos (e.g. /upload); no standalone /try | No | Try before you commit; `/try` redirects to sign-in |
 | Starter | 30/month | No (manual copy link + template) | Enforced via getDemoCountThisMonth |
 | Growth (pro) | 100/month | Yes (Resend for notifications; user sends cold email via own tool) | getDemoCreationLimit |
 | Agency (teams) | Unlimited | Yes | getDemoCreationLimit('teams') returns null |

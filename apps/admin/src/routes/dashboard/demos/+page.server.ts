@@ -1,7 +1,7 @@
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { getDashboardSessionUser } from '$lib/server/authDashboard';
-import { listProspects } from '$lib/server/prospects';
+import { listDemosProspects } from '$lib/server/prospects';
 
 /** Demos page: prospects that have a demo; show business name, link, and details. */
 export const load: PageServerLoad = async (event) => {
@@ -9,9 +9,13 @@ export const load: PageServerLoad = async (event) => {
 	if (!user) {
 		throw redirect(303, '/auth/login');
 	}
-	const result = await listProspects();
-	const prospects = (result.prospects ?? []).filter(
-		(p) => !p.flagged && (p.demoLink ?? '').trim().length > 0
-	);
-	return { prospects };
+	const result = await listDemosProspects();
+	if ('error' in result && result.error) {
+		return {
+			prospects: [],
+			demosLoadError: result.error,
+			demosLoadMessage: result.message
+		};
+	}
+	return { prospects: result.prospects ?? [] };
 };

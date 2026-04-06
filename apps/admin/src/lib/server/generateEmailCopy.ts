@@ -10,7 +10,7 @@ const GEMINI_MODEL = 'gemini-2.5-flash';
  * Optional AI-written opening paragraph for the fixed upgrade-pitch email template in send.ts.
  * Subject line and the rest of the body are assembled server-side.
  */
-export type EmailCopy = { openingHook?: string; bodyIntro?: string };
+export type EmailCopy = { openingHook?: string; bodyIntro?: string; subjectLine?: string };
 export type GenerateEmailCopyResult = {
 	/** null = generation failed (e.g. API/parse error). Empty object = use template default opening. */
 	copy: EmailCopy | null;
@@ -19,22 +19,37 @@ export type GenerateEmailCopyResult = {
 };
 
 const EMAIL_COPY_JSON_SCHEMA_INLINE = `
-Return ONLY a single JSON object (no markdown, no explanation) with this key:
+Return ONLY a single JSON object (no markdown, no explanation) with these keys:
 {
-  "openingHook": "string (one short paragraph, plain text). Describe specific performance or conversion gaps on their current site: mobile experience, lead capture, after-hours calls, or speed. Mention the business name naturally. Do NOT include a greeting (we add Hi there), bullet lists, demo link, CTA, signature, or markdown."
+  "subjectLine": "string, max 9 words, no quotes. Add a hook beyond the company name: tie to {{industry}}, a moment (after hours, first scroll, mobile), or a light question. Use lowercase except Title Case for the business name as given. Do NOT start with: idea for, thought about, something for, quick idea for, note for (those read as lazy). Include the company name or its main distinct words (never one generic industry word alone). Good examples: 'after-hours calls, Riverdale Dental', 'Riverdale Dental and the booking flow', 'first scroll on Riverdale Dental's site', 'worth a peek, Riverdale Dental'. Never use: prototype, upgrade, demo, redesign, mockup, audit, proposal, performance, solutions. No em dash (U+2014).",
+  "openingHook": "string, plain text only. One or two short sentences (max ~40 words total). Casual, human tone, like a colleague, not sales copy. Reference {{company}} by name once. Ground it in their industry ({{industry}}): a believable observation (e.g. after-hours calls, mobile booking, local search, front-desk load), not a generic audit. No greeting, no bullets, no links, no signature, no markdown, no product names (Voice AI, SEO Core, etc.). Do NOT use phrases like: performance gaps, high-performance, tech stack, bounce rates, integrated upgrades. Do not use em dashes (U+2014) or en dashes (U+2013); use commas or periods."
 }`.trim();
 
-/** Default prompt for the optional opening paragraph. Use {{company}}, {{industry}}, {{senderName}}. */
-export const DEFAULT_EMAIL_COPY_PROMPT = `You help write one optional paragraph for a cold outreach email. The email uses a fixed HTML template: the sender already built a high-performance demo site for the prospect. Your only job is the openingHook: one paragraph that sounds observant and professional about gaps on their current site (mobile, lead capture, after-hours handling, speed, SEO—pick what fits {{industry}}).
+/** Default prompt for subject line + opening lines before the fixed demo-email template in send.ts. Use {{company}}, {{industry}}, {{senderName}}. */
+export const DEFAULT_EMAIL_COPY_PROMPT = `You write two things for a short cold email: a subject line and the first 1-2 sentences. A fixed template below your text will mention a link and a soft ask. The reader already gets "Hi there," from the template.
 
 Context:
 - Business/company name: {{company}}
 - Industry: {{industry}}
-- Sender name (signature is added separately): {{senderName}}
+- Sender (do not mention by name): {{senderName}}
 
-Rules:
-- openingHook: A single paragraph only. No Hi/Hello, no bullets, no link, no signature.
-- Tone: confident, consultative, like the example: "I noticed a few performance gaps on the current [Company] site—specifically regarding…"
+Style (both fields): Do not use em dashes (—) or en dashes (–). Use commas, periods, or "and". Em dashes read as AI-generated to many readers.
+
+subjectLine rules:
+- Max 9 words. Lead with curiosity, a specific moment, or something tied to {{industry}}, not only the business name.
+- Do NOT start with: "idea for", "thought about", "something for", "quick idea for", "note for", "a note for" (reads as empty and AI-ish).
+- Keep filler words lowercase; business name in Title Case exactly as above ({{company}}).
+- Must include recognizable words from the company name (not a single industry word like "dental" alone). Sound like a personal note.
+- Strong patterns: "{{company}} and the booking flow", "after-hours piece, {{company}}", "first scroll on {{company}}'s site", "worth a peek, {{company}}", "{{industry}} visibility, {{company}}".
+- Banned words in subject: prototype, upgrade, demo, redesign, mockup, audit, proposal, performance, solutions.
+
+openingHook rules:
+- One or two sentences, max ~40 words, plain text.
+- Sound specific to this business and industry, not templated. Prefer concrete situations local businesses in this industry care about (missed calls, booking friction, mobile, visibility). Avoid vague "I noticed your site" with no substance.
+- Tone: warm, brief, conversational. Not corporate, not consultative, not a feature list.
+- Forbidden: Hi/Hello/Hey, bullets, URLs, signatures, markdown, emoji, and buzzwords like "performance gaps", "high-performance", "leverage", "cutting-edge", "solutions".
+- Do not write metadata lines (no "title:", "subject:", "subject line:", or any key: value lines). openingHook is only the sentences that appear in the email body after "Hi there,".
+- Do not describe the prototype, link, or "interactive draft" in openingHook; the template adds that in the next sentence.
 
 ${EMAIL_COPY_JSON_SCHEMA_INLINE}`;
 
@@ -74,11 +89,23 @@ function repairJsonNewlines(raw: string): string {
 	return result;
 }
 
-/** Accept common field variants Gemini may return for the opening paragraph. */
-function normalizeEmailCopyShape(input: unknown): { openingHook?: string } {
+/** Accept common field variants Gemini may return for the opening paragraph and subject line. */
+function normalizeEmailCopyShape(input: unknown): { openingHook?: string; subjectLine?: string } {
 	if (typeof input !== 'object' || input === null) return {};
 	const obj = input as Record<string, unknown>;
-	const candidates: unknown[] = [
+
+	const subjectCandidates: unknown[] = [
+		obj.subjectLine,
+		obj.subject_line,
+		obj.subject,
+		obj.emailSubject,
+		obj.email_subject
+	];
+	const subjectLine = (subjectCandidates.find((v) => typeof v === 'string' && v.trim().length > 0) as string | undefined)?.trim();
+
+	const hookCandidates: unknown[] = [
+		obj.personalizedOpener,
+		obj.personalized_opener,
 		obj.openingHook,
 		obj.opening_hook,
 		obj.hook,
@@ -91,7 +118,7 @@ function normalizeEmailCopyShape(input: unknown): { openingHook?: string } {
 		obj.email_body,
 		obj.copy
 	];
-	let openingHook = candidates.find((v) => typeof v === 'string') as string | undefined;
+	let openingHook = hookCandidates.find((v) => typeof v === 'string') as string | undefined;
 	if (!openingHook) {
 		const paragraphs = obj.paragraphs;
 		if (Array.isArray(paragraphs)) {
@@ -102,15 +129,17 @@ function normalizeEmailCopyShape(input: unknown): { openingHook?: string } {
 	if (!openingHook) {
 		for (const candidate of [obj.data, obj.result, obj.output, obj.email, obj.response]) {
 			const nested = normalizeEmailCopyShape(candidate);
-			if (nested.openingHook) return nested;
+			if (nested.openingHook) return { ...nested, subjectLine: subjectLine ?? nested.subjectLine };
 		}
 	}
-	return { openingHook };
+	return { openingHook, subjectLine };
 }
 
 function parsePlainTextEmailCopy(text: string): { openingHook?: string } {
 	const cleaned = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
 	if (!cleaned) return {};
+	/** Whole response is JSON; never use it as prose when keys are missing. */
+	if (/^\s*[\[{]/.test(cleaned)) return {};
 	const lines = cleaned.split('\n').map((line) => line.trim()).filter(Boolean);
 	if (lines.length === 0) return {};
 	const hookLine = lines.find((line) => /^openinghook\s*:/i.test(line));
@@ -119,16 +148,46 @@ function parsePlainTextEmailCopy(text: string): { openingHook?: string } {
 	return { openingHook: openingHook || undefined };
 }
 
+function sanitizeSubjectLine(raw: string | undefined): string {
+	if (!raw) return '';
+	let text = raw.replace(/\r/g, '').replace(/\n/g, ' ').trim();
+	text = text.replace(/^["']+|["']+$/g, '').trim();
+	if (text.length > 100) text = text.slice(0, 100).trim();
+	const words = text.split(/\s+/).filter(Boolean);
+	if (words.length < 2) return '';
+	const banned = /\b(prototype|upgrade|demo|redesign|mockup|audit|proposal|performance|solutions)\b/i;
+	if (banned.test(text)) return '';
+	if (/[{}]/.test(text)) return '';
+	if (/^(title|subject)\s*:/i.test(text)) return '';
+	text = text.replace(/\s*[—–]\s*/g, ', ').replace(/,\s*,+/g, ',').trim();
+	return text.toLowerCase();
+}
+
+const METADATA_LINE =
+	/^(title|subject|subject\s*line|email\s*subject|headline)\s*:\s*/i;
+
 function sanitizeOpeningHook(raw: string): string {
 	let text = raw.replace(/\r/g, '').trim();
+	if (/^\s*[\[{]/.test(text) || /"subjectLine"\s*:/i.test(text)) return '';
 	const bannedLine =
-		/(view your demo|view the .* upgrade|take a look|ednsy\.com|^-\s|http:\/\/|https:\/\/)/i;
+		/(view your demo|view the .* upgrade|take a look|ednsy\.com|^-\s|http:\/\/|https:\/\/|performance gaps|high-performance|tech stack|bounce rates)/i;
 	const kept = text
 		.split('\n')
 		.map((line) => line.trim())
-		.filter((line) => line.length > 0 && !bannedLine.test(line) && !/^(hi|hey|hello)[,!\s]*$/i.test(line));
-	text = kept.join(' ').replace(/\s{2,}/g, ' ').trim();
-	if (text.length > 600) text = text.slice(0, 600).trim();
+		.filter(
+			(line) =>
+				line.length > 0 &&
+				!bannedLine.test(line) &&
+				!METADATA_LINE.test(line) &&
+				!/^(hi|hey|hello)[,!\s]*$/i.test(line)
+		);
+	text = kept
+		.join(' ')
+		.replace(/\s*[—–]\s*/g, ', ')
+		.replace(/,\s*,+/g, ',')
+		.replace(/\s{2,}/g, ' ')
+		.trim();
+	if (text.length > 350) text = text.slice(0, 350).trim();
 	return text;
 }
 
@@ -136,11 +195,14 @@ function looksLikeBrokenModelOpening(opening: string): boolean {
 	const combined = opening.toLowerCase();
 	if (
 		combined.includes('"openinghook"') ||
+		combined.includes('"subjectline"') ||
 		combined.includes('"bodyintro"') ||
 		combined.includes('return only a single json object')
 	) {
 		return true;
 	}
+	if (/\btitle\s*:/i.test(opening) || /\bsubject\s*line\s*:/i.test(opening)) return true;
+	if (/^\s*[{[]/.test(opening)) return true;
 	const braceCount = (combined.match(/[{}]/g) ?? []).length;
 	if (braceCount >= 2) return true;
 	return false;
@@ -223,21 +285,23 @@ export async function generateEmailCopy(
 		if (typeof parsed !== 'object' || parsed === null) {
 			return { copy: null, promptSource: resolved.source, error: 'Gemini response was not a JSON object' };
 		}
-		let { openingHook } = normalizeEmailCopyShape(parsed);
+		const normalized = normalizeEmailCopyShape(parsed);
+		let openingHook = normalized.openingHook;
+		const subjectLine = sanitizeSubjectLine(normalized.subjectLine);
 		if (!openingHook?.trim()) {
 			const plainTextParsed = parsePlainTextEmailCopy(text);
 			if (plainTextParsed.openingHook) openingHook = plainTextParsed.openingHook;
 		}
 		if (typeof openingHook !== 'string' || !openingHook.trim()) {
-			return { copy: {}, promptSource: resolved.source };
+			return { copy: { subjectLine: subjectLine || undefined }, promptSource: resolved.source };
 		}
 		let clean = sanitizeOpeningHook(openingHook);
 		if (!clean || looksLikeBrokenModelOpening(clean)) {
-			return { copy: {}, promptSource: resolved.source };
+			return { copy: { subjectLine: subjectLine || undefined }, promptSource: resolved.source };
 		}
 
 		return {
-			copy: { openingHook: clean },
+			copy: { openingHook: clean, subjectLine: subjectLine || undefined },
 			promptSource: resolved.source
 		};
 	} catch (e) {
