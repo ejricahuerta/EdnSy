@@ -43,18 +43,19 @@ export const definitionBlocks = {
 
 /** Homepage hero: eyebrow first, H1 carries the time message, headline supports conversion */
 export const hero = {
-  eyebrow: "Toronto AI Agency",
+  eyebrow: "The local growth engine",
   h1: "We give your time back",
   headline: "We give your time back",
   subhead:
-    "Toronto service businesses: answer every call, kill the admin pile, and stop losing leads to slow follow-up.",
-  ctaPrimary: "Book a free call →",
-  ctaSecondary: "See a real result ↓",
+    "We automate the repetitive parts of your business so you can focus on the work only you can do — serving clients and growing revenue.",
+  ctaPrimary: "Free strategy audit",
+  ctaSecondary: "View solutions",
   tagline: "",
 } as const;
 
 /** Homepage: directly under hero. Replace quote when OhMyGlass owner approves final wording. */
 export const homeFeaturedTestimonial = {
+  projectLabel: "Project: OhMyGlass",
   quote:
     "We were so happy with the results that we wanted to take things to the next level. We are now expanding the partnership to include a long-term SEO strategy and Voice AI.",
   attributionName: "OhMyGlass",
@@ -65,10 +66,19 @@ export const homeFeaturedTestimonial = {
 export const caseStudyPreviewOhMyGlass = {
   clientName: "OhMyGlass",
   clientSubtitle: "Toronto Window Glass Repair",
+  eyebrow: "Case study",
   href: "/case-studies/website-seo-toronto-window-glass-repair",
   clientSiteHref: "https://ohmyglass.ca",
   logoSrc: "/images/case-studies/ohmyglass-logo.png",
-  cta: "Read the full case study",
+  cta: "Read the case study",
+  leadStat: {
+    value: "Recovered",
+    label: "Site + rankings",
+  },
+  secondaryStat: {
+    value: "Stronger",
+    label: "Local visibility",
+  },
   rows: [
     {
       before: "Site hacked — gambling & crypto spam in blog",
@@ -161,6 +171,21 @@ export const valueProposition = {
   body: "We're your Toronto tech implementation partner. We help service businesses in the GTA and across Ontario with Voice AI, business automation, websites & SEO, so you automate operations, capture more leads, and scale.",
 } as const;
 
+/** Homepage about band (Stitch). */
+export const homeAboutHeading = {
+  eyebrow: "Team",
+  headline: "Meet Ed & Sy",
+} as const;
+
+export const homeAboutLead =
+  "We're a two-person Toronto team with a background in serious systems work — now focused on local service businesses that need revenue engines, not slide decks.";
+
+export const homeAboutSecondary =
+  "When you work with us, you talk to Ed and Sy. We design, build, and tune Voice AI, automation, and web so your phones, inbox, and calendar actually move the business forward.";
+
+export const homeAboutStoryHref = "/about";
+export const homeAboutStoryLabel = "Our story →";
+
 /** Intro copy for the problems we solve section (homepage). */
 export const problemsWeSolveIntro =
   "Manual follow-up, missed calls, and disconnected tools create hidden work. We replace the busywork with systems that answer faster, route better, and keep your team focused.";
@@ -224,8 +249,24 @@ export const homeKpiSection = {
   ],
 } as const;
 
+/** Homepage stats strip (Stitch layout): four bold metrics, lavender band — honest positioning. */
+export const homeStatsBar = {
+  kpis: [
+    { value: "2", label: "Founders on your account", shortLabel: "Founders" },
+    { value: "24/7", label: "Stack availability", shortLabel: "Availability" },
+    { value: "0", label: "Account-manager handoffs", shortLabel: "Handoffs" },
+    { value: "100%", label: "Toronto-based team", shortLabel: "Toronto" },
+  ],
+} as const;
+
+/** Homepage services section heading (Stitch). */
+export const homeServicesHeading = {
+  eyebrow: "What we do",
+  headline: "Architectural solutions for growth.",
+} as const;
+
 export const servicesIntro =
-  "Three solutions. One leaky bucket fixed.";
+  "Three integrated systems — automation, voice, and web — designed to plug into how your business already runs.";
 
 /** Tools we integrate with (API-based; no licensed/compliance-heavy platforms). */
 export const integrationsList = [
@@ -277,7 +318,7 @@ export const integrations = [
 /** Voice AI call number (shown in Voice AI service card on homepage) */
 export const voiceAiPhoneNumber = "+12895135055";
 
-/** Core service pages (money pages): hrefs match SEO doc URLs */
+/** Core service pages (money pages): hrefs match SEO doc URLs. Order: automation, Voice AI (featured), website. */
 export const services = [
   {
     id: "workflow-automation",
@@ -288,32 +329,32 @@ export const services = [
     description:
       "We map your workflows and automate the parts that don't need you, like invoicing, onboarding, follow-up sequences, and CRM updates. Clients save 15–20 hours per week on average. We build around your actual tools, not a generic template.",
     bullets: [
-      "Invoice processing",
-      "Client onboarding",
-      "Follow-up sequences",
       "CRM integration",
+      "Automated invoicing",
+      "Lead qualification",
+      "Follow-up sequences",
       "Smart routing",
       "AI summaries",
     ],
-    cta: "Automate your business →",
-    popular: true,
+    cta: "Learn more →",
+    popular: false,
   },
   {
     id: "voice-ai",
     slug: "voice-ai",
     href: "/voice-ai-for-business",
     tagline: "Never miss a call",
-    title: "Voice AI",
+    title: "Voice AI Agents",
     description:
       "An AI phone agent that answers 24/7, qualifies callers, and books directly into your calendar. Sounds natural. Works at midnight on a Sunday.",
     bullets: [
-      "24/7 answering",
-      "Lead qualification",
-      "Calendar booking",
+      "24/7 phone answering",
+      "Instant appointment booking",
+      "Natural voice synthesis",
       "Call summaries",
     ],
-    cta: "Get Voice AI →",
-    popular: false,
+    cta: "Book a demo →",
+    popular: true,
   },
   {
     id: "website-seo",
@@ -323,14 +364,25 @@ export const services = [
     title: "Website & SEO",
     description:
       "A fast, conversion-focused site built to rank in Toronto and the GTA. We use AI to ship in days, not months of back-and-forth.",
-    bullets: ["Local SEO", "Lead capture", "Fast launch", "Real code"],
-    cta: "Get a website →",
+    bullets: [
+      "Conversion optimization",
+      "Local SEO authority",
+      "Content strategy",
+      "Fast launch",
+    ],
+    cta: "View portfolio →",
     popular: false,
   },
 ] as const;
 
 export const industriesIntro =
   "If your business runs on appointments, inbound calls, and client relationships, we automate the parts that slow you down.";
+
+/** Homepage industries band (Stitch). */
+export const homeIndustriesHeading = {
+  eyebrow: "Markets",
+  headline: "Industries we accelerate.",
+} as const;
 
 /** Industries index page hero (reflects all 3 services: Voice AI, Business Automation, Website & SEO). */
 export const industriesPageHero = {
@@ -399,8 +451,9 @@ export const industries = [
 ] as const;
 
 export const processIntro =
-  "No 6-month projects. No bloated scopes. Toronto businesses can't afford to wait, and we don't make them.";
+  "No six-month decks. We audit, deploy, and iterate with you — so local authority and revenue systems compound.";
 
+/** Full journey (e.g. /process page). */
 export const processSteps = [
   {
     step: "01",
@@ -428,6 +481,28 @@ export const processSteps = [
   },
 ] as const;
 
+/** Homepage process column (Stitch mock): three steps. */
+export const processStepsHome = [
+  {
+    step: "01",
+    title: "Strategic audit",
+    description:
+      "We map leaks in calls, follow-up, and admin — then prioritize what moves revenue first.",
+  },
+  {
+    step: "02",
+    title: "Systems deployment",
+    description:
+      "Voice AI, automation, and web go live in tight phases. You approve each layer before we scale it.",
+  },
+  {
+    step: "03",
+    title: "Continuous growth",
+    description:
+      "Direct access to Ed and Sy for tuning, new workflows, and SEO — the stack keeps improving after launch.",
+  },
+] as const;
+
 export const processStats = [
   { label: "Strategy Call", value: "Free" },
   { label: "Pricing", value: "Custom" },
@@ -446,7 +521,13 @@ export const caseStudies = [
   },
 ] as const;
 
-export const faqIntro = "Questions before every first call.";
+export const faqIntro = "Common questions";
+
+/** Homepage FAQ section title (Stitch). */
+export const homeFaqHeading = {
+  eyebrow: "FAQ",
+  headline: "Common questions",
+} as const;
 
 export const faqItems = [
   {
@@ -488,10 +569,10 @@ export const faqItems = [
 ] as const;
 
 export const ctaBlock = {
-  headline: "Stop losing leads to voicemail.",
+  headline: "Stop losing leads to your competition.",
   subhead:
-    "Book a free 30-minute strategy call. We'll show you exactly where your business is losing time and money, and what to do about it.",
-  button: "Book free strategy call →",
+    "Book a free strategy session. We'll map where time and leads leak — and what to automate first.",
+  button: "Book your free trial →",
   note: "No commitment • 30-minute call • Custom roadmap • Toronto-based team",
 } as const;
 

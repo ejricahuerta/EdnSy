@@ -1,0 +1,17 @@
+{
+  "title": "SMB Platform Redesign",
+  "projectId": "7766973722114657998",
+  "projectResourceName": "projects/7766973722114657998",
+  "primaryHomeScreen": {
+    "label": "Ed & Sy - Home Redesign",
+    "screenId": "cdfeeba1773c42e3a3bd2e3cab2af18f",
+    "resourceName": "projects/7766973722114657998/screens/cdfeeba1773c42e3a3bd2e3cab2af18f"
+  },
+  "referenceHomeScreen": {
+    "label": "EDNSY - Home Redesign",
+    "screenId": "f436c9d779c94f24bfa99e4e03ff897f",
+    "resourceName": "projects/7766973722114657998/screens/f436c9d779c94f24bfa99e4e03ff897f"
+  },
+  "designSystemUiStubId": "asset-stub-assets-d733b72e56024fafb2c4bcef094388e9-1775414505065",
+  "notes": "Design system payload comes from list_design_systems MCP, not get_screen. Match stub to assets/{id} in that response when possible."
+}

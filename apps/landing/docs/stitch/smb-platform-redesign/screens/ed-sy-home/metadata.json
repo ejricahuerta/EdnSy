@@ -1,0 +1,9 @@
+{
+  "title": "Ed & Sy - Home Redesign",
+  "projectId": "7766973722114657998",
+  "screenId": "cdfeeba1773c42e3a3bd2e3cab2af18f",
+  "resourceName": "projects/7766973722114657998/screens/cdfeeba1773c42e3a3bd2e3cab2af18f",
+  "primaryLayoutSource": true,
+  "expectedFiles": ["screen.html", "screenshot.png"],
+  "populateVia": "Stitch get_screen → stitch-urls.json → pnpm stitch:download"
+}

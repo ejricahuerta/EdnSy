@@ -40,8 +40,8 @@
   const websiteService = coreServices.find((s) => s.slug === "website-seo")!;
 
   const serviceNavItems = [
-    { slug: voiceService.slug, href: voiceService.href, title: voiceService.title },
     { slug: automationService.slug, href: automationService.href, title: automationService.title },
+    { slug: voiceService.slug, href: voiceService.href, title: voiceService.title },
     { slug: websiteService.slug, href: websiteService.href, title: websiteService.title },
   ] as const;
 
@@ -128,7 +128,7 @@
       : 'border-b border-transparent bg-slate-950/92 shadow-sm shadow-black/10'}"
 >
   <div
-    class="max-w-6xl mx-auto flex items-center justify-between gap-3 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 min-h-[56px] sm:min-h-[60px]"
+    class="max-w-7xl mx-auto flex items-center justify-between gap-3 px-4 sm:px-6 lg:px-10 py-3 sm:py-4 min-h-[56px] sm:min-h-[60px]"
   >
     <a
       href="/"
@@ -279,7 +279,7 @@
         data-cal-namespace="enable-ai"
         data-cal-config={JSON.stringify({ layout: "month_view" })}
       >
-        Book a Call
+        Get Started
       </a>
       <button
         type="button"

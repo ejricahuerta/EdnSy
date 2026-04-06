@@ -1,6 +1,8 @@
 <script>
+  /** @type {import('svelte').Component} */
   export let icon;
   export let title;
+  /** @type {string[]} */
   export let items = [];
 </script>
 
