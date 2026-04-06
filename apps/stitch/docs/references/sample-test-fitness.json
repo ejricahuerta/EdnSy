@@ -1,0 +1,92 @@
+{
+  "business": {
+    "name": "Apex Movement Lab",
+    "tagline": "Strength, mobility, and coaching that fits real schedules.",
+    "description": "Boutique training studio combining small-group classes, personal training, and recovery tools for busy professionals.",
+    "phone": "(416) 555-0198",
+    "email": "train@apexmovementlab.ca",
+    "address": "440 King St W, Toronto, ON M5V 1K4",
+    "coordinates": { "lat": 43.6455, "lng": -79.3954 },
+    "hours": {
+      "Monday": "6am–9pm",
+      "Tuesday": "6am–9pm",
+      "Wednesday": "6am–9pm",
+      "Thursday": "6am–9pm",
+      "Friday": "6am–8pm",
+      "Saturday": "8am–4pm",
+      "Sunday": "9am–2pm"
+    },
+    "social": {
+      "instagram": "https://instagram.com/apexmovementlab"
+    }
+  },
+  "hero": {
+    "headline": "Train smarter. Move better.",
+    "subheadline": "Coached sessions, structured programs, and a supportive crew—no intimidation, no guesswork.",
+    "cta": { "label": "Book a free intro", "href": "#contact" },
+    "backgroundStyle": "image"
+  },
+  "images": {
+    "hero": "/images/fitness/hero.jpg",
+    "about": "/images/fitness/about.jpg",
+    "unsplashKeywords": ["gym", "personal training", "kettlebell", "stretching", "fitness studio"]
+  },
+  "services": [
+    {
+      "name": "Small-group strength",
+      "description": "Progressive 45-minute blocks capped at eight athletes per coach.",
+      "price": "From $39 / session"
+    },
+    {
+      "name": "1:1 coaching",
+      "description": "Custom programming, form checks, and accountability for specific goals.",
+      "price": "From $95 / hour"
+    },
+    {
+      "name": "Mobility & recovery",
+      "description": "Guided sessions with bands, rollers, and breath work to complement lifting.",
+      "price": "Included in membership"
+    }
+  ],
+  "about": {
+    "headline": "Built for consistency",
+    "body": "We program in four-week waves, track loads in app, and adjust when life gets hectic—so you keep showing up.",
+    "values": ["Coaching", "Safety", "Progress", "Community"]
+  },
+  "stats": [
+    { "value": "850+", "label": "Active members" },
+    { "value": "4.9", "label": "Average rating ★" },
+    { "value": "6", "label": "Certified coaches" },
+    { "value": "24/7", "label": "Member keycard access" }
+  ],
+  "gallery": [],
+  "testimonials": [
+    {
+      "author": "Elena V.",
+      "quote": "Finally a gym where coaches actually teach instead of leaving you on the machines.",
+      "rating": 5
+    },
+    {
+      "author": "Jordan P.",
+      "quote": "My back pain is down and my deadlift is up. Programming is thoughtful.",
+      "rating": 5
+    }
+  ],
+  "contact": {
+    "headline": "Start with a free intro",
+    "showForm": true,
+    "showMap": true,
+    "mapEmbed": null,
+    "googleMapsApiKey": null
+  },
+  "theme": {
+    "style": "bold athletic",
+    "primaryColor": "#0B0F14",
+    "accentColor": "#F97316"
+  },
+  "seo": {
+    "title": "Apex Movement Lab | Small-Group Training Toronto King West",
+    "description": "Boutique strength and mobility studio in Toronto. Small-group classes, personal training, intro session free.",
+    "keywords": ["Toronto gym", "personal training King West", "small group fitness", "strength coaching"]
+  }
+}

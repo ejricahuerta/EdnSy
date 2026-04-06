@@ -1,0 +1,92 @@
+{
+  "business": {
+    "name": "Harbor & Ellis LLP",
+    "tagline": "Practical counsel for growing companies and founders.",
+    "description": "Business law firm focused on contracts, employment, and commercial disputes for technology and professional services clients.",
+    "phone": "(902) 555-0161",
+    "email": "intake@harborellis.ca",
+    "address": "1801 Hollis St, Halifax, NS B3J 3G4",
+    "coordinates": { "lat": 44.6488, "lng": -63.5752 },
+    "hours": {
+      "Monday": "9am–5pm",
+      "Tuesday": "9am–5pm",
+      "Wednesday": "9am–5pm",
+      "Thursday": "9am–5pm",
+      "Friday": "9am–4pm",
+      "Saturday": "Closed",
+      "Sunday": "Closed"
+    },
+    "social": {
+      "linkedin": "https://linkedin.com/company/harborellis"
+    }
+  },
+  "hero": {
+    "headline": "Legal clarity for your next chapter.",
+    "subheadline": "From founder agreements to scaling teams—we help you move fast without blind spots.",
+    "cta": { "label": "Schedule a consult", "href": "#contact" },
+    "backgroundStyle": "gradient"
+  },
+  "images": {
+    "hero": "/images/legal/hero.jpg",
+    "about": "/images/legal/about.jpg",
+    "unsplashKeywords": ["law office", "contract review", "business meeting", "Halifax waterfront"]
+  },
+  "services": [
+    {
+      "name": "Corporate & commercial",
+      "description": "Incorporations, shareholder agreements, M&A support, and vendor contracts.",
+      "price": "Fixed-fee packages available"
+    },
+    {
+      "name": "Employment",
+      "description": "Offer letters, policies, terminations, and contractor classification reviews.",
+      "price": "From $450 / matter"
+    },
+    {
+      "name": "Disputes",
+      "description": "Negotiation, mediation prep, and litigation oversight when matters escalate.",
+      "price": "Hourly + litigation budget map"
+    }
+  ],
+  "about": {
+    "headline": "Straight answers, plain language",
+    "body": "We pair senior judgment with responsive timelines. You get a named partner, clear scopes, and invoices that match the plan.",
+    "values": ["Integrity", "Clarity", "Efficiency", "Partnership"]
+  },
+  "stats": [
+    { "value": "18", "label": "Years combined experience" },
+    { "value": "200+", "label": "Active retainer clients" },
+    { "value": "48h", "label": "Typical first response" },
+    { "value": "5", "label": "Lawyers on roster" }
+  ],
+  "gallery": [],
+  "testimonials": [
+    {
+      "author": "Samira K., CEO",
+      "quote": "They turned our messy vendor paper into a template library we reuse every quarter.",
+      "rating": 5
+    },
+    {
+      "author": "Tom W., COO",
+      "quote": "Employment issue handled quietly and quickly. Exactly what we needed.",
+      "rating": 5
+    }
+  ],
+  "contact": {
+    "headline": "Book a consult",
+    "showForm": true,
+    "showMap": true,
+    "mapEmbed": null,
+    "googleMapsApiKey": null
+  },
+  "theme": {
+    "style": "refined professional",
+    "primaryColor": "#1B365D",
+    "accentColor": "#C6A664"
+  },
+  "seo": {
+    "title": "Harbor & Ellis LLP | Business Law Halifax",
+    "description": "Halifax business law firm: corporate, employment, and disputes. Practical advice for founders and growing teams.",
+    "keywords": ["Halifax business lawyer", "corporate law Nova Scotia", "employment lawyer Halifax", "contracts"]
+  }
+}
