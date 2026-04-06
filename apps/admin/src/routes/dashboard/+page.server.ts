@@ -272,7 +272,7 @@ export const actions: Actions = {
 		if (enqueued === 0 && errors.length > 0) {
 			return fail(502, { message: errors.slice(0, 3).join('; ') });
 		}
-		// Kick cron so jobs start processing (uses industry mapping in processDemoJob for correct endpoint e.g. dental → /api/dental-async)
+		// Kick cron so jobs start processing (processDemoJob POSTs to DEMO_GENERATOR_URL + DEMO_GENERATOR_ASYNC_PATH, default /api/create-async)
 		const cronSecret = (env.CRON_SECRET ?? '').trim();
 		if (origin && cronSecret && enqueued > 0) {
 			fetch(`${origin.replace(/\/$/, '')}/api/cron/jobs/demo`, {

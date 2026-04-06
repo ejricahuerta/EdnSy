@@ -1,0 +1,92 @@
+{
+  "business": {
+    "name": "Riverside Roastery",
+    "tagline": "Small-batch coffee, house-made pastries, and a patio steps from the water.",
+    "description": "Independent cafe focused on ethically sourced beans, seasonal menus, and a calm place to work or catch up with friends.",
+    "phone": "(604) 555-0142",
+    "email": "hello@riversideroastery.ca",
+    "address": "218 Harbor Walk, Vancouver, BC V6C 0A1",
+    "coordinates": { "lat": 49.2869, "lng": -123.1115 },
+    "hours": {
+      "Monday": "7am–6pm",
+      "Tuesday": "7am–6pm",
+      "Wednesday": "7am–6pm",
+      "Thursday": "7am–6pm",
+      "Friday": "7am–8pm",
+      "Saturday": "8am–8pm",
+      "Sunday": "8am–5pm"
+    },
+    "social": {
+      "instagram": "https://instagram.com/riversideroastery"
+    }
+  },
+  "hero": {
+    "headline": "Coffee roasted here. Served with care.",
+    "subheadline": "Espresso, pour-over, and brunch favorites overlooking the inlet.",
+    "cta": { "label": "View menu", "href": "#contact" },
+    "backgroundStyle": "image"
+  },
+  "images": {
+    "hero": "/images/cafe/hero.jpg",
+    "about": "/images/cafe/about.jpg",
+    "unsplashKeywords": ["coffee shop", "latte art", "cafe interior", "pastries", "espresso bar"]
+  },
+  "services": [
+    {
+      "name": "Espresso bar",
+      "description": "Classic drinks, seasonal signatures, and oat or dairy milk options.",
+      "price": "From $3.50"
+    },
+    {
+      "name": "Brunch",
+      "description": "Avocado toast, breakfast sandwiches, and weekend specials until 2pm.",
+      "price": "From $12"
+    },
+    {
+      "name": "Beans to go",
+      "description": "Whole-bean retail bags from our weekly roast schedule.",
+      "price": "From $18 / 340g"
+    }
+  ],
+  "about": {
+    "headline": "Why we roast in-house",
+    "body": "We source direct-trade lots, roast in small batches, and dial recipes daily so every cup tastes intentional—not generic.",
+    "values": ["Quality", "Community", "Sustainability", "Hospitality"]
+  },
+  "stats": [
+    { "value": "12", "label": "Origins on rotation" },
+    { "value": "4.8", "label": "Google rating ★" },
+    { "value": "2016", "label": "Opened" },
+    { "value": "100%", "label": "Compostable to-go cups" }
+  ],
+  "gallery": [],
+  "testimonials": [
+    {
+      "author": "Priya N.",
+      "quote": "Best cortado in the neighborhood. Staff remembers my order.",
+      "rating": 5
+    },
+    {
+      "author": "Marcus T.",
+      "quote": "Quiet enough to work, great natural light, solid Wi‑Fi.",
+      "rating": 5
+    }
+  ],
+  "contact": {
+    "headline": "Visit or cater your office",
+    "showForm": true,
+    "showMap": true,
+    "mapEmbed": null,
+    "googleMapsApiKey": null
+  },
+  "theme": {
+    "style": "warm minimal",
+    "primaryColor": "#3E2723",
+    "accentColor": "#D4A574"
+  },
+  "seo": {
+    "title": "Riverside Roastery | Coffee & Brunch Vancouver Waterfront",
+    "description": "Independent waterfront cafe with in-house roasting, brunch, and espresso bar. Open seven days.",
+    "keywords": ["Vancouver coffee", "waterfront cafe", "brunch Vancouver", "specialty coffee"]
+  }
+}

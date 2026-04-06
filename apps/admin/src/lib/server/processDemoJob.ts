@@ -25,9 +25,10 @@ import {
 } from '$lib/industries';
 import { PROSPECT_STATUS } from '$lib/prospectStatus';
 
-/** Website template dental render (single product scope). */
+/** Async demo generator path (Stitch default: `/api/create-async`; classic website-template: `/api/dental-async`). */
 function getDemoGeneratorEndpoint(_industrySlug: IndustrySlug): string {
-	return '/api/dental-async';
+	const raw = (env.DEMO_GENERATOR_ASYNC_PATH ?? '/api/create-async').trim();
+	return raw.startsWith('/') ? raw : `/${raw}`;
 }
 
 /** Prefer dental when resolving multi-value industry (compat). */

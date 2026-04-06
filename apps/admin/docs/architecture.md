@@ -66,7 +66,7 @@ The app is built around these functional areas. Each has a clear responsibility 
 
 - **Queue:** `demo_jobs` rows processed by **`processOneDemoJob`** in `$lib/server/processDemoJob.ts` (invoked from **`POST /api/jobs/demo`** and cron **`GET /api/cron/jobs/demo`**).
 - **Requirement:** Env **`DEMO_GENERATOR_URL`**, **`DEMO_GENERATOR_API_KEY`**, **`DEMO_CALLBACK_SECRET`**. If any are missing, paid jobs fail fast with a clear error (no in-process HTML substitute).
-- **HTTP:** Admin POSTs to **`{DEMO_GENERATOR_URL}/api/dental-async`** (see `getDemoGeneratorEndpoint` in `processDemoJob.ts`; industry-specific routing to `/api/generate-async` may be added later).
+- **HTTP:** Admin POSTs to **`{DEMO_GENERATOR_URL}{DEMO_GENERATOR_ASYNC_PATH}`** (default **`/api/create-async`** for Stitch; set **`DEMO_GENERATOR_ASYNC_PATH=/api/dental-async`** for the classic Website Template service). See `getDemoGeneratorEndpoint` in `processDemoJob.ts`.
 - **Callback:** Website Template POSTs to **`/api/demo/generation-callback`** with **`Authorization: Bearer <DEMO_CALLBACK_SECRET>`**; Admin updates prospect demo link, storage, and job status.
 
 Free-tier and some inline flows may use **Claude** HTML generation in-app (`$lib/server` demo helpers) without the external service; see README and PRD for env matrix.
