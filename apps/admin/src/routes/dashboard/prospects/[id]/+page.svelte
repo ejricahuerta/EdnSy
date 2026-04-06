@@ -31,6 +31,7 @@
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Label } from '$lib/components/ui/label';
 	import { Input } from '$lib/components/ui/input';
+	import { Textarea } from '$lib/components/ui/textarea';
 	import * as Select from '$lib/components/ui/select';
 	import { cn } from '$lib/utils';
 	import { normalizeExternalHref } from '$lib/externalUrl';
@@ -102,6 +103,8 @@
 	let previewLoading = $state(false);
 	let previewError = $state('');
 	let previewFormEl = $state<HTMLFormElement | null>(null);
+	/** Outreach dialog: switch between raw HTML and rendered preview */
+	let outreachBodyView = $state<'source' | 'preview'>('source');
 	let creatingDraft = $state(false);
 	let sendingDraft = $state(false);
 	let sendDraftConfirmOpen = $state(false);
@@ -128,6 +131,7 @@
 
 	async function openOutreachDialog(kind: 'demo' | 'alternate') {
 		currentOutreachKind = kind;
+		outreachBodyView = 'source';
 		previewSubject = '';
 		previewHtml = '';
 		previewTo = '';
@@ -879,14 +883,18 @@
 	</header>
 
 	<Dialog.Root bind:open={outreachDialogOpen}>
-		<Dialog.Content class="max-w-3xl max-h-[90vh] flex flex-col gap-0 sm:max-w-3xl">
-			<Dialog.Header>
+		<Dialog.Content
+			class="max-w-[calc(100vw-2rem)] max-h-[min(90dvh,900px)] w-[min(100%,48rem)] flex min-h-0 flex-col gap-0 sm:max-w-3xl"
+		>
+			<Dialog.Header class="shrink-0 pr-6">
 				<Dialog.Title>Review outreach email</Dialog.Title>
 				<Dialog.Description>
-					Preview the message, then create a draft in your Gmail. Reconnect Gmail in Integrations if draft creation fails (OAuth needs gmail.compose).
+					Edit the subject and body if you want; use Preview to see how it renders. Then create a draft in your Gmail. Reconnect Gmail in Integrations if draft creation fails (OAuth needs gmail.compose).
 				</Dialog.Description>
 			</Dialog.Header>
-			<div class="min-h-0 flex flex-col gap-3 py-2 overflow-hidden">
+			<div
+				class="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto overflow-x-hidden overscroll-contain pt-2 [scrollbar-gutter:stable]"
+			>
 				{#if previewLoading}
 					<div class="flex items-center gap-2 text-sm text-muted-foreground py-8 justify-center">
 						<LoaderCircle class="size-5 animate-spin" aria-hidden="true" />
@@ -895,23 +903,77 @@
 				{:else if previewError}
 					<p class="text-sm text-destructive">{previewError}</p>
 				{:else if previewHtml}
-					<div class="space-y-2 text-sm shrink-0">
-						<p><span class="text-muted-foreground">To:</span> {previewTo}</p>
-						<p><span class="text-muted-foreground">Subject:</span> {previewSubject}</p>
+					<p class="text-sm shrink-0">
+						<span class="text-muted-foreground">To:</span>
+						{previewTo}
+					</p>
+					<div class="space-y-2 shrink-0">
+						<Label for="outreach-subject-{prospect.id}">Subject</Label>
+						<Input
+							id="outreach-subject-{prospect.id}"
+							name="outreachSubject"
+							form={createGmailDraftFormId}
+							bind:value={previewSubject}
+							autocomplete="off"
+							class="w-full"
+						/>
 					</div>
-					<div class="border rounded-md min-h-[200px] max-h-[50vh] overflow-auto bg-muted/30">
-						<iframe
-							class="w-full min-h-[240px] border-0 bg-background"
-							title="Email preview"
-							srcdoc={previewHtml}
-							sandbox="allow-same-origin"
-						></iframe>
+					<div class="flex min-h-0 flex-col gap-2">
+						<div class="flex shrink-0 items-center justify-between gap-3">
+							<Label for="outreach-html-{prospect.id}" class="mb-0">Body</Label>
+							<div
+								class="inline-flex shrink-0 rounded-md border bg-muted/40 p-0.5"
+								role="group"
+								aria-label="Body source or preview"
+							>
+								<Button
+									type="button"
+									size="sm"
+									variant={outreachBodyView === 'source' ? 'secondary' : 'ghost'}
+									class="h-7 rounded-sm px-2.5 text-xs"
+									aria-pressed={outreachBodyView === 'source'}
+									onclick={() => (outreachBodyView = 'source')}
+								>
+									Source
+								</Button>
+								<Button
+									type="button"
+									size="sm"
+									variant={outreachBodyView === 'preview' ? 'secondary' : 'ghost'}
+									class="h-7 rounded-sm px-2.5 text-xs"
+									aria-pressed={outreachBodyView === 'preview'}
+									onclick={() => (outreachBodyView = 'preview')}
+								>
+									Preview
+								</Button>
+							</div>
+						</div>
+						<div class="pb-4">
+							{#if outreachBodyView === 'source'}
+								<Textarea
+									id="outreach-html-{prospect.id}"
+									name="outreachHtml"
+									form={createGmailDraftFormId}
+									bind:value={previewHtml}
+									class="field-sizing-fixed box-border w-full min-h-[12rem] max-h-[min(42dvh,20rem)] font-mono text-xs leading-relaxed sm:min-h-[14rem] sm:max-h-[min(48dvh,24rem)] sm:text-sm md:max-h-[min(52dvh,28rem)] pb-4"
+									spellcheck={false}
+								/>
+							{:else}
+								<input type="hidden" name="outreachHtml" form={createGmailDraftFormId} value={previewHtml} />
+								<iframe
+									class="box-border block w-full min-h-[12rem] max-h-[min(42dvh,20rem)] rounded-md border border-border bg-background sm:min-h-[14rem] sm:max-h-[min(48dvh,24rem)] md:max-h-[min(52dvh,28rem)]"
+									title="Email preview"
+									srcdoc={previewHtml}
+									sandbox="allow-same-origin"
+								></iframe>
+							{/if}
+						</div>
 					</div>
 				{:else}
 					<p class="text-sm text-muted-foreground py-4">Open this dialog again to load a preview.</p>
 				{/if}
 			</div>
-			<Dialog.Footer class="gap-2 sm:gap-2 flex-col sm:flex-row sm:justify-end">
+			<Dialog.Footer class="shrink-0 gap-2 sm:gap-2 flex-col sm:flex-row sm:justify-end">
 				<Button type="button" variant="outline" onclick={() => (outreachDialogOpen = false)}>Cancel</Button>
 				{#if !gmailConnected}
 					<Button href={integrationsGmailHref}>
@@ -950,7 +1012,12 @@
 						<input type="hidden" name="outreachKind" value={currentOutreachKind} />
 						<Button
 							type="submit"
-							disabled={creatingDraft || previewLoading || !!previewError || !previewHtml || !canSend}
+							disabled={creatingDraft ||
+								previewLoading ||
+								!!previewError ||
+								!previewHtml ||
+								!previewSubject.trim() ||
+								!canSend}
 						>
 							{#if creatingDraft}<LoaderCircle class="size-4 mr-2 animate-spin" aria-hidden="true" />{/if}
 							{creatingDraft ? 'Creating…' : 'Create draft in Gmail'}

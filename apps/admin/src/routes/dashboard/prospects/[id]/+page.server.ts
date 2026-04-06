@@ -32,7 +32,8 @@ import { deleteProspect, updateProspectContact } from '$lib/server/prospects';
 import { prepareCrmOutreachEmail, type CrmOutreachKind } from '$lib/server/crmOutreachEmail';
 import {
 	executeCreateGmailOutreachDraft,
-	executeSendGmailOutreachDraft
+	executeSendGmailOutreachDraft,
+	parseOutreachDraftOverridesFromForm
 } from '$lib/server/crmOutreachGmail';
 import { DEV_OUTBOUND_EMAIL } from '$lib/constants';
 
@@ -374,6 +375,12 @@ export const actions: Actions = {
 			return fail(400, { message: 'No email to send to.' });
 		}
 
+		const overridesParsed = parseOutreachDraftOverridesFromForm(formData);
+		if (!overridesParsed.ok) {
+			return fail(400, { message: overridesParsed.error });
+		}
+		const draftOverrides = overridesParsed.overrides;
+
 		let sent = 0;
 		if (prospect.email?.trim()) {
 			const ex = await executeCreateGmailOutreachDraft({
@@ -383,7 +390,8 @@ export const actions: Actions = {
 				prospectId,
 				kind,
 				linkOrigin,
-				setDemoTrackingEmailDraft: kind === 'demo' && !!demoTracking
+				setDemoTrackingEmailDraft: kind === 'demo' && !!demoTracking,
+				...(draftOverrides ? { draftOverrides } : {})
 			});
 			if (!ex.ok) return fail(502, { message: ex.error });
 			sent++;

@@ -1,7 +1,7 @@
 import { env } from '$env/dynamic/private';
 import type { Prospect } from '$lib/server/prospects';
 import { getResolvedContent } from '$lib/server/agentContent';
-import { serverError } from '$lib/server/logger';
+import { serverError, serverInfo } from '$lib/server/logger';
 
 const GEMINI_API_KEY = env.GEMINI_API_KEY;
 const GEMINI_MODEL = 'gemini-2.5-flash';
@@ -87,6 +87,28 @@ function repairJsonNewlines(raw: string): string {
 	// If still inside a string (unterminated), close it and the object so parse can succeed
 	if (inString) result += '"}';
 	return result;
+}
+
+/**
+ * When JSON is truncated or malformed, try to pull subjectLine / openingHook with regex.
+ */
+function extractEmailCopyFieldsLoose(raw: string): { openingHook?: string; subjectLine?: string } {
+	const out: { openingHook?: string; subjectLine?: string } = {};
+	const pick = (key: 'subjectLine' | 'openingHook') => {
+		const re = new RegExp(`"${key}"\\s*:\\s*"((?:[^"\\\\]|\\\\.)*)`, 's');
+		const m = raw.match(re);
+		if (!m?.[1]) return;
+		const unescaped = m[1]
+			.replace(/\\n/g, '\n')
+			.replace(/\\r/g, '\r')
+			.replace(/\\"/g, '"')
+			.replace(/\\\\/g, '\\');
+		const t = unescaped.trim();
+		if (t) out[key] = t;
+	};
+	pick('subjectLine');
+	pick('openingHook');
+	return out;
 }
 
 /** Accept common field variants Gemini may return for the opening paragraph and subject line. */
@@ -243,7 +265,8 @@ export async function generateEmailCopy(
 			body: JSON.stringify({
 				contents: [{ role: 'user', parts: [{ text: prompt }] }],
 				generationConfig: {
-					maxOutputTokens: 512,
+					/** Short JSON; 1024 avoids rare MAX_TOKENS truncation mid-object ("Unexpected end of JSON input"). */
+					maxOutputTokens: 1024,
 					temperature: 0.7,
 					responseMimeType: 'application/json'
 				}
@@ -258,12 +281,26 @@ export async function generateEmailCopy(
 		}
 
 		const data = (await res.json()) as {
-			candidates?: { content?: { parts?: { text?: string }[] } }[];
+			candidates?: {
+				content?: { parts?: { text?: string }[] };
+				finishReason?: string;
+			}[];
 		};
-		const text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-		if (!text) return { copy: null, promptSource: resolved.source, error: 'Gemini returned empty content' };
+		const candidate0 = data.candidates?.[0];
+		const finishReason = candidate0?.finishReason;
+		const text = candidate0?.content?.parts?.[0]?.text?.trim();
+		if (!text) {
+			serverError('generateEmailCopy', 'Gemini empty content', {
+				finishReason: finishReason ?? 'unknown'
+			});
+			return { copy: null, promptSource: resolved.source, error: 'Gemini returned empty content' };
+		}
 
 		const raw = text.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
+		if (!raw) {
+			return { copy: null, promptSource: resolved.source, error: 'Gemini returned empty JSON text' };
+		}
+
 		let parsed: unknown;
 		try {
 			parsed = JSON.parse(raw);
@@ -272,11 +309,27 @@ export async function generateEmailCopy(
 			if (parseErr instanceof SyntaxError) {
 				try {
 					parsed = JSON.parse(repairJsonNewlines(raw));
-				} catch {
-					serverError('generateEmailCopy', 'JSON parse failed after repair', {
-						message: parseErr instanceof Error ? parseErr.message : String(parseErr)
-					});
-					return { copy: null, promptSource: resolved.source, error: 'Could not parse Gemini JSON response' };
+				} catch (parseErr2) {
+					const loose = extractEmailCopyFieldsLoose(raw);
+					if (loose.subjectLine || loose.openingHook) {
+						parsed = loose;
+						if (finishReason && finishReason !== 'STOP') {
+							serverInfo('generateEmailCopy', 'Used loose JSON extraction', {
+								finishReason,
+								hadSubject: !!loose.subjectLine,
+								hadHook: !!loose.openingHook
+							});
+						}
+					} else {
+						serverError('generateEmailCopy', 'JSON parse failed after repair', {
+							first: parseErr instanceof Error ? parseErr.message : String(parseErr),
+							second: parseErr2 instanceof Error ? parseErr2.message : String(parseErr2),
+							finishReason: finishReason ?? 'unknown',
+							rawLen: raw.length,
+							rawHead: raw.slice(0, 120)
+						});
+						return { copy: null, promptSource: resolved.source, error: 'Could not parse Gemini JSON response' };
+					}
 				}
 			} else {
 				throw parseErr;
