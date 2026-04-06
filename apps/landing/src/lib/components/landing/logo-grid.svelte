@@ -1,4 +1,5 @@
 <script>
+  /** @type {{ logo: string; name: string }[]} */
   export let logos = [];
 </script>
 

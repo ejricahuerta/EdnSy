@@ -1,0 +1,9 @@
+{
+  "title": "EDNSY - Home Redesign",
+  "projectId": "7766973722114657998",
+  "screenId": "f436c9d779c94f24bfa99e4e03ff897f",
+  "resourceName": "projects/7766973722114657998/screens/f436c9d779c94f24bfa99e4e03ff897f",
+  "primaryLayoutSource": false,
+  "expectedFiles": ["screen.html", "screenshot.png"],
+  "populateVia": "Stitch get_screen → stitch-urls.json → pnpm stitch:download"
+}

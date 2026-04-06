@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { enhance } from "$app/forms";
+  import { applyAction, enhance } from "$app/forms";
   import { page } from "$app/state";
   import { Button } from "$lib/components/ui/button";
   import { homeLeadQuiz, site } from "$lib/content/site";
@@ -104,8 +104,10 @@
         method="POST"
         action="?/leadLeak"
         class="mt-4 flex flex-1 flex-col gap-3"
-        use:enhance={() => {
-          return async ({ update }) => {
+        use:enhance={(submitInput) => {
+          submitInput.formData.set("problem", problemSummary);
+          return async ({ result, update }) => {
+            await applyAction(result);
             await update({ reset: false });
           };
         }}

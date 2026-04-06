@@ -6,5 +6,6 @@ export const exploreNavItems = [
   { href: "/about", label: "About" },
   { href: "/case-studies", label: "Case Studies" },
   { href: "/blog", label: "Blog" },
+  { href: "/#faq", label: "FAQ" },
   { href: "/contact", label: "Contact" },
 ] as const;
