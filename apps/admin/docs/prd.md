@@ -6,7 +6,7 @@
 **Last Updated:** April 2026
 **Changes from v0.1:** Positioning expanded, pricing restructured, data stack updated, bulletproofing measures added, distribution plan added, competitive landscape added.
 
-**Implementation snapshot (apps/admin, April 2026):** The SvelteKit app ships Google OAuth, Supabase-backed prospects and demo tracking, CRM integrations (HubSpot, GoHighLevel, Pipedrive, Notion), Stripe subscriptions (`getPlanForUser`), dashboard review queue with confidence scores, email/SMS template flows, insights and demo jobs (Places/Gemini/Claude paths per env), and billing portal. **CRM outreach (Clients):** Connecting Gmail grants send + compose + metadata scopes; approved demos create a **Gmail draft** first (preview modal on the prospect page), with **Send now** from the admin to call Gmail `drafts.send`. `demo_tracking` includes status `email_draft`; `demo_events` records `gmail_outreach_draft_created` and `gmail_outreach_sent`. **Default demo email** is intentionally short: subject line is **AI-generated** by Gemini (must add a hook beyond the name; weak opens like "idea for …" are rejected; business name restored to CRM title case; deterministic multi-template fallback per prospect, e.g. "quick reaction to {Company}'s site"), Gemini-generated 1–2 sentence industry-specific opener (override via Agents → Email copy prompt), fixed body with a single trackable “See the {company} prototype” link, soft close (“curious what you think”), open pixel + click tracking—no long feature bullet list. Free-try and transactional paths keep immediate `messages.send` where applicable. Industry-hosted demos are served under `/demo/[industrySlug]/[id]` (and related `/demo/[slug]` routes). Remaining gaps vs this PRD include CSV AI mapping (F2), guided onboarding (Section 5.4), deliverability checklist (F7), on-demand refresh (F6), and compliance items in Section 12 (Termly, signup checkbox, unsubscribe link polish). Task list: `apps/admin/tasks/tasks.json`.
+**Implementation snapshot (apps/admin, April 2026):** The SvelteKit app ships Google OAuth, Supabase-backed prospects and demo tracking, CRM integrations (HubSpot, GoHighLevel, Pipedrive, Notion), **Stripe** checkout, webhooks, customer portal, and plan resolution (`getPlanForUser`), dashboard review queue with confidence scores, copy-ready email/SMS templates, insights and demo jobs (Gemini + Claude / website-template async path per env), and billing UI. **GBP in production code** is fetched via **Google Places API** (stored in `scraped_data` / demo flow); legacy PRD references to DataForSEO describe an alternate or future stack, not the current primary fetcher. **Outbound email from the app** is **Gmail API only** (user connects Gmail in Integrations); Resend is not used for live sends. **Prospect outreach:** Connecting Gmail grants send + compose + metadata scopes; approved demos can create a **Gmail draft** first (preview on the prospect page), with **Send now** or **bulk send** calling Gmail `drafts.send`. `demo_tracking` includes status `email_draft`; `demo_events` records `gmail_outreach_draft_created`, `gmail_outreach_sent`, and `gmail_outreach_draft_expired`. **Default demo email** is intentionally short: subject line is **AI-generated** by Gemini (must add a hook beyond the name; weak opens like "idea for …" are rejected; business name restored to CRM title case; deterministic multi-template fallback per prospect, e.g. "quick reaction to {Company}'s site"), Gemini-generated 1–2 sentence industry-specific opener (override via Agents → Email copy prompt), fixed body with a single trackable “See the {company} prototype” link, soft close (“curious what you think”), open pixel + click tracking—no long feature bullet list. Hosted demo URLs for sharing use production origin **`built.by.ednsy.com`** (configurable via env). Industry-hosted demos are served under `/demo/[industrySlug]/[id]` (and related `/demo/[slug]` routes). The dashboard subscribes to **Supabase Realtime** on `prospects`, `demo_jobs`, `gbp_jobs`, and `insights_jobs` (filtered by `user_id`) so list and job state update without polling. Remaining gaps vs this PRD include CSV AI mapping (F2), guided onboarding (Section 5.4), deliverability checklist (F7), on-demand refresh (F6), and compliance items in Section 12 (Termly, signup checkbox, unsubscribe handler polish). Task list: `apps/admin/tasks/tasks.json`.
 
 ---
 
@@ -156,7 +156,7 @@ Ed & Sy Admin is built and used internally by Ed & Sy Inc. to close trades and s
 |---|---|
 | Base + per-demo | $199/month + $0.80 per demo (e.g. $359 for 200 demos) |
 | CRM integration | Connect HubSpot, GoHighLevel, Pipedrive, or Notion |
-| Automated outreach | Send from app; email templates |
+| Gmail outreach | Create drafts / send from app when Gmail is connected; copy-ready templates always |
 | Prospect insights | Dashboard summary, engagement signals |
 | CTA | "Get Started" |
 
@@ -188,17 +188,15 @@ Ed & Sy Admin is built and used internally by Ed & Sy Inc. to close trades and s
 #### F1 — Demo Page Generation
 
 - **Input:** Business name (minimum); URL optional; location, services pulled from GBP automatically
-- **Data sources (waterfall):**
-  1. GBP via DataForSEO (primary)
-  2. Website scrape via ScrapingBee (if website exists)
-  3. Social media scrape via ScrapingBee (supplementary)
-  4. Yelp / Yellow Pages (last resort fallback only)
-  5. If all sources fail → flag as "low data," do not generate
-- **Process:** AI agent scrapes public data using waterfall above; generates demo site using brand colors, logo, copy, service areas, real review quotes, and SEO gap analysis
-- **Output:** Hosted demo page at a unique URL (e.g., `demo.leadrosetta.com/truenorth-builders-toronto`)
+- **Data sources (as implemented in apps/admin):**
+  1. **GBP via Google Places API** (primary when `GOOGLE_PLACES_API_KEY` or `GOOGLE_MAPS_API_KEY` is configured; errors still surface in code under legacy `dataforseo` keys in some paths)
+  2. **Website and reviews** — derived from Places details and stored `scraped_data`; supplemental scraping services (e.g. ScrapingBee) may be added later and are not required in the current admin bundle
+  3. If GBP fetch fails → qualify / no-fit rules in the prospects pipeline apply; low-data prospects are blocked or flagged per confidence scoring (F1a)
+- **Process:** AI and templates turn scraped GBP + insights into demo HTML (Claude inline and/or **website-template** async service per job configuration), brand-aligned copy, and tracking
+- **Output:** Hosted demo page at a unique URL on the public demo host (production default **`built.by.ednsy.com`**, path shape `/demo/...` or industry routes per deployment)
 - **Time target:** Under 90 seconds per demo
 - **Personalization elements:** Business name, logo, primary services, service area/city, real Google review quotes, SEO gaps, competitor comparison, data confidence score
-- **Data is cached locally** — if DataForSEO is unavailable, serve from cache without interruption
+- **Data is cached in Supabase** — `scraped_data` and job rows back demos and insights; retries use stored snapshots where applicable
 
 #### F1a — Data Confidence Scoring
 
@@ -278,7 +276,7 @@ The dashboard prospects flow is organized into three logical tables:
 - Inline edit: name, services, location, headline, any AI-generated content
 - **Review & approve is a hard gate** — no demo can be sent without user approval
 - Disclaimer on every demo: *"This demo was built from public data. Review all content before sending to ensure accuracy."*
-- Status: Draft / Approved / Sent / Opened / Replied
+- Status: Draft / Approved / **email_draft** (Gmail draft created) / Sent / Opened / Replied (plus clicked where tracked)
 - Bulk approve
 - Single-click send or schedule
 
@@ -327,7 +325,7 @@ Best,
 
 Alternate path (no demo): short paragraphs on calls/bookings + local SEO, soft reply CTA, legal footer line. Users with a **custom HTML template** in settings still use placeholders (`{{companyName}}`, `{{trackableLink}}`, etc.) and bypass this default body.
 
-**Note:** Users copy and paste into their own sending tool (Instantly, Smartlead, Gmail, etc.). Ed & Sy Admin does not own sending infrastructure for cold outreach. Pro users can use automated sending via Resend for transactional/notification emails only.
+**Note:** Users can still copy templates into any sending tool (Instantly, Smartlead, another inbox, etc.). For sends initiated from the dashboard, the user connects **their own Gmail** (OAuth); the app creates drafts and can call **`drafts.send`** on the user’s behalf. Deliverability and domain reputation remain the user’s responsibility; the product does not operate a shared cold-email delivery network.
 
 #### F5 — Demo Intelligence Dashboard (Pro+)
 
@@ -344,7 +342,7 @@ Real-time sender notifications on visit. This is the primary retention mechanic.
 #### F6 — On-Demand Data Refresh
 
 - Show data freshness on every lead: *"Last scraped: 3 days ago ✅"* / *"Last scraped: 45 days ago ⚠️"*
-- One-click refresh: re-scrapes specific business via DataForSEO in real time (~$0.003 cost)
+- One-click refresh: re-fetch GBP data via the configured Places (or future provider) pipeline and regenerate (not yet built end-to-end in UI)
 - Demo regenerates automatically with fresh data after refresh
 
 #### F7 — Deliverability Pre-Send Checklist
@@ -392,8 +390,8 @@ Sign in → Subscribe (Starter $79+ or Growth $199+ per month)
 → Data confidence scored per lead
 → Demo pages generated (within plan limit)
 → Review queue: preview each, edit if needed, approve
-→ Email template copied per demo
-→ User sends via their own tool (Instantly, Gmail, etc.)
+→ Email template copied per demo and/or Gmail draft + send from dashboard (if Gmail connected)
+→ User sends via Gmail from the app or via their own tool
 → Dashboard: track opens, time-on-page, return visits, hot lead alerts
 → Follow up using follow-up email template
 ```
@@ -440,19 +438,19 @@ We'll generate the demo and give you the email template."
 | Frontend | SvelteKit 2 (Svelte 5) with Vite 6 |
 | Styling | Tailwind CSS 4, shadcn-svelte (bits-ui), CSS variables/theming |
 | Server | SvelteKit server routes and server-side logic (no separate backend) |
-| Demo page generation | AI agent (Claude/Anthropic) + HTML template engine |
-| Hosting | adapter-auto (Vercel, Netlify, Cloudflare Pages); demos TBD |
-| GBP data (primary) | DataForSEO API (~$0.003/profile) |
-| Supplementary scraping | ScrapingBee (website + socials; ~$0.001/call) |
-| Data cache | Local DB cache — serves from cache if DataForSEO unavailable |
-| Email (transactional) | Resend — for user notifications only (not cold outreach sending) |
-| Cold email sending | User's own tool (Instantly, Smartlead, Gmail) — Ed & Sy Admin provides templates only |
+| Demo page generation | Claude (inline HTML) and/or **website-template** async service; stored HTML and legacy page JSON paths |
+| Hosting | adapter-auto (Vercel, Netlify, Cloudflare Pages); public demo links use configurable origin (e.g. `built.by.ednsy.com`) |
+| GBP data (primary) | **Google Places API** (business details and reviews as exposed by Places) |
+| Supplementary scraping | Optional / future (e.g. ScrapingBee); not bundled as a hard dependency in current admin code |
+| Data persistence | **Supabase** — prospects, `scraped_data`, jobs, tracking |
+| Email (from app) | **Gmail API** via per-user OAuth (draft create + `drafts.send`); **Resend removed** from the live send path |
+| Cold outreach | Copy-paste templates and/or **user’s Gmail** through the integration — no shared ESP for bulk cold mail |
 | SMS | Twilio (backlog; optional via env when enabled) |
-| Auth | Supabase Auth (Google) with `@supabase/ssr` session cookies for the dashboard |
-| Payments | Stripe (planned) |
-| CRM connectors | HubSpot, GoHighLevel, Pipedrive, Notion (Growth) |
+| Auth | Google OAuth for dashboard session; Supabase session aligned for Realtime (`signInWithIdToken`) |
+| Payments | **Stripe** — checkout, webhooks, customer portal (`/api/stripe/*`, `getPlanForUser`) |
+| CRM connectors | HubSpot, GoHighLevel, Pipedrive, Notion (Growth / Agency per plan gates) |
 
-**Note on sending architecture:** Ed & Sy Admin does not own cold outreach delivery infrastructure. Users copy email templates and send via their own tools. This keeps deliverability responsibility with the user and eliminates spam/blacklist risk for Ed & Sy Admin.
+**Note on sending architecture:** The app does not send cold email from a shared Ed & Sy domain. Outreach either stays manual (copy template) or goes out through the **connected user Gmail account**, so reputation and compliance stay with the customer.
 
 **Prospects dashboard:** The prospects list and prospect detail views subscribe to Supabase Realtime (`postgres_changes` on `prospects`, `demo_jobs`, `gbp_jobs`, `insights_jobs`) so job and row updates appear without client polling of `/api/jobs/*`. RLS limits rows to the signed-in user (Google identity `provider_id` matches stored `user_id`). GBP, insights, and demo jobs are still processed by cron/queue routes using the Supabase service role.
 
@@ -467,25 +465,19 @@ We'll generate the demo and give you the email template."
 - **Reviews** — review text, rating, count, dates (for pain section and personalization)
 - **Posts** — GBP updates/posts (offers, events, CTAs) when present
 
-**Primary source:** DataForSEO GBP API
-- Cost: ~$0.0015/profile (standard queue), ~$0.003 (priority)
-- $1.50 per 1,000 profiles — negligible at current scale
-- Legally safe: pulls only publicly available business data
-- Confirm DataForSEO response includes name, industry/category, address, phone, website (when present), reviews, and posts (GMB updates); use Business Data API + Google Reviews endpoint as needed.
+**Primary source (current build):** Google Places API (Places API New / Maps Platform billing as configured)
+- Pulls publicly available business fields exposed by Places (name, types, address, phone, website when present, photos, reviews per Google’s Places product surface)
+- Cost follows Google Cloud pricing for your project (set `GOOGLE_PLACES_API_KEY` or `GOOGLE_MAPS_API_KEY`)
 
-**Supplementary source:** ScrapingBee
-- Website scraping, social media data, review extraction beyond GBP
-- 1,000 free API calls for testing
-- Cost: ~$0.001/call
+**Supplementary / planned:** Additional scrapers or DataForSEO-style providers may be layered in for richer site or social signals; the admin app does not currently hard-depend on ScrapingBee in-repo.
 
-**Total cost per demo:** ~$0.005 (half a cent)
 **Revenue per demo (Growth example, 200 demos):** $0.80/demo + base $199
-**Margin on data:** High (base + per-demo scales with usage)
+**Margin on data:** Depends on Places + AI usage; base + per-demo pricing still scales with usage
 
 **Yellow Pages:** Removed as primary source.
 - ToS violation risk at scale
 - Data quality poor (outdated, missing reviews, no photos)
-- Replaced entirely by DataForSEO + ScrapingBee stack
+- Replaced by Google Places–driven GBP fetch plus stored `scraped_data` in Supabase
 
 ### 6.3 Performance Requirements
 
@@ -529,7 +521,7 @@ Three things required before any paying user touches the product:
 
 - **Source of prospects:** Users select their CRM in Dashboard → Integrations (HubSpot, GoHighLevel, Pipedrive, or Notion), or upload CSV
 - **Sync into dashboard:** Contacts synced from CRM into dashboard, keyed by provider + provider_row_id
-- **Status tracking:** Draft, Sent, Opened, Replied stored in our DB; synced back to CRM where provider supports it
+- **Status tracking:** Draft, Approved, **email_draft** (Gmail draft on file), Sent, Opened, Replied (and clicked where tracked) in our DB; CRM write-back where the provider supports it
 - **CRM priority order for v1:** GoHighLevel first (most common in agency world), then HubSpot
 
 ### 6.7 Design System & Style Guides (Strict)
@@ -576,8 +568,8 @@ Simple, transparent pricing — pay for the value you get. 1 demo = 1 prospect.
 | Plan | Demo limit (code) | Send (automated) | Notes |
 |---|---|---|---|
 | Free | Cookie-limited demos (e.g. /upload); no standalone /try | No | Try before you commit; `/try` redirects to sign-in |
-| Starter | 30/month | No (manual copy link + template) | Enforced via getDemoCountThisMonth |
-| Growth (pro) | 100/month | Yes (Resend for notifications; user sends cold email via own tool) | getDemoCreationLimit |
+| Starter | 30/month | Optional (Gmail OAuth: draft + send); always copy link + template | Enforced via getDemoCountThisMonth; `canSendAutomated` includes Starter |
+| Growth (pro) | 100/month | Yes (Gmail from app when connected; else copy template / own tool) | getDemoCreationLimit |
 | Agency (teams) | Unlimited | Yes | getDemoCreationLimit('teams') returns null |
 
 ---
@@ -666,14 +658,14 @@ GHL users are the ideal customer: web/SEO agencies, existing outreach budgets ($
 
 | Risk | Likelihood | Impact | Mitigation |
 |---|---|---|---|
-| Data source goes down (GBP/DataForSEO) | Medium | Critical | Multi-source waterfall + local cache; never single source dependency |
+| Data source goes down (GBP / Places) | Medium | Critical | Cached `scraped_data` in Supabase; optional future multi-provider waterfall |
 | Demo quality inconsistent (low data prospect) | High | High | Data confidence scoring; don't generate below 50 points |
 | AI hallucination on no-website businesses | Medium | High | Review & approve as hard gate; disclaimer on every demo; confidence label |
 | Novelty decay (prospects get too many demos) | Medium (12–18 months) | High | Deepen personalization: review sentiment, competitor gaps, missed revenue calculator |
 | Email deliverability blamed on product | High | Medium | Pre-send deliverability checklist; onboarding guide; user owns their domain |
 | No user onboarding = early churn | High | High | 3-step activation flow; first demo in first session goal |
 | Legal (CASL / ToS violation) | Low | High | Signup checkbox, ToS line, unsubscribe link, Termly.io |
-| Yellow Pages scraping ToS violation | High (was in use) | High | Replaced with DataForSEO — resolved |
+| Yellow Pages scraping ToS violation | High (was in use) | High | Replaced with Google Places–backed flow — resolved |
 | CRM integration bugs (v1.1) | High | Low | Phase 1 is CSV only; CRM is Pro stretch goal |
 | Agency tier waitlist kills high-value signups | High | Medium | Removed waitlist; Agency requires contact us — always available |
 
@@ -694,9 +686,10 @@ GHL users are the ideal customer: web/SEO agencies, existing outreach budgets ($
 
 ## 12. Pre-Launch Checklist
 
-Must be complete before first paying user. Status reflects the codebase as of March 2026:
+Must be complete before first paying user. Status reflects the codebase as of April 2026:
 
-- [x] Switch data source from Yellow Pages to DataForSEO + ScrapingBee stack (waterfall in app; Yellow Pages not primary)
+- [x] Switch data source from Yellow Pages to Google Places–backed GBP + Supabase `scraped_data` (Yellow Pages not primary)
+- [x] Stripe subscriptions: checkout, webhook, portal, `getPlanForUser` plan tier
 - [x] Implement data confidence scoring (F1a)
 - [x] Build pain modal on demo pages (F1b)
 - [x] Build sticky CTA bar on demo pages (F1b)
@@ -718,7 +711,7 @@ Must be complete before first paying user. Status reflects the codebase as of Ma
 
 | Milestone | Target Date | Owner |
 |---|---|---|
-| DataForSEO integration live | Week 1 | Ed |
+| Google Places GBP integration live | Week 1 | Ed |
 | Pain modal + sticky CTA on demo pages | Week 1 | Ed |
 | Email template section live | Week 1 | Ed |
 | Free tier live (1 demo, manual send + template) | Week 1 | Ed |
@@ -740,4 +733,4 @@ Must be complete before first paying user. Status reflects the codebase as of Ma
 ---
 
 *Ed & Sy Admin is a product of Ed & Sy Inc., Toronto, Ontario. © 2026.*
-*PRD v0.2 — Updated March 2026. Changes from v0.1 tracked in version header.*
+*PRD v0.2 — Updated April 2026. Changes from v0.1 tracked in version header.*

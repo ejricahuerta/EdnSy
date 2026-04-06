@@ -131,14 +131,14 @@
       {
         "id": 11,
         "title": "F1 — Demo page generation (GBP-first, DataForSEO + ScrapingBee)",
-        "description": "F1: Input business name (minimum; URL optional). Data sources waterfall: (1) GBP via DataForSEO, (2) website via ScrapingBee, (3) socials via ScrapingBee, (4) Yelp/YP last resort. If all fail → flag low data, do not generate. Local cache if DataForSEO down. Target <90s per demo.",
+        "description": "F1: Input business name (minimum; URL optional). Product PRD still describes a multi-source waterfall; apps/admin currently uses Google Places for GBP into scraped_data, plus insights/Gemini and demo generation (Claude and/or website-template async). Target <90s per demo.",
         "status": "done",
         "priority": "high",
         "dependencies": [
           4
         ],
-        "details": "DataForSEO GBP API primary; ScrapingBee for website + socials. Generate demo from brand colors, logo, copy, service areas, real review quotes, SEO gap analysis. Output: hosted demo at unique URL. Data cached locally. No Yellow Pages as primary.",
-        "testStrategy": "Business name only → demo generated from GBP; <90s; cache serves when API unavailable.",
+        "details": "Implemented: Google Places API (GOOGLE_PLACES_API_KEY or GOOGLE_MAPS_API_KEY) for GBP; persist scraped_data in Supabase; demo_jobs via processOneDemoJob and website-template callback or legacy paths. Optional ScrapingBee/DataForSEO not wired as hard deps in this repo.",
+        "testStrategy": "Business name only → GBP via Places when configured → demo generated; <90s target; scraped_data persists in Supabase.",
         "subtasks": []
       },
       {
@@ -170,7 +170,7 @@
       {
         "id": 14,
         "title": "F4 — Email template suite (cold, follow-up, SMS)",
-        "description": "Every demo produces three ready-to-copy templates: cold outreach email, follow-up email, SMS nudge. Auto-populated: prospect first name, business name, demo link, sender name, one personalized line from scraped data. Users copy into own tool (Instantly, Smartlead, Gmail). Resend for transactional/notification emails only; Lead Rosetta does not own cold send.",
+        "description": "Every demo produces three ready-to-copy templates: cold outreach email, follow-up email, SMS nudge. Auto-populated fields as in PRD F4. Users copy into any tool or connect Gmail: dashboard creates Gmail drafts and can call drafts.send (crmOutreachGmail). Resend removed from live send path.",
         "status": "done",
         "priority": "high",
         "dependencies": [
@@ -178,7 +178,7 @@
           13
         ],
         "details": "Default cold subject: I built something for [Business Name]. Personalized line logic: no website, unanswered reviews, missing GBP, low photos. Follow-up Day 3-5; SMS optional. Unsubscribe link on demo page.",
-        "testStrategy": "Generate demo → three templates visible; copy works; Resend used only for notifications.",
+        "testStrategy": "Generate demo → three templates visible; copy works; with Gmail connected, draft create and send path succeeds.",
         "subtasks": []
       },
       {
@@ -204,7 +204,7 @@
         "dependencies": [
           8
         ],
-        "details": "getPlanTier(user) in use for upload. getDemoCreationLimit(plan): Starter 30, Pro 100, Agency null (unlimited). canSendAutomated(plan): Pro and Agency only (Resend for notifications; cold email = user's own tool). Dashboard shows plan and usage; generateDemo returns 403 when at limit. Stripe integration is Task 17.",
+        "details": "getDemoCreationLimit(plan): Starter 30, Pro 100, Agency null (unlimited). canSendAutomated(plan): Starter, Pro, Agency (Gmail OAuth for sends from app). Dashboard shows plan and usage; generateDemo returns 403 when at limit. Stripe: Task 17 done (getPlanForUser).",
         "testStrategy": "Free user cannot access dashboard/Pro features; Starter at 30 demos/month gets 403; Pro at 100 gets 403; Agency unlimited. Starter: manual copy link + template.",
         "subtasks": []
       },
@@ -265,14 +265,14 @@
       {
         "id": 21,
         "title": "F6 — On-demand data refresh",
-        "description": "Show data freshness per lead (e.g. Last scraped: 3 days ago / 45 days ago). One-click refresh: re-scrape via DataForSEO; demo regenerates with fresh data. ~$0.003 cost per refresh.",
+        "description": "Show data freshness per lead (e.g. Last scraped: 3 days ago / 45 days ago). One-click refresh: re-fetch GBP via Places (or future provider); demo regenerates with fresh data.",
         "status": "pending",
         "priority": "medium",
         "dependencies": [
           11,
           7
         ],
-        "details": "Store last_scraped_at; display in dashboard and lead detail. Refresh button calls DataForSEO, then regenerate demo content.",
+        "details": "Store last_scraped_at; display in dashboard and lead detail. Refresh button should call GBP fetch pipeline (Places), then regenerate demo content.",
         "testStrategy": "Click refresh → new scrape; demo content and freshness label update.",
         "subtasks": []
       },
@@ -334,7 +334,7 @@
     ],
     "metadata": {
       "created": "2026-03-01T01:23:10.021Z",
-      "updated": "2026-03-30T12:00:00.000Z",
+      "updated": "2026-04-06T12:00:00.000Z",
       "description": "Tasks for master context; aligned with apps/admin and docs/prd.md"
     }
   }

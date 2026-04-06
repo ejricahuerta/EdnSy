@@ -36,7 +36,7 @@ export {
 } from '$lib/server/demoJsonStorage';
 
 export { getDemoImageUrls, getDemoImageUrlsFull, getUnsplashImageUrl, getPexelsImageUrl, isPainterIndustry } from '$lib/server/unsplash';
-export type { DemoImageQueries, GetDemoImageUrlsOptions } from '$lib/server/unsplash';
+export type { DemoImageQueries } from '$lib/server/unsplash';
 
 export {
 	setFreeDemoCookie,

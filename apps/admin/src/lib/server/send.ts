@@ -126,11 +126,6 @@ export function applyCompanyNameCasingInSubject(
 	return out;
 }
 
-/** @deprecated Use {@link getUpgradePitchSubject}; kept for call sites that still reference the old name. */
-export function getDefaultEmailSubject(companyName: string): string {
-	return getUpgradePitchSubject(companyName, undefined);
-}
-
 /** Subject for alternate-offer email (AI agent, voice AI, SEO; no demo). */
 export function getAlternateOfferSubject(companyName: string): string {
 	return `Quick idea for ${companyName}`;
@@ -216,22 +211,6 @@ ${openingHtml}
 <img src="${pixelUrl}" width="1" height="1" alt="" style="display:block;width:1px;height:1px;border:0;" />
 `.trim();
 	return html;
-}
-
-/**
- * @deprecated Prefer {@link buildEmailBodyUpgradePitch}. Kept for any external references.
- */
-export function buildEmailBodyFromAiIntro(
-	prospect: Prospect,
-	_demoLink: string,
-	senderName: string,
-	origin: string,
-	bodyIntro: string,
-	signatureOverride?: string | null
-): string {
-	return buildEmailBodyUpgradePitch(prospect, senderName, origin, signatureOverride ?? null, {
-		openingHook: bodyIntro
-	});
 }
 
 /**
@@ -496,16 +475,6 @@ export async function sendSms(to: string, body: string): Promise<SendSmsResult> 
 		const message = e instanceof Error ? e.message : 'Unknown error';
 		return { ok: false, error: message };
 	}
-}
-
-/** @deprecated Resend removed; sending is Gmail-only. Kept for backwards compatibility with settings page. */
-export function isResendConfigured(): boolean {
-	return false;
-}
-
-/** @deprecated Resend removed. Kept for backwards compatibility with settings page. */
-export function getResendFromDisplay(): { configured: true; from: string } | { configured: false } {
-	return { configured: false };
 }
 
 export function isTwilioConfigured(): boolean {

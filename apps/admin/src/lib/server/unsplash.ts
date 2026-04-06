@@ -57,9 +57,6 @@ export async function getDemoImageUrlsFull(
 	};
 }
 
-/** @deprecated Use getDemoImageUrls(industrySlug, industryDisplay) instead. Options type kept for compatibility. */
-export type GetDemoImageUrlsOptions = { isPainter?: boolean; companyName?: string | null };
-
 /**
  * Legacy: whether the industry string indicates a painter (house/interior painting) trade.
  * Kept for backward compatibility; image resolution now uses getDemoImageProfile.

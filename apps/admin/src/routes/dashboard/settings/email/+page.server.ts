@@ -7,7 +7,6 @@ import {
 	getEmailSignatureOverride,
 	setEmailSignatureOverride
 } from '$lib/server/userSettings';
-import { isResendConfigured, getResendFromDisplay } from '$lib/server/send';
 import { getTemplates } from '$lib/server/templates';
 
 export const load: PageServerLoad = async (event) => {
@@ -15,18 +14,15 @@ export const load: PageServerLoad = async (event) => {
 	if (!user) {
 		throw redirect(303, '/auth/login');
 	}
-	const [emailSenderName, emailSignatureOverride, resendDisplay, templates] = await Promise.all([
+	const [emailSenderName, emailSignatureOverride, templates] = await Promise.all([
 		getEmailSenderName(user.id),
 		getEmailSignatureOverride(user.id),
-		Promise.resolve(getResendFromDisplay()),
 		getTemplates(user.id)
 	]);
 	const { EMAIL_PLACEHOLDERS } = await import('$lib/server/templates');
 	return {
 		emailSenderName: emailSenderName ?? '',
 		emailSignatureOverride: emailSignatureOverride ?? '',
-		resendConfigured: isResendConfigured(),
-		resendFrom: resendDisplay.configured ? resendDisplay.from : null,
 		hasCustomEmailTemplate: !!templates.emailHtml,
 		emailPlaceholders: EMAIL_PLACEHOLDERS.join(', ')
 	};

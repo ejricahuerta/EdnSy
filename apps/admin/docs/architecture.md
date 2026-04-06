@@ -2,7 +2,7 @@
 
 This document describes the **technology stack**, **core engines**, **data flow**, and how **`$lib`** is organized. Use it when onboarding, refactoring, or adding features.
 
-**Last updated:** March 2026
+**Last updated:** April 2026
 
 ---
 
@@ -15,10 +15,11 @@ This document describes the **technology stack**, **core engines**, **data flow*
 | Package manager | **pnpm** (see root / `apps/admin` `packageManager`) |
 | Adapter | `@sveltejs/adapter-auto` (typical deploy: **Vercel** with Root Directory `apps/admin`) |
 | Database / auth (browser) | **Supabase** — `@supabase/ssr` in `src/hooks.server.ts` creates a per-request server client; **PUBLIC_SUPABASE_URL** + **PUBLIC_SUPABASE_ANON_KEY** are required at startup |
+| Realtime (dashboard) | **Supabase Realtime** — `postgres_changes` on **`prospects`**, **`demo_jobs`**, **`gbp_jobs`**, **`insights_jobs`** filtered by `user_id` (`$lib/client/prospectsJobsRealtime.ts`, layout wrapper) |
 | Database (server) | **Supabase** service role for jobs, prospects, `demo_tracking`, CRM connections, etc. (`$lib/server/supabase`) |
 | Dashboard sign-in | **Google OAuth** via `$lib/server/googleAuth` (not Supabase-hosted OAuth redirect); after sign-in, server uses **`signInWithIdToken`** so the browser Supabase client can use Realtime under RLS |
 | Payments | **Stripe** — checkout, portal, webhooks (`$lib/server/stripe`, `/api/stripe/*`) |
-| Email / SMS | **Resend**, optional **Gmail** OAuth, **Twilio** (optional) via `$lib/server/send` |
+| Email / SMS | **Gmail API** (OAuth, draft + send) via `$lib/server/gmail` and `$lib/server/send`; **Resend** stubs deprecated (no live send path); **Twilio** (optional) for SMS when env is set |
 | AI | **Gemini** (insights, copy), **Claude** (inline HTML demos), optional **Retell** for voice callback |
 | GBP data | **Google Places API** (`$lib/server/placesApi`, `$lib/server/gbp.ts`), not DataForSEO in current code |
 | Background work | **Demo / GBP / insights jobs** in Postgres; processing triggered by **`/api/cron/*`** (Bearer **CRON_SECRET**) or **`POST /api/jobs/*`**; optional **Cloudflare Worker** in `apps/cron-worker` to hit cron routes on a schedule |
@@ -41,12 +42,12 @@ The app is built around these functional areas. Each has a clear responsibility 
 | **Insights** | AI-generated business assessment (grade, summary, recommendations, audit modal copy, industry inference). | `$lib/insights`, `$lib/server/insights` |
 | **GBP** | Google Business Profile data: fetch via **Google Places API**, shape scraped data for demos and audit. | `$lib/server/gbp`, `$lib/server/placesApi` |
 | **Prospects** | Lead/prospect lifecycle: CRUD, flagging, sync from CRM, demo link and status. | `$lib/server/prospects` |
-| **Send** | Outbound email (Resend/Gmail) and SMS (Twilio); templates and body builders. | `$lib/server/send` |
+| **Send** | Outbound email via **Gmail** only for live sends; SMS (Twilio) optional; templates and body builders. | `$lib/server/send`, `$lib/server/gmail`, `$lib/server/crmOutreachGmail` |
 | **Auth** | Who is signed in: session, Google/Gmail OAuth, Gmail tokens. | `$lib/server/session`, `$lib/server/googleAuth`, `$lib/server/gmailAuth`, `$lib/server/gmail` |
 | **CRM** | External CRM connections and sync (HubSpot, GoHighLevel, Pipedrive, Notion); context for chat/overview. | `$lib/server/crm`, `$lib/server/notion`, `$lib/server/crmContext` |
 | **Billing** | Stripe subscriptions, plan tier, demo/send limits, internal “teams” override. | `$lib/server/stripe`, `$lib/plans` |
 | **Supabase** | Persistence: demo_tracking, demo_jobs, scraped_data, overview cache, CRM connections, prospects. | `$lib/server/supabase` |
-| **User settings** | Per-user config: GBP default location, email sender, demo banner, Resend/Gmail config, CRM industry filter. | `$lib/server/userSettings` |
+| **User settings** | Per-user config: GBP default location, email sender, demo banner, Gmail OAuth tokens, CRM industry filter. | `$lib/server/userSettings` |
 
 ### How they connect
 
@@ -109,10 +110,11 @@ This keeps a single source of truth and avoids circular dependencies.
 2. User clicks **Generate demo** → a **`demo_jobs`** row is processed; **`processOneDemoJob`** uses **only** existing scraped data. If none is present, the job fails until qualifying completes.
 3. **Paid path:** Payload is built (`transformToWebsiteTemplatePayload`), sent to **Website Template** async endpoint; on callback, demo URL and artifacts are persisted. **Legacy / alternate:** some demos still use page JSON + Svelte industry templates or Claude HTML in storage; the PRD describes convergence on generated HTML where applicable.
 
-### Send email
+### Send email (dashboard / prospects)
 
-1. Prospect has a demo and status **Approved**; user has Resend (or Gmail) configured.
-2. **Send** engine builds subject/body from templates and user settings, then sends via Resend or Gmail. Status moves to **Sent**; `demo_tracking.send_time` is set.
+1. User connects **Gmail** under Dashboard → Integrations (OAuth tokens in user settings).
+2. For CRM outreach, **`executeCreateGmailOutreachDraft`** builds HTML and creates a Gmail **draft**; `demo_tracking` may move to **`email_draft`**. User can open Gmail or use **Send now** / bulk send → **`executeSendGmailOutreachDraft`** calls **`drafts.send`**. On success, draft id is cleared and status advances toward **Sent**; failures may record **`gmail_outreach_draft_expired`** and revert stale state.
+3. Other code paths that call **`sendEmailViaGmail`** also require a connected Gmail account (no Resend fallback).
 
 ---
 
