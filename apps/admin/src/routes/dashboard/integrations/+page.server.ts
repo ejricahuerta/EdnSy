@@ -3,9 +3,9 @@ import type { PageServerLoad, Actions } from './$types';
 import { markdownToHtml } from '$lib/markdown';
 import { INTEGRATION_HELP_DOCS, INTEGRATION_IDS } from '$lib/server/integrationHelpDocs';
 import { getDashboardSessionUser } from '$lib/server/authDashboard';
-import { getPlanForUser } from '$lib/server/stripe';
 import { listCrmConnections, saveCrmConnection, deleteCrmConnection, getCrmConnection } from '$lib/server/crm';
 import { getGmailTokens, deleteGmailTokens } from '$lib/server/gmail';
+import { getStitchTokens, deleteStitchTokens } from '$lib/server/stitchTokens';
 import {
 	listProspects as listNotionProspects,
 	listNotionDatabases,
@@ -33,12 +33,14 @@ function loadHelpDocs(): Record<string, string> {
 export const load: PageServerLoad = async (event) => {
 	const user = await getDashboardSessionUser(event);
 	if (!user) throw redirect(303, '/auth/login');
-	const plan = await getPlanForUser(user);
 	const connections = await listCrmConnections(user.id);
 	const helpDocs = loadHelpDocs();
 	const gmailTokens = await getGmailTokens(user.id);
 	const gmailConnected = !!(gmailTokens?.refresh_token);
 	const gmailEmail = gmailTokens?.email ?? null;
+	const stitchTokens = await getStitchTokens(user.id);
+	const stitchConnected = !!(stitchTokens?.refresh_token);
+	const stitchEmail = stitchTokens?.email ?? null;
 	const notionFieldKeys = NOTION_FIELD_KEYS;
 	const { todayCount: gbpDentalTodayCount, dailyCap: gbpDentalDailyCap } =
 		await getGbpDentalDailyStats(user.id);
@@ -55,11 +57,12 @@ export const load: PageServerLoad = async (event) => {
 	}
 
 	return {
-		plan,
 		connections,
 		helpDocs,
 		gmailConnected,
 		gmailEmail,
+		stitchConnected,
+		stitchEmail,
 		notionFieldKeys,
 		notionDatabaseId,
 		notionDatabaseTitle,
@@ -210,6 +213,13 @@ export const actions: Actions = {
 		const result = await deleteGmailTokens(user.id);
 		if (!result.ok) return fail(502, { message: result.error ?? 'Failed to disconnect' });
 		return { success: true, message: 'Gmail disconnected.' };
+	},
+	disconnectStitch: async (event) => {
+		const user = await getDashboardSessionUser(event);
+		if (!user) return fail(401, { message: 'Sign in required' });
+		const result = await deleteStitchTokens(user.id);
+		if (!result.ok) return fail(502, { message: result.error ?? 'Failed to disconnect' });
+		return { success: true, message: 'Stitch disconnected.' };
 	},
 	pullGbpDental: async (event) => {
 		const { cookies } = event;

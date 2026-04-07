@@ -1,14 +1,14 @@
 /**
- * Single entry point for demo industry content. Dental-only product scope.
+ * Single entry point for demo industry content.
  */
-import type { IndustrySlug } from '$lib/industries';
+import { INDUSTRY_SLUGS, type IndustrySlug } from '$lib/industries';
 import { dentalDemoContent } from './dental';
 
 export type DemoContent = typeof dentalDemoContent;
 
-const CONTENT_MAP: Record<IndustrySlug, DemoContent> = {
-	dental: dentalDemoContent
-};
+const CONTENT_MAP = Object.fromEntries(
+	INDUSTRY_SLUGS.map((slug) => [slug, dentalDemoContent])
+) as Record<IndustrySlug, DemoContent>;
 
 export function getDemoContent(slug: IndustrySlug): DemoContent {
 	return CONTENT_MAP[slug] ?? dentalDemoContent;

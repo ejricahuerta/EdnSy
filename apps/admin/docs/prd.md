@@ -4,9 +4,11 @@
 **Owner:** Ed (Ed & Sy Inc.)
 **Status:** In Development
 **Last Updated:** April 2026
-**Changes from v0.1:** Positioning expanded, pricing restructured, data stack updated, bulletproofing measures added, distribution plan added, competitive landscape added.
+**Changes from v0.1:** Positioning expanded, data stack updated, bulletproofing measures added, distribution plan added, competitive landscape added. Billing/pricing/Stripe removed (internal admin app; all features always available).
 
-**Implementation snapshot (apps/admin, April 2026):** The SvelteKit app ships Google OAuth, Supabase-backed prospects and demo tracking, CRM integrations (HubSpot, GoHighLevel, Pipedrive, Notion), **Stripe** checkout, webhooks, customer portal, and plan resolution (`getPlanForUser`), dashboard review queue with confidence scores, copy-ready email/SMS templates, insights and demo jobs (Gemini + Claude / website-template async path per env), and billing UI. **GBP in production code** is fetched via **Google Places API** (stored in `scraped_data` / demo flow); legacy PRD references to DataForSEO describe an alternate or future stack, not the current primary fetcher. **Outbound email from the app** is **Gmail API only** (user connects Gmail in Integrations); Resend is not used for live sends. **Prospect outreach:** Connecting Gmail grants send + compose + metadata scopes; approved demos can create a **Gmail draft** first (preview on the prospect page), with **Send now** or **bulk send** calling Gmail `drafts.send`. `demo_tracking` includes status `email_draft`; `demo_events` records `gmail_outreach_draft_created`, `gmail_outreach_sent`, and `gmail_outreach_draft_expired`. **Default demo email** is intentionally short: subject line is **AI-generated** by Gemini (must add a hook beyond the name; weak opens like "idea for …" are rejected; business name restored to CRM title case; deterministic multi-template fallback per prospect, e.g. "quick reaction to {Company}'s site"), Gemini-generated 1–2 sentence industry-specific opener (override via Agents → Email copy prompt), fixed body with a single trackable “See the {company} prototype” link, soft close (“curious what you think”), open pixel + click tracking—no long feature bullet list. Hosted demo URLs for sharing use production origin **`built.by.ednsy.com`** (configurable via env). Industry-hosted demos are served under `/demo/[industrySlug]/[id]` (and related `/demo/[slug]` routes). The dashboard subscribes to **Supabase Realtime** on `prospects`, `demo_jobs`, `gbp_jobs`, and `insights_jobs` (filtered by `user_id`) so list and job state update without polling. Remaining gaps vs this PRD include CSV AI mapping (F2), guided onboarding (Section 5.4), deliverability checklist (F7), on-demand refresh (F6), and compliance items in Section 12 (Termly, signup checkbox, unsubscribe handler polish). Task list: `apps/admin/tasks/tasks.json`.
+**Implementation snapshot (apps/admin, April 2026):** The SvelteKit app ships Google OAuth, Supabase-backed prospects and demo tracking, CRM integrations (HubSpot, GoHighLevel, Pipedrive, Notion), dashboard review queue with confidence scores, copy-ready email/SMS templates, insights and demo jobs (Gemini + Claude / website-template async path per env). No billing or plan tiers -- all features are always available to authenticated @ednsy.com users. **GBP in production code** is fetched via **Google Places API** (stored in `scraped_data` / demo flow); legacy PRD references to DataForSEO describe an alternate or future stack, not the current primary fetcher. **Outbound email from the app** is **Gmail API only** (user connects Gmail in Integrations); Resend is not used for live sends. **Prospect outreach:** Connecting Gmail grants send + compose + metadata scopes; approved demos can create a **Gmail draft** first (preview on the prospect page), with **Send now** or **bulk send** calling Gmail `drafts.send`. `demo_tracking` includes status `email_draft`; `demo_events` records `gmail_outreach_draft_created`, `gmail_outreach_sent`, and `gmail_outreach_draft_expired`. **Default demo email** is intentionally short: subject line is **AI-generated** by Gemini (must add a hook beyond the name; weak opens like "idea for …" are rejected; business name restored to CRM title case; deterministic multi-template fallback per prospect, e.g. "quick reaction to {Company}'s site"), Gemini-generated 1–2 sentence industry-specific opener (override via Agents → Email copy prompt), fixed body with a single trackable “See the {company} prototype” link, soft close (“curious what you think”), open pixel + click tracking—no long feature bullet list. Hosted demo URLs for sharing use production origin **`built.by.ednsy.com`** (configurable via env). Industry-hosted demos are served under `/demo/[industrySlug]/[id]` (and related `/demo/[slug]` routes). The dashboard subscribes to **Supabase Realtime** on `prospects`, `demo_jobs`, `gbp_jobs`, and `insights_jobs` (filtered by `user_id`) so list and job state update without polling. Remaining gaps vs this PRD include CSV AI mapping (F2), guided onboarding (Section 5.4), deliverability checklist (F7), on-demand refresh (F6), and compliance items in Section 12 (Termly, signup checkbox, unsubscribe handler polish). Task list: `apps/admin/tasks/tasks.json`.
+
+**Stitch OAuth (demo HTML):** Users may connect **Google Stitch** under Integrations (GCP OAuth scopes: cloud-platform and userinfo.email). When `STITCH_GOOGLE_CLOUD_PROJECT` is set server-side, demo jobs attach `stitchAccessToken` and `stitchGcpProject` to the async `apps/stitch` worker so generation uses each staff member’s Stitch quota (Gemini 3.1 Pro); otherwise the worker falls back to the shared `STITCH_API_KEY`.
 
 ---
 
@@ -447,12 +449,12 @@ We'll generate the demo and give you the email template."
 | Cold outreach | Copy-paste templates and/or **user’s Gmail** through the integration — no shared ESP for bulk cold mail |
 | SMS | Twilio (backlog; optional via env when enabled) |
 | Auth | Google OAuth for dashboard session; Supabase session aligned for Realtime (`signInWithIdToken`) |
-| Payments | **Stripe** — checkout, webhooks, customer portal (`/api/stripe/*`, `getPlanForUser`) |
-| CRM connectors | HubSpot, GoHighLevel, Pipedrive, Notion (Growth / Agency per plan gates) |
+| Payments | Removed (internal admin app; no billing) |
+| CRM connectors | HubSpot, GoHighLevel, Pipedrive, Notion |
 
 **Note on sending architecture:** The app does not send cold email from a shared Ed & Sy domain. Outreach either stays manual (copy template) or goes out through the **connected user Gmail account**, so reputation and compliance stay with the customer.
 
-**Prospects dashboard:** The prospects list and prospect detail views subscribe to Supabase Realtime (`postgres_changes` on `prospects`, `demo_jobs`, `gbp_jobs`, `insights_jobs`) so job and row updates appear without client polling of `/api/jobs/*`. RLS limits rows to the signed-in user (Google identity `provider_id` matches stored `user_id`). GBP, insights, and demo jobs are still processed by cron/queue routes using the Supabase service role.
+**Prospects dashboard:** The prospects list and prospect detail views subscribe to Supabase Realtime (`postgres_changes` on `prospects`, `demo_jobs`, `gbp_jobs`, `insights_jobs`) so job and row updates appear without client polling of `/api/jobs/*`. RLS limits rows to the signed-in user (Google identity `provider_id` matches stored `user_id`). GBP, insights, and demo jobs are still processed by cron/queue routes using the Supabase service role. **`demo_jobs` staleness:** rows left in `creating` for more than five minutes are reset to `pending` (prospect back to demo queued) on cron and manual job API runs; users can run the same reset for their account via **Reset stuck demos** on the prospects list when a demo is generating.
 
 ### 6.2 Data Stack
 
@@ -539,38 +541,7 @@ Same as v0.1 — no changes.
 
 ## 7. Pricing
 
-Simple, transparent pricing — pay for the value you get. 1 demo = 1 prospect.
-
-| Plan | Base / Month | Per Demo | Key Features | Example Total |
-|---|---|---|---|---|
-| Starter | $79 | $1 | CRM upload, AI prospect analysis, demo landing page, outreach email | $129 (50 demos) |
-| Growth | $199 | $0.80 | CRM integration, automated outreach, email templates, prospect insights | $359 (200 demos) |
-| Agency | $499 | $0.60 | White-label demos, team access, client dashboards, bulk prospecting | $859 (600 demos) |
-| Premium Demo Add-on | — | $2 | Deep site audit, SEO analysis, AI improvement suggestions, richer landing page | $100 (50 demos) |
-
-**CTAs:** Starter → "Start Free Trial"; Growth → "Get Started"; Agency → "Request Demo" (mailto).
-
-**Above the pricing section (landing):** *Simple, transparent pricing — pay for the value you get. 1 demo = 1 prospect. Scales with your success.*
-
-**Below the pricing cards (landing):** *"One demo closed a client for us. If it works once, it pays for itself."*
-
-### 7.1 Pricing Rationale
-
-- **Starter ($79 + $1/demo):** Entry point. CRM upload, AI prospect analysis, demo landing page, outreach email. Example: $129 for 50 demos.
-- **Growth ($199 + $0.80/demo):** Scale tier. CRM integration, automated outreach, email templates, prospect insights. Example: $359 for 200 demos.
-- **Agency ($499 + $0.60/demo):** Teams. White-label demos, team access, client dashboards, bulk prospecting. Example: $859 for 600 demos. Contact us (no self-serve).
-- **Premium Demo Add-on ($2/demo):** Deep site audit, SEO analysis, AI improvement suggestions, richer landing page. Add-on to any plan.
-
-**Why this works:** 1 demo = 1 prospect (easy to understand). Scales with success. Upsell-ready (agencies can add Premium Demos).
-
-### 7.2 Implementation Alignment
-
-| Plan | Demo limit (code) | Send (automated) | Notes |
-|---|---|---|---|
-| Free | Cookie-limited demos (e.g. /upload); no standalone /try | No | Try before you commit; `/try` redirects to sign-in |
-| Starter | 30/month | Optional (Gmail OAuth: draft + send); always copy link + template | Enforced via getDemoCountThisMonth; `canSendAutomated` includes Starter |
-| Growth (pro) | 100/month | Yes (Gmail from app when connected; else copy template / own tool) | getDemoCreationLimit |
-| Agency (teams) | Unlimited | Yes | getDemoCreationLimit('teams') returns null |
+**Removed.** Ed & Sy Admin is an internal admin tool for @ednsy.com staff. There are no plan tiers, billing, or Stripe integration. All features are always available to authenticated users. The Stripe checkout, webhooks, customer portal, and plan resolution code have been removed from the codebase.
 
 ---
 
@@ -689,7 +660,7 @@ GHL users are the ideal customer: web/SEO agencies, existing outreach budgets ($
 Must be complete before first paying user. Status reflects the codebase as of April 2026:
 
 - [x] Switch data source from Yellow Pages to Google Places–backed GBP + Supabase `scraped_data` (Yellow Pages not primary)
-- [x] Stripe subscriptions: checkout, webhook, portal, `getPlanForUser` plan tier
+- [x] ~~Stripe subscriptions~~ Removed (internal admin app; no billing)
 - [x] Implement data confidence scoring (F1a)
 - [x] Build pain modal on demo pages (F1b)
 - [x] Build sticky CTA bar on demo pages (F1b)

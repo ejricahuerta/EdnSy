@@ -12,7 +12,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
 	import NotificationBell from '$lib/components/dashboard/notification-bell.svelte';
-	import { LayoutGrid, Users, Plug, CreditCard, Settings, PanelLeftClose, ChevronRight, Sun, Moon, Presentation, Bot, Menu, X } from 'lucide-svelte';
+	import { LayoutGrid, Users, Plug, Settings, PanelLeftClose, ChevronRight, Sun, Moon, Presentation, Bot, Menu, X } from 'lucide-svelte';
 	import { isEdnsyUser } from '$lib/plans';
 	import { normalizeExternalHref, isSameOriginPathHref } from '$lib/externalUrl';
 
@@ -237,15 +237,6 @@
 					<Plug class="lr-dashboard-sidebar-link-icon" aria-hidden="true" strokeWidth={1.5} />
 					<span class="lr-dashboard-sidebar-link-label">Integrations</span>
 				</a>
-				<a
-					href="/dashboard/billing"
-					class="lr-dashboard-sidebar-link"
-					class:lr-dashboard-sidebar-link-active={$page.url.pathname === '/dashboard/billing'}
-					title="Billing"
-				>
-					<CreditCard class="lr-dashboard-sidebar-link-icon" aria-hidden="true" strokeWidth={1.5} />
-					<span class="lr-dashboard-sidebar-link-label">Billing</span>
-				</a>
 				{#if showAgentsLink}
 					<a
 						href="/dashboard/agents"
@@ -326,7 +317,7 @@
 							<span class="lr-dashboard-breadcrumb-current">
 								{(() => {
 									const segment = $page.url.pathname.split('/').filter(Boolean)[1] ?? '';
-									const labels: Record<string, string> = { profile: 'Profile', integrations: 'Integrations', billing: 'Billing', agents: 'AI Agents', settings: 'Settings', upload: 'Upload' };
+									const labels: Record<string, string> = { profile: 'Profile', integrations: 'Integrations', agents: 'AI Agents', settings: 'Settings' };
 									return labels[segment] ?? (segment ? segment.charAt(0).toUpperCase() + segment.slice(1) : 'Dashboard');
 								})()}
 							</span>
@@ -372,7 +363,6 @@
 					<li><a href="/auth/logout">Sign out</a></li>
 				{:else}
 					<li><a href="/#how">How it works</a></li>
-					<li><a href="/#pricing">Pricing</a></li>
 					<li><a href="/auth/login" class="btn-nav">Sign in</a></li>
 				{/if}
 			</ul>

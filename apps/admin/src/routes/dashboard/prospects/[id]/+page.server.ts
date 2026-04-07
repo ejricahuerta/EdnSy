@@ -7,7 +7,6 @@ import {
 	updateDemoTrackingStatus,
 	enqueueDemoJob,
 	getDemoJobsForUser,
-	getDemoCountThisMonth,
 	upsertDemoTrackingForProspect,
 	getSupabaseAdmin,
 	enqueueInsightsJob,
@@ -18,8 +17,6 @@ import {
 } from '$lib/server/supabase';
 import type { PageServerLoad, Actions } from './$types';
 import { getDashboardSessionUser } from '$lib/server/authDashboard';
-import { getPlanForUser } from '$lib/server/stripe';
-import { getDemoCreationLimit, canSendAutomated } from '$lib/plans';
 import { isValidDemoTrackingStatus, type DemoTrackingStatus } from '$lib/demo';
 import { NO_FIT_GBP_REASON } from '$lib/server/qualify';
 
@@ -46,21 +43,17 @@ export const load: PageServerLoad = async (event) => {
 	const prospect = await getProspectByIdForUser(user.id, prospectId);
 	if (!prospect) throw redirect(303, '/dashboard/prospects');
 
-	const [demoTracking, scrapedData, demoJobMap, insightsJob, gbpJob, plan, demoCountThisMonth, sendConfigured, gmailOutreachEvents] =
+	const [demoTracking, scrapedData, demoJobMap, insightsJob, gbpJob, sendConfigured, gmailOutreachEvents] =
 		await Promise.all([
 			getDemoTrackingForProspect(user.id, prospectId),
 			getScrapedDataForProspect(prospectId),
 			getDemoJobsForUser(user.id),
 			getInsightsJobForProspect(user.id, prospectId),
 			getGbpJobForProspect(user.id, prospectId),
-			getPlanForUser(user),
-			getDemoCountThisMonth(user.id),
 			getSendConfigured(user.id),
 			getGmailOutreachEventsForProspect(prospectId)
 		]);
 
-	const demoLimit = getDemoCreationLimit(plan);
-	const canSend = plan ? canSendAutomated(plan) : false;
 	const demoJob = demoJobMap[prospectId] ?? null;
 
 	return {
@@ -71,13 +64,8 @@ export const load: PageServerLoad = async (event) => {
 		demoJob,
 		insightsJob: insightsJob?.status === 'pending' || insightsJob?.status === 'running' ? insightsJob : null,
 		gbpJob: gbpJob?.status === 'pending' || gbpJob?.status === 'running' ? gbpJob : null,
-		plan,
-		demoLimit,
-		demoCountThisMonth: demoCountThisMonth ?? 0,
 		sendConfigured,
-		canSend: canSend && sendConfigured,
-		atDemoLimit:
-			demoLimit !== null && demoLimit > 0 && (demoCountThisMonth ?? 0) >= demoLimit,
+		canSend: sendConfigured,
 		showInsightsAndDemo: canRunInsightsAndDemo(prospect),
 		gmailOutreachEvents
 	};
@@ -127,16 +115,6 @@ export const actions: Actions = {
 		const { request, cookies } = event;
 		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
-		const plan = await getPlanForUser(user);
-		const demoLimit = getDemoCreationLimit(plan);
-		if (demoLimit !== null) {
-			const count = await getDemoCountThisMonth(user.id);
-			if (count >= demoLimit) {
-				return fail(403, {
-					message: `Limit: ${demoLimit} demos per month. Upgrade your plan for more.`
-				});
-			}
-		}
 		const formData = await request.formData();
 		const prospectId = formData.get('prospectId');
 		if (!prospectId || typeof prospectId !== 'string') {
@@ -258,10 +236,6 @@ export const actions: Actions = {
 		const { request, url } = event;
 		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
-		const plan = await getPlanForUser(user);
-		if (!canSendAutomated(plan)) {
-			return fail(403, { message: 'Outreach is available on Starter, Growth, and Agency plans.' });
-		}
 		const formData = await request.formData();
 		const prospectId = formData.get('prospectId');
 		const kindRaw = formData.get('outreachKind');
@@ -316,10 +290,6 @@ export const actions: Actions = {
 		const { request, url } = event;
 		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
-		const plan = await getPlanForUser(user);
-		if (!canSendAutomated(plan)) {
-			return fail(403, { message: 'Outreach is available on Starter, Growth, and Agency plans.' });
-		}
 		if (!(await getSendConfigured(user.id))) {
 			return fail(503, {
 				message: 'Gmail is not connected. Connect Gmail in Dashboard → Integrations (include draft access).'
@@ -414,10 +384,6 @@ export const actions: Actions = {
 		const { request } = event;
 		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
-		const plan = await getPlanForUser(user);
-		if (!canSendAutomated(plan)) {
-			return fail(403, { message: 'Outreach is available on Starter, Growth, and Agency plans.' });
-		}
 		if (!(await getSendConfigured(user.id))) {
 			return fail(503, { message: 'Gmail is not connected. Connect Gmail in Integrations.' });
 		}

@@ -1,10 +1,9 @@
 /**
- * Per-user app settings (e.g. CRM industry filter). Stored in Supabase user_settings.
+ * Per-user app settings. Stored in Supabase user_settings.
  */
 
 import { getSupabaseAdmin } from '$lib/server/supabase';
 import { getGmailTokens } from '$lib/server/gmail';
-import type { IndustrySlug } from '$lib/industries';
 
 /** Derive a display name from an email (e.g. ed@gmail.com → Ed). */
 function nameFromEmail(email: string): string {
@@ -13,7 +12,6 @@ function nameFromEmail(email: string): string {
 	return local.charAt(0).toUpperCase() + local.slice(1).toLowerCase();
 }
 
-const CRM_INDUSTRY_FILTER_KEY = 'crm_industry_filter';
 const GBP_DEFAULT_LOCATION_KEY = 'gbp_default_location';
 const EMAIL_SENDER_NAME_KEY = 'email_sender_name';
 const EMAIL_SIGNATURE_OVERRIDE_KEY = 'email_signature_override';
@@ -24,44 +22,6 @@ export type DemoBannerSettings = {
 	ctaLabel: string;
 	ctaHref: string;
 };
-
-/**
- * Get the user's CRM industry filter. Returns empty array if not set (show all industries).
- */
-export async function getCrmIndustryFilter(userId: string): Promise<IndustrySlug[]> {
-	const supabase = getSupabaseAdmin();
-	if (!supabase) return [];
-	const { data, error } = await supabase
-		.from('user_settings')
-		.select('value')
-		.eq('user_id', userId)
-		.eq('key', CRM_INDUSTRY_FILTER_KEY)
-		.maybeSingle();
-	if (error || !data?.value || !Array.isArray(data.value)) return [];
-	return data.value as IndustrySlug[];
-}
-
-/**
- * Save the user's CRM industry filter. Empty array = show all industries.
- */
-export async function setCrmIndustryFilter(
-	userId: string,
-	slugs: IndustrySlug[]
-): Promise<{ ok: boolean; error?: string }> {
-	const supabase = getSupabaseAdmin();
-	if (!supabase) return { ok: false, error: 'Database not configured' };
-	const { error } = await supabase.from('user_settings').upsert(
-		{
-			user_id: userId,
-			key: CRM_INDUSTRY_FILTER_KEY,
-			value: slugs,
-			updated_at: new Date().toISOString()
-		},
-		{ onConflict: 'user_id,key' }
-	);
-	if (error) return { ok: false, error: error.message };
-	return { ok: true };
-}
 
 /**
  * Get the user's default location for GBP/Places lookup (e.g. "Toronto, Ontario, Canada").

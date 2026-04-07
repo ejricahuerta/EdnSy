@@ -1,11 +1,10 @@
 /**
- * Legacy: serve one part (1, 2, or 3) of a three-part demo HTML. Used only when downloadDemoHtml stitches legacy parts server-side.
+ * Legacy: serve one part (1, 2, or 3) of a three-part demo HTML.
  */
 
 import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { getProspectById } from '$lib/server/prospects';
-import { getFreeDemoRequestById } from '$lib/server/supabase';
 import { downloadDemoHtmlPart } from '$lib/server/demo';
 import { DEMO_ERROR } from '$lib/constants/demoErrors';
 import { serverError } from '$lib/server/logger';
@@ -18,16 +17,13 @@ export const GET: RequestHandler = async ({ params }) => {
 	const partNum = partParam === '1' ? 1 : partParam === '2' ? 2 : partParam === '3' ? 3 : null;
 	if (partNum === null) throw error(404, 'Not found');
 
-	let allowed = false;
 	const prospect = await getProspectById(slug);
-	if (prospect) {
-		const { NO_FIT_GBP_REASON } = await import('$lib/server/qualify');
-		if (!prospect.flagged || prospect.flaggedReason === NO_FIT_GBP_REASON) allowed = true;
-	} else {
-		const freeDemo = await getFreeDemoRequestById(slug);
-		if (freeDemo?.status === 'done' && freeDemo.demo_link) allowed = true;
+	if (!prospect) throw error(404, 'Not found');
+
+	const { NO_FIT_GBP_REASON } = await import('$lib/server/qualify');
+	if (prospect.flagged && prospect.flaggedReason !== NO_FIT_GBP_REASON) {
+		throw error(404, 'Not found');
 	}
-	if (!allowed) throw error(404, 'Not found');
 
 	try {
 		const html = await downloadDemoHtmlPart(slug, partNum);

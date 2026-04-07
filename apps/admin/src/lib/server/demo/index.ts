@@ -1,5 +1,5 @@
 /**
- * Server-only demo: job processing, page.json build, storage, landing content, images, free-demo.
+ * Server-only demo: job processing, page.json build, storage, landing content, images.
  * Use for demo creation and serving. For status/themes/tracking and types, use $lib/demo.
  */
 
@@ -37,10 +37,3 @@ export {
 
 export { getDemoImageUrls, getDemoImageUrlsFull, getUnsplashImageUrl, getPexelsImageUrl, isPainterIndustry } from '$lib/server/unsplash';
 export type { DemoImageQueries } from '$lib/server/unsplash';
-
-export {
-	setFreeDemoCookie,
-	getFreeDemoProspect,
-	getProspectForDemoPage
-} from '$lib/server/freeDemo';
-export type { FreeDemoPayload, DemoPageData } from '$lib/server/freeDemo';

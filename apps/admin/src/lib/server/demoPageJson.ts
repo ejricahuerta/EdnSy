@@ -26,13 +26,6 @@ const DEFAULT_SERVICES = [
 	{ icon: 'calendar', title: 'Get in Touch', description: 'Book a consultation or request a quote.', cta: { label: 'Contact Us', href: '#contact' } }
 ];
 
-/** Derive a short area name from address (e.g. "Concord", "North York") for copy. */
-function getAreaFromAddress(address: string): string {
-	if (!address?.trim()) return '';
-	const match = address.match(/,?\s*([A-Za-z\s]+),\s*[A-Z]{2}\s*(?:\d|$)/);
-	return match?.[1]?.trim() ?? '';
-}
-
 const MIN_STATS = 3;
 const STATS_POOL: Array<{ value: string; label: string }> = [
 	{ value: '100+', label: 'Happy Clients' },
@@ -162,10 +155,6 @@ export function buildDemoPageJson(
 	const phone = prospect.phone?.trim() || '';
 	const address = prospect.address?.trim() || '';
 	const email = '';
-	const area = getAreaFromAddress(address);
-
-	const industryDefaults = null;
-
 	const hero = landingContent?.hero;
 	const cta = landingContent?.cta;
 	const hasLandingServices = landingContent?.services?.length;
@@ -176,54 +165,58 @@ export function buildDemoPageJson(
 				description: s.description ?? '',
 				cta: { label: 'Learn More', href: '#contact' }
 			}))
-		: (industryDefaults?.services?.items ?? DEFAULT_SERVICES);
+		: DEFAULT_SERVICES;
 
-	const primaryCtaLabel = hero?.ctaPrimary ?? cta?.button ?? (industryDefaults ? 'Call Now' : 'Get in touch');
+	const primaryCtaLabel = hero?.ctaPrimary ?? cta?.button ?? 'Get in touch';
 	const primaryCtaHref = phone ? `tel:${phone.replace(/\s/g, '')}` : '#contact';
 
-	const metaTitle = industryDefaults?.meta?.title ?? `${name} — Professional Services`;
-	const metaDesc = hero?.subtext?.slice(0, 160) ?? industryDefaults?.meta?.description ?? `${name}. Quality service and care.`;
-	const heroHeadline = hero?.headline ?? industryDefaults?.hero?.headline ?? name;
-	const heroSubheadline = hero?.subheadline ?? industryDefaults?.hero?.subheadline ?? 'Quality service you can trust.';
-	const heroBody = hero?.subtext ?? industryDefaults?.hero?.body ?? `Welcome to ${name}. We're here to help.`;
-	const heroImageUrl = hero?.imageUrl ?? industryDefaults?.hero?.imageUrl ?? 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&q=80';
-	const heroImageAlt = hero?.imageAlt ?? industryDefaults?.hero?.imageAlt ?? name;
+	const metaTitle = `${name} — Professional Services`;
+	const metaDesc = hero?.subtext?.slice(0, 160) ?? `${name}. Quality service and care.`;
+	const heroHeadline = hero?.headline ?? name;
+	const heroSubheadline = hero?.subheadline ?? 'Quality service you can trust.';
+	const heroBody = hero?.subtext ?? `Welcome to ${name}. We're here to help.`;
+	const heroImageUrl =
+		hero?.imageUrl ?? 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&q=80';
+	const heroImageAlt = hero?.imageAlt ?? name;
 
-	const problemHeadline = industryDefaults?.problem?.headline ?? 'Looking for quality service?';
-	const problemItems = industryDefaults?.problem?.items ?? [
+	const problemHeadline = 'Looking for quality service?';
+	const problemItems = [
 		'You want a team you can trust',
 		'You need reliable, professional results',
 		'You value clear communication and fair pricing'
 	];
 
-	const solutionHeadline = industryDefaults?.solution?.headline ?? "We're here to help";
+	const solutionHeadline = "We're here to help";
 	const solutionBody =
 		landingContent?.cta?.subtext ??
-		industryDefaults?.solution?.body ??
 		`At ${name}, we focus on what matters: quality work, clear communication, and your satisfaction.`;
 	const solutionImageUrl =
-		landingContent?.aboutImageUrl ?? industryDefaults?.solution?.imageUrl ?? 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&q=80';
-	const solutionImageAlt = landingContent?.aboutImageAlt ?? industryDefaults?.solution?.imageAlt ?? `${name} team`;
+		landingContent?.aboutImageUrl ??
+		'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&q=80';
+	const solutionImageAlt = landingContent?.aboutImageAlt ?? `${name} team`;
 
-	const servicesHeadline = industryDefaults?.services?.headline ?? 'What We Offer';
-	const servicesSubheadline = industryDefaults?.services?.subheadline ?? 'Services tailored to your needs.';
+	const servicesHeadline = 'What We Offer';
+	const servicesSubheadline = 'Services tailored to your needs.';
 
-	const statsItems = industryDefaults?.stats?.items ?? [
+	const statsItems = [
 		{ value: '100+', label: 'Happy Clients' },
 		{ value: '15+', label: 'Years Experience' },
 		{ value: '500+', label: 'Happy Clients' }
 	];
 
-	const testimonialFallbacks = industryDefaults?.testimonials?.items?.map((t) => ({
-		...t,
-		avatarUrl: DEFAULT_TESTIMONIAL_AVATAR
-	}));
-	const faqItems = industryDefaults?.faq?.items ?? [
-		{ question: 'How can I get started?', answer: 'Reach out via the form above or give us a call. We\'ll respond quickly.' },
-		{ question: 'What areas do you serve?', answer: 'We serve our local community and surrounding areas.' }
+	const testimonialFallbacks: TestimonialItem[] | undefined = undefined;
+	const faqItems = [
+		{
+			question: 'How can I get started?',
+			answer: "Reach out via the form above or give us a call. We'll respond quickly."
+		},
+		{
+			question: 'What areas do you serve?',
+			answer: 'We serve our local community and surrounding areas.'
+		}
 	];
-	const ctaHeadline = industryDefaults?.cta?.headline ?? cta?.heading ?? "Let's connect";
-	const ctaBody = industryDefaults?.cta?.body ?? cta?.subtext ?? `Get in touch with ${name} today.`;
+	const ctaHeadline = cta?.heading ?? "Let's connect";
+	const ctaBody = cta?.subtext ?? `Get in touch with ${name} today.`;
 
 	return {
 		meta: {
@@ -257,17 +250,11 @@ export function buildDemoPageJson(
 		},
 		trustBar: {
 			enabled: true,
-			items: industryDefaults
-				? [
-						{ icon: 'clock', label: '24/7 Emergency Service' },
-						{ icon: 'shield', label: 'Licensed & Insured' },
-						{ icon: 'star', label: 'Rated by our clients' }
-					]
-				: [
-					{ icon: 'star', label: 'Rated by our clients' },
-					{ icon: 'shield', label: 'Trusted local business' },
-					{ icon: 'clock', label: 'Responsive service' }
-				]
+			items: [
+				{ icon: 'star', label: 'Rated by our clients' },
+				{ icon: 'shield', label: 'Trusted local business' },
+				{ icon: 'clock', label: 'Responsive service' }
+			]
 		},
 		problem: {
 			enabled: true,

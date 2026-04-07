@@ -1,6 +1,5 @@
 import type { LayoutServerLoad } from './$types';
 import { getDashboardSessionUser } from '$lib/server/authDashboard';
-import { getPlanForUser } from '$lib/server/stripe';
 import { getProspectOwnerId } from '$lib/server/prospects';
 import { getDemoBanner } from '$lib/server/userSettings';
 import { getSupabasePublicConfig } from '$lib/server/supabasePublicConfig';
@@ -9,7 +8,6 @@ import { getSupabaseDbSchemaServer } from '$lib/server/dbSchemaEnv';
 export const load: LayoutServerLoad = async (event) => {
 	const { url } = event;
 	const user = await getDashboardSessionUser(event);
-	const plan = user ? await getPlanForUser(user) : 'free';
 
 	let demoBanner: { text: string; ctaLabel: string; ctaHref: string } | null = null;
 	const pathname = url.pathname;
@@ -27,7 +25,6 @@ export const load: LayoutServerLoad = async (event) => {
 
 	return {
 		user: user ?? null,
-		plan,
 		siteOrigin: url.origin,
 		demoBanner,
 		supabasePublic,

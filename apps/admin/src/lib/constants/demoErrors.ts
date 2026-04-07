@@ -39,6 +39,9 @@ export const DEMO_ERROR = {
 	DEMO_PAGE_UNAVAILABLE: 'This demo isn’t available.',
 	DEMO_PAGE_PARTS_FAILED: 'One or more demo sections failed to load. Try again.',
 	DEMO_STILL_GENERATING: 'The demo may still be generating, or the link may have expired.',
+	/** demo_jobs requeued after processing exceeded the time limit */
+	DEMO_REQUEUED_AFTER_TIMEOUT:
+		'Demo generation exceeded the time limit; requeued automatically.',
 } as const;
 
 export type DemoErrorCode = keyof typeof DEMO_ERROR;
@@ -76,6 +79,7 @@ export function getDemoFailureLabel(errorMessage: string | undefined): string {
 
 	// Other
 	if (/update prospect|Failed to update/i.test(msg)) return 'Update prospect failed';
+	if (/exceeded the time limit|requeued automatically/i.test(msg)) return 'Timed out; requeued';
 
 	return 'Demo creation error';
 }

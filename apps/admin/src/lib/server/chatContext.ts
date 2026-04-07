@@ -1,9 +1,12 @@
-import type { IndustrySlug } from '$lib/industries';
+import { INDUSTRY_SLUGS, type IndustrySlug } from '$lib/industries';
 import { dentalDemoContent } from '$lib/content/dental';
 
-const CONTENT_BY_SLUG: Record<IndustrySlug, Record<string, unknown>> = {
-	dental: dentalDemoContent as Record<string, unknown>
-};
+/** Shared structure for chat context until per-industry copy exists. */
+const sharedDemoPageContent = dentalDemoContent as Record<string, unknown>;
+
+const CONTENT_BY_SLUG = Object.fromEntries(
+	INDUSTRY_SLUGS.map((slug) => [slug, sharedDemoPageContent])
+) as Record<IndustrySlug, Record<string, unknown>>;
 
 /** Default system instruction for demo chat; can be overridden via agent content. */
 export const DEFAULT_CHAT_SYSTEM_INSTRUCTION = `You are a helpful assistant for "{{businessName}}".

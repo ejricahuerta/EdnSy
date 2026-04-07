@@ -66,8 +66,6 @@
 		type DemoJobMapEntry
 	} from '$lib/client/prospectsJobRealtimeToast';
 	import { prospectJobLabelResolver } from '$lib/notificationHistory';
-	import { canSendAutomated } from '$lib/plans';
-
 	let { data, form } = $props<{
 		data: PageData;
 		form?: import('./$types').ActionFailure<{ message: string }> & {
@@ -82,17 +80,9 @@
 	$effect(() => {
 		prospectListRef.list = data.prospects ?? [];
 	});
-	const plan = $derived(data.plan);
 	const sendConfigured = $derived(data.sendConfigured ?? false);
-	const canOutreachSend = $derived(canSendAutomated(plan) && sendConfigured);
-	const demoLimit = $derived(data.demoLimit);
+	const canOutreachSend = $derived(sendConfigured);
 	const demoCountThisMonth = $derived(data.demoCountThisMonth ?? 0);
-	const atDemoLimit = $derived(
-		demoLimit !== null && demoLimit > 0 && demoCountThisMonth >= demoLimit
-	);
-	const demoUsageLabel = $derived(
-		demoLimit === null ? 'Unlimited demos' : `${demoCountThisMonth} / ${demoLimit} demos this month`
-	);
 	const gbpDentalTodayCount = $derived(data.gbpDentalTodayCount ?? 0);
 	const gbpDentalDailyCap = $derived(data.gbpDentalDailyCap ?? 25);
 	const placesApiConfigured = $derived(data.placesApiConfigured ?? false);
@@ -224,6 +214,7 @@
 	);
 	/** Count of prospects in a queued automation status (may be stuck if no active job). */
 	const prospectsInQueueCount = $derived(prospects.filter((p) => isProspectQueuedStatus(p.status)).length);
+	const hasDemoCreatingJob = $derived(data.hasDemoCreatingJob ?? false);
 	let generatingDemo = $state(false);
 	type ScrapedSummary = {
 		gbpCompletenessScore?: number | null;
@@ -336,6 +327,8 @@
 	let filterQuery = $state('');
 	/** `__all__` = no status filter */
 	let statusFilter = $state<string>('__all__');
+	/** `__all__` = any industry; `__none__` = blank industry */
+	let industryFilter = $state<string>('__all__');
 
 	const statusFilterOptions = $derived.by(() => {
 		const nextStepOpts = {
@@ -351,6 +344,30 @@
 		return Array.from(labels).sort((a, b) => a.localeCompare(b));
 	});
 
+	const industryFilterOptions = $derived.by(() => {
+		const set = new Set<string>();
+		let hasEmpty = false;
+		for (const p of prospectsWithJobStatus) {
+			const s = (p.industry ?? '').trim();
+			if (s) set.add(s);
+			else hasEmpty = true;
+		}
+		return {
+			values: Array.from(set).sort((a, b) => a.localeCompare(b)),
+			hasEmpty
+		};
+	});
+
+	$effect(() => {
+		const { values, hasEmpty } = industryFilterOptions;
+		if (industryFilter === '__all__') return;
+		if (industryFilter === '__none__') {
+			if (!hasEmpty) industryFilter = '__all__';
+			return;
+		}
+		if (!values.includes(industryFilter)) industryFilter = '__all__';
+	});
+
 	const filteredProspects = $derived.by((): ProspectRow[] => {
 		let list: ProspectRow[] = prospectsWithJobStatus;
 		const nextStepOpts = {
@@ -363,6 +380,13 @@
 					getSimplifiedStatus(p, { ...nextStepOpts, hasGbpData: p.hasGbpData }).label ===
 					statusFilter
 			);
+		}
+		if (industryFilter !== '__all__') {
+			if (industryFilter === '__none__') {
+				list = list.filter((p) => !(p.industry ?? '').trim());
+			} else {
+				list = list.filter((p) => (p.industry ?? '').trim() === industryFilter);
+			}
 		}
 		const q = filterQuery.trim().toLowerCase();
 		if (q) {
@@ -397,6 +421,7 @@
 	let bulkRestoreSubmitting = $state(false);
 	let bulkProcessNextStepSubmitting = $state(false);
 	let clearStuckSubmitting = $state(false);
+	let resetStuckDemoSubmitting = $state(false);
 	/** Prospect ID currently running processNextStep (per-row generate icon). */
 	let processNextStepId = $state<string | null>(null);
 	let sendDemosDialogOpen = $state(false);
@@ -1097,6 +1122,54 @@
 							</Button>
 						</form>
 					{/if}
+					{#if hasDemoCreatingJob}
+						<form
+							method="POST"
+							action="?/resetStuckDemoJobs"
+							use:enhance={() => {
+								resetStuckDemoSubmitting = true;
+								return async ({ result }) => {
+									resetStuckDemoSubmitting = false;
+									if (result.type === 'success' && result.data && typeof result.data === 'object') {
+										const d = result.data as { resetCount?: number };
+										const n = d.resetCount ?? 0;
+										if (n > 0) {
+											toastSuccess(
+												'Demo queue',
+												n === 1
+													? 'Put 1 stuck demo back on the queue'
+													: `Put ${n} stuck demos back on the queue`
+											);
+											await invalidateAll();
+										} else {
+											toastInfo(
+												'Demo queue',
+												'No demos were stuck long enough (over 5 minutes) to reset.'
+											);
+											await invalidateAll();
+										}
+									} else if (result.type === 'failure' && result.data?.message) {
+										toastError('Reset stuck demos', (result.data as { message?: string }).message);
+									}
+								};
+							}}
+							class="inline-flex"
+						>
+							<Button
+								type="submit"
+								variant="outline"
+								size="sm"
+								class="h-9 bg-background"
+								disabled={resetStuckDemoSubmitting}
+								title="Put demos stuck in generating (over 5 minutes) back on the demo queue"
+							>
+								{#if resetStuckDemoSubmitting}
+									<LoaderCircle class="mr-1.5 size-4 animate-spin" aria-hidden="true" />
+								{/if}
+								{resetStuckDemoSubmitting ? 'Resetting…' : 'Reset stuck demos'}
+							</Button>
+						</form>
+					{/if}
 					<form
 						method="POST"
 						action="?/pullGbpDental"
@@ -1382,6 +1455,42 @@
 					<div
 						class="flex w-full shrink-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end md:ms-auto md:w-auto"
 					>
+						{#if industryFilterOptions.values.length > 0 || industryFilterOptions.hasEmpty}
+							<div class="flex min-w-0 items-center gap-2">
+								<Label for="lr-industry-filter" class="sr-only">Filter by industry</Label>
+								<Select.Root
+									type="single"
+									value={industryFilter}
+									onValueChange={(v) => {
+										industryFilter = v ?? '__all__';
+									}}
+								>
+									<Select.Trigger
+										id="lr-industry-filter"
+										size="sm"
+										class="h-8 min-w-[10rem] max-w-[min(100%,18rem)] border-border/50"
+										aria-label="Filter by industry"
+									>
+										{#if industryFilter === '__all__'}
+											All industries
+										{:else if industryFilter === '__none__'}
+											No industry
+										{:else}
+											<span class="truncate">{industryFilter}</span>
+										{/if}
+									</Select.Trigger>
+									<Select.Content>
+										<Select.Item value="__all__">All industries</Select.Item>
+										{#if industryFilterOptions.hasEmpty}
+											<Select.Item value="__none__">No industry</Select.Item>
+										{/if}
+										{#each industryFilterOptions.values as ind (ind)}
+											<Select.Item value={ind}>{ind}</Select.Item>
+										{/each}
+									</Select.Content>
+								</Select.Root>
+							</div>
+						{/if}
 						<div class="flex flex-wrap items-center gap-2 sm:justify-end">
 							<ToggleGroup.Root
 								type="single"

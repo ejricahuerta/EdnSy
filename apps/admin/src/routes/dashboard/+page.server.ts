@@ -1,6 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
 import {
-	listProspects,
+	listProspectsForUser,
 	getProspectById,
 	updateProspectDemoLink,
 	updateProspectFromGbp,
@@ -22,27 +22,22 @@ import { getScrapedDataForDemo, formatScrapedDataErrorMessage } from '$lib/serve
 import type { PageServerLoad, Actions } from './$types';
 import { getDashboardSessionUser } from '$lib/server/authDashboard';
 import { env } from '$env/dynamic/private';
-import { getCrmIndustryFilter, getGbpDefaultLocation } from '$lib/server/userSettings';
+import { getGbpDefaultLocation } from '$lib/server/userSettings';
 import { isValidDemoTrackingStatus } from '$lib/demo';
-import { getPlanForUser, getUpcomingInvoiceForUser } from '$lib/server/stripe';
-import { getDemoCreationLimit } from '$lib/plans';
 import { getOriginForOutgoingLinks, getDemoPublicOrigin } from '$lib/server/send';
 import { PROSPECT_STATUS } from '$lib/prospectStatus';
-
 export const load: PageServerLoad = async (event) => {
 	const user = await getDashboardSessionUser(event);
 	if (!user) {
 		throw redirect(303, '/auth/login');
 	}
-	const plan = await getPlanForUser(user);
-	const demoLimit = getDemoCreationLimit(plan);
 	const [demoCountThisMonth, gbpCountThisMonth, insightsCountThisMonth, placesCountThisMonth, prospectsResult] =
 		await Promise.all([
 			getDemoCountThisMonth(user.id),
 			getGbpCountThisMonth(user.id),
 			getInsightsCountThisMonth(user.id),
 			getPlacesCountThisMonth(),
-			listProspects(user.id)
+			listProspectsForUser(user.id)
 		]);
 	const placesMonthlyLimit = getPlacesMonthlyLimit();
 	const prospects = prospectsResult.prospects ?? [];
@@ -85,8 +80,6 @@ export const load: PageServerLoad = async (event) => {
 
 	return {
 		user,
-		plan,
-		demoLimit,
 		demoCountThisMonth,
 		gbpCountThisMonth,
 		insightsCountThisMonth,
@@ -104,16 +97,6 @@ export const actions: Actions = {
 		const user = await getDashboardSessionUser(event);
 		if (!user) {
 			return fail(401, { message: 'Sign in required' });
-		}
-		const plan = await getPlanForUser(user);
-		const demoLimit = getDemoCreationLimit(plan);
-		if (demoLimit !== null) {
-			const count = await getDemoCountThisMonth(user.id);
-			if (count >= demoLimit) {
-				return fail(403, {
-					message: `Limit: ${demoLimit} demos per month. Upgrade your plan for more.`
-				});
-			}
 		}
 		const formData = await request.formData();
 		const prospectId = formData.get('prospectId');
@@ -214,14 +197,6 @@ export const actions: Actions = {
 		if (!user) {
 			return fail(401, { message: 'Sign in required' });
 		}
-		const plan = await getPlanForUser(user);
-		const demoLimit = getDemoCreationLimit(plan);
-		let countThisMonth = await getDemoCountThisMonth(user.id);
-		if (demoLimit !== null && countThisMonth >= demoLimit) {
-			return fail(403, {
-				message: `Limit: ${demoLimit} demos per month. Upgrade your plan for more.`
-			});
-		}
 		const formData = await request.formData();
 		const prospectIds = formData.getAll('prospectId') as string[];
 		if (prospectIds.length === 0) {
@@ -237,7 +212,6 @@ export const actions: Actions = {
 		let enqueued = 0;
 		const errors: string[] = [];
 		for (const prospectId of prospectIds) {
-			if (demoLimit !== null && countThisMonth >= demoLimit) break;
 			const prospect = await getProspectById(prospectId);
 			if (!prospect) continue;
 			if (prospect.flagged) continue;
@@ -265,7 +239,6 @@ export const actions: Actions = {
 			}
 			await updateProspectStatus(prospectId, PROSPECT_STATUS.DEMO_QUEUED);
 			enqueued++;
-			countThisMonth++;
 		}
 		if (enqueued === 0 && errors.length > 0) {
 			return fail(502, { message: errors.slice(0, 3).join('; ') });
