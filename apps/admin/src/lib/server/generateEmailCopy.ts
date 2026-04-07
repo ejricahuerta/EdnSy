@@ -243,7 +243,7 @@ export async function generateEmailCopy(
 	}
 
 	const company = prospect.companyName || 'the business';
-	const industry = prospect.industry || 'dental';
+	const industry = prospect.industry || 'your business';
 
 	const resolved = await getResolvedContent(
 		'email',

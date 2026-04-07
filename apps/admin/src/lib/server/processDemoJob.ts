@@ -31,9 +31,6 @@ function getDemoGeneratorEndpoint(_industrySlug: IndustrySlug): string {
 	return raw.startsWith('/') ? raw : `/${raw}`;
 }
 
-/** Prefer dental when resolving multi-value industry (compat). */
-const DEDICATED_INDUSTRY_SLUGS: IndustrySlug[] = ['dental'];
-
 /** Merge an inferred industry into current (e.g. "" + "Dental" → "Dental", or "Legal, Dental" + "Dental" → "Legal, Dental"). Dedupes and trims. */
 function mergeIndustryValues(current: string, toAdd: string): string {
 	const parts = (current ?? '')
@@ -50,6 +47,7 @@ function mergeIndustryValues(current: string, toAdd: string): string {
 import type { LandingPageIndexJson } from '$lib/types/landingPageIndexJson';
 import { DEMO_ERROR } from '$lib/constants/demoErrors';
 import { serverError } from '$lib/server/logger';
+import { getValidStitchAccessToken } from '$lib/server/stitchTokens';
 
 export type ProcessJobResult =
 	| { processed: true; jobId: string; prospectId: string; status: 'done'; demoLink: string; companyName?: string }
@@ -125,7 +123,7 @@ export async function processOneDemoJob(origin: string): Promise<ProcessJobResul
 		}
 		const gbpForIndustry = scrapedData.gbpRaw as GbpData | undefined;
 		let mergedIndustryForProspect = (prospect.industry ?? '').trim() || '';
-		const inferred = await inferIndustryWithGemini(prospect, undefined);
+		const inferred = await inferIndustryWithGemini(prospect, gbpForIndustry?.industry ?? null);
 		let effectiveIndustry: string;
 		if (inferred) {
 			mergedIndustryForProspect = mergeIndustryValues(mergedIndustryForProspect, inferred);
@@ -186,10 +184,8 @@ export async function processOneDemoJob(origin: string): Promise<ProcessJobResul
 			if (insightResult.ok) insight = insightResult.data;
 		}
 
-		// Multi-value industry (e.g. "Dental" or "Legal, Dental"): prefer a dedicated-endpoint slug when present for demo routing
 		const industrySlug = getPrimaryIndustrySlugFromMultiValue(
-			mergedIndustryForProspect || effectiveIndustry,
-			DEDICATED_INDUSTRY_SLUGS
+			mergedIndustryForProspect || effectiveIndustry
 		) as IndustrySlug;
 		const industryForImages = mergedIndustryForProspect || prospect.industry || undefined;
 		const imageUrls = await getDemoImageUrls(industrySlug, industryForImages, {
@@ -252,10 +248,21 @@ export async function processOneDemoJob(origin: string): Promise<ProcessJobResul
 		const pitchPayload = transformToWebsiteTemplatePayload({
 			indexJson,
 			prospect,
-			gbpRaw: gbpRaw as GbpData,
-			industrySlug
+			gbpRaw: gbpRaw as GbpData
 		});
 		const payload = { ...pitchPayload, id: prospectId, jobId, prospectId, userId } as Record<string, unknown>;
+		const gcpProject = (env.STITCH_GOOGLE_CLOUD_PROJECT ?? '').trim();
+		if (gcpProject) {
+			try {
+				const stitchToken = await getValidStitchAccessToken(userId);
+				if (stitchToken) {
+					payload.stitchAccessToken = stitchToken;
+					payload.stitchGcpProject = gcpProject;
+				}
+			} catch {
+				// Demo generator falls back to shared STITCH_API_KEY when per-user OAuth is unavailable
+			}
+		}
 		payload.callbackUrl = `${origin.replace(/\/$/, '')}/api/demo/generation-callback`;
 		payload.callbackToken = demoCallbackSecret;
 

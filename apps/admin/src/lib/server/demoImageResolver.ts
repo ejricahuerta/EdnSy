@@ -5,7 +5,7 @@
  */
 
 import { env } from '$env/dynamic/private';
-import type { IndustrySlug } from '$lib/industries';
+import { INDUSTRY_LABELS, INDUSTRY_SLUGS, type IndustrySlug } from '$lib/industries';
 import { getRegistryImages } from '$lib/server/demoImageRegistry';
 import { fetchPexelsCandidates, isPexelsConfigured } from '$lib/server/pexels';
 import { isImageAppropriateForDemo } from '$lib/server/validateDemoImage';
@@ -29,11 +29,15 @@ export function getDemoImageProfile(
 }
 
 /**
- * Human-readable description for validation prompt.
+ * Human-readable description for validation prompt and Gemini image-query context.
  */
 export function getProfileDescription(profile: string): string {
-	if (profile === 'dental') return 'dental practice';
-	return 'dental practice';
+	const key = profile.trim();
+	if (INDUSTRY_SLUGS.includes(key as IndustrySlug)) {
+		return `${INDUSTRY_LABELS[key as IndustrySlug].toLowerCase()} business`;
+	}
+	if (!key) return 'local professional business';
+	return `${key.replace(/-/g, ' ')} business`;
 }
 
 /**
@@ -84,7 +88,8 @@ Reply with ONLY the search query, 2-4 words, nothing else.`;
 }
 
 function getFallbackQueryForProfile(profile: string, slot: 'hero' | 'about'): string {
-	const base = profile === 'dental' ? 'dental clinic' : 'dental clinic';
+	const words = getProfileDescription(profile).replace(/\s+business$/, '').trim() || 'local business';
+	const base = words.split(/\s+/).slice(0, 3).join(' ');
 	return slot === 'hero' ? `${base} professional` : `${base} team`;
 }
 

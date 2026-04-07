@@ -4,7 +4,7 @@
  */
 
 import { env } from '$env/dynamic/private';
-import type { IndustrySlug } from '$lib/industries';
+import { INDUSTRY_LABELS, INDUSTRY_SLUGS, type IndustrySlug } from '$lib/industries';
 
 const GEMINI_API_KEY = (env.GEMINI_API_KEY ?? '').trim();
 const GEMINI_MODEL = 'gemini-2.5-flash';
@@ -52,10 +52,10 @@ export function getValidationPromptDescription(context: ImageValidationContext):
 		return context.profileDescription.trim();
 	}
 	const { industrySlug } = context;
-	if (industrySlug === 'dental') {
-		return 'dental practice';
+	if (INDUSTRY_SLUGS.includes(industrySlug)) {
+		return `${INDUSTRY_LABELS[industrySlug].toLowerCase()} business`;
 	}
-	return 'dental practice';
+	return `${String(industrySlug).replace(/-/g, ' ')} business`;
 }
 
 /**

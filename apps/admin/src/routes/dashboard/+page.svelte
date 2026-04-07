@@ -5,12 +5,10 @@
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 	import { Separator } from '$lib/components/ui/separator';
-	import { PLAN_LABELS, type PlanTier } from '$lib/plans';
 	import { scaleBand } from 'd3-scale';
 	import { BarChart } from 'layerchart';
 	import {
 		Bot,
-		CreditCard,
 		MapPin,
 		Plug,
 		Presentation,
@@ -22,10 +20,8 @@
 	const gbpCount = $derived(data.gbpCountThisMonth ?? 0);
 	const insightsCount = $derived(data.insightsCountThisMonth ?? 0);
 	const demoCount = $derived(data.demoCountThisMonth ?? 0);
-	const demoLimit = $derived(data.demoLimit ?? null);
 	const placesCount = $derived(data.placesCountThisMonth ?? 0);
 	const placesLimit = $derived(data.placesMonthlyLimit ?? 0);
-	const plan = $derived((data.plan ?? 'free') as PlanTier);
 	const prospectTotal = $derived(data.prospectTotal ?? 0);
 	const prospectsNeedingAttention = $derived(data.prospectsNeedingAttention ?? 0);
 
@@ -36,12 +32,6 @@
 	});
 
 	const agentPullsTotal = $derived(gbpCount + insightsCount);
-
-	const demoProgressPct = $derived(
-		demoLimit === null || demoLimit <= 0
-			? null
-			: Math.min(100, Math.round((demoCount / demoLimit) * 100))
-	);
 
 	const placesProgressPct = $derived(
 		placesLimit <= 0 ? null : Math.min(100, Math.round((placesCount / placesLimit) * 100))
@@ -107,7 +97,6 @@
 			<div class="space-y-1">
 				<div class="flex flex-wrap items-center gap-2">
 					<h1 class="text-2xl font-semibold tracking-tight text-foreground">Dashboard</h1>
-					<Badge variant="secondary" class="font-normal">{PLAN_LABELS[plan]}</Badge>
 				</div>
 				<p class="text-muted-foreground text-sm max-w-xl">
 					Usage and pipeline overview · this month
@@ -136,10 +125,6 @@
 				<Button href="/dashboard/integrations" variant="outline" size="sm">
 					<Plug class="size-4" aria-hidden="true" />
 					Integrations
-				</Button>
-				<Button href="/dashboard/billing" variant="outline" size="sm">
-					<CreditCard class="size-4" aria-hidden="true" />
-					Billing
 				</Button>
 			</div>
 		</div>
@@ -181,21 +166,7 @@
 				</Card.Header>
 				<Card.Content class="space-y-3">
 					<p class="text-3xl font-semibold tabular-nums tracking-tight">{demoCount}</p>
-					{#if demoLimit !== null}
-						<div class="space-y-1.5">
-							<div class="h-2 w-full overflow-hidden rounded-full bg-muted" role="presentation">
-								<div
-									class="bg-primary h-full rounded-full transition-[width] duration-300"
-									style:width="{demoProgressPct ?? 0}%"
-								></div>
-							</div>
-							<p class="text-xs text-muted-foreground tabular-nums">
-								{demoCount} of {demoLimit} this month
-							</p>
-						</div>
-					{:else}
-						<p class="text-xs text-muted-foreground">No monthly cap on your plan</p>
-					{/if}
+					<p class="text-xs text-muted-foreground tabular-nums">{demoCount} this month</p>
 				</Card.Content>
 			</Card.Root>
 

@@ -43,9 +43,18 @@ export const TONE_TO_V13_THEME: Record<ToneSlug, V13Theme> = {
 	minimal: 'reliable-professional'
 };
 
-/** Industry → v1.3 theme. Fallback when tone is not available (e.g. legacy or free-demo). */
+/** Industry → v1.3 theme. Fallback when tone is not available (e.g. legacy demos). */
 export const INDUSTRY_TO_V13_THEME: Record<IndustrySlug, V13Theme> = {
-	dental: 'polished-credible'
+	dental: 'polished-credible',
+	legal: 'reliable-professional',
+	medical: 'warm-trustworthy',
+	fitness: 'vibrant-inviting',
+	restaurant: 'vibrant-inviting',
+	beauty: 'aspirational-lifestyle',
+	'home-services': 'bold-results-driven',
+	'real-estate': 'polished-credible',
+	accounting: 'reliable-professional',
+	other: 'friendly-local'
 };
 
 /** Prefer theme from Gemini-chosen tone; use when creating demos so the best-fit tone drives the theme. */

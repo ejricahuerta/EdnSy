@@ -10,6 +10,8 @@ const META_KEYS = new Set([
   "styleId",
   "dentalStyleId",
   "leadRosettaLayout",
+  "stitchAccessToken",
+  "stitchGcpProject",
 ]);
 
 /** Remove async job / render-hint fields before mapping to Stitch context. */

@@ -1,12 +1,9 @@
 import { createServerClient } from '@supabase/ssr';
-import { redirect, type Handle } from '@sveltejs/kit';
+import type { Handle } from '@sveltejs/kit';
 import { getSupabaseDbSchemaServer } from '$lib/server/dbSchemaEnv';
 import { getSupabasePublicConfig } from '$lib/server/supabasePublicConfig';
 
 export const handle: Handle = async ({ event, resolve }) => {
-	if (event.url.pathname === '/try' || event.url.pathname === '/try/') {
-		throw redirect(302, '/auth/login');
-	}
 	const cfg = getSupabasePublicConfig();
 	if (!cfg) {
 		throw new Error(
@@ -20,12 +17,17 @@ export const handle: Handle = async ({ event, resolve }) => {
 		cookies: {
 			getAll: () => event.cookies.getAll(),
 			setAll: (cookiesToSet, headers) => {
-				cookiesToSet.forEach(({ name, value, options }) => {
-					event.cookies.set(name, value, { ...options, path: '/' });
-				});
-				// Required by @supabase/ssr when persisting auth cookies (avoids shared caches serving Set-Cookie).
-				if (headers && Object.keys(headers).length > 0) {
-					event.setHeaders(headers);
+				try {
+					cookiesToSet.forEach(({ name, value, options }) => {
+						event.cookies.set(name, value, { ...options, path: '/' });
+					});
+					// Required by @supabase/ssr when persisting auth cookies (avoids shared caches serving Set-Cookie).
+					if (headers && Object.keys(headers).length > 0) {
+						event.setHeaders(headers);
+					}
+				} catch {
+					// GoTrue can notify subscribers after a redirect/response is committed (e.g. OAuth callbacks).
+					// Cookie writes are invalid then; session was already established for this request.
 				}
 			}
 		}

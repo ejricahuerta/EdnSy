@@ -1,13 +1,12 @@
 /**
  * Transform LandingPageIndexJson (built + enriched) into the structured payload
  * expected by Website Template (index.json shape). Handles hours normalization,
- * dental-specific fields (coverage, insurance, acceptingNewPatients), and
+ * testimonial shape, and
  * testimonial shape.
  */
 
 import type { Prospect } from '$lib/server/prospects';
 import type { GbpData } from '$lib/server/gbp';
-import type { IndustrySlug } from '$lib/industries';
 import type { LandingPageIndexJson } from '$lib/types/landingPageIndexJson';
 import type { WebsiteTemplatePayload } from '$lib/types/websiteTemplatePayload';
 
@@ -43,28 +42,20 @@ function normalizeHoursToDayKeys(hours: Record<string, string>): Record<string, 
 	return result;
 }
 
-const DEFAULT_INSURANCE_DENTAL = {
-	accepted:
-		'Most insurance plans accepted. We submit claims directly. Canadian Dental Care Plan (CDCP) welcome.',
-	payment: 'Payment plans available. Free consultation and treatment estimate before you proceed.'
-};
-
 export type TransformToWebsiteTemplatePayloadInput = {
 	indexJson: LandingPageIndexJson;
 	prospect: Prospect;
 	gbpRaw: GbpData | null;
-	industrySlug: IndustrySlug;
 };
 
 /**
  * Transform built and enriched LandingPageIndexJson into the exact shape
  * Website Template expects (business, hero, images, services, insurance, about,
  * stats, testimonials, contact, theme, seo). Normalizes hours to Monday–Sunday,
- * maps services to coverage for dental, adds insurance for dental, and
- * maps testimonials to { author, quote, rating }.
+ * maps services with price, and maps testimonials to { author, quote, rating }.
  */
 export function transformToWebsiteTemplatePayload(input: TransformToWebsiteTemplatePayloadInput): WebsiteTemplatePayload {
-	const { indexJson, prospect, gbpRaw, industrySlug } = input;
+	const { indexJson, prospect, gbpRaw } = input;
 	const business = indexJson.business ?? {};
 	const hoursRaw = business.hours ?? {
 		'Monday–Friday': '9am – 6pm',
@@ -92,23 +83,11 @@ export function transformToWebsiteTemplatePayload(input: TransformToWebsiteTempl
 	const theme = indexJson.theme ?? {};
 	const seo = indexJson.seo ?? {};
 
-	const isDental = industrySlug === 'dental';
-
-	// Services: dental uses coverage (from price or default), others use price
-	const servicesOut = services.slice(0, 6).map((s) => {
-		if (isDental) {
-			return {
-				name: s.name,
-				description: s.description ?? '',
-				coverage: (s as { price?: string }).price ?? '—'
-			};
-		}
-		return {
-			name: s.name,
-			description: s.description ?? '',
-			price: s.price ?? '—'
-		};
-	});
+	const servicesOut = services.slice(0, 6).map((s) => ({
+		name: s.name,
+		description: s.description ?? '',
+		price: s.price ?? '—'
+	}));
 
 	// Testimonials: pitch expects { author, quote, rating }
 	const testimonialsOut = testimonials.slice(0, 5).map((t) => ({
@@ -122,7 +101,6 @@ export function transformToWebsiteTemplatePayload(input: TransformToWebsiteTempl
 			name,
 			tagline: business.tagline ?? undefined,
 			description: business.description ?? undefined,
-			...(isDental && { acceptingNewPatients: true }),
 			phone: phone || undefined,
 			email: email || undefined,
 			address: address || undefined,
@@ -142,7 +120,6 @@ export function transformToWebsiteTemplatePayload(input: TransformToWebsiteTempl
 			unsplashKeywords: images.unsplashKeywords ?? []
 		},
 		services: servicesOut,
-		...(isDental && { insurance: DEFAULT_INSURANCE_DENTAL }),
 		about: {
 			headline: about.headline ?? `${name}`,
 			body: about.body ?? `${name} provides quality service. We focus on your satisfaction.`,

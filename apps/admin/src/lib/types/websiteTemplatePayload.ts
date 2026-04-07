@@ -1,8 +1,7 @@
 /**
  * Structured JSON contract sent from Ed & Sy Admin to Website Template for demo generation.
  * Matches the index.json shape expected by website-template (see apps/website-template/index.json,
- * index-dental-downtown.json, index-dental-riverside.json). Dental templates expect
- * business.acceptingNewPatients, services[].coverage, and optional insurance.
+ * index-dental-downtown.json, index-dental-riverside.json). Services use `price` for all industries in the admin builder.
  */
 
 export type WebsiteTemplatePayload = {
@@ -10,7 +9,6 @@ export type WebsiteTemplatePayload = {
 		name: string;
 		tagline?: string;
 		description?: string;
-		/** Default true for dental; omit or true for others. */
 		acceptingNewPatients?: boolean;
 		phone?: string;
 		email?: string;
@@ -30,12 +28,8 @@ export type WebsiteTemplatePayload = {
 		about: string;
 		unsplashKeywords: string[];
 	};
-	/** For dental use coverage; for others use price. */
-	services: Array<
-		| { name: string; description?: string; coverage?: string }
-		| { name: string; description?: string; price?: string }
-	>;
-	/** Dental only. */
+	services: Array<{ name: string; description?: string; price?: string; coverage?: string }>;
+	/** Optional; legacy dental payloads. */
 	insurance?: {
 		accepted: string;
 		payment: string;

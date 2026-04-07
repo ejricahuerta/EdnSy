@@ -1,9 +1,9 @@
 /**
- * Demo landing image paths. Local images are stored in static/images/demo/dental/
+ * Demo landing image paths. Static assets may exist per slug under static/images/demo/{slug}/
  */
-import type { IndustrySlug } from '$lib/industries';
+import { INDUSTRY_SLUGS, type IndustrySlug } from '$lib/industries';
 
-const DEMO_IMAGE_INDUSTRIES: IndustrySlug[] = ['dental'];
+const DEMO_IMAGE_INDUSTRIES: IndustrySlug[] = [...INDUSTRY_SLUGS];
 
 /** Base URL for static demo images. */
 export function getDemoImagePath(industrySlug: IndustrySlug, type: 'hero' | 'about'): string {

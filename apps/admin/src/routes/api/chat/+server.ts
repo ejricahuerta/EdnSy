@@ -67,7 +67,7 @@ export const POST: RequestHandler = async (event) => {
 		return apiError(400, 'messages array required');
 	}
 
-	const slug = (industrySlug ?? 'dental') as IndustrySlug;
+	const slug = (industrySlug ?? 'other') as IndustrySlug;
 	const resolved = await getResolvedContent(
 		'demo-chat',
 		'prompt',

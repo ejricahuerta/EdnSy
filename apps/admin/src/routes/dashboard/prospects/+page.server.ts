@@ -1,6 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
 import {
 	listProspects,
+	listProspectsForUser,
 	getProspectById,
 	updateProspectDemoLink,
 	updateProspectFromGbp,
@@ -27,6 +28,7 @@ import {
 	getGbpJobForProspect,
 	getInsightsJobForProspect
 } from '$lib/server/supabase';
+import { resetStaleDemoJobsCreatingToPendingForUser } from '$lib/server/resetStaleDemoJobs';
 import { getScrapedDataForDemo, formatScrapedDataErrorMessage } from '$lib/server/gbp';
 import { generateDemoHtmlWithClaude } from '$lib/server/claudeGenerateDemoHtml';
 import { uploadDemoHtml, uploadDemoHtmlPart } from '$lib/server/demo';
@@ -35,9 +37,6 @@ import type { ToneSlug } from '$lib/tones';
 import type { PageServerLoad, Actions } from './$types';
 import { isValidDemoTrackingStatus } from '$lib/demo';
 import { getDashboardSessionUser } from '$lib/server/authDashboard';
-import { getCrmIndustryFilter } from '$lib/server/userSettings';
-import { industryDisplayToSlug, parseIndustryValues } from '$lib/industries';
-
 /** Summary of scraped/GBP data for call log display (serializable). */
 export type ScrapedSummary = {
 	gbpCompletenessScore?: number | null;
@@ -58,8 +57,6 @@ function buildScrapedSummary(data: Record<string, unknown>): ScrapedSummary {
 		gbpHasHours: (data.gbpHasHours as boolean | null) ?? null
 	};
 }
-import { getPlanForUser } from '$lib/server/stripe';
-import { getDemoCreationLimit, canSendAutomated } from '$lib/plans';
 import { serverInfo, serverError } from '$lib/server/logger';
 import { getSendConfigured, getOriginForOutgoingLinks, getDemoPublicOrigin } from '$lib/server/send';
 import { executeCreateGmailOutreachDraft, executeSendGmailOutreachDraft } from '$lib/server/crmOutreachGmail';
@@ -77,23 +74,13 @@ export const load: PageServerLoad = async (event) => {
 	if (!user) {
 		throw redirect(303, '/auth/login');
 	}
-	const plan = await getPlanForUser(user);
-	const demoLimit = getDemoCreationLimit(plan);
 	const demoCountThisMonth = await getDemoCountThisMonth(user.id);
-	const result = await listProspects(user.id);
-	const crmIndustryFilter = await getCrmIndustryFilter(user.id);
-	let prospects = result.prospects;
-	if (crmIndustryFilter.length > 0) {
-		const allowed = new Set(crmIndustryFilter);
-		prospects = prospects.filter((p) => {
-			const values = parseIndustryValues(p.industry ?? '');
-			const slugs = values.length ? values.map((v) => industryDisplayToSlug(v)) : [industryDisplayToSlug((p.industry ?? '').trim() || '')];
-			return slugs.some((s) => allowed.has(s));
-		});
-	}
+	const result = await listProspectsForUser(user.id);
+	const prospects = result.prospects ?? [];
 	const demoTrackingByProspectId = await getDemoTrackingForUser(user.id);
 	const scrapedDataByProspectId = await getScrapedDataMapForUser(user.id);
 	const demoJobsByProspectId = await getDemoJobsForUser(user.id);
+	const hasDemoCreatingJob = Object.values(demoJobsByProspectId).some((j) => j.status === 'creating');
 	const [gbpJobsByProspectId, insightsJobsByProspectId] = await Promise.all([
 		getGbpJobsForUser(user.id),
 		getInsightsJobsForUser(user.id)
@@ -108,12 +95,11 @@ export const load: PageServerLoad = async (event) => {
 		prospectsError: 'error' in result ? result.error : undefined,
 		prospectsMessage: 'message' in result ? result.message : undefined,
 		user,
-		plan,
-		demoLimit,
 		demoCountThisMonth,
 		demoTrackingByProspectId,
 		scrapedDataByProspectId,
 		demoJobsByProspectId,
+		hasDemoCreatingJob,
 		gbpJobsByProspectId,
 		insightsJobsByProspectId,
 		sendConfigured,
@@ -139,16 +125,6 @@ export const actions: Actions = {
 		const user = await getDashboardSessionUser(event);
 		if (!user) {
 			return fail(401, { message: 'Sign in required' });
-		}
-		const plan = await getPlanForUser(user);
-		const demoLimit = getDemoCreationLimit(plan);
-		if (demoLimit !== null) {
-			const count = await getDemoCountThisMonth(user.id);
-			if (count >= demoLimit) {
-				return fail(403, {
-					message: `Limit: ${demoLimit} demos per month. Upgrade your plan for more.`
-				});
-			}
 		}
 		const formData = await request.formData();
 		const prospectId = formData.get('prospectId');
@@ -232,16 +208,6 @@ export const actions: Actions = {
 		}
 		// 2) Have insight (and GBP), no demo → enqueue Demo (or retry after demo failed)
 		if (hasGbp && !(prospect.demoLink ?? '').trim()) {
-			const plan = await getPlanForUser(user);
-			const demoLimit = getDemoCreationLimit(plan);
-			if (demoLimit !== null) {
-				const count = await getDemoCountThisMonth(user.id);
-				if (count >= demoLimit) {
-					return fail(403, {
-						message: `Limit: ${demoLimit} demos per month. Upgrade your plan for more.`
-					});
-				}
-			}
 			const result = await enqueueDemoJob(user.id, prospectId);
 			if (!result) return fail(503, { message: 'Could not enqueue demo job. Try again.' });
 			await updateProspectStatus(prospectId, PROSPECT_STATUS.DEMO_QUEUED);
@@ -271,16 +237,6 @@ export const actions: Actions = {
 		const user = await getDashboardSessionUser(event);
 		if (!user) {
 			return fail(401, { message: 'Sign in required' });
-		}
-		const plan = await getPlanForUser(user);
-		const demoLimit = getDemoCreationLimit(plan);
-		if (demoLimit !== null) {
-			const count = await getDemoCountThisMonth(user.id);
-			if (count >= demoLimit) {
-				return fail(403, {
-					message: `Limit: ${demoLimit} demos per month. Upgrade your plan for more.`
-				});
-			}
 		}
 		const formData = await request.formData();
 		const prospectId = formData.get('prospectId');
@@ -439,14 +395,6 @@ export const actions: Actions = {
 		if (!user) {
 			return fail(401, { message: 'Sign in required' });
 		}
-		const plan = await getPlanForUser(user);
-		const demoLimit = getDemoCreationLimit(plan);
-		const countThisMonth = await getDemoCountThisMonth(user.id);
-		if (demoLimit !== null && countThisMonth >= demoLimit) {
-			return fail(403, {
-				message: `Limit: ${demoLimit} demos per month. Upgrade your plan for more.`
-			});
-		}
 		const formData = await request.formData();
 		const prospectIds = formData.getAll('prospectId') as string[];
 		if (prospectIds.length === 0) {
@@ -456,7 +404,6 @@ export const actions: Actions = {
 		let queued = 0;
 		const errors: string[] = [];
 		for (const prospectId of prospectIds) {
-			if (demoLimit !== null && countThisMonth + queued >= demoLimit) break;
 			const prospect = await getProspectById(prospectId);
 			if (!prospect) continue;
 			if (prospect.flagged) continue;
@@ -491,10 +438,6 @@ export const actions: Actions = {
 		const user = await getDashboardSessionUser(event);
 		if (!user) {
 			return fail(401, { message: 'Sign in required' });
-		}
-		const plan = await getPlanForUser(user);
-		if (!canSendAutomated(plan)) {
-			return fail(403, { message: 'Outreach is available on Starter, Growth, and Agency plans.' });
 		}
 		if (!(await getSendConfigured(user.id))) {
 			return fail(503, {
@@ -581,10 +524,6 @@ export const actions: Actions = {
 		const { request } = event;
 		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
-		const plan = await getPlanForUser(user);
-		if (!canSendAutomated(plan)) {
-			return fail(403, { message: 'Outreach is available on Starter, Growth, and Agency plans.' });
-		}
 		if (!(await getSendConfigured(user.id))) {
 			return fail(503, { message: 'Gmail is not connected. Connect Gmail in Integrations.' });
 		}
@@ -763,10 +702,6 @@ export const actions: Actions = {
 		const hasAny = pullDataIds.length > 0 || demoIds.length > 0 || flaggedIds.length > 0;
 		if (!hasAny) return fail(400, { message: 'No actionable prospects selected' });
 
-		const plan = await getPlanForUser(user);
-		const demoLimit = getDemoCreationLimit(plan);
-		const countThisMonth = await getDemoCountThisMonth(user.id);
-
 		// Pull data queue (one process: GBP + website + insight via Insights job)
 		let pullDataQueued = 0;
 		let pullDataEnqueueFailed = 0;
@@ -787,7 +722,6 @@ export const actions: Actions = {
 		let demoQueued = 0;
 		const demoErrors: string[] = [];
 		for (const prospectId of demoIds) {
-			if (demoLimit !== null && countThisMonth + demoQueued >= demoLimit) break;
 			const prospect = await getProspectById(prospectId);
 			if (!prospect || prospect.flagged || prospect.demoLink) continue;
 			const scraped = scrapedMap[prospectId];
@@ -828,7 +762,7 @@ export const actions: Actions = {
 		const { cookies } = event;
 		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
-		const result = await listProspects(user.id);
+		const result = await listProspectsForUser(user.id);
 		const prospects = result.prospects ?? [];
 		const [demoJobsByProspectId, gbpJobsByProspectId, insightsJobsByProspectId] = await Promise.all([
 			getDemoJobsForUser(user.id),
@@ -848,6 +782,16 @@ export const actions: Actions = {
 			}
 		}
 		return { success: true, cleared };
+	},
+	/**
+	 * Reset paid demo_jobs stuck in `creating` (over the staleness window) to `pending` for this user.
+	 * Same logic as cron; use when a demo is stuck in generating without waiting for the next cron tick.
+	 */
+	resetStuckDemoJobs: async (event) => {
+		const user = await getDashboardSessionUser(event);
+		if (!user) return fail(401, { message: 'Sign in required' });
+		const resetCount = await resetStaleDemoJobsCreatingToPendingForUser(user.id);
+		return { success: true, resetCount };
 	},
 	/** Upload CSV: header row with company + email columns; optional website, phone, industry. Insert-only (skips existing). */
 	importCsv: async (event) => {

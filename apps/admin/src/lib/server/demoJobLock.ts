@@ -2,7 +2,7 @@
  * In-memory lock so only one demo (paid or free) is generated at a time.
  * Used to avoid Claude rate limit errors when Ed & Sy trigger demos internally.
  * Survives server restarts and disconnects: callers also check DB state (isDemoCurrentlyInProgress)
- * and reset stale 'creating' rows (resetStaleFreeDemoCreatingToPending) before processing.
+ * and reset stale 'creating' rows (resetStaleDemoJobsCreatingToPending) before processing.
  * For multi-instance deployment, replace with a Redis or DB-backed lock.
  */
 

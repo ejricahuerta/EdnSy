@@ -7,7 +7,7 @@
 	import { MessageCircle, X, Send, Calendar, Phone } from 'lucide-svelte';
 
 	let {
-		industrySlug = 'dental',
+		industrySlug = 'other',
 		displayName = '',
 		prospectId = '',
 		onOpenCallback = undefined as (() => void) | undefined,

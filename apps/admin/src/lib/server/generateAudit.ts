@@ -4,7 +4,6 @@ import { serverError, serverInfo } from '$lib/server/logger';
 import { isDemoAuditShape } from '$lib/types/demo';
 import type { DemoAudit, GeminiInsight, AuditModalCopy, WebsiteInsight } from '$lib/types/demo';
 import type { GbpData } from '$lib/server/gbp';
-import { INDUSTRY_LABELS } from '$lib/industries';
 import { getResolvedContent } from '$lib/server/agentContent';
 import { parseJsonFromResponse } from '$lib/ai-agents/shared/parseJson';
 import { fetchWebsiteContent } from '$lib/ai-agents';
@@ -522,14 +521,64 @@ export async function generateAuditModalCopy(
 	}
 }
 
+const MAX_INDUSTRY_LABEL_LEN = 80;
+
 /**
- * Product scope is dental-only; inferred label is always Dental when Gemini is configured.
+ * Infer a short human-readable industry label (e.g. "Dental", "Plumbing", "Family law") from the business context.
+ * Returns null if Gemini is not configured or the call fails.
  */
 export async function inferIndustryWithGemini(
 	prospect: Prospect,
-	_gbpCategory?: string | null
+	gbpCategory?: string | null
 ): Promise<string | null> {
 	if (!GEMINI_API_KEY) return null;
-	serverInfo('inferIndustryWithGemini', 'Dental-only scope', { companyName: prospect.companyName });
-	return INDUSTRY_LABELS.dental;
+
+	const name = prospect.companyName?.trim() || 'Unknown business';
+	const existing = prospect.industry?.trim() || '';
+	const address = prospect.address?.trim() || '';
+	const website = prospect.website?.trim() || '';
+	const category = (gbpCategory ?? '').trim();
+
+	const prompt = `You classify a local small business into one short industry label for a CRM (not a long description).
+
+Business name: ${name}
+${existing ? `Existing industry field (may be wrong or empty use as hint only): ${existing}` : ''}
+${category ? `Google Business category or type: ${category}` : ''}
+${address ? `Address or area: ${address}` : ''}
+${website ? `Website: ${website}` : ''}
+
+Reply with exactly one line: a concise industry label (2-5 words), title case. Examples: "Dental", "Residential Plumbing", "Family Law", "Coffee Shop", "Hair Salon". No quotes, no punctuation at the end, no explanation.`;
+
+	const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
+
+	try {
+		const res = await fetch(apiUrl, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				contents: [{ role: 'user', parts: [{ text: prompt }] }],
+				generationConfig: { maxOutputTokens: 32, temperature: 0 }
+			}),
+			signal: AbortSignal.timeout(15000)
+		});
+
+		if (!res.ok) {
+			serverError('inferIndustryWithGemini', `API ${res.status}`, { companyName: name });
+			return null;
+		}
+
+		const data = (await res.json()) as {
+			candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+		};
+		const text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? '';
+		const line = text.split('\n')[0]?.replace(/^["']|["']$/g, '').trim() ?? '';
+		if (!line || line.length > MAX_INDUSTRY_LABEL_LEN) return null;
+
+		serverInfo('inferIndustryWithGemini', 'ok', { companyName: name, label: line.slice(0, 60) });
+		return line;
+	} catch (e) {
+		const err = e instanceof Error ? e.message : String(e);
+		serverError('inferIndustryWithGemini', err, { companyName: name });
+		return null;
+	}
 }

@@ -69,7 +69,6 @@
 	const gmailConnected = $derived(data.sendConfigured ?? false);
 	const canSend = $derived(data.canSend ?? false);
 	const integrationsGmailHref = '/dashboard/integrations';
-	const atDemoLimit = $derived(data.atDemoLimit ?? false);
 	const showInsightsAndDemo = $derived(data.showInsightsAndDemo ?? !prospect.flagged);
 	const gbpAudit = $derived(scrapedData ? auditFromScrapedData(scrapedData) : null);
 	const insight = $derived(gbpAudit?.insight ?? null);
@@ -697,10 +696,10 @@
 					<Button
 						type="submit"
 						size="lg"
-						disabled={generatingDemo || atDemoLimit || demoJob?.status === 'pending' || demoJob?.status === 'creating' || (demoJob?.status === 'failed' && isGbpError(demoJob?.errorMessage))}
+						disabled={generatingDemo || demoJob?.status === 'pending' || demoJob?.status === 'creating' || (demoJob?.status === 'failed' && isGbpError(demoJob?.errorMessage))}
 					>
 						{#if generatingDemo}<LoaderCircle class="size-4 mr-2 animate-spin" aria-hidden="true" />{/if}
-						{generatingDemo ? 'Queuing…' : demoJob?.status === 'pending' || demoJob?.status === 'creating' ? 'Generating…' : atDemoLimit ? 'Limit reached' : 'Generate demo page'}
+						{generatingDemo ? 'Queuing…' : demoJob?.status === 'pending' || demoJob?.status === 'creating' ? 'Generating…' : 'Generate demo page'}
 					</Button>
 				</form>
 				<p class="text-sm text-muted-foreground">Usually takes 1–2 minutes.</p>

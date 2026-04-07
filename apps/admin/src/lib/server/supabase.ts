@@ -355,6 +355,9 @@ export type DemoJobRow = {
 	error_message: string | null;
 };
 
+/** Max time `demo_jobs` may stay in `creating` before automatic requeue to `pending` (cron, job API, dashboard). */
+export const DEMO_PROCESSING_STALE_MINUTES = 5;
+
 /**
  * Return the active (pending or creating) job for this user+prospect, if any.
  * Used to avoid duplicate jobs and to guard regenerate while creation is in progress.
@@ -435,7 +438,7 @@ export async function getDemoJobsForUser(
 
 /**
  * Get next pending job (oldest first) and set status to creating. Returns job row or null.
- * Also retries "creating" jobs that have been stuck for too long (e.g. worker crash).
+ * Stale `creating` rows are reset to `pending` by resetStaleDemoJobsCreatingToPending before workers run.
  */
 export async function claimNextPendingDemoJob(): Promise<DemoJobRow | null> {
 	const supabase = getSupabaseAdmin();
@@ -474,23 +477,7 @@ export async function claimNextPendingDemoJob(): Promise<DemoJobRow | null> {
 		return { ...job, status: 'creating' as const };
 	}
 
-	// Retry stale "creating" jobs (e.g. server restart mid-job).
-	const staleBefore = new Date(Date.now() - 10 * 60 * 1000).toISOString();
-	const { data: staleRows, error: staleError } = await supabase
-		.from('demo_jobs')
-		.select('id, user_id, prospect_id, status, created_at, updated_at, demo_link, error_message')
-		.eq('status', 'creating')
-		.lt('updated_at', staleBefore)
-		.order('updated_at', { ascending: true })
-		.limit(1);
-	if (staleError || !staleRows?.length) return null;
-	const staleJob = staleRows[0] as DemoJobRow;
-	const { error: staleUpdateError } = await supabase
-		.from('demo_jobs')
-		.update({ status: 'creating', updated_at: new Date().toISOString() })
-		.eq('id', staleJob.id);
-	if (staleUpdateError) return null;
-	return { ...staleJob, status: 'creating' as const };
+	return null;
 }
 
 /**
@@ -511,215 +498,19 @@ export async function updateDemoJob(
 	await supabase.from('demo_jobs').update(payload).eq('id', jobId);
 }
 
-/** Same staleness window as claimNextPendingDemoJob (server restart / disconnect recovery). */
-const STALE_DEMO_MINUTES = 10;
+/** Same staleness window as demo requeue / in-progress detection. */
+const STALE_DEMO_MINUTES = DEMO_PROCESSING_STALE_MINUTES;
 
 /**
- * True if any paid or free demo is currently in progress (status=creating, updated within STALE_DEMO_MINUTES).
+ * True if a paid demo is currently in progress (status=creating, updated within STALE_DEMO_MINUTES).
  * Used to avoid starting a second demo after server restart or client disconnect left one creating.
  */
 export async function isDemoCurrentlyInProgress(): Promise<boolean> {
 	const supabase = getSupabaseAdmin();
 	if (!supabase) return false;
 	const since = new Date(Date.now() - STALE_DEMO_MINUTES * 60 * 1000).toISOString();
-	const [paid, free] = await Promise.all([
-		supabase.from('demo_jobs').select('id', { count: 'exact', head: true }).eq('status', 'creating').gte('updated_at', since),
-		supabase.from('free_demo_requests').select('id', { count: 'exact', head: true }).eq('status', 'creating').gte('updated_at', since)
-	]);
-	return (paid.count ?? 0) > 0 || (free.count ?? 0) > 0;
-}
-
-/**
- * Reset free demo requests stuck in 'creating' (e.g. server restart) so they can be claimed again.
- * Call before checking isDemoCurrentlyInProgress so stale rows don't block the queue.
- */
-export async function resetStaleFreeDemoCreatingToPending(): Promise<void> {
-	const supabase = getSupabaseAdmin();
-	if (!supabase) return;
-	const before = new Date(Date.now() - STALE_DEMO_MINUTES * 60 * 1000).toISOString();
-	await supabase
-		.from('free_demo_requests')
-		.update({ status: 'pending', updated_at: new Date().toISOString() })
-		.eq('status', 'creating')
-		.lt('updated_at', before);
-}
-
-// --- Free demo requests (email + company; created from authenticated flows e.g. /show) ---
-
-/** Base columns always present (first migration). Tracking columns from second migration. */
-const FREE_DEMO_BASE_COLUMNS =
-	'id, email, company_name, website, industry, status, demo_link, error_message, created_at, updated_at';
-
-export type FreeDemoRequestRow = {
-	id: string;
-	email: string;
-	company_name: string;
-	website: string | null;
-	industry: string;
-	status: 'pending' | 'creating' | 'done' | 'failed';
-	demo_link: string | null;
-	error_message: string | null;
-	created_at: string;
-	updated_at: string;
-	/** Funnel: when the first email (with demo link) was sent. Present if tracking migration applied. */
-	email_sent_at?: string | null;
-	link_clicked_at?: string | null;
-	demo_viewed_at?: string | null;
-};
-
-/** Return an active (pending or creating) free demo request for this email + company, if any. */
-export async function getActiveFreeDemoRequestByEmailAndCompany(
-	email: string,
-	companyName: string
-): Promise<FreeDemoRequestRow | null> {
-	const supabase = getSupabaseAdmin();
-	if (!supabase) return null;
-	const normEmail = email.trim().toLowerCase();
-	const normCompany = companyName.trim().toLowerCase();
-	if (!normEmail && !normCompany) return null;
-	const { data, error } = await supabase
-		.from('free_demo_requests')
-		.select(FREE_DEMO_BASE_COLUMNS)
-		.in('status', ['pending', 'creating'])
-		.order('created_at', { ascending: false });
-	if (error || !data?.length) return null;
-	for (const row of data as FreeDemoRequestRow[]) {
-		if (
-			row.email?.trim().toLowerCase() === normEmail &&
-			row.company_name?.trim().toLowerCase() === normCompany
-		) {
-			return row;
-		}
-	}
-	return null;
-}
-
-/** Insert a new free demo request. Returns the row with id, or null on error. */
-export async function insertFreeDemoRequest(params: {
-	email: string;
-	companyName: string;
-	website?: string;
-	industry?: string;
-}): Promise<FreeDemoRequestRow | null> {
-	const supabase = getSupabaseAdmin();
-	if (!supabase) return null;
-	const { data, error } = await supabase
-		.from('free_demo_requests')
-		.insert({
-			email: params.email.trim(),
-			company_name: params.companyName.trim(),
-			website: params.website?.trim() ?? '',
-			industry: params.industry?.trim() ?? 'dental',
-			status: 'pending'
-		})
-		.select(FREE_DEMO_BASE_COLUMNS)
-		.single();
-	if (error || !data) return null;
-	return data as FreeDemoRequestRow;
-}
-
-/** Get a free demo request by id (for demo page load). */
-export async function getFreeDemoRequestById(id: string): Promise<FreeDemoRequestRow | null> {
-	const supabase = getSupabaseAdmin();
-	if (!supabase) return null;
-	const { data, error } = await supabase
-		.from('free_demo_requests')
-		.select(FREE_DEMO_BASE_COLUMNS)
-		.eq('id', id)
-		.maybeSingle();
-	if (error || !data) return null;
-	return data as FreeDemoRequestRow;
-}
-
-/** Claim the next pending free demo request (set status to creating). Returns row or null. */
-export async function claimNextPendingFreeDemoJob(): Promise<FreeDemoRequestRow | null> {
-	const supabase = getSupabaseAdmin();
-	if (!supabase) return null;
-	const { data: rows, error } = await supabase
-		.from('free_demo_requests')
-		.select(FREE_DEMO_BASE_COLUMNS)
-		.eq('status', 'pending')
-		.order('created_at', { ascending: true })
-		.limit(1);
-	if (error || !rows?.length) return null;
-	const row = rows[0] as FreeDemoRequestRow;
-	const { error: updateError } = await supabase
-		.from('free_demo_requests')
-		.update({ status: 'creating', updated_at: new Date().toISOString() })
-		.eq('id', row.id);
-	if (updateError) return null;
-	return { ...row, status: 'creating' };
-}
-
-/** Update a free demo request (status, demo_link, error_message). */
-export async function updateFreeDemoRequest(
-	id: string,
-	updates: { status: 'pending' | 'creating' | 'done' | 'failed'; demoLink?: string | null; errorMessage?: string | null }
-): Promise<void> {
-	const supabase = getSupabaseAdmin();
-	if (!supabase) return;
-	const payload: Record<string, unknown> = {
-		status: updates.status,
-		updated_at: new Date().toISOString()
-	};
-	if (updates.demoLink !== undefined) payload.demo_link = updates.demoLink;
-	if (updates.errorMessage !== undefined) payload.error_message = updates.errorMessage;
-	await supabase.from('free_demo_requests').update(payload).eq('id', id);
-}
-
-/** Set email_sent_at when the first email (with demo link) is sent. No-op if tracking columns missing. */
-export async function setFreeDemoEmailSentAt(id: string): Promise<void> {
-	const supabase = getSupabaseAdmin();
-	if (!supabase) return;
-	try {
-		await supabase
-			.from('free_demo_requests')
-			.update({ email_sent_at: new Date().toISOString(), updated_at: new Date().toISOString() })
-			.eq('id', id)
-			.is('email_sent_at', null);
-	} catch {
-		// Column may not exist if tracking migration not run
-	}
-}
-
-/** Record link click (email link). Returns demo_link for redirect. */
-export async function recordFreeDemoLinkClicked(id: string): Promise<string | null> {
-	const supabase = getSupabaseAdmin();
-	if (!supabase) return null;
-	try {
-		const { data, error } = await supabase
-			.from('free_demo_requests')
-			.update({
-				link_clicked_at: new Date().toISOString(),
-				updated_at: new Date().toISOString()
-			})
-			.eq('id', id)
-			.select('demo_link')
-			.maybeSingle();
-		if (error || !data?.demo_link) return null;
-		return data.demo_link as string;
-	} catch {
-		const row = await getFreeDemoRequestById(id);
-		return row?.demo_link ?? null;
-	}
-}
-
-/** Record first demo page view (only sets demo_viewed_at if not already set). No-op if column missing. */
-export async function recordFreeDemoViewed(id: string): Promise<void> {
-	const supabase = getSupabaseAdmin();
-	if (!supabase) return;
-	try {
-		await supabase
-			.from('free_demo_requests')
-			.update({
-				demo_viewed_at: new Date().toISOString(),
-				updated_at: new Date().toISOString()
-			})
-			.eq('id', id)
-			.is('demo_viewed_at', null);
-	} catch {
-		// Column may not exist if tracking migration not run
-	}
+	const paid = await supabase.from('demo_jobs').select('id', { count: 'exact', head: true }).eq('status', 'creating').gte('updated_at', since);
+	return (paid.count ?? 0) > 0;
 }
 
 // --- GBP jobs (Pull GBP data only; separate from insights) ---

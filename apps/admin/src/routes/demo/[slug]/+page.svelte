@@ -4,16 +4,10 @@
 	import ChatWidget from '$lib/components/ChatWidget.svelte';
 	import RetellCallbackDialog from '$lib/components/RetellCallbackDialog.svelte';
 	import DemoCtaDropdown from '$lib/components/DemoCtaDropdown.svelte';
-	import { DEMO_PHONE, DEMO_PHONE_DISPLAY, CAL_COM_LINK, EDNSY_PRIVACY_LINK, EDNSY_TERMS_LINK } from '$lib/constants';
+	import { DEMO_PHONE, DEMO_PHONE_DISPLAY, EDNSY_PRIVACY_LINK, EDNSY_TERMS_LINK } from '$lib/constants';
 	import { DEMO_ERROR } from '$lib/constants/demoErrors';
 
 	let { data } = $props();
-	const freeDemoPending = $derived(data.freeDemoPending === true);
-	const freeDemoCompanyName = $derived((data.freeDemoCompanyName as string) ?? 'Your business');
-	const freeDemoIndustry = $derived((data.freeDemoIndustry as string) ?? 'dental');
-	const freeDemoEmail = $derived((data.freeDemoEmail as string) ?? '');
-	const freeDemoFailed = $derived(data.freeDemoFailed === true);
-	const freeDemoErrorMessage = $derived((data.errorMessage as string) ?? '');
 	const useCinematicDemo = $derived(data.useCinematicDemo === true);
 	const prospectId = $derived(data.prospectId as string);
 	const industrySlug = $derived(data.industrySlug as string);
@@ -39,7 +33,6 @@
 	function handleDemoIframeLoad() {
 		const iframe = demoIframeRef;
 		if (!iframe?.contentDocument) return;
-		// Single-file demos often have minimal visible text (hero + CTA). Allow short content; only flag when clearly empty or an error page.
 		setTimeout(() => {
 			try {
 				const body = iframe.contentDocument?.body;
@@ -57,7 +50,6 @@
 		}, 1200);
 	}
 
-	// If iframe doesn't show meaningful content within 15s, show timeout error (single-file demos may have minimal text)
 	function startIframeLoadTimeout() {
 		if (!useCinematicDemo || !cinematicDemoSrc) return;
 		const t = setTimeout(() => {
@@ -97,12 +89,10 @@
 		return [...items, ...toAdd];
 	});
 
-	/** Fallback image URLs so demos never render broken img (server fills these when possible). */
 	const DEFAULT_LOGO = '/logo/logo.png';
 	const DEFAULT_AVATAR =
 		'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&q=80';
 
-	/** Ensure legal links point to real routes; fix bad or placeholder hrefs from stored JSON. */
 	const LEGAL_HREF: Record<string, string> = { Privacy: '/privacy', Terms: '/terms', Cookies: '/cookies' };
 	const legalLinks = $derived.by(() => {
 		const links = pageJson?.footer?.legalLinks ?? [];
@@ -131,47 +121,15 @@
 </script>
 
 <svelte:head>
-	<title>{freeDemoPending ? 'Generating your demo…' : freeDemoFailed ? 'Demo failed' : useCinematicDemo ? `${companyName} — Demo` : pageJson?.meta?.title ?? 'Demo'}</title>
+	<title>{useCinematicDemo ? `${companyName} — Demo` : pageJson?.meta?.title ?? 'Demo'}</title>
 	<meta name="description" content={useCinematicDemo ? `Demo for ${companyName}. Chat or request a callback.` : (pageJson?.meta?.description ?? '')} />
-	{#if !useCinematicDemo && !freeDemoPending && !freeDemoFailed}
+	{#if !useCinematicDemo}
 		<link rel="stylesheet" href="/demo-themes/{theme}/app.css" />
 		<script src="https://cdn.tailwindcss.com"></script>
 	{/if}
 </svelte:head>
 
-{#if freeDemoPending}
-	<div class="min-h-screen flex flex-col items-center justify-center bg-stone-100 p-6 text-center">
-		<div class="max-w-md space-y-4">
-			<h1 class="text-xl font-semibold text-stone-800">Generating your demo</h1>
-			<dl class="text-left rounded-lg border border-stone-200 bg-white p-4 space-y-2">
-				<div>
-					<dt class="text-xs font-medium text-stone-500 uppercase tracking-wide">Business</dt>
-					<dd class="mt-0.5 text-stone-800 font-medium">{freeDemoCompanyName}</dd>
-				</div>
-				<div>
-					<dt class="text-xs font-medium text-stone-500 uppercase tracking-wide">Industry</dt>
-					<dd class="mt-0.5 text-stone-700">{freeDemoIndustry}</dd>
-				</div>
-				{#if freeDemoEmail}
-					<div>
-						<dt class="text-xs font-medium text-stone-500 uppercase tracking-wide">Email</dt>
-						<dd class="mt-0.5 text-stone-700">{freeDemoEmail}</dd>
-					</div>
-				{/if}
-			</dl>
-			<p class="text-stone-600">This usually takes 1–2 minutes. This page will show your demo when it’s ready—refresh in a moment.</p>
-			<p class="text-sm text-stone-500">We’ve also sent a link to your email so you can open it later.</p>
-		</div>
-	</div>
-{:else if freeDemoFailed}
-	<div class="min-h-screen flex flex-col items-center justify-center bg-stone-100 p-6 text-center">
-		<div class="max-w-md">
-			<h1 class="text-xl font-semibold text-stone-800">Demo couldn’t be created</h1>
-			<p class="mt-2 text-stone-600">{freeDemoErrorMessage}</p>
-			<a href="/auth/login" class="mt-6 inline-block rounded-md bg-stone-800 px-4 py-2 text-sm font-medium text-white hover:bg-stone-700">Sign in</a>
-		</div>
-	</div>
-{:else if useCinematicDemo}
+{#if useCinematicDemo}
 	<!-- Demo: HTML loaded in iframe from /demo/[slug]/page.html (single file or legacy stitched). -->
 	<div class="demo-cinematic flex flex-col bg-stone-100">
 		<div class="demo-cinematic-iframe-wrap relative min-h-[60vh]">

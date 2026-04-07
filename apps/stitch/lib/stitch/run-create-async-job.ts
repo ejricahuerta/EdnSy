@@ -1,4 +1,4 @@
-import { StitchError } from "@google/stitch-sdk";
+import { Stitch, StitchError, StitchToolClient } from "@google/stitch-sdk";
 import { buildLandingPagePrompt } from "@/lib/prompts/landing-page";
 import {
   stripAsyncDemoMeta,
@@ -74,11 +74,34 @@ export async function runCreateAsyncJob(
     });
   };
 
+  let userStitchClient: StitchToolClient | undefined;
   try {
     const stripped = stripAsyncDemoMeta(rawPayload);
     const context = websiteTemplatePayloadToLandingPageContext(stripped);
     const prompt = buildLandingPagePrompt(context);
-    const project = await getOrCreateLaunchRosettaProject();
+
+    const userToken =
+      typeof rawPayload.stitchAccessToken === "string"
+        ? rawPayload.stitchAccessToken.trim()
+        : "";
+    const gcpProject =
+      typeof rawPayload.stitchGcpProject === "string"
+        ? rawPayload.stitchGcpProject.trim()
+        : "";
+
+    let project;
+    if (userToken && gcpProject) {
+      userStitchClient = new StitchToolClient({
+        accessToken: userToken,
+        projectId: gcpProject,
+        timeout: 180_000,
+      });
+      const userStitch = new Stitch(userStitchClient);
+      project = await getOrCreateLaunchRosettaProject(userStitch);
+    } else {
+      project = await getOrCreateLaunchRosettaProject();
+    }
+
     const result = await withDailyGenerationQuota(() =>
       generateScreenHtml(project, prompt),
     );
@@ -117,5 +140,9 @@ export async function runCreateAsyncJob(
     });
   } catch (err) {
     await sendError(err);
+  } finally {
+    if (userStitchClient) {
+      await userStitchClient.close().catch(() => undefined);
+    }
   }
 }

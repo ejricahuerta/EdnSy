@@ -104,6 +104,24 @@ export async function listProspects(): Promise<ListProspectsResult> {
 }
 
 /**
+ * List prospects owned by a dashboard user (Supabase `user_id`).
+ */
+export async function listProspectsForUser(userId: string): Promise<ListProspectsResult> {
+	const supabase = getSupabaseAdmin();
+	if (!supabase) return { prospects: [], error: 'api_error', message: 'Database not configured' };
+	const { data, error } = await supabase
+		.from('prospects')
+		.select(
+			'id, company_name, email, website, phone, industry, status, demo_link, provider, provider_row_id, user_id, address, flagged, flagged_reason'
+		)
+		.eq('user_id', userId)
+		.order('updated_at', { ascending: false });
+	if (error) return { prospects: [], error: 'api_error', message: error.message };
+	const prospects = (data ?? []).map((r) => rowToProspect(r));
+	return { prospects };
+}
+
+/**
  * Prospects with a demo link, not flagged (Demos list page). Trims empty/whitespace links after fetch.
  */
 export async function listDemosProspects(): Promise<ListProspectsResult> {
