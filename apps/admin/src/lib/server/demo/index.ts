@@ -9,6 +9,8 @@ export { processOneInsightsJob } from '$lib/server/processInsightsJob';
 export type { ProcessInsightsJobResult } from '$lib/server/processInsightsJob';
 export { processOneGbpJob } from '$lib/server/processGbpJob';
 export type { ProcessGbpJobResult } from '$lib/server/processGbpJob';
+export { processOneApifyJob } from '$lib/server/processApifyJob';
+export type { ProcessApifyJobResult } from '$lib/server/processApifyJob';
 
 export {
 	buildDemoPageJsonFromAiContent,

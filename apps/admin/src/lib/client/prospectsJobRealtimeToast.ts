@@ -55,6 +55,41 @@ export function maybeToastProspectsJobChange(
 	if (payload.eventType !== 'UPDATE') return;
 
 	const { table, newRecord, oldRecord } = payload;
+
+	if (table === 'apify_jobs') {
+		const prev = oldRecord.status as string | undefined;
+		const next = newRecord.status as string | undefined;
+		const jobId = String(newRecord.id ?? '').trim();
+		if (!jobId) return;
+		const loc = String(newRecord.location ?? '').trim() || 'your area';
+		const ind = String(newRecord.industry ?? '').trim() || 'import';
+		if (looksLikeFreshTerminal(prev, next, 'done', ['pending', 'running'])) {
+			const key = `apify:${jobId}:done`;
+			if (!shouldEmitCompletionToast(key)) return;
+			const insertedRaw = newRecord.inserted_count;
+			const inserted =
+				insertedRaw != null && insertedRaw !== ''
+					? Number(insertedRaw)
+					: undefined;
+			const desc =
+				inserted != null && !Number.isNaN(inserted)
+					? `Added ${inserted} prospect${inserted === 1 ? '' : 's'} (${ind}, ${loc}).`
+					: `Apify import finished (${ind}, ${loc}).`;
+			toastSuccessWithBell('Apify import finished', desc, `Apify import finished for ${ind} in ${loc}.`);
+			return;
+		}
+		if (looksLikeFreshTerminal(prev, next, 'failed', ['pending', 'running'])) {
+			const key = `apify:${jobId}:failed`;
+			if (!shouldEmitCompletionToast(key)) return;
+			const err =
+				newRecord.error_message != null && String(newRecord.error_message).trim()
+					? String(newRecord.error_message).trim()
+					: 'Apify import failed.';
+			toastErrorWithBell('Apify import failed', `${ind} — ${loc}. ${err}`, `Apify import failed for ${ind}.`);
+		}
+		return;
+	}
+
 	const prospectId = String(newRecord.prospect_id ?? oldRecord.prospect_id ?? '').trim();
 	if (!prospectId) return;
 	const who = getProspectLabel(prospectId) || prospectId.slice(0, 8);

@@ -18,7 +18,7 @@
 		/** True when scraped/GBP data exists; required for "Create demo" next step. */
 		hasGbpData?: boolean;
 	};
-	import { X, ExternalLink, Mail, MessageSquare, Copy, Link2, Send, Eye, Globe, Phone, MapPin, Star, ListChecks, Briefcase, LoaderCircle, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Upload, RefreshCw } from 'lucide-svelte';
+	import { X, ExternalLink, Mail, MessageSquare, Copy, Link2, Send, Eye, Globe, Phone, MapPin, Star, ListChecks, Briefcase, LoaderCircle, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Upload, RefreshCw, CloudDownload } from 'lucide-svelte';
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import {
 		type ColumnDef,
@@ -68,7 +68,9 @@
 	import {
 		gbpCategoriesToIndustryLabel,
 		INDUSTRY_LABELS,
-		notionIndustryToSlug
+		INDUSTRY_SLUGS,
+		notionIndustryToSlug,
+		type IndustrySlug
 	} from '$lib/industries';
 	let { data, form } = $props<{
 		data: PageData;
@@ -90,6 +92,25 @@
 	const gbpDentalTodayCount = $derived(data.gbpDentalTodayCount ?? 0);
 	const gbpDentalDailyCap = $derived(data.gbpDentalDailyCap ?? 25);
 	const placesApiConfigured = $derived(data.placesApiConfigured ?? false);
+	const apifyConfigured = $derived(data.apifyConfigured ?? false);
+	type ApifyToolbarJob = {
+		jobId: string;
+		status: string;
+		industry: string;
+		location: string;
+		userId: string;
+	};
+	const myActiveApifyJob = $derived.by((): ApifyToolbarJob | null => {
+		const uid = data.user?.id;
+		const map = data.apifyJobsById ?? {};
+		if (!uid) return null;
+		for (const j of Object.values(map) as ApifyToolbarJob[]) {
+			if (j.userId === uid && (j.status === 'pending' || j.status === 'running')) {
+				return j;
+			}
+		}
+		return null;
+	});
 	const gbpDentalPullLock = $derived(
 		data.gbpDentalPullLock ?? { locked: false, remainingSeconds: 0, lockMinutes: 15 }
 	);
@@ -450,6 +471,45 @@
 	let sendDemosSubmitting = $state(false);
 	let importCsvOpen = $state(false);
 	let importCsvSubmitting = $state(false);
+	type PlaceSuggest = { placeId: string; fullText: string; mainText: string; secondaryText: string };
+	let importApifyOpen = $state(false);
+	let importApifySubmitting = $state(false);
+	let importApifyIndustry = $state<IndustrySlug>('dental');
+	let importApifyLocation = $state('');
+	let placeSuggestions = $state<PlaceSuggest[]>([]);
+	let placeSuggestLoading = $state(false);
+	let placeSuggestTimer: ReturnType<typeof setTimeout> | null = null;
+
+	function schedulePlaceSuggestions(query: string) {
+		if (!browser) return;
+		if (placeSuggestTimer) clearTimeout(placeSuggestTimer);
+		placeSuggestTimer = setTimeout(() => void loadPlaceSuggestions(query), 300);
+	}
+
+	async function loadPlaceSuggestions(query: string) {
+		const q = query.trim();
+		if (!browser || !placesApiConfigured || q.length < 2) {
+			placeSuggestions = [];
+			return;
+		}
+		placeSuggestLoading = true;
+		try {
+			const res = await fetch(`/api/places/autocomplete?input=${encodeURIComponent(q)}`, {
+				credentials: 'include'
+			});
+			const body = (await res.json()) as { suggestions?: PlaceSuggest[] };
+			placeSuggestions = Array.isArray(body.suggestions) ? body.suggestions : [];
+		} catch {
+			placeSuggestions = [];
+		} finally {
+			placeSuggestLoading = false;
+		}
+	}
+
+	function pickPlaceSuggestion(s: PlaceSuggest) {
+		importApifyLocation = s.fullText || [s.mainText, s.secondaryText].filter(Boolean).join(', ');
+		placeSuggestions = [];
+	}
 	let bulkSendDraftsDialogOpen = $state(false);
 	let bulkSendDraftsForm: HTMLFormElement | null = $state(null);
 	let bulkSendDraftsSubmitting = $state(false);
@@ -1244,6 +1304,30 @@
 						<Upload class="mr-2 size-4" aria-hidden="true" />
 						Import CSV
 					</Button>
+					{#if apifyConfigured}
+						<Button
+							type="button"
+							variant="outline"
+							size="sm"
+							class="h-9 bg-background"
+							onclick={() => {
+								importApifyOpen = true;
+								placeSuggestions = [];
+							}}
+						>
+							<CloudDownload class="mr-2 size-4" aria-hidden="true" />
+							Import from Apify
+						</Button>
+					{/if}
+					{#if myActiveApifyJob}
+						<span
+							class="text-muted-foreground inline-flex max-w-[10rem] items-center gap-1 truncate text-xs sm:max-w-none"
+							title="Apify Google Maps import in progress for {myActiveApifyJob.industry} — {myActiveApifyJob.location}"
+						>
+							<LoaderCircle class="size-3.5 shrink-0 animate-spin" aria-hidden="true" />
+							<span class="truncate">Apify import…</span>
+						</span>
+					{/if}
 					{#if showBulkSendDraftsButton}
 						<Button
 							type="button"
@@ -1410,24 +1494,169 @@
 				</form>
 			</Dialog.Content>
 		</Dialog.Root>
+		<Dialog.Root bind:open={importApifyOpen}>
+			<Dialog.Content class="sm:max-w-md">
+				<Dialog.Header>
+					<Dialog.Title>Import from Apify</Dialog.Title>
+					<Dialog.Description>
+						Runs the Google Maps scraper for your industry and location. This can take several minutes. New
+						prospects appear in the table when the job finishes (no need to refresh).
+					</Dialog.Description>
+				</Dialog.Header>
+				<form
+					method="POST"
+					action="?/enqueueApifyImport"
+					class="space-y-4"
+					use:enhance={() => {
+						importApifySubmitting = true;
+						return async ({ result }) => {
+							importApifySubmitting = false;
+							if (
+								result.type === 'success' &&
+								result.data &&
+								typeof result.data === 'object' &&
+								'success' in result.data &&
+								(result.data as { success?: boolean }).success
+							) {
+								const d = result.data as { alreadyQueued?: boolean };
+								toastSuccess(
+									'Apify import',
+									d.alreadyQueued
+										? 'You already have an import running; it will continue in the background.'
+										: 'Import queued. You will get a notification when it completes.'
+								);
+								importApifyOpen = false;
+								placeSuggestions = [];
+								void fetch('/api/jobs/apify', {
+									method: 'POST',
+									credentials: 'include',
+									headers: { 'Content-Type': 'application/json' },
+									body: '{}'
+								}).catch(() => {});
+								await invalidateAll();
+							} else if (result.type === 'failure' && result.data?.message) {
+								toastError('Apify import', (result.data as { message?: string }).message);
+							}
+						};
+					}}
+				>
+					<input type="hidden" name="industry" value={importApifyIndustry} />
+					<input type="hidden" name="location" value={importApifyLocation} />
+					<div class="space-y-2">
+						<Label id="lr-apify-industry-label">Industry we work with</Label>
+						<Select.Root type="single" bind:value={importApifyIndustry}>
+							<Select.Trigger class="w-full" aria-labelledby="lr-apify-industry-label">
+								{INDUSTRY_LABELS[importApifyIndustry]}
+							</Select.Trigger>
+							<Select.Content>
+								{#each INDUSTRY_SLUGS as slug (slug)}
+									<Select.Item value={slug}>{INDUSTRY_LABELS[slug]}</Select.Item>
+								{/each}
+							</Select.Content>
+						</Select.Root>
+					</div>
+					<div class="relative space-y-2">
+						<Label for="lr-apify-location">City / province</Label>
+						<Input
+							id="lr-apify-location"
+							bind:value={importApifyLocation}
+							oninput={(e) => schedulePlaceSuggestions(e.currentTarget.value)}
+							autocomplete="off"
+							placeholder="Start typing; pick a suggestion or enter manually"
+							aria-autocomplete="list"
+							aria-expanded={placeSuggestions.length > 0}
+							aria-controls="lr-apify-suggest-list"
+						/>
+						{#if placeSuggestLoading}
+							<p class="text-muted-foreground text-xs">Searching places…</p>
+						{/if}
+						{#if placeSuggestions.length > 0}
+							<ul
+								id="lr-apify-suggest-list"
+								class="border-input bg-popover absolute z-50 mt-1 max-h-48 w-full overflow-auto rounded-md border p-1 shadow-md"
+								role="listbox"
+							>
+								{#each placeSuggestions as s (s.placeId)}
+									<li role="presentation">
+										<button
+											type="button"
+											role="option"
+											aria-selected="false"
+											class="hover:bg-accent focus:bg-accent w-full rounded-sm px-2 py-1.5 text-left text-sm outline-none"
+											onclick={() => pickPlaceSuggestion(s)}
+										>
+											{s.fullText || [s.mainText, s.secondaryText].filter(Boolean).join(', ')}
+										</button>
+									</li>
+								{/each}
+							</ul>
+						{/if}
+						{#if !placesApiConfigured}
+							<p class="text-muted-foreground text-xs">
+								Places autocomplete is off (set GOOGLE_PLACES_API_KEY). You can still type a location.
+							</p>
+						{/if}
+					</div>
+					<Dialog.Footer class="gap-2 sm:gap-2">
+						<Button
+							type="button"
+							variant="outline"
+							disabled={importApifySubmitting}
+							onclick={() => {
+								importApifyOpen = false;
+								placeSuggestions = [];
+							}}
+						>
+							Cancel
+						</Button>
+						<Button
+							type="submit"
+							disabled={importApifySubmitting || importApifyLocation.trim().length < 2}
+						>
+							{#if importApifySubmitting}
+								<LoaderCircle class="mr-2 size-4 animate-spin" aria-hidden="true" />
+							{/if}
+							{importApifySubmitting ? 'Queueing…' : 'Start import'}
+						</Button>
+					</Dialog.Footer>
+				</form>
+			</Dialog.Content>
+		</Dialog.Root>
 		{#if prospects.length === 0}
 			<div class="mx-4 mb-4 sm:mx-6">
 				<div
 					class="flex flex-col gap-4 rounded-lg border border-border/50 bg-muted/30 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6"
 				>
 					<p class="text-sm text-muted-foreground">
-						No prospects yet. Import a CSV to add rows, or connect an integration and sync.
+						No prospects yet. Import a CSV to add rows, use Apify, or connect an integration and sync.
 					</p>
-					<Button
-						type="button"
-						variant="outline"
-						size="sm"
-						class="h-9 shrink-0 bg-background"
-						onclick={() => (importCsvOpen = true)}
-					>
-						<Upload class="mr-2 size-4" aria-hidden="true" />
-						Import CSV
-					</Button>
+					<div class="flex flex-wrap gap-2">
+						<Button
+							type="button"
+							variant="outline"
+							size="sm"
+							class="h-9 shrink-0 bg-background"
+							onclick={() => (importCsvOpen = true)}
+						>
+							<Upload class="mr-2 size-4" aria-hidden="true" />
+							Import CSV
+						</Button>
+						{#if apifyConfigured}
+							<Button
+								type="button"
+								variant="outline"
+								size="sm"
+								class="h-9 shrink-0 bg-background"
+								onclick={() => {
+									importApifyOpen = true;
+									placeSuggestions = [];
+								}}
+							>
+								<CloudDownload class="mr-2 size-4" aria-hidden="true" />
+								Import from Apify
+							</Button>
+						{/if}
+					</div>
 				</div>
 			</div>
 		{/if}
