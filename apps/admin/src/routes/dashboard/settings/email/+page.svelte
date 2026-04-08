@@ -10,10 +10,10 @@
 
 	let { data } = $props<{ data: PageData }>();
 
-	let senderName = $state(data.emailSenderName ?? '');
-	let emailSignatureOverride = $state(data.emailSignatureOverride ?? '');
+	let senderName = $state('');
+	let emailSignatureOverride = $state('');
 
-	$effect(() => {
+	$effect.pre(() => {
 		senderName = data.emailSenderName ?? '';
 		emailSignatureOverride = data.emailSignatureOverride ?? '';
 	});
