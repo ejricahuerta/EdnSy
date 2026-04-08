@@ -1,18 +1,18 @@
 import { fail, redirect } from '@sveltejs/kit';
-import { getProspectByIdForUser } from '$lib/server/prospects';
+import { getProspectByIdWithCreated } from '$lib/server/prospects';
 import {
-	getDemoTrackingForProspect,
+	getDemoTrackingForProspectLatest,
 	getScrapedDataForProspect,
 	getScrapedDataForProspectForUser,
 	updateDemoTrackingStatus,
 	enqueueDemoJob,
-	getDemoJobsForUser,
+	getLatestDemoJobForProspect,
 	upsertDemoTrackingForProspect,
 	getSupabaseAdmin,
 	enqueueInsightsJob,
 	enqueueGbpJob,
-	getInsightsJobForProspect,
-	getGbpJobForProspect,
+	getInsightsJobForProspectLatest,
+	getGbpJobForProspectLatest,
 	getGmailOutreachEventsForProspect
 } from '$lib/server/supabase';
 import type { PageServerLoad, Actions } from './$types';
@@ -40,21 +40,19 @@ export const load: PageServerLoad = async (event) => {
 	if (!user) throw redirect(303, '/auth/login');
 
 	const prospectId = params.id;
-	const prospect = await getProspectByIdForUser(user.id, prospectId);
+	const prospect = await getProspectByIdWithCreated(prospectId);
 	if (!prospect) throw redirect(303, '/dashboard/prospects');
 
-	const [demoTracking, scrapedData, demoJobMap, insightsJob, gbpJob, sendConfigured, gmailOutreachEvents] =
+	const [demoTracking, scrapedData, demoJob, insightsJob, gbpJob, sendConfigured, gmailOutreachEvents] =
 		await Promise.all([
-			getDemoTrackingForProspect(user.id, prospectId),
+			getDemoTrackingForProspectLatest(prospectId),
 			getScrapedDataForProspect(prospectId),
-			getDemoJobsForUser(user.id),
-			getInsightsJobForProspect(user.id, prospectId),
-			getGbpJobForProspect(user.id, prospectId),
+			getLatestDemoJobForProspect(prospectId),
+			getInsightsJobForProspectLatest(prospectId),
+			getGbpJobForProspectLatest(prospectId),
 			getSendConfigured(user.id),
 			getGmailOutreachEventsForProspect(prospectId)
 		]);
-
-	const demoJob = demoJobMap[prospectId] ?? null;
 
 	return {
 		user,
@@ -81,7 +79,7 @@ export const actions: Actions = {
 		if (!prospectId || typeof prospectId !== 'string') {
 			return fail(400, { message: 'Missing prospect ID' });
 		}
-		const prospect = await getProspectByIdForUser(user.id, prospectId);
+		const prospect = await getProspectByIdWithCreated(prospectId);
 		if (!prospect) return fail(404, { message: 'Prospect not found' });
 		if (prospect.flagged && prospect.flaggedReason !== NO_FIT_GBP_REASON) {
 			return fail(400, { message: 'This prospect is out of scope. Analysis is not available.' });
@@ -101,7 +99,7 @@ export const actions: Actions = {
 		if (!prospectId || typeof prospectId !== 'string') {
 			return fail(400, { message: 'Missing prospect ID' });
 		}
-		const prospect = await getProspectByIdForUser(user.id, prospectId);
+		const prospect = await getProspectByIdWithCreated(prospectId);
 		if (!prospect) return fail(404, { message: 'Prospect not found' });
 		if (prospect.flagged && prospect.flaggedReason !== NO_FIT_GBP_REASON) {
 			return fail(400, { message: 'This prospect is out of scope. Regeneration is not available.' });
@@ -120,7 +118,7 @@ export const actions: Actions = {
 		if (!prospectId || typeof prospectId !== 'string') {
 			return fail(400, { message: 'Missing prospect ID' });
 		}
-		const prospect = await getProspectByIdForUser(user.id, prospectId);
+		const prospect = await getProspectByIdWithCreated(prospectId);
 		if (!prospect) return fail(404, { message: 'Prospect not found' });
 		if (prospect.flagged && prospect.flaggedReason !== NO_FIT_GBP_REASON) {
 			return fail(400, { message: 'This prospect is out of scope. Demos and GBP are not available.' });
@@ -177,12 +175,12 @@ export const actions: Actions = {
 		if (!prospectId || typeof prospectId !== 'string') {
 			return fail(400, { message: 'Missing prospect ID' });
 		}
-		const prospect = await getProspectByIdForUser(user.id, prospectId);
+		const prospect = await getProspectByIdWithCreated(prospectId);
 		if (!prospect) return fail(404, { message: 'Prospect not found' });
 		if (!(prospect.demoLink ?? '').trim()) {
 			return fail(400, { message: 'No demo to approve. Create a demo first.' });
 		}
-		let demoTracking = await getDemoTrackingForProspect(user.id, prospectId);
+		let demoTracking = await getDemoTrackingForProspectLatest(prospectId);
 		if (!demoTracking) {
 			// Legacy: prospect has demo link but no demo_tracking row; create one as approved so Send is available
 			await upsertDemoTrackingForProspect(
@@ -213,7 +211,7 @@ export const actions: Actions = {
 		if (!prospectId || typeof prospectId !== 'string') {
 			return fail(400, { message: 'Missing prospect ID' });
 		}
-		const prospect = await getProspectByIdForUser(user.id, prospectId);
+		const prospect = await getProspectByIdWithCreated(prospectId);
 		if (!prospect) return fail(404, { message: 'Prospect not found' });
 		if (prospect.flagged && prospect.flaggedReason !== NO_FIT_GBP_REASON) {
 			return fail(400, { message: 'This prospect is out of scope.' });
@@ -244,7 +242,7 @@ export const actions: Actions = {
 		}
 		const kind: CrmOutreachKind =
 			kindRaw === 'alternate' ? 'alternate' : kindRaw === 'demo' ? 'demo' : 'demo';
-		const prospect = await getProspectByIdForUser(user.id, prospectId);
+		const prospect = await getProspectByIdWithCreated(prospectId);
 		if (!prospect) return fail(404, { message: 'Prospect not found' });
 		if (prospect.flagged && prospect.flaggedReason !== NO_FIT_GBP_REASON) {
 			return fail(400, { message: 'Prospect out of scope.' });
@@ -253,7 +251,7 @@ export const actions: Actions = {
 			if (!prospect.demoLink) {
 				return fail(400, { message: 'No demo link. Create a demo first.' });
 			}
-			const demoTracking = await getDemoTrackingForProspect(user.id, prospectId);
+			const demoTracking = await getDemoTrackingForProspectLatest(prospectId);
 			if (
 				demoTracking &&
 				demoTracking.status !== 'approved' &&
@@ -307,13 +305,13 @@ export const actions: Actions = {
 			return fail(400, { message: 'Missing prospect ID' });
 		}
 		const kind: CrmOutreachKind = kindRaw === 'alternate' ? 'alternate' : 'demo';
-		const prospect = await getProspectByIdForUser(user.id, prospectId);
+		const prospect = await getProspectByIdWithCreated(prospectId);
 		if (!prospect) return fail(404, { message: 'Prospect not found' });
 		if (prospect.flagged && prospect.flaggedReason !== NO_FIT_GBP_REASON) {
 			return fail(400, { message: 'Prospect out of scope.' });
 		}
 		const linkOrigin = getOriginForOutgoingLinks(url.origin);
-		let demoTracking = await getDemoTrackingForProspect(user.id, prospectId);
+		let demoTracking = await getDemoTrackingForProspectLatest(prospectId);
 
 		if (kind === 'demo') {
 			if (!prospect.demoLink) {
@@ -328,7 +326,7 @@ export const actions: Actions = {
 					(prospect.demoLink ?? '').trim(),
 					'approved'
 				);
-				demoTracking = await getDemoTrackingForProspect(user.id, prospectId);
+				demoTracking = await getDemoTrackingForProspectLatest(prospectId);
 			}
 			if (
 				!demoTracking ||
@@ -397,7 +395,7 @@ export const actions: Actions = {
 		if (!prospectId || typeof prospectId !== 'string') {
 			return fail(400, { message: 'Missing prospect ID' });
 		}
-		const prospect = await getProspectByIdForUser(user.id, prospectId);
+		const prospect = await getProspectByIdWithCreated(prospectId);
 		if (!prospect) return fail(404, { message: 'Prospect not found' });
 		const ex = await executeSendGmailOutreachDraft({
 			userId: user.id,

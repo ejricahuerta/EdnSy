@@ -1,7 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
 import {
 	listProspects,
-	listProspectsForUser,
 	getProspectById,
 	updateProspectDemoLink,
 	updateProspectFromGbp,
@@ -11,20 +10,20 @@ import {
 } from '$lib/server/prospects';
 import {
 	getSupabaseAdmin,
-	getDemoTrackingForUser,
+	getDemoTrackingMapGlobal,
 	getDemoTrackingForProspect,
 	getDemoCountThisMonth,
 	updateDemoTrackingStatus,
 	upsertDemoTrackingForProspect,
-	getScrapedDataMapForUser,
+	getScrapedDataMapGlobal,
 	getScrapedDataForProspectForUser,
 	enqueueDemoJob,
 	enqueueGbpJob,
 	enqueueInsightsJob,
-	getDemoJobsForUser,
+	getDemoJobsMapGlobal,
 	getActiveDemoJobForProspect,
-	getGbpJobsForUser,
-	getInsightsJobsForUser,
+	getGbpJobsMapGlobal,
+	getInsightsJobsMapGlobal,
 	getGbpJobForProspect,
 	getInsightsJobForProspect
 } from '$lib/server/supabase';
@@ -75,15 +74,15 @@ export const load: PageServerLoad = async (event) => {
 		throw redirect(303, '/auth/login');
 	}
 	const demoCountThisMonth = await getDemoCountThisMonth(user.id);
-	const result = await listProspectsForUser(user.id);
+	const result = await listProspects();
 	const prospects = result.prospects ?? [];
-	const demoTrackingByProspectId = await getDemoTrackingForUser(user.id);
-	const scrapedDataByProspectId = await getScrapedDataMapForUser(user.id);
-	const demoJobsByProspectId = await getDemoJobsForUser(user.id);
+	const demoTrackingByProspectId = await getDemoTrackingMapGlobal();
+	const scrapedDataByProspectId = await getScrapedDataMapGlobal();
+	const demoJobsByProspectId = await getDemoJobsMapGlobal();
 	const hasDemoCreatingJob = Object.values(demoJobsByProspectId).some((j) => j.status === 'creating');
 	const [gbpJobsByProspectId, insightsJobsByProspectId] = await Promise.all([
-		getGbpJobsForUser(user.id),
-		getInsightsJobsForUser(user.id)
+		getGbpJobsMapGlobal(),
+		getInsightsJobsMapGlobal()
 	]);
 	const sendConfigured = await getSendConfigured(user.id);
 	const { todayCount: gbpDentalTodayCount, dailyCap: gbpDentalDailyCap } =
@@ -400,7 +399,7 @@ export const actions: Actions = {
 		if (prospectIds.length === 0) {
 			return fail(400, { message: 'Select at least one prospect' });
 		}
-		const scrapedMap = await getScrapedDataMapForUser(user.id);
+		const scrapedMap = await getScrapedDataMapGlobal();
 		let queued = 0;
 		const errors: string[] = [];
 		for (const prospectId of prospectIds) {
@@ -718,7 +717,7 @@ export const actions: Actions = {
 		}
 
 		// Demo queue (create + retry); only enqueue prospects that have GBP data
-		const scrapedMap = await getScrapedDataMapForUser(user.id);
+		const scrapedMap = await getScrapedDataMapGlobal();
 		let demoQueued = 0;
 		const demoErrors: string[] = [];
 		for (const prospectId of demoIds) {
@@ -762,12 +761,12 @@ export const actions: Actions = {
 		const { cookies } = event;
 		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
-		const result = await listProspectsForUser(user.id);
+		const result = await listProspects();
 		const prospects = result.prospects ?? [];
 		const [demoJobsByProspectId, gbpJobsByProspectId, insightsJobsByProspectId] = await Promise.all([
-			getDemoJobsForUser(user.id),
-			getGbpJobsForUser(user.id),
-			getInsightsJobsForUser(user.id)
+			getDemoJobsMapGlobal(),
+			getGbpJobsMapGlobal(),
+			getInsightsJobsMapGlobal()
 		]);
 		let cleared = 0;
 		for (const p of prospects) {

@@ -97,7 +97,8 @@ export async function listProspects(): Promise<ListProspectsResult> {
 		.select(
 			'id, company_name, email, website, phone, industry, status, demo_link, provider, provider_row_id, user_id, address, flagged, flagged_reason'
 		)
-		.order('updated_at', { ascending: false });
+		.order('updated_at', { ascending: false })
+		.limit(5000);
 	if (error) return { prospects: [], error: 'api_error', message: error.message };
 	const prospects = (data ?? []).map((r) => rowToProspect(r));
 	return { prospects };
@@ -115,7 +116,8 @@ export async function listProspectsForUser(userId: string): Promise<ListProspect
 			'id, company_name, email, website, phone, industry, status, demo_link, provider, provider_row_id, user_id, address, flagged, flagged_reason'
 		)
 		.eq('user_id', userId)
-		.order('updated_at', { ascending: false });
+		.order('updated_at', { ascending: false })
+		.limit(5000);
 	if (error) return { prospects: [], error: 'api_error', message: error.message };
 	const prospects = (data ?? []).map((r) => rowToProspect(r));
 	return { prospects };
