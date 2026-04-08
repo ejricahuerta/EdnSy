@@ -54,7 +54,7 @@ export async function prepareCrmOutreachEmail(params: {
 		getEmailSignatureOverride(userId)
 	]);
 	const templates = await getTemplates(userId);
-	const ai = await generateEmailCopy(prospect, senderName);
+	const ai = await generateEmailCopy(prospect, senderName, userId);
 	const resolved = resolveDemoOutreachEmail(
 		prospect,
 		senderName,
