@@ -836,6 +836,184 @@ export async function updateGbpJob(
 	await supabase.from('gbp_jobs').update(payload).eq('id', jobId);
 }
 
+// --- Apify bulk import jobs (Google Maps scraper; not tied to a single prospect) ---
+
+export type ApifyJobStatus = 'pending' | 'running' | 'done' | 'failed';
+
+export type ApifyJobRow = {
+	id: string;
+	user_id: string;
+	status: ApifyJobStatus;
+	industry: string;
+	location: string;
+	inserted_count: number;
+	created_at: string;
+	updated_at: string;
+	error_message: string | null;
+};
+
+export async function getActiveApifyJobForUser(
+	userId: string
+): Promise<{ jobId: string; status: ApifyJobStatus; industry: string; location: string } | null> {
+	const supabase = getSupabaseAdmin();
+	if (!supabase) return null;
+	const { data, error } = await supabase
+		.from('apify_jobs')
+		.select('id, status, industry, location')
+		.eq('user_id', userId)
+		.in('status', ['pending', 'running'])
+		.order('created_at', { ascending: false })
+		.limit(1)
+		.maybeSingle();
+	if (error || !data?.id) return null;
+	return {
+		jobId: data.id as string,
+		status: data.status as ApifyJobStatus,
+		industry: String(data.industry ?? ''),
+		location: String(data.location ?? '')
+	};
+}
+
+export type EnqueueApifyJobResult = { jobId: string; created: boolean } | null;
+
+export async function enqueueApifyJob(
+	userId: string,
+	industry: string,
+	location: string
+): Promise<EnqueueApifyJobResult | null> {
+	const supabase = getSupabaseAdmin();
+	if (!supabase) return null;
+	const existing = await getActiveApifyJobForUser(userId);
+	if (existing) return { jobId: existing.jobId, created: false };
+	const { data, error } = await supabase
+		.from('apify_jobs')
+		.insert({
+			user_id: userId,
+			industry: industry.slice(0, 200),
+			location: location.slice(0, 500),
+			status: 'pending'
+		})
+		.select('id')
+		.single();
+	if (error || !data?.id) return null;
+	return { jobId: data.id as string, created: true };
+}
+
+/** Active Apify jobs keyed by job id (for prospects toolbar / load data). */
+export async function getApifyJobsMapGlobal(): Promise<
+	Record<
+		string,
+		{ jobId: string; status: ApifyJobStatus; industry: string; location: string; userId: string }
+	>
+> {
+	const supabase = getSupabaseAdmin();
+	if (!supabase) return {};
+	const { data, error } = await supabase
+		.from('apify_jobs')
+		.select('id, user_id, status, industry, location')
+		.in('status', ['pending', 'running'])
+		.order('created_at', { ascending: false });
+	if (error || !data?.length) return {};
+	const map: Record<
+		string,
+		{ jobId: string; status: ApifyJobStatus; industry: string; location: string; userId: string }
+	> = {};
+	for (const row of data) {
+		const id = row.id as string;
+		if (!id || id in map) continue;
+		map[id] = {
+			jobId: id,
+			status: row.status as ApifyJobStatus,
+			industry: String(row.industry ?? ''),
+			location: String(row.location ?? ''),
+			userId: String(row.user_id ?? '')
+		};
+	}
+	return map;
+}
+
+export async function resetStaleRunningApifyJobs(staleAfterMinutes: number = 10): Promise<number> {
+	const supabase = getSupabaseAdmin();
+	if (!supabase) return 0;
+	const cutoff = new Date(Date.now() - staleAfterMinutes * 60 * 1000).toISOString();
+	const { data, error } = await supabase
+		.from('apify_jobs')
+		.update({ status: 'pending', updated_at: new Date().toISOString() })
+		.eq('status', 'running')
+		.lt('updated_at', cutoff)
+		.select('id');
+	if (error || !data?.length) return 0;
+	return data.length;
+}
+
+export async function claimNextPendingApifyJob(): Promise<ApifyJobRow | null> {
+	const supabase = getSupabaseAdmin();
+	if (!supabase) return null;
+	const { data: rows, error } = await supabase.rpc('claim_next_pending_apify_job');
+	if (error || !rows?.length) {
+		const { data: fallback, error: fallbackError } = await supabase
+			.from('apify_jobs')
+			.select(
+				'id, user_id, status, industry, location, inserted_count, created_at, updated_at, error_message'
+			)
+			.eq('status', 'pending')
+			.order('created_at', { ascending: true })
+			.limit(1);
+		if (fallbackError || !fallback?.length) return null;
+		const job = fallback[0] as ApifyJobRow;
+		const { error: updateError } = await supabase
+			.from('apify_jobs')
+			.update({ status: 'running', updated_at: new Date().toISOString() })
+			.eq('id', job.id);
+		if (updateError) return null;
+		return { ...job, status: 'running' as const };
+	}
+	const row = rows[0] as Record<string, unknown>;
+	return {
+		id: row.id as string,
+		user_id: row.user_id as string,
+		status: 'running' as const,
+		industry: String(row.industry ?? ''),
+		location: String(row.location ?? ''),
+		inserted_count: Number(row.inserted_count ?? 0),
+		created_at: row.created_at as string,
+		updated_at: row.updated_at as string,
+		error_message: (row.error_message as string | null) ?? null
+	};
+}
+
+export async function updateApifyJob(
+	jobId: string,
+	updates: {
+		status: ApifyJobStatus;
+		errorMessage?: string | null;
+		insertedCount?: number;
+	}
+): Promise<void> {
+	const supabase = getSupabaseAdmin();
+	if (!supabase) return;
+	const payload: Record<string, unknown> = {
+		status: updates.status,
+		updated_at: new Date().toISOString()
+	};
+	if (updates.errorMessage !== undefined) payload.error_message = updates.errorMessage;
+	if (updates.insertedCount !== undefined) payload.inserted_count = updates.insertedCount;
+	await supabase.from('apify_jobs').update(payload).eq('id', jobId);
+}
+
+export async function getApifyJobQueueCounts(): Promise<{ pending: number; running: number } | null> {
+	const supabase = getSupabaseAdmin();
+	if (!supabase) return null;
+	const [pendingRes, runningRes] = await Promise.all([
+		supabase.from('apify_jobs').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+		supabase.from('apify_jobs').select('id', { count: 'exact', head: true }).eq('status', 'running')
+	]);
+	return {
+		pending: pendingRes.count ?? 0,
+		running: runningRes.count ?? 0
+	};
+}
+
 // --- Places API usage (monthly lock so we don't exceed free tier) ---
 
 /** Current month key for places_api_usage (YYYY-MM UTC). */

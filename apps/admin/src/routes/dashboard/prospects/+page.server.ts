@@ -25,7 +25,9 @@ import {
 	getGbpJobsMapGlobal,
 	getInsightsJobsMapGlobal,
 	getGbpJobForProspect,
-	getInsightsJobForProspect
+	getInsightsJobForProspect,
+	getApifyJobsMapGlobal,
+	enqueueApifyJob
 } from '$lib/server/supabase';
 import { resetStaleDemoJobsCreatingToPendingForUser } from '$lib/server/resetStaleDemoJobs';
 import { getScrapedDataForDemo, formatScrapedDataErrorMessage } from '$lib/server/gbp';
@@ -67,6 +69,8 @@ import {
 	getGbpDentalPullLock,
 	isPlacesConfiguredForGbp
 } from '$lib/server/pullGbpDental';
+import { isApifyConfigured } from '$lib/server/apify';
+import { INDUSTRY_SLUGS, type IndustrySlug } from '$lib/industries';
 
 export const load: PageServerLoad = async (event) => {
 	const user = await getDashboardSessionUser(event);
@@ -80,9 +84,10 @@ export const load: PageServerLoad = async (event) => {
 	const scrapedDataByProspectId = await getScrapedDataMapGlobal();
 	const demoJobsByProspectId = await getDemoJobsMapGlobal();
 	const hasDemoCreatingJob = Object.values(demoJobsByProspectId).some((j) => j.status === 'creating');
-	const [gbpJobsByProspectId, insightsJobsByProspectId] = await Promise.all([
+	const [gbpJobsByProspectId, insightsJobsByProspectId, apifyJobsById] = await Promise.all([
 		getGbpJobsMapGlobal(),
-		getInsightsJobsMapGlobal()
+		getInsightsJobsMapGlobal(),
+		getApifyJobsMapGlobal()
 	]);
 	const sendConfigured = await getSendConfigured(user.id);
 	const { todayCount: gbpDentalTodayCount, dailyCap: gbpDentalDailyCap } =
@@ -105,7 +110,9 @@ export const load: PageServerLoad = async (event) => {
 		gbpDentalTodayCount,
 		gbpDentalDailyCap,
 		gbpDentalPullLock,
-		placesApiConfigured
+		placesApiConfigured,
+		apifyConfigured: isApifyConfigured(),
+		apifyJobsById
 	};
 };
 
@@ -821,6 +828,35 @@ export const actions: Actions = {
 			skipped: result.skipped,
 			failed: result.failed,
 			errors: result.errors.length > 0 ? result.errors : undefined
+		};
+	},
+	/** Queue Apify Google Maps import (processed by POST /api/jobs/apify; completion via Realtime). */
+	enqueueApifyImport: async (event) => {
+		const user = await getDashboardSessionUser(event);
+		if (!user) return fail(401, { message: 'Sign in required' });
+		if (!isApifyConfigured()) {
+			return fail(503, { message: 'Apify is not configured (APIFY_API_TOKEN).' });
+		}
+		const formData = await event.request.formData();
+		const industryRaw = formData.get('industry');
+		const locationRaw = formData.get('location');
+		if (typeof industryRaw !== 'string' || !INDUSTRY_SLUGS.includes(industryRaw as IndustrySlug)) {
+			return fail(400, { message: 'Choose a valid industry.' });
+		}
+		const industry = industryRaw as IndustrySlug;
+		const location = typeof locationRaw === 'string' ? locationRaw.trim() : '';
+		if (location.length < 2) {
+			return fail(400, { message: 'Enter a location (city or region).' });
+		}
+		const enq = await enqueueApifyJob(user.id, industry, location);
+		if (!enq) {
+			return fail(503, { message: 'Could not queue import. Is Supabase configured?' });
+		}
+		return {
+			success: true,
+			queued: true,
+			jobId: enq.jobId,
+			alreadyQueued: !enq.created
 		};
 	}
 };

@@ -1,6 +1,6 @@
 import type { RealtimePostgresChangesPayload, SupabaseClient } from '@supabase/supabase-js';
 
-const TABLES = ['prospects', 'demo_jobs', 'gbp_jobs', 'insights_jobs'] as const;
+const TABLES = ['prospects', 'demo_jobs', 'gbp_jobs', 'insights_jobs', 'apify_jobs'] as const;
 
 export type ProspectsJobRealtimeEvent = {
 	table: string;

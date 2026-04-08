@@ -35,7 +35,14 @@ export type Prospect = {
 	gmailOutreachDraftCreatedAt?: string;
 };
 
-export type ProspectProvider = 'notion' | 'hubspot' | 'gohighlevel' | 'pipedrive' | 'manual' | 'gbp';
+export type ProspectProvider =
+	| 'notion'
+	| 'hubspot'
+	| 'gohighlevel'
+	| 'pipedrive'
+	| 'manual'
+	| 'gbp'
+	| 'apify';
 
 /** Which CRM outreach template the Gmail draft was built from. */
 export type GmailOutreachDraftKind = 'demo' | 'alternate';
