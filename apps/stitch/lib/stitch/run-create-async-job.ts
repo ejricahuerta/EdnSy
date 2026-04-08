@@ -1,4 +1,4 @@
-import { Stitch, StitchError, StitchToolClient } from "@google/stitch-sdk";
+import { Stitch, StitchError, StitchToolClient, stitch } from "@google/stitch-sdk";
 import { buildLandingPagePrompt } from "@/lib/prompts/landing-page";
 import {
   stripAsyncDemoMeta,
@@ -9,8 +9,8 @@ import {
   withDailyGenerationQuota,
 } from "@/lib/stitch/daily-generation-quota";
 import { generateScreenHtml } from "@/lib/stitch/generate-screen-html";
-import { getOrCreateLaunchRosettaProject } from "@/lib/stitch/launch-rosetta";
-import { StitchConfigError } from "@/lib/stitch/load-env";
+import { getOrCreateProspectProject } from "@/lib/stitch/launch-rosetta";
+import { assertStitchCredentials, StitchConfigError } from "@/lib/stitch/load-env";
 import { uploadDemoHtmlToStorage } from "@/lib/stitch/upload-demo-html";
 
 export type CreateAsyncMeta = {
@@ -78,7 +78,7 @@ export async function runCreateAsyncJob(
   try {
     const stripped = stripAsyncDemoMeta(rawPayload);
     const context = websiteTemplatePayloadToLandingPageContext(stripped);
-    const prompt = buildLandingPagePrompt(context);
+    const prompt = buildLandingPagePrompt(context, { prospectId });
 
     const userToken =
       typeof rawPayload.stitchAccessToken === "string"
@@ -89,6 +89,18 @@ export async function runCreateAsyncJob(
         ? rawPayload.stitchGcpProject.trim()
         : "";
 
+    const companyNameRaw =
+      typeof rawPayload.prospectCompanyName === "string"
+        ? rawPayload.prospectCompanyName.trim()
+        : "";
+    const companyName =
+      companyNameRaw || `Prospect ${prospectId.slice(0, 8)}`;
+
+    const existingStitchProjectId =
+      typeof rawPayload.stitchProjectId === "string"
+        ? rawPayload.stitchProjectId.trim()
+        : "";
+
     let project;
     if (userToken && gcpProject) {
       userStitchClient = new StitchToolClient({
@@ -97,9 +109,20 @@ export async function runCreateAsyncJob(
         timeout: 180_000,
       });
       const userStitch = new Stitch(userStitchClient);
-      project = await getOrCreateLaunchRosettaProject(userStitch);
+      project = await getOrCreateProspectProject(
+        userStitch,
+        companyName,
+        prospectId,
+        existingStitchProjectId || undefined,
+      );
     } else {
-      project = await getOrCreateLaunchRosettaProject();
+      assertStitchCredentials();
+      project = await getOrCreateProspectProject(
+        stitch,
+        companyName,
+        prospectId,
+        existingStitchProjectId || undefined,
+      );
     }
 
     const result = await withDailyGenerationQuota(() =>
@@ -137,6 +160,7 @@ export async function runCreateAsyncJob(
       prospectId,
       ...(userId !== undefined ? { userId } : {}),
       html: trimmed,
+      stitchProjectId: project.projectId,
     });
   } catch (err) {
     await sendError(err);

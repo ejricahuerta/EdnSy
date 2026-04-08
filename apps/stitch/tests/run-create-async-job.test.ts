@@ -17,7 +17,7 @@ vi.mock("@/lib/stitch/upload-demo-html", () => ({
 }));
 
 vi.mock("@/lib/stitch/launch-rosetta", () => ({
-  getOrCreateLaunchRosettaProject: vi.fn(() =>
+  getOrCreateProspectProject: vi.fn(() =>
     Promise.resolve({ projectId: "p1" }),
   ),
 }));
@@ -28,6 +28,14 @@ vi.mock("@/lib/stitch/daily-generation-quota", async (importOriginal) => {
   return {
     ...actual,
     withDailyGenerationQuota: <T>(fn: () => Promise<T>) => fn(),
+  };
+});
+
+vi.mock("@/lib/stitch/load-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/stitch/load-env")>();
+  return {
+    ...actual,
+    assertStitchCredentials: vi.fn(),
   };
 });
 
@@ -107,6 +115,7 @@ describe("runCreateAsyncJob", () => {
     expect(body.prospectId).toBe("prospect-1");
     expect(body.userId).toBe("user-1");
     expect(body.html).toBe("<html>ok</html>");
+    expect(body.stitchProjectId).toBe("p1");
     expect(body.error).toBeUndefined();
   });
 

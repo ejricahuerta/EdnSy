@@ -27,6 +27,7 @@ Use the shared helper: `apiError(status, message, code?)` from `$lib/server/apiR
 | POST | `/api/demo/track` | Demo events (page_view, time_on_page_2min, etc.) | None |
 | POST | `/api/demo/callback` | Retell callback (schedule call) | None |
 | POST | `/api/demo/generation-callback` | Demo generator completion (website-template → admin) | DEMO_CALLBACK_SECRET (Bearer) |
+| POST | `/api/demo/lead` | Lead capture from Stitch demo hero form (form POST or JSON) | None (rate limited) |
 | GET | `/api/demo/[slug]/page.json` | Get v1.3 page JSON for demo | None |
 | POST | `/api/dashboard/overview` | (Re)generate AI dashboard overview | Session |
 | GET | `/api/dashboard/integrations/credentials/[provider]` | Get CRM credentials for provider | Session |
