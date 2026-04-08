@@ -105,9 +105,14 @@ function stripMetaForGenerate(payload) {
     jobId,
     prospectId,
     userId,
+    id,
     styleId,
     dentalStyleId,
     leadRosettaLayout,
+    stitchAccessToken,
+    stitchGcpProject,
+    stitchProjectId,
+    prospectCompanyName,
     ...rest
   } = payload;
   return rest;

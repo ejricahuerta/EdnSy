@@ -12,6 +12,8 @@ const META_KEYS = new Set([
   "leadRosettaLayout",
   "stitchAccessToken",
   "stitchGcpProject",
+  "stitchProjectId",
+  "prospectCompanyName",
 ]);
 
 /** Remove async job / render-hint fields before mapping to Stitch context. */

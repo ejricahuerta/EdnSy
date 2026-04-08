@@ -10,6 +10,8 @@
 
 **Stitch OAuth (demo HTML):** Users may connect **Google Stitch** under Integrations (GCP OAuth scopes: cloud-platform and userinfo.email). When `STITCH_GOOGLE_CLOUD_PROJECT` is set server-side, demo jobs attach `stitchAccessToken` and `stitchGcpProject` to the async `apps/stitch` worker so generation uses each staff member’s Stitch quota (Gemini 3.1 Pro); otherwise the worker falls back to the shared `STITCH_API_KEY`.
 
+**Stitch projects & demo leads:** Each prospect maps to its own Google Stitch project via the **`stitch_projects`** table (prospect id ↔ Stitch project id), reused on regeneration to avoid a single shared project hitting per-project screen limits. The async generator callback persists the returned **`stitchProjectId`**. Cinematic demos built by Stitch include a **hero lead form** (free quote style) that POSTs to **`/api/demo/lead`**; submissions are stored in **`demo_leads`** (linked to the prospect).
+
 ---
 
 ## 1. Overview

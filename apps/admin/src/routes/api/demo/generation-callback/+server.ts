@@ -1,7 +1,7 @@
 /**
  * POST /api/demo/generation-callback — Called by the website-template demo generator when async demo generation finishes.
  * Secured by DEMO_CALLBACK_SECRET (Authorization: Bearer <secret>).
- * Body: { jobId, prospectId, userId?, publicUrl?, html? } on success, or { jobId, prospectId, userId?, error } on failure.
+ * Body: { jobId, prospectId, userId?, publicUrl?, html?, stitchProjectId? } on success, or { jobId, prospectId, userId?, error } on failure.
  * When `html` is present, admin app uploads it to Supabase (demo-html/{prospectId}.html) so the demo page loads.
  */
 
@@ -17,7 +17,9 @@ import {
 import { updateProspectDemoLink, updateProspectStatus } from '$lib/server/prospects';
 import { PROSPECT_STATUS } from '$lib/prospectStatus';
 import { uploadDemoHtml } from '$lib/server/demo';
+import { setStitchProjectId } from '$lib/server/stitchProjects';
 import { apiError, apiSuccess } from '$lib/server/apiResponse';
+import { serverError } from '$lib/server/logger';
 import { getDemoPublicOrigin } from '$lib/server/send';
 
 const CALLBACK_SECRET = (env.DEMO_CALLBACK_SECRET ?? '').trim();
@@ -39,6 +41,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
 		publicUrl?: string;
 		html?: string;
 		error?: string;
+		stitchProjectId?: string;
 	};
 	try {
 		body = (await request.json()) as typeof body;
@@ -46,7 +49,15 @@ export const POST: RequestHandler = async ({ request, url }) => {
 		return apiError(400, 'Invalid JSON');
 	}
 
-	const { jobId, prospectId, userId, publicUrl, html: callbackHtml, error: errorMessage } = body;
+	const {
+		jobId,
+		prospectId,
+		userId,
+		publicUrl,
+		html: callbackHtml,
+		error: errorMessage,
+		stitchProjectId: callbackStitchProjectId
+	} = body;
 	if (!jobId || !prospectId) {
 		return apiError(400, 'jobId and prospectId are required');
 	}
@@ -72,6 +83,22 @@ export const POST: RequestHandler = async ({ request, url }) => {
 			await updateDemoJob(jobId, { status: 'failed', errorMessage: uploadResult.error ?? 'Failed to store demo HTML' });
 			await updateProspectStatus(prospectId, PROSPECT_STATUS.NEW);
 			return apiError(500, uploadResult.error ?? 'Failed to store demo HTML');
+		}
+	}
+
+	const stitchProj =
+		typeof callbackStitchProjectId === 'string' ? callbackStitchProjectId.trim() : '';
+	if (stitchProj) {
+		const mapResult = await setStitchProjectId(
+			prospectId,
+			stitchProj,
+			prospect.companyName ?? undefined
+		);
+		if (!mapResult.ok) {
+			serverError('generation-callback', 'stitch_projects upsert failed', {
+				prospectId,
+				error: mapResult.error
+			});
 		}
 	}
 

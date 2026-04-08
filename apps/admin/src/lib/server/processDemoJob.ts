@@ -48,6 +48,7 @@ import type { LandingPageIndexJson } from '$lib/types/landingPageIndexJson';
 import { DEMO_ERROR } from '$lib/constants/demoErrors';
 import { serverError } from '$lib/server/logger';
 import { getValidStitchAccessToken } from '$lib/server/stitchTokens';
+import { getStitchProjectId } from '$lib/server/stitchProjects';
 
 export type ProcessJobResult =
 	| { processed: true; jobId: string; prospectId: string; status: 'done'; demoLink: string; companyName?: string }
@@ -251,6 +252,15 @@ export async function processOneDemoJob(origin: string): Promise<ProcessJobResul
 			gbpRaw: gbpRaw as GbpData
 		});
 		const payload = { ...pitchPayload, id: prospectId, jobId, prospectId, userId } as Record<string, unknown>;
+		const companyLabel = (prospect.companyName ?? '').trim();
+		payload.prospectCompanyName =
+			companyLabel.slice(0, 200) || `Prospect ${prospectId.slice(0, 8)}`;
+		try {
+			const mappedStitchId = await getStitchProjectId(prospectId);
+			if (mappedStitchId) payload.stitchProjectId = mappedStitchId;
+		} catch {
+			// Stitch app will create a new project on first run
+		}
 		const gcpProject = (env.STITCH_GOOGLE_CLOUD_PROJECT ?? '').trim();
 		if (gcpProject) {
 			try {

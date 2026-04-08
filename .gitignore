@@ -24,6 +24,9 @@ Thumbs.db
 # Admin app script output (DataForSEO test results)
 apps/admin/scripts/output/
 
+# Supabase CLI local cache (not source of truth)
+apps/admin/supabase/.temp/
+
 
 # Vite cache
 .vite/

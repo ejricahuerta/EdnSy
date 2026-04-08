@@ -43,3 +43,35 @@ export async function getOrCreateLaunchRosettaProject(
 
   return sdk.createProject(LAUNCH_ROSETTA_PROJECT_TITLE);
 }
+
+const MAX_STITCH_PROJECT_TITLE_LEN = 120;
+
+/** Safe title for Stitch `createProject` (non-empty, bounded length). */
+export function stitchProjectTitleFromCompanyName(companyName: string, fallbackSuffix: string): string {
+  const raw = companyName.replace(/\s+/g, " ").trim();
+  const base =
+    raw.length > 0
+      ? raw.slice(0, MAX_STITCH_PROJECT_TITLE_LEN)
+      : `Demo ${fallbackSuffix}`.slice(0, MAX_STITCH_PROJECT_TITLE_LEN);
+  return base || `Demo ${fallbackSuffix}`.slice(0, MAX_STITCH_PROJECT_TITLE_LEN);
+}
+
+/**
+ * One Stitch project per prospect. Reuses `existingProjectId` when provided (from DB mapping).
+ */
+export async function getOrCreateProspectProject(
+  stitchInstance: Stitch,
+  companyName: string,
+  prospectIdForFallback: string,
+  existingProjectId?: string,
+): Promise<Project> {
+  const id = existingProjectId?.trim();
+  if (id) {
+    return stitchInstance.project(id);
+  }
+  const title = stitchProjectTitleFromCompanyName(
+    companyName,
+    prospectIdForFallback.slice(0, 8),
+  );
+  return stitchInstance.createProject(title);
+}

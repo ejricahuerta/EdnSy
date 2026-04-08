@@ -8,9 +8,9 @@
 	import { toastFromActionResult } from '$lib/toast';
 
 	let { data } = $props<{ data: PageData }>();
-	let gbpDefaultLocation = $state(data.gbpDefaultLocation ?? '');
+	let gbpDefaultLocation = $state('');
 
-	$effect(() => {
+	$effect.pre(() => {
 		gbpDefaultLocation = data.gbpDefaultLocation ?? '';
 	});
 </script>
