@@ -55,7 +55,6 @@
 	import * as Dialog from '$lib/components/ui/dialog';
 	import * as Drawer from '$lib/components/ui/drawer';
 	import * as Select from '$lib/components/ui/select';
-	import * as ToggleGroup from '$lib/components/ui/toggle-group';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { cn } from '$lib/utils';
@@ -66,6 +65,11 @@
 		type DemoJobMapEntry
 	} from '$lib/client/prospectsJobRealtimeToast';
 	import { prospectJobLabelResolver } from '$lib/notificationHistory';
+	import {
+		gbpCategoriesToIndustryLabel,
+		INDUSTRY_LABELS,
+		notionIndustryToSlug
+	} from '$lib/industries';
 	let { data, form } = $props<{
 		data: PageData;
 		form?: import('./$types').ActionFailure<{ message: string }> & {
@@ -344,12 +348,22 @@
 		return Array.from(labels).sort((a, b) => a.localeCompare(b));
 	});
 
+	function displayIndustryLabel(raw: string): string {
+		const s = raw.trim();
+		if (!s) return '';
+		return (
+			gbpCategoriesToIndustryLabel(s) ??
+			INDUSTRY_LABELS[notionIndustryToSlug(s)] ??
+			s
+		);
+	}
+
 	const industryFilterOptions = $derived.by(() => {
 		const set = new Set<string>();
 		let hasEmpty = false;
 		for (const p of prospectsWithJobStatus) {
 			const s = (p.industry ?? '').trim();
-			if (s) set.add(s);
+			if (s) set.add(displayIndustryLabel(s));
 			else hasEmpty = true;
 		}
 		return {
@@ -366,6 +380,11 @@
 			return;
 		}
 		if (!values.includes(industryFilter)) industryFilter = '__all__';
+	});
+
+	$effect(() => {
+		if (statusFilter === '__all__') return;
+		if (!statusFilterOptions.includes(statusFilter)) statusFilter = '__all__';
 	});
 
 	const filteredProspects = $derived.by((): ProspectRow[] => {
@@ -385,7 +404,9 @@
 			if (industryFilter === '__none__') {
 				list = list.filter((p) => !(p.industry ?? '').trim());
 			} else {
-				list = list.filter((p) => (p.industry ?? '').trim() === industryFilter);
+				list = list.filter(
+					(p) => displayIndustryLabel((p.industry ?? '').trim()) === industryFilter
+				);
 			}
 		}
 		const q = filterQuery.trim().toLowerCase();
@@ -1491,22 +1512,34 @@
 								</Select.Root>
 							</div>
 						{/if}
-						<div class="flex flex-wrap items-center gap-2 sm:justify-end">
-							<ToggleGroup.Root
+						<div class="flex min-w-0 items-center gap-2 sm:justify-end">
+							<Label for="lr-status-filter" class="sr-only">Filter by status</Label>
+							<Select.Root
 								type="single"
 								value={statusFilter}
 								onValueChange={(v) => {
 									statusFilter = v ?? '__all__';
 								}}
-								variant="outline"
-								size="sm"
-								class="flex-wrap"
 							>
-								<ToggleGroup.Item value="__all__" class="h-8 px-3 text-xs">All</ToggleGroup.Item>
-								{#each statusFilterOptions as label (label)}
-									<ToggleGroup.Item value={label} class="h-8 px-3 text-xs">{label}</ToggleGroup.Item>
-								{/each}
-							</ToggleGroup.Root>
+								<Select.Trigger
+									id="lr-status-filter"
+									size="sm"
+									class="h-8 min-w-[10rem] max-w-[min(100%,18rem)] border-border/50"
+									aria-label="Filter by status"
+								>
+									{#if statusFilter === '__all__'}
+										All statuses
+									{:else}
+										<span class="truncate">{statusFilter}</span>
+									{/if}
+								</Select.Trigger>
+								<Select.Content>
+									<Select.Item value="__all__">All statuses</Select.Item>
+									{#each statusFilterOptions as label (label)}
+										<Select.Item value={label}>{label}</Select.Item>
+									{/each}
+								</Select.Content>
+							</Select.Root>
 						</div>
 						<Button
 							type="button"

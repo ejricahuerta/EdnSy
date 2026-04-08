@@ -5,8 +5,9 @@
  * Flagged prospects (out of scope) cannot run demos, GBP, or send.
  */
 
+import { APPROVED_DEMO_LIST_STATUSES } from '$lib/constants/demoStatus';
 import { PROSPECT_STATUS } from '$lib/prospectStatus';
-import { getSupabaseAdmin } from '$lib/server/supabase';
+import { getSupabaseAdmin, getDemoTrackingMapGlobal } from '$lib/server/supabase';
 import { isOutOfScopeCompany, getDefaultFlaggedReason } from '$lib/server/outOfScope';
 
 export type Prospect = {
@@ -124,11 +125,19 @@ export async function listProspectsForUser(userId: string): Promise<ListProspect
 }
 
 /**
- * Prospects with a demo link, not flagged (Demos list page). Trims empty/whitespace links after fetch.
+ * Prospects with an approved demo (demo_tracking past `draft`), demo link, not flagged (Demos list page).
  */
 export async function listDemosProspects(): Promise<ListProspectsResult> {
 	const supabase = getSupabaseAdmin();
 	if (!supabase) return { prospects: [], error: 'api_error', message: 'Database not configured' };
+	const approvedStatuses = new Set<string>([...APPROVED_DEMO_LIST_STATUSES]);
+	const trackingMap = await getDemoTrackingMapGlobal();
+	const approvedProspectIds = Object.entries(trackingMap)
+		.filter(([, t]) => approvedStatuses.has(t.status))
+		.map(([id]) => id);
+	if (approvedProspectIds.length === 0) {
+		return { prospects: [] };
+	}
 	const { data, error } = await supabase
 		.from('prospects')
 		.select(
@@ -136,6 +145,7 @@ export async function listDemosProspects(): Promise<ListProspectsResult> {
 		)
 		.eq('flagged', false)
 		.not('demo_link', 'is', null)
+		.in('id', approvedProspectIds)
 		.order('updated_at', { ascending: false });
 	if (error) return { prospects: [], error: 'api_error', message: error.message };
 	const prospects = (data ?? [])

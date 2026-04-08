@@ -20,7 +20,7 @@
 	import DataTableSortHeader from '$lib/components/prospects/data-table-sort-header.svelte';
 	import DemosBusinessCell from '$lib/components/demos/demos-business-cell.svelte';
 	import DemosLinkCell from '$lib/components/demos/demos-link-cell.svelte';
-	import DemosOpenDetailCell from '$lib/components/demos/demos-open-detail-cell.svelte';
+	import DemosRowActionsCell from '$lib/components/demos/demos-row-actions-cell.svelte';
 	import * as Card from '$lib/components/ui/card';
 	import * as Table from '$lib/components/ui/table';
 	import { Button } from '$lib/components/ui/button';
@@ -39,6 +39,7 @@
 	let { data } = $props<{ data: PageData }>();
 
 	const prospects = $derived((data.prospects ?? []) as Prospect[]);
+	const demoJobsByProspectId = $derived(data.demoJobsByProspectId ?? {});
 	let filterQuery = $state('');
 
 	const filteredDemos = $derived.by((): Prospect[] => {
@@ -52,44 +53,49 @@
 		});
 	});
 
-	const columns: ColumnDef<Prospect>[] = [
-		{
-			id: 'business',
-			accessorFn: (row) => row.companyName || row.email || '',
-			header: ({ column }) =>
-				renderComponent(DataTableSortHeader, {
-					column: column as Column<unknown, unknown>,
-					label: 'Business name'
-				}),
-			cell: ({ row }) =>
-				renderComponent(DemosBusinessCell, {
-					companyName: row.original.companyName,
-					email: row.original.email
-				})
-		},
-		{
-			accessorKey: 'demoLink',
-			header: ({ column }) =>
-				renderComponent(DataTableSortHeader, {
-					column: column as Column<unknown, unknown>,
-					label: 'Link'
-				}),
-			cell: ({ row }) =>
-				renderComponent(DemosLinkCell, { demoLink: row.original.demoLink ?? '' }),
-			sortingFn: (rowA, rowB, columnId) => {
-				const a = String(rowA.getValue(columnId) ?? '').toLowerCase();
-				const b = String(rowB.getValue(columnId) ?? '').toLowerCase();
-				return a.localeCompare(b);
+	const columns = $derived.by(
+		(): ColumnDef<Prospect>[] => [
+			{
+				id: 'business',
+				accessorFn: (row) => row.companyName || row.email || '',
+				header: ({ column }) =>
+					renderComponent(DataTableSortHeader, {
+						column: column as Column<unknown, unknown>,
+						label: 'Business name'
+					}),
+				cell: ({ row }) =>
+					renderComponent(DemosBusinessCell, {
+						companyName: row.original.companyName,
+						email: row.original.email
+					})
+			},
+			{
+				accessorKey: 'demoLink',
+				header: ({ column }) =>
+					renderComponent(DataTableSortHeader, {
+						column: column as Column<unknown, unknown>,
+						label: 'Link'
+					}),
+				cell: ({ row }) =>
+					renderComponent(DemosLinkCell, { demoLink: row.original.demoLink ?? '' }),
+				sortingFn: (rowA, rowB, columnId) => {
+					const a = String(rowA.getValue(columnId) ?? '').toLowerCase();
+					const b = String(rowB.getValue(columnId) ?? '').toLowerCase();
+					return a.localeCompare(b);
+				}
+			},
+			{
+				id: 'actions',
+				header: () => '',
+				enableSorting: false,
+				cell: ({ row }) =>
+					renderComponent(DemosRowActionsCell, {
+						prospectId: row.original.id,
+						demoJobStatus: demoJobsByProspectId[row.original.id]?.status
+					})
 			}
-		},
-		{
-			id: 'actions',
-			header: () => '',
-			enableSorting: false,
-			cell: ({ row }) =>
-				renderComponent(DemosOpenDetailCell, { prospectId: row.original.id })
-		}
-	];
+		]
+	);
 
 	const DEFAULT_PAGE_SIZE = 10;
 
@@ -126,7 +132,9 @@
 		get data() {
 			return filteredDemos;
 		},
-		columns,
+		get columns() {
+			return columns;
+		},
 		getRowId: (row) => row.id,
 		autoResetPageIndex: false,
 		state: {
@@ -159,7 +167,7 @@
 		<Card.Header class="space-y-1 pb-6">
 			<Card.Title class="text-2xl font-semibold tracking-tight">Demos</Card.Title>
 			<Card.Description class="text-muted-foreground">
-				Prospects with a demo. Search, sort, and open each link or prospect.
+				Approved demos only (past review). Search, sort, open each link, regenerate, or open the prospect.
 			</Card.Description>
 		</Card.Header>
 		<Card.Content class="p-0">
@@ -169,7 +177,7 @@
 				</div>
 			{:else if prospects.length === 0}
 				<div class="px-4 py-8 text-center text-sm text-muted-foreground sm:px-6">
-					No demos yet. Create demos from the Prospects page to see them here.
+					No approved demos yet. Create a demo on the Prospects page, then approve it to list it here.
 				</div>
 			{:else}
 				<div class="mx-4 mb-4 sm:mx-6">
@@ -230,7 +238,7 @@
 											{#each headerGroup.headers as header (header.id)}
 												<Table.Head
 													class={header.column.id === 'actions'
-														? 'w-[100px] text-right'
+														? 'w-[120px] text-right'
 														: header.column.id === 'business'
 															? 'w-[min(200px,40%)]'
 															: ''}

@@ -17,6 +17,16 @@ export const DEMO_TRACKING_STATUSES = [
 
 export type DemoTrackingStatus = (typeof DEMO_TRACKING_STATUSES)[number];
 
+/** Past review: shown on the Demos dashboard (excludes `draft`). */
+export const APPROVED_DEMO_LIST_STATUSES: readonly DemoTrackingStatus[] = [
+	'approved',
+	'email_draft',
+	'sent',
+	'opened',
+	'clicked',
+	'replied'
+];
+
 /** Use for server-side validation (e.g. form actions). */
 export const VALID_DEMO_TRACKING_STATUSES: readonly string[] = DEMO_TRACKING_STATUSES;
 
