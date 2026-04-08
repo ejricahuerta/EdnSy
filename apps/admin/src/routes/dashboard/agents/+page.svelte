@@ -6,6 +6,7 @@
 	import { Label } from '$lib/components/ui/label';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { Badge } from '$lib/components/ui/badge';
+	import { untrack } from 'svelte';
 	import { toastSuccess, toastError } from '$lib/toast';
 	import type { ContentSlot } from './+page.server';
 
@@ -53,10 +54,8 @@
 	$effect(() => {
 		const slots = data.slots ?? [];
 		if (slots.length === 0) return;
-		editingBodies = {
-			...editingBodies,
-			...Object.fromEntries(slots.map((s: ContentSlot) => [slotKey(s), s.body]))
-		};
+		const fromServer = Object.fromEntries(slots.map((s: ContentSlot) => [slotKey(s), s.body]));
+		editingBodies = { ...untrack(() => editingBodies), ...fromServer };
 	});
 
 	$effect(() => {
