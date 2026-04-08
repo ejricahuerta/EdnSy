@@ -23,8 +23,7 @@ import type { GbpData } from '$lib/server/gbp';
 import { NO_FIT_GBP_REASON } from '$lib/server/qualify';
 import { analyzeWebsiteAndProduceDemoJson } from '$lib/ai-agents';
 import { normalizeExternalHref } from '$lib/externalUrl';
-import { notionIndustryToSlug } from '$lib/industries';
-import { INDUSTRY_LABELS } from '$lib/industries';
+import { gbpCategoriesToIndustryLabel, INDUSTRY_LABELS, notionIndustryToSlug } from '$lib/industries';
 import { PROSPECT_STATUS } from '$lib/prospectStatus';
 
 const ANALYSIS_PLACEHOLDER_LINK = 'https://admin.local/analysis-pending';
@@ -43,8 +42,9 @@ function mergeIndustryValues(current: string, toAdd: string): string {
 function industryLabelFromGbpCategory(gbpCategory: string | null | undefined): string | null {
 	const raw = (gbpCategory ?? '').trim();
 	if (!raw) return null;
-	const slug = notionIndustryToSlug(raw);
-	return INDUSTRY_LABELS[slug];
+	return (
+		gbpCategoriesToIndustryLabel(raw) ?? INDUSTRY_LABELS[notionIndustryToSlug(raw)]
+	);
 }
 
 export type ProcessInsightsJobResult =

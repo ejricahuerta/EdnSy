@@ -35,8 +35,15 @@ export const NOTION_INDUSTRY_TO_SLUG: Record<IndustrySlug, readonly string[]> = 
 		'oral surgeon',
 		'dental hygienist',
 		'cosmetic dentistry',
+		'cosmetic dentist',
 		'teeth whitening',
+		'teeth whitening service',
 		'implants',
+		'dental implants provider',
+		'dental implants periodontist',
+		'emergency dental service',
+		'dental radiology',
+		'dental radiologist',
 		'pediatric dentist'
 	],
 	legal: [
@@ -187,6 +194,20 @@ export const INDUSTRY_LABELS: Record<IndustrySlug, string> = {
 	accounting: 'Accounting',
 	other: 'Other'
 };
+
+/**
+ * Map a raw Google Business Profile category string (often semicolon- or comma-separated types)
+ * to a canonical CRM label. Returns null if no known slug matches any token.
+ */
+export function gbpCategoriesToIndustryLabel(raw: string): string | null {
+	if (!(raw ?? '').trim()) return null;
+	const tokens = raw.split(/[;,]/).map((s) => s.trim()).filter(Boolean);
+	for (const token of tokens) {
+		const slug = notionIndustryToSlug(token);
+		if (slug !== 'other') return INDUSTRY_LABELS[slug];
+	}
+	return null;
+}
 
 /**
  * Map a Notion Industry select value to demo URL slug.

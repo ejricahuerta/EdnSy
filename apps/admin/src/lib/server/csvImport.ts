@@ -3,6 +3,7 @@
  */
 
 import { createHash } from 'node:crypto';
+import { gbpCategoriesToIndustryLabel } from '$lib/industries';
 import { insertProspectIfAbsent } from '$lib/server/prospects';
 
 const MAX_ROWS = 500;
@@ -60,12 +61,18 @@ function rowToFields(headers: string[], cells: string[]): CsvImportRow | null {
 	const email = (ei >= 0 ? cells[ei] : '')?.trim() ?? '';
 	if (!companyName && !email) return null;
 	if (!email || !companyName) return null;
+	const rawIndustry =
+		ii >= 0 && cells[ii]?.trim() ? cells[ii].trim().slice(0, 200) : undefined;
+	const industry =
+		rawIndustry != null
+			? gbpCategoriesToIndustryLabel(rawIndustry) ?? rawIndustry
+			: undefined;
 	return {
 		companyName: companyName.slice(0, 500),
 		email: email.slice(0, 500),
 		website: wi >= 0 && cells[wi]?.trim() ? cells[wi].trim().slice(0, 500) : undefined,
 		phone: pi >= 0 && cells[pi]?.trim() ? cells[pi].trim().slice(0, 100) : undefined,
-		industry: ii >= 0 && cells[ii]?.trim() ? cells[ii].trim().slice(0, 200) : undefined
+		industry
 	};
 }
 
