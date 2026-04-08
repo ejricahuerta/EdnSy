@@ -16,7 +16,8 @@
 		{
 			id: 'email',
 			label: 'Email AI Agent',
-			description: 'Prompt for AI-generated outreach email subject and body intro. Use {{company}}, {{industry}}, {{senderName}} for context.'
+			description:
+				'Prompt for AI-generated outreach email subject and body intro. Use {{company}}, {{industry}}, {{senderName}} for basics. Use {{gbp_score_line}}, {{gbp_interpretation}}, {{website_critique}} for personalised context (auto-filled from Pull Insights data when available; "not on file" when missing).'
 		},
 		{
 			id: 'gbp',

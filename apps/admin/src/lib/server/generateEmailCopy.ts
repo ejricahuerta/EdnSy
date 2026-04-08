@@ -2,6 +2,8 @@ import { env } from '$env/dynamic/private';
 import type { Prospect } from '$lib/server/prospects';
 import { getResolvedContent } from '$lib/server/agentContent';
 import { serverError, serverInfo } from '$lib/server/logger';
+import { getScrapedDataForProspectForUser } from '$lib/server/supabase';
+import { auditFromScrapedData, type DemoAudit } from '$lib/types/demo';
 
 const GEMINI_API_KEY = env.GEMINI_API_KEY;
 const GEMINI_MODEL = 'gemini-2.5-flash';
@@ -22,16 +24,24 @@ const EMAIL_COPY_JSON_SCHEMA_INLINE = `
 Return ONLY a single JSON object (no markdown, no explanation) with these keys:
 {
   "subjectLine": "string, max 9 words, no quotes. Add a hook beyond the company name: tie to {{industry}}, a moment (after hours, first scroll, mobile), or a light question. Use lowercase except Title Case for the business name as given. Do NOT start with: idea for, thought about, something for, quick idea for, note for (those read as lazy). Include the company name or its main distinct words (never one generic industry word alone). Good examples: 'after-hours calls, Riverdale Dental', 'Riverdale Dental and the booking flow', 'first scroll on Riverdale Dental's site', 'worth a peek, Riverdale Dental'. Never use: prototype, upgrade, demo, redesign, mockup, audit, proposal, performance, solutions. No em dash (U+2014).",
-  "openingHook": "string, plain text only. One or two short sentences (max ~40 words total). Casual, human tone, like a colleague, not sales copy. Reference {{company}} by name once. Ground it in their industry ({{industry}}): a believable observation (e.g. after-hours calls, mobile booking, local search, front-desk load), not a generic audit. No greeting, no bullets, no links, no signature, no markdown, no product names (Voice AI, SEO Core, etc.). Do NOT use phrases like: performance gaps, high-performance, tech stack, bounce rates, integrated upgrades. Do not use em dashes (U+2014) or en dashes (U+2013); use commas or periods."
+  "openingHook": "string, plain text only. One or two short sentences (max ~40 words total). Casual, human tone, like a colleague, not sales copy. Reference {{company}} by name once. Ground it in their industry ({{industry}}): a believable observation (e.g. after-hours calls, mobile booking, local search, front-desk load), not a generic audit. When prospect insight below is available (not all 'not on file'), weave one or two specific weaknesses from that insight naturally; do not quote numbers or list bullets. No greeting, no bullets, no links, no signature, no markdown, no product names (Voice AI, SEO Core, etc.). Do NOT use phrases like: performance gaps, high-performance, tech stack, bounce rates, integrated upgrades. Do not use em dashes (U+2014) or en dashes (U+2013); use commas or periods."
 }`.trim();
 
-/** Default prompt for subject line + opening lines before the fixed demo-email template in send.ts. Use {{company}}, {{industry}}, {{senderName}}. */
+/** Default prompt for subject line + opening lines before the fixed demo-email template in send.ts. Placeholders: {{company}}, {{industry}}, {{senderName}}, {{gbp_score_line}}, {{gbp_interpretation}}, {{website_critique}}. */
 export const DEFAULT_EMAIL_COPY_PROMPT = `You write two things for a short cold email: a subject line and the first 1-2 sentences. A fixed template below your text will mention a link and a soft ask. The reader already gets "Hi there," from the template.
 
 Context:
 - Business/company name: {{company}}
 - Industry: {{industry}}
 - Sender (do not mention by name): {{senderName}}
+
+Prospect insight (auto-filled from audit data when available):
+- GBP completeness: {{gbp_score_line}}
+- GBP context: {{gbp_interpretation}}
+- Website critique: {{website_critique}}
+
+If the insight above is available (not all three lines are exactly "not on file"): weave one or two specific weaknesses naturally into the openingHook as the concrete pain point you can solve. Do not quote the score number in the email. Do not list weaknesses as bullets.
+If every insight line is "not on file": ignore the insight block entirely and rely on industry context alone. Do not invent scores or site problems.
 
 Style (both fields): Do not use em dashes (—) or en dashes (–). Use commas, periods, or "and". Em dashes read as AI-generated to many readers.
 
@@ -52,6 +62,63 @@ openingHook rules:
 - Do not describe the prototype, link, or "interactive draft" in openingHook; the template adds that in the next sentence.
 
 ${EMAIL_COPY_JSON_SCHEMA_INLINE}`;
+
+const WEBSITE_CRITIQUE_MAX_LEN = 250;
+
+/**
+ * Derive strings for email prompt placeholders from stored DemoAudit (demo_tracking.scraped_data).
+ */
+function buildEmailCopyContext(audit: DemoAudit | null): {
+	gbpScoreLine: string;
+	gbpInterpretation: string;
+	websiteCritique: string;
+} {
+	const score = audit?.gbpCompletenessScore;
+	const gbpScoreLine = score != null ? `${score}/100` : 'not on file';
+
+	const label = (audit?.gbpCompletenessLabel ?? '').trim();
+	let gbpInterpretation = 'not on file';
+	if (score != null) {
+		const tier =
+			score < 40
+				? 'Profile is significantly incomplete, so local discovery and trust signals are weak.'
+				: score < 70
+					? 'Profile has gaps that reduce local search visibility.'
+					: 'Profile is reasonably complete; minor gaps may still affect lead flow.';
+		gbpInterpretation = label ? `${label}. ${tier}` : tier;
+	}
+
+	const insight = audit?.insight;
+	let websiteCritique = 'not on file';
+	if (insight?.summary || insight?.recommendations?.length) {
+		const parts: string[] = [];
+		if (typeof insight.summary === 'string' && insight.summary.trim()) {
+			parts.push(insight.summary.trim());
+		}
+		const recs = (insight.recommendations ?? [])
+			.slice(0, 2)
+			.map((r) => (typeof r === 'string' ? r.trim() : ''))
+			.filter(Boolean);
+		if (recs.length) parts.push(recs.join('. '));
+		const ws = insight.website;
+		if (ws && typeof ws === 'object') {
+			const grades = [
+				ws.seo && `SEO: ${ws.seo}`,
+				ws.ux && `UX: ${ws.ux}`,
+				ws.ui && `UI: ${ws.ui}`,
+				ws.benchmark && `Site: ${ws.benchmark}`
+			].filter(Boolean) as string[];
+			if (grades.length) parts.push(grades.join(', '));
+		}
+		const full = parts.join(' ');
+		websiteCritique =
+			full.length > WEBSITE_CRITIQUE_MAX_LEN
+				? `${full.slice(0, WEBSITE_CRITIQUE_MAX_LEN - 3)}...`
+				: full;
+	}
+
+	return { gbpScoreLine, gbpInterpretation, websiteCritique };
+}
 
 /**
  * Repair JSON where the model emitted raw newlines inside string values (invalid JSON).
@@ -191,8 +258,9 @@ const METADATA_LINE =
 function sanitizeOpeningHook(raw: string): string {
 	let text = raw.replace(/\r/g, '').trim();
 	if (/^\s*[\[{]/.test(text) || /"subjectLine"\s*:/i.test(text)) return '';
+	/** Match CTA-ish lines only; avoid stripping hooks that use "take a look" in natural prose. */
 	const bannedLine =
-		/(view your demo|view the .* upgrade|take a look|ednsy\.com|^-\s|http:\/\/|https:\/\/|performance gaps|high-performance|tech stack|bounce rates)/i;
+		/(view your demo|view the \S+ upgrade|take a look at (the|your) (demo|draft|link|prototype)|ednsy\.com|^-\s|https?:\/\/|performance gaps|high-performance|tech stack|bounce rates)/i;
 	const kept = text
 		.split('\n')
 		.map((line) => line.trim())
@@ -236,7 +304,8 @@ function looksLikeBrokenModelOpening(opening: string): boolean {
  */
 export async function generateEmailCopy(
 	prospect: Prospect,
-	senderName: string
+	senderName: string,
+	userId: string
 ): Promise<GenerateEmailCopyResult> {
 	if (!GEMINI_API_KEY) {
 		return { copy: null, promptSource: 'default', error: 'GEMINI_API_KEY is not configured' };
@@ -244,6 +313,10 @@ export async function generateEmailCopy(
 
 	const company = prospect.companyName || 'the business';
 	const industry = prospect.industry || 'your business';
+
+	const scraped = await getScrapedDataForProspectForUser(userId, prospect.id);
+	const audit = auditFromScrapedData(scraped);
+	const { gbpScoreLine, gbpInterpretation, websiteCritique } = buildEmailCopyContext(audit);
 
 	const resolved = await getResolvedContent(
 		'email',
@@ -254,7 +327,10 @@ export async function generateEmailCopy(
 	const prompt = resolved.body
 		.replace(/\{\{company\}\}/g, company)
 		.replace(/\{\{industry\}\}/g, industry)
-		.replace(/\{\{senderName\}\}/g, senderName);
+		.replace(/\{\{senderName\}\}/g, senderName)
+		.replace(/\{\{gbp_score_line\}\}/g, gbpScoreLine)
+		.replace(/\{\{gbp_interpretation\}\}/g, gbpInterpretation)
+		.replace(/\{\{website_critique\}\}/g, websiteCritique);
 
 	const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
 

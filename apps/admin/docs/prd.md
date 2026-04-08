@@ -331,6 +331,8 @@ Alternate path (no demo): short paragraphs on calls/bookings + local SEO, soft r
 
 **Note:** Users can still copy templates into any sending tool (Instantly, Smartlead, another inbox, etc.). For sends initiated from the dashboard, the user connects **their own Gmail** (OAuth); the app creates drafts and can call **`drafts.send`** on the user’s behalf. Deliverability and domain reputation remain the user’s responsibility; the product does not operate a shared cold-email delivery network.
 
+**Email AI (Gemini):** The AI-generated subject line and opening hook (before the fixed template body) can incorporate the prospect’s GBP completeness score and website critique from `scraped_data` when Pull Insights has run, for more personalised copy. When that data is missing, generation uses company and industry context only.
+
 #### F5 — Demo Intelligence Dashboard (Pro+)
 
 Every demo link is a tracked URL. Dashboard shows per-demo:
