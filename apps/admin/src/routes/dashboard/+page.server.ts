@@ -1,6 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
 import {
-	listProspectsForUser,
+	listProspects,
 	getProspectById,
 	updateProspectDemoLink,
 	updateProspectFromGbp,
@@ -37,7 +37,7 @@ export const load: PageServerLoad = async (event) => {
 			getGbpCountThisMonth(user.id),
 			getInsightsCountThisMonth(user.id),
 			getPlacesCountThisMonth(),
-			listProspectsForUser(user.id)
+			listProspects()
 		]);
 	const placesMonthlyLimit = getPlacesMonthlyLimit();
 	const prospects = prospectsResult.prospects ?? [];

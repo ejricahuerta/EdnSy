@@ -315,6 +315,37 @@ export async function getDemoTrackingForProspect(
 }
 
 /**
+ * Latest demo_tracking row for a prospect (any owner). For shared staff detail page.
+ */
+export async function getDemoTrackingForProspectLatest(prospectId: string): Promise<{
+	status: string;
+	send_time: string | null;
+	opened_at: string | null;
+	clicked_at: string | null;
+	created_at: string;
+	updated_at: string;
+} | null> {
+	const supabase = getSupabaseAdmin();
+	if (!supabase) return null;
+	const { data, error } = await supabase
+		.from('demo_tracking')
+		.select('status, send_time, opened_at, clicked_at, created_at, updated_at')
+		.eq('prospect_id', prospectId)
+		.order('updated_at', { ascending: false })
+		.limit(1)
+		.maybeSingle();
+	if (error || !data) return null;
+	return {
+		status: data.status ?? 'draft',
+		send_time: data.send_time ?? null,
+		opened_at: data.opened_at ?? null,
+		clicked_at: data.clicked_at ?? null,
+		created_at: data.created_at ?? data.updated_at ?? new Date().toISOString(),
+		updated_at: data.updated_at ?? new Date().toISOString()
+	};
+}
+
+/**
  * Fetch prospect_id -> scraped_data for all prospects that have scraped_data (for list/dashboard).
  * Uses latest row per prospect when multiple demo_tracking rows exist.
  */
@@ -327,6 +358,29 @@ export async function getScrapedDataMapForUser(
 		.from('demo_tracking')
 		.select('prospect_id, scraped_data')
 		.eq('user_id', userId)
+		.not('prospect_id', 'is', null)
+		.not('scraped_data', 'is', null)
+		.order('updated_at', { ascending: false });
+	if (error || !data?.length) return {};
+	const map: Record<string, Record<string, unknown>> = {};
+	for (const row of data) {
+		const pid = row.prospect_id;
+		if (pid && !(pid in map) && row.scraped_data) {
+			map[pid] = row.scraped_data as Record<string, unknown>;
+		}
+	}
+	return map;
+}
+
+/**
+ * Global scraped_data map (any owner). Latest `updated_at` wins per prospect_id.
+ */
+export async function getScrapedDataMapGlobal(): Promise<Record<string, Record<string, unknown>>> {
+	const supabase = getSupabaseAdmin();
+	if (!supabase) return {};
+	const { data, error } = await supabase
+		.from('demo_tracking')
+		.select('prospect_id, scraped_data')
 		.not('prospect_id', 'is', null)
 		.not('scraped_data', 'is', null)
 		.order('updated_at', { ascending: false });
@@ -434,6 +488,68 @@ export async function getDemoJobsForUser(
 		}
 	}
 	return map;
+}
+
+/**
+ * Latest demo job per prospect (any owner). For shared staff workspace list/detail.
+ */
+export async function getDemoJobsMapGlobal(): Promise<
+	Record<string, { status: DemoJobStatus; jobId: string; demoLink?: string | null; errorMessage?: string | null }>
+> {
+	const supabase = getSupabaseAdmin();
+	if (!supabase) return {};
+	const { data, error } = await supabase
+		.from('demo_jobs')
+		.select('id, prospect_id, status, demo_link, error_message')
+		.in('status', ['pending', 'creating', 'done', 'failed'])
+		.order('created_at', { ascending: false });
+	if (error || !data?.length) return {};
+	const map: Record<
+		string,
+		{ status: DemoJobStatus; jobId: string; demoLink?: string | null; errorMessage?: string | null }
+	> = {};
+	for (const row of data) {
+		const pid = row.prospect_id;
+		if (pid && !(pid in map)) {
+			map[pid] = {
+				status: row.status as DemoJobStatus,
+				jobId: row.id,
+				demoLink: row.demo_link ?? undefined,
+				errorMessage: row.error_message ?? undefined
+			};
+		}
+	}
+	return map;
+}
+
+/**
+ * Latest demo_jobs row for a prospect (any owner), same statuses as list UI.
+ */
+export async function getLatestDemoJobForProspect(
+	prospectId: string
+): Promise<{
+	status: DemoJobStatus;
+	jobId: string;
+	demoLink?: string | null;
+	errorMessage?: string | null;
+} | null> {
+	const supabase = getSupabaseAdmin();
+	if (!supabase) return null;
+	const { data, error } = await supabase
+		.from('demo_jobs')
+		.select('id, status, demo_link, error_message')
+		.eq('prospect_id', prospectId)
+		.in('status', ['pending', 'creating', 'done', 'failed'])
+		.order('created_at', { ascending: false })
+		.limit(1)
+		.maybeSingle();
+	if (error || !data?.id) return null;
+	return {
+		status: data.status as DemoJobStatus,
+		jobId: data.id as string,
+		demoLink: data.demo_link ?? undefined,
+		errorMessage: data.error_message ?? undefined
+	};
 }
 
 /**
@@ -615,6 +731,24 @@ export async function getGbpJobsForUser(
 		.from('gbp_jobs')
 		.select('id, prospect_id, status')
 		.eq('user_id', userId)
+		.in('status', ['pending', 'running'])
+		.order('created_at', { ascending: false });
+	if (error || !data?.length) return {};
+	const map: Record<string, { jobId: string; status: GbpJobStatus }> = {};
+	for (const row of data) {
+		const pid = row.prospect_id as string;
+		if (pid && !(pid in map)) map[pid] = { jobId: row.id as string, status: row.status as GbpJobStatus };
+	}
+	return map;
+}
+
+/** Map of prospect_id -> latest active (pending/running) GBP job (any owner). */
+export async function getGbpJobsMapGlobal(): Promise<Record<string, { jobId: string; status: GbpJobStatus }>> {
+	const supabase = getSupabaseAdmin();
+	if (!supabase) return {};
+	const { data, error } = await supabase
+		.from('gbp_jobs')
+		.select('id, prospect_id, status')
 		.in('status', ['pending', 'running'])
 		.order('created_at', { ascending: false });
 	if (error || !data?.length) return {};
@@ -878,6 +1012,26 @@ export async function getInsightsJobsForUser(
 		.from('insights_jobs')
 		.select('id, prospect_id, status')
 		.eq('user_id', userId)
+		.in('status', ['pending', 'running'])
+		.order('created_at', { ascending: false });
+	if (error || !data?.length) return {};
+	const map: Record<string, { jobId: string; status: InsightsJobStatus }> = {};
+	for (const row of data) {
+		const pid = row.prospect_id as string;
+		if (pid && !(pid in map)) map[pid] = { jobId: row.id as string, status: row.status as InsightsJobStatus };
+	}
+	return map;
+}
+
+/** Map of prospect_id -> latest active (pending/running) Insights job (any owner). */
+export async function getInsightsJobsMapGlobal(): Promise<
+	Record<string, { jobId: string; status: InsightsJobStatus }>
+> {
+	const supabase = getSupabaseAdmin();
+	if (!supabase) return {};
+	const { data, error } = await supabase
+		.from('insights_jobs')
+		.select('id, prospect_id, status')
 		.in('status', ['pending', 'running'])
 		.order('created_at', { ascending: false });
 	if (error || !data?.length) return {};
