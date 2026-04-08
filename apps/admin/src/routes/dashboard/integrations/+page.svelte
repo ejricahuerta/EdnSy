@@ -24,8 +24,6 @@
 	const connections = $derived(data.connections ?? []);
 	const gmailConnected = $derived(data.gmailConnected ?? false);
 	const gmailEmail = $derived(data.gmailEmail ?? null);
-	const stitchConnected = $derived(data.stitchConnected ?? false);
-	const stitchEmail = $derived(data.stitchEmail ?? null);
 	const gbpDentalTodayCount = $derived(data.gbpDentalTodayCount ?? 0);
 	const gbpDentalDailyCap = $derived(data.gbpDentalDailyCap ?? 25);
 	const gbpDentalPullLock = $derived(
@@ -106,26 +104,6 @@
 				'Gmail connection failed',
 				msg === 'no_refresh_token'
 					? 'Google did not return a refresh token. Try disconnecting Gmail (if shown) and connect again, granting all permissions.'
-					: 'Something went wrong. Try again.'
-			);
-			goto($page.url.pathname, { replaceState: true });
-		}
-	});
-
-	$effect(() => {
-		const stitchParam = $page.url.searchParams.get('stitch');
-		if (stitchParam === 'connected') {
-			toastSuccess(
-				'Google Stitch connected',
-				'Demo generation will use your Google account quota (Gemini 3.1 Pro, ~50 generations/month).'
-			);
-			goto($page.url.pathname, { replaceState: true });
-		} else if (stitchParam === 'error') {
-			const msg = $page.url.searchParams.get('message');
-			toastError(
-				'Stitch connection failed',
-				msg === 'no_refresh_token'
-					? 'Google did not return a refresh token. Disconnect and connect again, granting all permissions.'
 					: 'Something went wrong. Try again.'
 			);
 			goto($page.url.pathname, { replaceState: true });
@@ -282,67 +260,6 @@
 				{:else}
 					<a href="/auth/gmail?redirect=/dashboard/integrations" class="inline-flex">
 						<Button type="button" size="sm">Connect Gmail</Button>
-					</a>
-				{/if}
-			</Card.Content>
-		</Card.Root>
-
-		<Card.Root class="flex flex-col {stitchConnected ? 'ring-2 ring-ring ring-inset' : ''}">
-			<Card.Header class="flex flex-row items-start justify-between gap-4">
-				<div class="flex min-w-0 items-center gap-3">
-					<div
-						class="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-muted p-1 overflow-hidden"
-						aria-hidden="true"
-					>
-						<span class="text-lg font-semibold text-foreground">S</span>
-					</div>
-					<div class="min-w-0 space-y-1">
-						<Card.Title class="mb-0">Google Stitch</Card.Title>
-						<Card.Description>
-							Connect your Google account so demos use your Stitch quota (Gemini 3.1 Pro). Set STITCH_GOOGLE_CLOUD_PROJECT on
-							the server.
-						</Card.Description>
-					</div>
-				</div>
-				{#if stitchConnected}
-					<Badge variant="default" class="shrink-0 gap-1 font-normal">
-						<CheckCircle2 class="h-3 w-3" />
-						Connected
-					</Badge>
-				{/if}
-			</Card.Header>
-			<Card.Content class="pt-0">
-				{#if stitchConnected}
-					<div class="flex flex-col gap-2">
-						<div class="flex flex-wrap items-center gap-3">
-							{#if stitchEmail}
-								<p class="text-sm text-muted-foreground">
-									Connected as <strong class="text-foreground">{stitchEmail}</strong>
-								</p>
-							{:else}
-								<p class="text-sm text-muted-foreground">Stitch is connected using your Google account.</p>
-							{/if}
-							<form
-								method="POST"
-								action="?/disconnectStitch"
-								use:enhance={() =>
-									async ({ result }) => {
-										if (result.type === 'success' && result.data?.success) {
-											await invalidateAll();
-											toastSuccess('Stitch disconnected', 'You can reconnect from this page.');
-										} else if (result.type === 'failure') {
-											toastError('Disconnect Stitch', (result.data as { message?: string })?.message);
-										}
-									}}
-								class="inline"
-							>
-								<Button type="submit" variant="outline" size="sm">Disconnect Stitch</Button>
-							</form>
-						</div>
-					</div>
-				{:else}
-					<a href="/auth/stitch?redirect=/dashboard/integrations" class="inline-flex">
-						<Button type="button" size="sm">Connect Stitch</Button>
 					</a>
 				{/if}
 			</Card.Content>

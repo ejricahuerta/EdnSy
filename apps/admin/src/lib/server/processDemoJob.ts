@@ -47,7 +47,6 @@ function mergeIndustryValues(current: string, toAdd: string): string {
 import type { LandingPageIndexJson } from '$lib/types/landingPageIndexJson';
 import { DEMO_ERROR } from '$lib/constants/demoErrors';
 import { serverError } from '$lib/server/logger';
-import { getValidStitchAccessToken } from '$lib/server/stitchTokens';
 import { getStitchProjectId } from '$lib/server/stitchProjects';
 
 export type ProcessJobResult =
@@ -261,17 +260,9 @@ export async function processOneDemoJob(origin: string): Promise<ProcessJobResul
 		} catch {
 			// Stitch app will create a new project on first run
 		}
-		const gcpProject = (env.STITCH_GOOGLE_CLOUD_PROJECT ?? '').trim();
-		if (gcpProject) {
-			try {
-				const stitchToken = await getValidStitchAccessToken(userId);
-				if (stitchToken) {
-					payload.stitchAccessToken = stitchToken;
-					payload.stitchGcpProject = gcpProject;
-				}
-			} catch {
-				// Demo generator falls back to shared STITCH_API_KEY when per-user OAuth is unavailable
-			}
+		const stitchApiKey = (env.STITCH_API_KEY ?? '').trim();
+		if (stitchApiKey) {
+			payload.stitchApiKey = stitchApiKey;
 		}
 		payload.callbackUrl = `${origin.replace(/\/$/, '')}/api/demo/generation-callback`;
 		payload.callbackToken = demoCallbackSecret;
