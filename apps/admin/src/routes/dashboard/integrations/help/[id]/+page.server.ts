@@ -5,6 +5,7 @@ import { INTEGRATION_HELP_DOCS, INTEGRATION_IDS } from '$lib/server/integrationH
 
 const TITLES: Record<(typeof INTEGRATION_IDS)[number], string> = {
 	notion: 'Notion setup',
+	apify: 'Apify setup',
 	'gbp-dental': 'GBP dental pull'
 };
 

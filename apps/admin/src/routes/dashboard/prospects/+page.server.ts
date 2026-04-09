@@ -69,7 +69,7 @@ import {
 	getGbpDentalPullLock,
 	isPlacesConfiguredForGbp
 } from '$lib/server/pullGbpDental';
-import { isApifyConfigured } from '$lib/server/apify';
+import { isApifyConfiguredForUser } from '$lib/server/apify';
 import { INDUSTRY_SLUGS, type IndustrySlug } from '$lib/industries';
 
 export const load: PageServerLoad = async (event) => {
@@ -111,7 +111,7 @@ export const load: PageServerLoad = async (event) => {
 		gbpDentalDailyCap,
 		gbpDentalPullLock,
 		placesApiConfigured,
-		apifyConfigured: isApifyConfigured(),
+		apifyConfigured: await isApifyConfiguredForUser(user.id),
 		apifyJobsById
 	};
 };
@@ -834,7 +834,7 @@ export const actions: Actions = {
 	enqueueApifyImport: async (event) => {
 		const user = await getDashboardSessionUser(event);
 		if (!user) return fail(401, { message: 'Sign in required' });
-		if (!isApifyConfigured()) {
+		if (!(await isApifyConfiguredForUser(user.id))) {
 			return fail(503, { message: 'Apify is not configured (APIFY_API_TOKEN).' });
 		}
 		const formData = await event.request.formData();

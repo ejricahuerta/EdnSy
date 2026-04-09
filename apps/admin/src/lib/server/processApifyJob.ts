@@ -3,7 +3,7 @@
  */
 
 import { INDUSTRY_SLUGS, type IndustrySlug } from '$lib/industries';
-import { buildApifyPayload, runApifyGoogleMapsScraper } from '$lib/server/apify';
+import { buildApifyPayload, getApifyEffectiveTokenForUser, runApifyGoogleMapsScraper } from '$lib/server/apify';
 import { importProspectsFromApifyDataset } from '$lib/server/apifyImport';
 import { claimNextPendingApifyJob, updateApifyJob } from '$lib/server/supabase';
 
@@ -27,7 +27,8 @@ export async function processOneApifyJob(): Promise<ProcessApifyJobResult> {
 
 	try {
 		const payload = buildApifyPayload(industrySlug, location);
-		const run = await runApifyGoogleMapsScraper(payload);
+		const token = await getApifyEffectiveTokenForUser(userId);
+		const run = await runApifyGoogleMapsScraper(payload, token);
 		if (!run.ok) {
 			await updateApifyJob(jobId, { status: 'failed', errorMessage: run.error });
 			return { processed: true, jobId, status: 'failed', errorMessage: run.error };

@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { env } from '$env/dynamic/private';
 import { getSupabaseDbSchemaServer } from '$lib/server/dbSchemaEnv';
+import { serverError } from '$lib/server/logger';
 import type { DemoTrackingStatus } from '$lib/demo';
 export type { DemoTrackingStatus };
 
@@ -998,7 +999,10 @@ export async function updateApifyJob(
 	};
 	if (updates.errorMessage !== undefined) payload.error_message = updates.errorMessage;
 	if (updates.insertedCount !== undefined) payload.inserted_count = updates.insertedCount;
-	await supabase.from('apify_jobs').update(payload).eq('id', jobId);
+	const { error } = await supabase.from('apify_jobs').update(payload).eq('id', jobId);
+	if (error) {
+		serverError('apify_jobs', 'update failed', { jobId, message: error.message });
+	}
 }
 
 export async function getApifyJobQueueCounts(): Promise<{ pending: number; running: number } | null> {

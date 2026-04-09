@@ -7,6 +7,7 @@ import { createHash } from 'node:crypto';
 import { env } from '$env/dynamic/private';
 import { gbpCategoriesToIndustryLabel, INDUSTRY_LABELS, type IndustrySlug } from '$lib/industries';
 import { serverError, serverInfo } from '$lib/server/logger';
+import { getApifyApiTokenForUser } from '$lib/server/apifyToken';
 
 const APIFY_ACTOR_ID = 'compass~crawler-google-places';
 const APIFY_SYNC_URL = `https://api.apify.com/v2/acts/${encodeURIComponent(APIFY_ACTOR_ID)}/run-sync-get-dataset-items`;
@@ -31,6 +32,16 @@ function getToken(): string {
 
 export function isApifyConfigured(): boolean {
 	return getToken().length > 0;
+}
+
+export async function getApifyEffectiveTokenForUser(userId: string): Promise<string> {
+	const userToken = await getApifyApiTokenForUser(userId);
+	if (userToken && userToken.trim().length > 0) return userToken.trim();
+	return getToken();
+}
+
+export async function isApifyConfiguredForUser(userId: string): Promise<boolean> {
+	return (await getApifyEffectiveTokenForUser(userId)).length > 0;
 }
 
 export function buildApifyPayload(industrySlug: IndustrySlug, locationQuery: string): Record<string, unknown> {
@@ -69,9 +80,10 @@ export type ApifyRunResult =
  * Runs the actor synchronously and returns dataset items (can take several minutes).
  */
 export async function runApifyGoogleMapsScraper(
-	payload: Record<string, unknown>
+	payload: Record<string, unknown>,
+	apiToken?: string
 ): Promise<ApifyRunResult> {
-	const token = getToken();
+	const token = (apiToken ?? '').trim() || getToken();
 	if (!token) {
 		return { ok: false, error: 'Apify is not configured (APIFY_API_TOKEN)' };
 	}
@@ -119,16 +131,69 @@ function pickString(obj: Record<string, unknown>, keys: string[]): string {
 	return '';
 }
 
-function pickFirstEmail(obj: Record<string, unknown>): string {
-	const emails = obj.emails;
-	if (Array.isArray(emails)) {
-		for (const e of emails) {
-			if (typeof e === 'string' && e.includes('@')) return e.trim().slice(0, 500);
+function normalizeEmail(value: string): string {
+	const trimmed = value.trim().toLowerCase();
+	const cleaned = trimmed.replace(/^mailto:/, '').split(/[?#]/)[0]?.trim() ?? '';
+	const m = cleaned.match(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i);
+	return m ? m[0].slice(0, 500) : '';
+}
+
+function pickEmailInUnknown(input: unknown): string {
+	if (typeof input === 'string') return normalizeEmail(input);
+	if (Array.isArray(input)) {
+		for (const item of input) {
+			const found = pickEmailInUnknown(item);
+			if (found) return found;
+		}
+		return '';
+	}
+	if (input && typeof input === 'object') {
+		const obj = input as Record<string, unknown>;
+		// Prefer explicit email-like keys first.
+		for (const key of [
+			'email',
+			'emails',
+			'contactEmail',
+			'contact_email',
+			'businessEmail',
+			'business_email',
+			'emailsFromWebsite',
+			'emails_from_website',
+			'extractedEmails',
+			'publicEmails',
+			'public_emails'
+		]) {
+			if (key in obj) {
+				const found = pickEmailInUnknown(obj[key]);
+				if (found) return found;
+			}
+		}
+		// Fallback: scan remaining values (depth-first).
+		for (const v of Object.values(obj)) {
+			const found = pickEmailInUnknown(v);
+			if (found) return found;
 		}
 	}
-	const single = obj.email;
-	if (typeof single === 'string' && single.includes('@')) return single.trim().slice(0, 500);
 	return '';
+}
+
+function deriveEmailFromWebsite(website: string): string {
+	const w = website.trim();
+	if (!w) return '';
+	try {
+		const url = new URL(w.startsWith('http://') || w.startsWith('https://') ? w : `https://${w}`);
+		const host = url.hostname.toLowerCase().replace(/^www\./, '').trim();
+		if (!host || !host.includes('.')) return '';
+		return `info@${host}`.slice(0, 500);
+	} catch {
+		return '';
+	}
+}
+
+function pickFirstEmail(obj: Record<string, unknown>, website?: string): string {
+	const fromRow = pickEmailInUnknown(obj);
+	if (fromRow) return fromRow;
+	return deriveEmailFromWebsite(website ?? '');
 }
 
 function stableRowId(userId: string, placeId: string, title: string, address: string): string {
@@ -163,7 +228,7 @@ export function apifyResultsToProspects(
 		const category = pickString(row, ['categoryName', 'category', 'type']);
 		const industryFromCategory = category ? gbpCategoriesToIndustryLabel(category) : null;
 		const industry = industryFromCategory ?? defaultLabel;
-		const email = pickFirstEmail(row);
+		const email = pickFirstEmail(row, website);
 		const providerRowId = stableRowId(userId, placeId, title, address);
 		out.push({
 			companyName: title.slice(0, 500),

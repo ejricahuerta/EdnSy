@@ -3,6 +3,7 @@ import { getDashboardSessionUser } from '$lib/server/authDashboard';
 import { processOneApifyJob } from '$lib/server/demo';
 import { apiError, apiSuccess } from '$lib/server/apiResponse';
 import { serverError } from '$lib/server/logger';
+import { resetStaleRunningApifyJobs } from '$lib/server/supabase';
 
 /**
  * Process one pending Apify import job.
@@ -13,6 +14,8 @@ export const POST: RequestHandler = async (event) => {
 	if (!user) {
 		return apiError(401, 'Sign in required');
 	}
+
+	await resetStaleRunningApifyJobs(10);
 
 	const result = await processOneApifyJob();
 	if (result.processed && result.status === 'failed') {

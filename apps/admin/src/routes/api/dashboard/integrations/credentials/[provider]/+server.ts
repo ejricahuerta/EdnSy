@@ -2,8 +2,9 @@ import type { RequestHandler } from './$types';
 import { getDashboardSessionUser } from '$lib/server/authDashboard';
 import { getCrmConnection } from '$lib/server/crm';
 import { apiError, apiSuccess } from '$lib/server/apiResponse';
+import { getApifyApiTokenForUser } from '$lib/server/apifyToken';
 
-const ALLOWED = ['notion'] as const;
+const ALLOWED = ['notion', 'apify'] as const;
 
 export const GET: RequestHandler = async (event) => {
 	const { cookies, params } = event;
@@ -15,15 +16,18 @@ export const GET: RequestHandler = async (event) => {
 	if (!provider || !ALLOWED.includes(provider as (typeof ALLOWED)[number])) {
 		return apiError(400, 'Invalid provider');
 	}
-	const conn = await getCrmConnection(user.id, provider as (typeof ALLOWED)[number]);
-	if (!conn) {
-		return apiError(404, 'Not connected');
-	}
 	if (provider === 'notion') {
+		const conn = await getCrmConnection(user.id, 'notion');
+		if (!conn) return apiError(404, 'Not connected');
 		return apiSuccess({
 			apiKey: conn.access_token,
 			databaseId: conn.databaseId ?? ''
 		});
 	}
-	return apiSuccess({ apiKey: conn.access_token });
+	if (provider === 'apify') {
+		const apiKey = await getApifyApiTokenForUser(user.id);
+		if (!apiKey) return apiError(404, 'Not connected');
+		return apiSuccess({ apiKey });
+	}
+	return apiError(400, 'Invalid provider');
 };

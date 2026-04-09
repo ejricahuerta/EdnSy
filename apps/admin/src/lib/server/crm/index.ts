@@ -1,6 +1,7 @@
 import { getSupabaseAdmin } from '$lib/server/supabase';
 
 export type CrmProvider = 'notion';
+const SHARED_WORKSPACE_USER_ID = 'ednsy_workspace';
 
 export type CrmConnectionMeta = {
 	databaseId?: string;
@@ -14,11 +15,18 @@ export async function getCrmConnection(
 ): Promise<{ access_token: string; databaseId?: string; fieldMapping?: Record<string, string> } | null> {
 	const supabase = getSupabaseAdmin();
 	if (!supabase) return null;
+	// Notion is shared across the workspace; keep user fallback for legacy rows.
+	const ownerIds =
+		provider === 'notion'
+			? [SHARED_WORKSPACE_USER_ID, userId]
+			: [userId];
 	const { data, error } = await supabase
 		.from('crm_connections')
-		.select('access_token, provider_metadata')
-		.eq('user_id', userId)
+		.select('access_token, provider_metadata, user_id')
+		.in('user_id', ownerIds)
 		.eq('provider', provider)
+		.order('updated_at', { ascending: false })
+		.limit(1)
 		.maybeSingle();
 	if (error || !data) return null;
 	const meta = (data.provider_metadata as { databaseId?: string; fieldMapping?: Record<string, string> } | null) ?? {};
@@ -44,7 +52,7 @@ export async function saveCrmConnection(
 		updated_at: string;
 		provider_metadata?: { databaseId?: string; fieldMapping?: Record<string, string> } | null;
 	} = {
-		user_id: userId,
+		user_id: provider === 'notion' ? SHARED_WORKSPACE_USER_ID : userId,
 		provider,
 		access_token: accessToken,
 		updated_at: new Date().toISOString()
@@ -67,7 +75,15 @@ export async function saveCrmConnection(
 export async function deleteCrmConnection(userId: string, provider: CrmProvider): Promise<{ ok: boolean; error?: string }> {
 	const supabase = getSupabaseAdmin();
 	if (!supabase) return { ok: false, error: 'Database not configured' };
-	const { error } = await supabase.from('crm_connections').delete().eq('user_id', userId).eq('provider', provider);
+	const ownerIds =
+		provider === 'notion'
+			? [SHARED_WORKSPACE_USER_ID, userId]
+			: [userId];
+	const { error } = await supabase
+		.from('crm_connections')
+		.delete()
+		.in('user_id', ownerIds)
+		.eq('provider', provider);
 	if (error) return { ok: false, error: error.message };
 	return { ok: true };
 }
@@ -75,7 +91,10 @@ export async function deleteCrmConnection(userId: string, provider: CrmProvider)
 export async function listCrmConnections(userId: string): Promise<{ provider: CrmProvider; connected: boolean }[]> {
 	const supabase = getSupabaseAdmin();
 	if (!supabase) return [];
-	const { data } = await supabase.from('crm_connections').select('provider').eq('user_id', userId);
+	const { data } = await supabase
+		.from('crm_connections')
+		.select('provider, user_id')
+		.in('user_id', [SHARED_WORKSPACE_USER_ID, userId]);
 	const set = new Set((data ?? []).map((r) => r.provider as string));
 	return [{ provider: 'notion', connected: set.has('notion') }];
 }
