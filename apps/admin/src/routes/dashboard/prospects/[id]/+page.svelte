@@ -20,7 +20,8 @@
 		LoaderCircle,
 		Trash2,
 		Check,
-		Send
+		Send,
+		RotateCcw
 	} from 'lucide-svelte';
 	import * as Card from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
@@ -706,29 +707,37 @@
 			</div>
 		{:else if primaryAction?.type === 'review' && prospect.demoLink}
 			<div class="flex flex-wrap items-center gap-2 shrink-0">
-				<ButtonGroup.Root aria-label="Demo page actions">
+				<ButtonGroup.Root aria-label="Demo page actions" class="max-sm:shrink-0">
 					<Button
 						variant="outline"
 						size="lg"
+						class="max-sm:size-9 max-sm:min-w-9 max-sm:max-w-9 max-sm:px-0 max-sm:[&_svg]:m-0"
 						href={prospectDemoHref ?? prospect.demoLink}
 						target="_blank"
 						rel="noopener noreferrer"
+						aria-label="Review demo page"
 					>
-						<Link2 class="size-4 mr-2" />
-						Review demo page
+						<Link2 class="size-4 shrink-0 sm:mr-2" aria-hidden="true" />
+						<span class="sr-only sm:not-sr-only sm:inline">Review demo page</span>
 					</Button>
 					<Button
 						type="submit"
 						form={regenerateDemoFormId}
 						variant="outline"
 						size="lg"
+						class="max-sm:size-9 max-sm:min-w-9 max-sm:max-w-9 max-sm:px-0 max-sm:[&_svg]:m-0"
 						disabled={regeneratingDemo || demoJob?.status === 'pending' || demoJob?.status === 'creating'}
 						title={demoJob?.status === 'pending' || demoJob?.status === 'creating' ? 'Demo is being created; wait before regenerating' : 'Regenerate demo (can take 1–2 minutes)'}
+						aria-label={regeneratingDemo ? 'Regenerating demo' : 'Regenerate demo'}
 					>
 						{#if regeneratingDemo}
-							<LoaderCircle class="size-4 mr-2 animate-spin" aria-hidden="true" />
+							<LoaderCircle class="size-4 animate-spin sm:mr-2" aria-hidden="true" />
+						{:else}
+							<RotateCcw class="size-4 shrink-0 sm:mr-2" aria-hidden="true" />
 						{/if}
-						{regeneratingDemo ? 'Regenerating…' : 'Regenerate'}
+						<span class="sr-only sm:not-sr-only sm:inline">
+							{regeneratingDemo ? 'Regenerating…' : 'Regenerate'}
+						</span>
 					</Button>
 				</ButtonGroup.Root>
 				<form
@@ -760,9 +769,14 @@
 						class="inline"
 					>
 						<input type="hidden" name="prospectId" value={prospect.id} />
-						<Button type="submit" size="lg">
-							<Check class="size-4 mr-2" />
-							Approve demo
+						<Button
+							type="submit"
+							size="lg"
+							class="max-sm:size-9 max-sm:min-w-9 max-sm:max-w-9 max-sm:px-0 max-sm:[&_svg]:m-0"
+							aria-label="Approve demo"
+						>
+							<Check class="size-4 shrink-0 sm:mr-2" aria-hidden="true" />
+							<span class="sr-only sm:not-sr-only sm:inline">Approve demo</span>
 						</Button>
 					</form>
 				{/if}
@@ -1030,8 +1044,8 @@
 	<Separator />
 
 	<div class="grid grid-cols-1 gap-8 lg:grid-cols-3 lg:gap-10">
-		<!-- Main: About, Insights, Website grading -->
-		<div class="space-y-6 lg:col-span-2">
+		<!-- Main: About, Insights, Website grading (below sidebar on mobile via order) -->
+		<div class="order-2 space-y-6 lg:order-none lg:col-span-2">
 			<!-- About: contact + GBP in one card -->
 			<Card.Root>
 				<Card.Header>
@@ -1291,12 +1305,12 @@
 		</div>
 
 		<!-- Sidebar: Outreach then Remove -->
-		<aside class="space-y-6">
+		<aside class="order-1 space-y-6 lg:order-none">
 			<!-- Outreach: demo + pipeline -->
 			<Card.Root>
 				<Card.Header>
 					<Card.Title>Outreach</Card.Title>
-					<Card.Description>Demo page and pipeline</Card.Description>
+					<Card.Description class="hidden md:block">Demo page and pipeline</Card.Description>
 				</Card.Header>
 				<Card.Content class="space-y-6">
 					{#if demoJob?.status === 'pending' || demoJob?.status === 'creating'}

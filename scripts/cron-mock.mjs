@@ -2,7 +2,7 @@
 /**
  * Local mock for production cron: matches apps/cron-worker (single schedule, UTC minute branches).
  *
- * Each tick: demo every time; GBP / insights / batch / website-template when UTC minute matches the same
+ * Each tick: demo + apify every time; GBP / insights / batch / website-template when UTC minute matches the same
  * modulo rules as the Worker (2, 3, 5, 14). Website Template pings GET /api/health (no auth).
  *
  * Usage (from repo root or apps/admin):
@@ -122,6 +122,9 @@ async function tick() {
 
 	const rDemo = await callCron('/api/cron/jobs/demo', 'demo');
 	console.log(formatResult(rDemo));
+
+	const rApify = await callCron('/api/cron/jobs/apify', 'apify');
+	console.log(formatResult(rApify));
 
 	if (minute % 2 === 0) {
 		const r = await callCron('/api/cron/jobs/gbp', 'gbp');

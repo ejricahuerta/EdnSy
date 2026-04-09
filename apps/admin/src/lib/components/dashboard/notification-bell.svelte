@@ -42,7 +42,10 @@
 			</span>
 		{/if}
 	</DropdownMenu.Trigger>
-	<DropdownMenu.Content align="end" class="w-80 max-h-[min(24rem,var(--bits-dropdown-menu-content-available-height))] p-0">
+	<DropdownMenu.Content
+		align="end"
+		class="max-h-[min(24rem,var(--bits-dropdown-menu-content-available-height))] w-[min(20rem,calc(100vw-1rem))] max-w-[calc(100vw-1rem)] p-0 sm:w-80"
+	>
 		<div class="border-b px-3 py-2">
 			<p class="text-sm font-medium">Prospect updates</p>
 		</div>

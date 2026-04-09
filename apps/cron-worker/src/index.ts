@@ -2,7 +2,7 @@
 
 /**
  * Cloudflare Worker: runs on a schedule.
- * - Admin app: calls cron endpoints (demo, GBP, insights, batch). Set CRON_TARGET_URL (vars) and CRON_SECRET (secret).
+ * - Admin app: calls cron endpoints (demo, apify, GBP, insights, batch). Set CRON_TARGET_URL (vars) and CRON_SECRET (secret).
  * - Website Template: pings health endpoint to keep the service warm. Set WEBSITE_TEMPLATE_URL (vars, optional).
  * - Stitch (Render): pings GET /api/health to keep the service warm. Set STITCH_URL (vars, optional).
  *
@@ -64,6 +64,9 @@ export default {
 		if (base && secret) {
 			const rDemo = await callCron(`${base}/api/cron/jobs/demo`, secret);
 			console.log(`[cron-worker] demo: ${rDemo.status} ${rDemo.ok ? "ok" : rDemo.text}`);
+
+			const rApify = await callCron(`${base}/api/cron/jobs/apify`, secret);
+			console.log(`[cron-worker] apify: ${rApify.status} ${rApify.ok ? "ok" : rApify.text}`);
 
 			// Every 2 min (GBP)
 			if (minute % 2 === 0) {

@@ -19,6 +19,11 @@ import {
 	isPlacesConfiguredForGbp,
 	getGbpDentalPullLock
 } from '$lib/server/pullGbpDental';
+import {
+	deleteApifyApiTokenForUser,
+	getApifyApiTokenForUser,
+	setApifyApiTokenForUser
+} from '$lib/server/apifyToken';
 
 function loadHelpDocs(): Record<string, string> {
 	const out: Record<string, string> = {};
@@ -38,6 +43,8 @@ export const load: PageServerLoad = async (event) => {
 	const gmailConnected = !!(gmailTokens?.refresh_token);
 	const gmailEmail = gmailTokens?.email ?? null;
 	const notionFieldKeys = NOTION_FIELD_KEYS;
+	const apifyApiToken = await getApifyApiTokenForUser(user.id);
+	const apifyConfigured = !!apifyApiToken;
 	const { todayCount: gbpDentalTodayCount, dailyCap: gbpDentalDailyCap } =
 		await getGbpDentalDailyStats(user.id);
 	const gbpDentalPullLock = await getGbpDentalPullLock(user.id);
@@ -58,6 +65,7 @@ export const load: PageServerLoad = async (event) => {
 		gmailConnected,
 		gmailEmail,
 		notionFieldKeys,
+		apifyConfigured,
 		notionDatabaseId,
 		notionDatabaseTitle,
 		gbpDentalTodayCount,
@@ -89,7 +97,7 @@ export const actions: Actions = {
 		if (!apiKey || !databaseId) return fail(400, { message: 'API key and Database ID required' });
 		const result = await saveCrmConnection(user.id, 'notion', apiKey, { databaseId });
 		if (!result.ok) return fail(502, { message: result.error ?? 'Failed to save' });
-		return { success: true, message: 'Notion connected.' };
+		return { success: true, message: 'Notion connected for the shared workspace.' };
 	},
 	disconnectNotion: async (event) => {
 		const { cookies } = event;
@@ -97,7 +105,7 @@ export const actions: Actions = {
 		if (!user) return fail(401, { message: 'Sign in required' });
 		const result = await deleteCrmConnection(user.id, 'notion');
 		if (!result.ok) return fail(502, { message: result.error ?? 'Failed to disconnect' });
-		return { success: true, message: 'Notion disconnected.' };
+		return { success: true, message: 'Notion disconnected for the shared workspace.' };
 	},
 	getNotionSchema: async (event) => {
 		const { cookies } = event;
@@ -207,6 +215,24 @@ export const actions: Actions = {
 		const result = await deleteGmailTokens(user.id);
 		if (!result.ok) return fail(502, { message: result.error ?? 'Failed to disconnect' });
 		return { success: true, message: 'Gmail disconnected.' };
+	},
+	connectApify: async (event) => {
+		const { request } = event;
+		const user = await getDashboardSessionUser(event);
+		if (!user) return fail(401, { message: 'Sign in required' });
+		const formData = await request.formData();
+		const apiKey = (formData.get('apiKey') as string | null)?.trim() ?? '';
+		if (!apiKey) return fail(400, { message: 'API key is required' });
+		const result = await setApifyApiTokenForUser(user.id, apiKey);
+		if (!result.ok) return fail(502, { message: result.error ?? 'Failed to save API key' });
+		return { success: true, message: 'Apify API key saved.' };
+	},
+	disconnectApify: async (event) => {
+		const user = await getDashboardSessionUser(event);
+		if (!user) return fail(401, { message: 'Sign in required' });
+		const result = await deleteApifyApiTokenForUser(user.id);
+		if (!result.ok) return fail(502, { message: result.error ?? 'Failed to remove API key' });
+		return { success: true, message: 'Apify API key removed.' };
 	},
 	pullGbpDental: async (event) => {
 		const { cookies } = event;

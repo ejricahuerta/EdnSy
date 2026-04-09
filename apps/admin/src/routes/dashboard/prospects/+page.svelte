@@ -18,7 +18,32 @@
 		/** True when scraped/GBP data exists; required for "Create demo" next step. */
 		hasGbpData?: boolean;
 	};
-	import { X, ExternalLink, Mail, MessageSquare, Copy, Link2, Send, Eye, Globe, Phone, MapPin, Star, ListChecks, Briefcase, LoaderCircle, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Upload, RefreshCw, CloudDownload } from 'lucide-svelte';
+	import {
+		X,
+		ExternalLink,
+		Mail,
+		MessageSquare,
+		Copy,
+		Link2,
+		Send,
+		Eye,
+		Globe,
+		Phone,
+		MapPin,
+		Star,
+		ListChecks,
+		ListX,
+		RotateCcw,
+		Briefcase,
+		LoaderCircle,
+		ChevronLeft,
+		ChevronRight,
+		ChevronsLeft,
+		ChevronsRight,
+		Upload,
+		RefreshCw,
+		CloudDownload
+	} from 'lucide-svelte';
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import {
 		type ColumnDef,
@@ -877,7 +902,7 @@
 		{
 			id: 'website',
 			header: () => 'Website',
-			meta: { label: 'Website' },
+			meta: { label: 'Website', className: 'hidden md:table-cell' },
 			cell: ({ row }) => {
 				const scraped = data.scrapedDataByProspectId?.[row.original.id];
 				const audit = auditFromScrapedData(scraped ?? null);
@@ -891,7 +916,7 @@
 		{
 			id: 'gbp',
 			header: () => 'GBP',
-			meta: { label: 'GBP' },
+			meta: { label: 'GBP', className: 'hidden md:table-cell' },
 			cell: ({ row }) => {
 				const scraped = data.scrapedDataByProspectId?.[row.original.id];
 				const audit = auditFromScrapedData(scraped ?? null);
@@ -1147,14 +1172,16 @@
 	<!-- Clients (CRM) – tasks-style layout -->
 	<Card.Root id="prospects">
 		<Card.Header class="pb-6">
-			<div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
-				<div class="min-w-0 flex-1 space-y-1">
+			<div class="flex w-full min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+				<div class="min-w-0 w-full space-y-1 sm:flex-1">
 					<Card.Title class="text-2xl font-semibold tracking-tight">Welcome back!</Card.Title>
-					<Card.Description class="text-muted-foreground">
+					<Card.Description class="hidden text-muted-foreground md:block">
 						Here's a list of your prospects. Search and manage demos from the table.
 					</Card.Description>
 				</div>
-				<div class="flex shrink-0 flex-wrap items-center justify-end gap-2">
+				<div
+					class="flex w-full min-w-0 flex-row flex-wrap items-center gap-2 sm:w-auto sm:max-w-none sm:justify-end"
+				>
 					{#if prospectsInQueueCount > 0}
 						<form
 							method="POST"
@@ -1186,20 +1213,25 @@
 									}
 								};
 							}}
-							class="inline-flex"
+							class="inline-flex min-w-0 shrink-0"
 						>
 							<Button
 								type="submit"
 								variant="outline"
 								size="sm"
-								class="h-9 bg-background"
+								class="h-9 max-w-full bg-background max-sm:size-9 max-sm:min-w-9 max-sm:max-w-9 max-sm:shrink-0 max-sm:px-0 max-sm:[&_svg]:m-0"
 								disabled={clearStuckSubmitting}
 								title="Clear stuck gbp queued / demo queued when no active job"
+								aria-label={clearStuckSubmitting ? 'Clearing stuck queue' : 'Clear stuck queue'}
 							>
 								{#if clearStuckSubmitting}
-									<LoaderCircle class="mr-1.5 size-4 animate-spin" aria-hidden="true" />
+									<LoaderCircle class="size-4 animate-spin sm:mr-1.5" aria-hidden="true" />
+								{:else}
+									<ListX class="size-4 sm:mr-1.5" aria-hidden="true" />
 								{/if}
-								{clearStuckSubmitting ? 'Clearing…' : 'Clear stuck queue'}
+								<span class="sr-only sm:not-sr-only sm:inline">
+									{clearStuckSubmitting ? 'Clearing…' : 'Clear stuck queue'}
+								</span>
 							</Button>
 						</form>
 					{/if}
@@ -1234,20 +1266,25 @@
 									}
 								};
 							}}
-							class="inline-flex"
+							class="inline-flex min-w-0 shrink-0"
 						>
 							<Button
 								type="submit"
 								variant="outline"
 								size="sm"
-								class="h-9 bg-background"
+								class="h-9 max-w-full bg-background max-sm:size-9 max-sm:min-w-9 max-sm:max-w-9 max-sm:shrink-0 max-sm:px-0 max-sm:[&_svg]:m-0"
 								disabled={resetStuckDemoSubmitting}
 								title="Put demos stuck in generating (over 5 minutes) back on the demo queue"
+								aria-label={resetStuckDemoSubmitting ? 'Resetting stuck demos' : 'Reset stuck demos'}
 							>
 								{#if resetStuckDemoSubmitting}
-									<LoaderCircle class="mr-1.5 size-4 animate-spin" aria-hidden="true" />
+									<LoaderCircle class="size-4 animate-spin sm:mr-1.5" aria-hidden="true" />
+								{:else}
+									<RotateCcw class="size-4 sm:mr-1.5" aria-hidden="true" />
 								{/if}
-								{resetStuckDemoSubmitting ? 'Resetting…' : 'Reset stuck demos'}
+								<span class="sr-only sm:not-sr-only sm:inline">
+									{resetStuckDemoSubmitting ? 'Resetting…' : 'Reset stuck demos'}
+								</span>
 							</Button>
 						</form>
 					{/if}
@@ -1268,64 +1305,75 @@
 								}
 							};
 						}}
-						class="inline-flex"
+						class="inline-flex min-w-0 shrink-0"
 					>
 						<Button
 							type="submit"
 							variant="outline"
 							size="sm"
-							class="h-9 bg-background"
+							class="h-9 max-w-full bg-background max-sm:size-9 max-sm:min-w-9 max-sm:max-w-9 max-sm:shrink-0 max-sm:px-0 max-sm:[&_svg]:m-0"
 							disabled={pullGbpDentalSubmitting || !placesApiConfigured || gbpDentalTodayCount >= gbpDentalDailyCap || gbpDentalPullLock.locked}
 							title={!placesApiConfigured
 								? 'Set GOOGLE_PLACES_API_KEY in .env'
 								: gbpDentalPullLock.locked
 									? `Locked for ${gbpDentalLockMinutesRemaining} more minute${gbpDentalLockMinutesRemaining === 1 ? '' : 's'}`
 									: `Today: ${gbpDentalTodayCount}/${gbpDentalDailyCap}`}
+							aria-label={gbpDentalPullLock.locked
+								? 'Lead discovery locked'
+								: pullGbpDentalSubmitting
+									? 'Pulling dental leads'
+									: 'Lead discovery (GBP)'}
 						>
 							{#if pullGbpDentalSubmitting}
-								<LoaderCircle class="mr-2 size-4 animate-spin" aria-hidden="true" />
+								<LoaderCircle class="size-4 animate-spin sm:mr-2" aria-hidden="true" />
 							{:else}
-								<MapPin class="mr-2 size-4" aria-hidden="true" />
+								<MapPin class="size-4 sm:mr-2" aria-hidden="true" />
 							{/if}
-							{#if gbpDentalPullLock.locked}
-								Lead discovery locked
-							{:else}
-								Lead discovery (GBP)
-							{/if}
+							<span class="sr-only sm:not-sr-only sm:inline">
+								{#if gbpDentalPullLock.locked}
+									Lead discovery locked
+								{:else}
+									Lead discovery (GBP)
+								{/if}
+							</span>
 						</Button>
 					</form>
 					<Button
 						type="button"
 						variant="outline"
 						size="sm"
-						class="h-9 bg-background"
+						class="h-9 shrink-0 bg-background max-sm:size-9 max-sm:min-w-9 max-sm:max-w-9 max-sm:px-0 max-sm:[&_svg]:m-0"
 						onclick={() => (importCsvOpen = true)}
+						aria-label="Import CSV"
 					>
-						<Upload class="mr-2 size-4" aria-hidden="true" />
-						Import CSV
+						<Upload class="size-4 sm:mr-2" aria-hidden="true" />
+						<span class="sr-only sm:not-sr-only sm:inline">Import CSV</span>
 					</Button>
-					{#if apifyConfigured}
+					{#if apifyConfigured && prospects.length > 0}
 						<Button
 							type="button"
 							variant="outline"
 							size="sm"
-							class="h-9 bg-background"
+							class="h-9 shrink-0 bg-background max-sm:size-9 max-sm:min-w-9 max-sm:max-w-9 max-sm:px-0 max-sm:[&_svg]:m-0"
 							onclick={() => {
 								importApifyOpen = true;
 								placeSuggestions = [];
 							}}
+							aria-label="Import from Apify"
 						>
-							<CloudDownload class="mr-2 size-4" aria-hidden="true" />
-							Import from Apify
+							<CloudDownload class="size-4 sm:mr-2" aria-hidden="true" />
+							<span class="sr-only sm:not-sr-only sm:inline">Import from Apify</span>
 						</Button>
 					{/if}
 					{#if myActiveApifyJob}
 						<span
-							class="text-muted-foreground inline-flex max-w-[10rem] items-center gap-1 truncate text-xs sm:max-w-none"
+							class="text-muted-foreground inline-flex size-9 max-w-[10rem] shrink-0 items-center justify-center sm:size-auto sm:max-w-none sm:justify-start sm:gap-1"
 							title="Apify Google Maps import in progress for {myActiveApifyJob.industry} — {myActiveApifyJob.location}"
+							role="status"
+							aria-label="Apify import in progress"
 						>
-							<LoaderCircle class="size-3.5 shrink-0 animate-spin" aria-hidden="true" />
-							<span class="truncate">Apify import…</span>
+							<LoaderCircle class="size-4 shrink-0 animate-spin sm:size-3.5" aria-hidden="true" />
+							<span class="sr-only sm:not-sr-only sm:inline sm:truncate">Apify import…</span>
 						</span>
 					{/if}
 					{#if showBulkSendDraftsButton}
@@ -1333,23 +1381,31 @@
 							type="button"
 							variant="default"
 							size="sm"
-							class="h-9"
+							class="h-9 shrink-0 max-sm:size-9 max-sm:min-w-9 max-sm:max-w-9 max-sm:px-0 max-sm:[&_svg]:m-0"
 							title="Send all Gmail outreach drafts now (same as Send now on each prospect)"
+							aria-label="Bulk send {prospectsWithGmailDraftCount} Gmail draft{prospectsWithGmailDraftCount === 1 ? '' : 's'}"
 							onclick={() => (bulkSendDraftsDialogOpen = true)}
 						>
-							<Send class="mr-2 size-4" aria-hidden="true" />
-							Bulk send ({prospectsWithGmailDraftCount})
+							<Send class="size-4 sm:mr-2" aria-hidden="true" />
+							<span class="sr-only sm:not-sr-only sm:inline">
+								Bulk send ({prospectsWithGmailDraftCount})
+							</span>
 						</Button>
 					{:else if showBulkSendConnectGmail}
 						<Button
 							variant="default"
 							size="sm"
-							class="h-9"
+							class="h-9 shrink-0 max-sm:size-9 max-sm:min-w-9 max-sm:max-w-9 max-sm:px-0 max-sm:[&_svg]:m-0"
 							href={integrationsGmailHref}
 							title="Connect Gmail in Integrations to send saved drafts"
+							aria-label="Connect Gmail — {prospectsWithGmailDraftCount} draft{prospectsWithGmailDraftCount === 1 ? '' : 's'}"
 						>
-							<Mail class="mr-2 size-4" aria-hidden="true" />
-							Connect Gmail ({prospectsWithGmailDraftCount} draft{prospectsWithGmailDraftCount === 1 ? '' : 's'})
+							<Mail class="size-4 sm:mr-2" aria-hidden="true" />
+							<span class="sr-only sm:not-sr-only sm:inline">
+								Connect Gmail ({prospectsWithGmailDraftCount} draft{prospectsWithGmailDraftCount === 1
+									? ''
+									: 's'})
+							</span>
 						</Button>
 					{/if}
 				</div>
@@ -1635,25 +1691,27 @@
 							type="button"
 							variant="outline"
 							size="sm"
-							class="h-9 shrink-0 bg-background"
+							class="h-9 shrink-0 bg-background max-sm:size-9 max-sm:min-w-9 max-sm:max-w-9 max-sm:px-0 max-sm:[&_svg]:m-0"
 							onclick={() => (importCsvOpen = true)}
+							aria-label="Import CSV"
 						>
-							<Upload class="mr-2 size-4" aria-hidden="true" />
-							Import CSV
+							<Upload class="size-4 sm:mr-2" aria-hidden="true" />
+							<span class="sr-only sm:not-sr-only sm:inline">Import CSV</span>
 						</Button>
 						{#if apifyConfigured}
 							<Button
 								type="button"
 								variant="outline"
 								size="sm"
-								class="h-9 shrink-0 bg-background"
+								class="h-9 shrink-0 bg-background max-sm:size-9 max-sm:min-w-9 max-sm:max-w-9 max-sm:px-0 max-sm:[&_svg]:m-0"
 								onclick={() => {
 									importApifyOpen = true;
 									placeSuggestions = [];
 								}}
+								aria-label="Import from Apify"
 							>
-								<CloudDownload class="mr-2 size-4" aria-hidden="true" />
-								Import from Apify
+								<CloudDownload class="size-4 sm:mr-2" aria-hidden="true" />
+								<span class="sr-only sm:not-sr-only sm:inline">Import from Apify</span>
 							</Button>
 						{/if}
 					</div>
@@ -1706,7 +1764,7 @@
 						class="flex w-full shrink-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end md:ms-auto md:w-auto"
 					>
 						{#if industryFilterOptions.values.length > 0 || industryFilterOptions.hasEmpty}
-							<div class="flex min-w-0 items-center gap-2">
+							<div class="flex w-full min-w-0 items-center gap-2 sm:w-auto">
 								<Label for="lr-industry-filter" class="sr-only">Filter by industry</Label>
 								<Select.Root
 									type="single"
@@ -1718,7 +1776,7 @@
 									<Select.Trigger
 										id="lr-industry-filter"
 										size="sm"
-										class="h-8 min-w-[10rem] max-w-[min(100%,18rem)] border-border/50"
+										class="!h-9 min-h-9 w-full min-w-0 border-border/50 py-0 sm:min-w-[10rem] sm:max-w-[min(100%,18rem)]"
 										aria-label="Filter by industry"
 									>
 										{#if industryFilter === '__all__'}
@@ -1741,7 +1799,7 @@
 								</Select.Root>
 							</div>
 						{/if}
-						<div class="flex min-w-0 items-center gap-2 sm:justify-end">
+						<div class="flex w-full min-w-0 items-center gap-2 sm:w-auto sm:justify-end">
 							<Label for="lr-status-filter" class="sr-only">Filter by status</Label>
 							<Select.Root
 								type="single"
@@ -1753,7 +1811,7 @@
 								<Select.Trigger
 									id="lr-status-filter"
 									size="sm"
-									class="h-8 min-w-[10rem] max-w-[min(100%,18rem)] border-border/50"
+									class="!h-9 min-h-9 w-full min-w-0 border-border/50 py-0 sm:min-w-[10rem] sm:max-w-[min(100%,18rem)]"
 									aria-label="Filter by status"
 								>
 									{#if statusFilter === '__all__'}
@@ -1774,7 +1832,7 @@
 							type="button"
 							variant="outline"
 							size="icon"
-							class="shrink-0 bg-background"
+							class="size-9 shrink-0 bg-background"
 							disabled={tableRefreshing}
 							onclick={refreshProspectsTable}
 							aria-label="Refresh table"
@@ -1849,9 +1907,11 @@
 		<Card.Content class="lr-dash-card-content lr-prospects-content p-0">
 			{#snippet selectionBar()}
 				{#if prospects.length > 0 && filteredProspects.length > 0}
-					<div class="flex flex-wrap items-center justify-between gap-4 py-4 px-4">
-						<div class="flex flex-1 flex-wrap items-center gap-4">
-							<div class="text-muted-foreground text-sm">
+					<div
+						class="flex flex-col gap-4 py-4 px-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between"
+					>
+						<div class="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+							<div class="w-full text-center text-sm text-muted-foreground sm:w-auto sm:text-start">
 								{table.getFilteredSelectedRowModel().rows.length} of
 								{table.getFilteredRowModel().rows.length} row(s) selected.
 							</div>
@@ -1958,15 +2018,22 @@
 								{/if}
 							{/if}
 						</div>
-						<div class="lr-prospects-pagination flex w-full flex-wrap items-center justify-end gap-6 lg:w-auto">
-							<div class="flex items-center gap-2">
-								<Label for="lr-rows-per-page" class="text-sm font-medium whitespace-nowrap">Rows per page</Label>
+						<div
+							class="lr-prospects-pagination flex w-full min-w-0 flex-row flex-wrap items-center justify-center gap-x-3 gap-y-2 sm:justify-end lg:w-auto lg:max-w-none"
+						>
+							<div class="flex shrink-0 items-center gap-2">
+								<Label for="lr-rows-per-page" class="sr-only sm:not-sr-only">Rows per page</Label>
 								<Select.Root
 									type="single"
 									value={String(pagination.pageSize)}
 									onValueChange={(v) => v != null && table.setPageSize(Number(v))}
 								>
-									<Select.Trigger id="lr-rows-per-page" size="sm" class="w-20 h-8 border-border/50">
+									<Select.Trigger
+										id="lr-rows-per-page"
+										size="sm"
+										class="h-8 w-20 border-border/50"
+										aria-label="Rows per page"
+									>
 										{pagination.pageSize}
 									</Select.Trigger>
 									<Select.Content side="top">
@@ -1976,10 +2043,10 @@
 									</Select.Content>
 								</Select.Root>
 							</div>
-							<div class="flex items-center justify-center text-sm font-medium whitespace-nowrap">
+							<div class="shrink-0 text-sm font-medium tabular-nums">
 								Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
 							</div>
-							<div class="flex items-center gap-2 [&_button]:border-border/50">
+							<div class="flex shrink-0 items-center gap-2 [&_button]:border-border/50">
 								<Button
 									type="button"
 									variant="outline"
@@ -2030,14 +2097,19 @@
 				{/if}
 			{/snippet}
 			{@render selectionBar()}
-			<div class="overflow-x-auto mx-4 sm:mx-6 my-2">
+			<div class="mx-2 max-sm:min-w-0 overflow-x-auto sm:mx-6 my-2">
 				<div class="rounded-md border bg-background overflow-hidden">
 					<Table.Root>
 						<Table.Header>
 							{#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
 								<Table.Row>
 									{#each headerGroup.headers as header (header.id)}
-										<Table.Head class="[&:has([role=checkbox])]:ps-3">
+										<Table.Head
+											class={cn(
+												'[&:has([role=checkbox])]:ps-3',
+												(header.column.columnDef.meta as { className?: string } | undefined)?.className
+											)}
+										>
 											{#if !header.isPlaceholder}
 												<FlexRender
 													content={header.column.columnDef.header}
@@ -2053,7 +2125,12 @@
 							{#each table.getRowModel().rows as row (row.id)}
 								<Table.Row data-state={row.getIsSelected() && 'selected'}>
 									{#each row.getVisibleCells() as cell (cell.id)}
-										<Table.Cell class="[&:has([role=checkbox])]:ps-3">
+										<Table.Cell
+											class={cn(
+												'[&:has([role=checkbox])]:ps-3',
+												(cell.column.columnDef.meta as { className?: string } | undefined)?.className
+											)}
+										>
 											<FlexRender
 												content={cell.column.columnDef.cell}
 												context={cell.getContext()}
@@ -2257,13 +2334,13 @@
 										{callLogsResultFilter === 'errors' ? 'No errors in the log.' : 'No successful calls in the log.'}
 									</p>
 								{:else}
-									<div class="rounded-md border bg-background overflow-hidden">
-									<Table.Root class="w-full table-fixed">
+									<div class="max-w-full overflow-x-auto rounded-md border bg-background">
+									<Table.Root class="w-full min-w-0 table-fixed md:min-w-full">
 										<Table.Header>
 											<Table.Row>
-												<Table.Head class="w-[100px] shrink-0">Error</Table.Head>
-												<Table.Head class="w-[80px] shrink-0">Code</Table.Head>
-												<Table.Head class="min-w-0">Message</Table.Head>
+												<Table.Head class="w-[100px] shrink-0 whitespace-normal">Error</Table.Head>
+												<Table.Head class="w-[80px] shrink-0 whitespace-normal">Code</Table.Head>
+												<Table.Head class="min-w-0 whitespace-normal">Message</Table.Head>
 											</Table.Row>
 										</Table.Header>
 										<Table.Body>
@@ -2273,7 +2350,7 @@
 														? 'border-destructive/30 bg-destructive/5'
 														: 'border-green-500/20 bg-green-500/5'}
 												>
-													<Table.Cell class="align-top font-medium">
+													<Table.Cell class="align-top font-medium whitespace-normal">
 														<span
 															class={entry.result === 'success'
 																? 'text-green-600 dark:text-green-400'
@@ -2282,10 +2359,10 @@
 															{entry.result === 'success' ? 'Success' : 'Error'}
 														</span>
 													</Table.Cell>
-													<Table.Cell class="align-top font-mono text-xs tabular-nums">
+													<Table.Cell class="align-top font-mono text-xs tabular-nums whitespace-normal">
 														{entry.status != null ? entry.status : '—'}
 													</Table.Cell>
-													<Table.Cell class="align-top text-sm break-words">
+													<Table.Cell class="align-top text-sm break-words whitespace-normal">
 														{#if entry.message}
 															<span class={entry.result === 'failure' ? 'text-destructive' : 'text-muted-foreground'}>
 																{entry.message}

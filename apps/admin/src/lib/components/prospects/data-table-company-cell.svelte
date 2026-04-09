@@ -14,7 +14,10 @@
 	onclick={() => onView(prospect)}
 	title={name}
 >
-	<span class="block min-w-0 truncate max-w-[14rem] sm:max-w-[18rem]" title={name}>
+	<span
+		class="block min-w-0 max-w-full hyphens-auto break-words text-start sm:max-w-[18rem] sm:truncate sm:break-normal sm:hyphens-none"
+		title={name}
+	>
 		{name || '—'}
 	</span>
 </Button>

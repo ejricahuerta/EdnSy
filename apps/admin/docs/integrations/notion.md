@@ -2,6 +2,8 @@
 
 Your dashboard clients list can be powered by a Notion database. Follow these steps to get your **API key** and **Database ID**.
 
+In this shared workspace, the Notion connection is workspace-wide (all users).
+
 ## 1. Create an integration
 
 1. Go to [Notion Integrations](https://www.notion.so/my-integrations) (or **Settings & members** → **Connections** → **Develop or manage integrations**).

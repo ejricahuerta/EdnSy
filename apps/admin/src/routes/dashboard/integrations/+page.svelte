@@ -10,12 +10,12 @@
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { toastSuccess, toastError, toastFromActionResult } from '$lib/toast';
-	import { LoaderCircle, CheckCircle2, Link2, Lock, Plus, Eye, EyeOff, Pencil, Database, MapPin } from 'lucide-svelte';
+	import { LoaderCircle, CheckCircle2, Link2, Lock, Plus, Eye, EyeOff, Pencil, Database, MapPin, KeyRound } from 'lucide-svelte';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import * as Select from '$lib/components/ui/select';
 
-	type IntegrationId = 'notion' | 'gbp-dental';
+	type IntegrationId = 'notion' | 'apify' | 'gbp-dental';
 
 	let { data, form } = $props<{
 		data: PageData;
@@ -34,6 +34,7 @@
 	);
 	const placesApiConfigured = $derived(data.placesApiConfigured ?? false);
 	const notionConnected = $derived(connections.find((c) => c.provider === 'notion')?.connected ?? false);
+	const apifyConfigured = $derived(data.apifyConfigured ?? false);
 	const notionDatabaseId = $derived(data.notionDatabaseId ?? null);
 	const notionDatabaseTitle = $derived(data.notionDatabaseTitle ?? null);
 	function truncateNotionId(id: string | null): string {
@@ -143,9 +144,17 @@
 		{
 			id: 'notion' as const,
 			name: 'Notion',
-			description: 'Your dashboard clients list is powered by a Notion database.',
+			description: 'Your dashboard clients list is powered by a shared Notion database for this workspace.',
 			logoSrc: '/integrations/notion.svg',
 			connected: notionConnected,
+			locked: false
+		},
+		{
+			id: 'apify' as const,
+			name: 'Apify',
+			description: 'Google Maps import for prospects using your Apify API key.',
+			logoSrc: '',
+			connected: apifyConfigured,
 			locked: false
 		},
 		{
@@ -217,7 +226,7 @@
 		<p class="text-sm text-muted-foreground">Sign in with your account; no API keys required.</p>
 		<div class="grid grid-cols-1 gap-3 md:grid-cols-2">
 		<Card.Root class="flex flex-col {gmailConnected ? 'ring-2 ring-ring ring-inset' : ''}">
-			<Card.Header class="flex flex-row items-start justify-between gap-4">
+			<Card.Header class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
 				<div class="flex min-w-0 items-center gap-3">
 					<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-white p-1 overflow-hidden" aria-hidden="true">
 						<img src="/integrations/gmail.png" alt="" class="h-8 w-8 object-contain" width="32" height="32" />
@@ -230,7 +239,7 @@
 					</div>
 				</div>
 				{#if gmailConnected}
-					<Badge variant="default" class="shrink-0 gap-1 font-normal">
+					<Badge variant="default" class="w-fit shrink-0 gap-1 self-start font-normal sm:self-auto">
 						<CheckCircle2 class="h-3 w-3" />
 						Connected
 					</Badge>
@@ -290,6 +299,8 @@
 					>
 						{#if integration.id === 'gbp-dental'}
 							<MapPin class="h-6 w-6" />
+						{:else if integration.id === 'apify'}
+							<KeyRound class="h-6 w-6" />
 						{:else}
 							<img
 								src={integration.logoSrc}
@@ -311,14 +322,14 @@
 		<!-- Form / detail panel (right), height aligned to left column -->
 		<div class="flex min-w-0 flex-1 flex-col">
 	{#if selected}
-		<Card.Root class="integration-detail-card flex min-h-[420px] flex-col {selected.connected ? 'ring-2 ring-ring ring-inset' : ''}">
-			<Card.Header class="flex flex-row items-start justify-between gap-4">
+		<Card.Root class="integration-detail-card flex min-h-0 flex-col lg:min-h-[420px] {selected.connected ? 'ring-2 ring-ring ring-inset' : ''}">
+			<Card.Header class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
 				<div class="min-w-0 space-y-1">
 					<Card.Title class="mb-0">{selected.name}</Card.Title>
 					<Card.Description>{selected.description}</Card.Description>
 				</div>
 				{#if selected.connected}
-					<Badge variant="default" class="shrink-0 gap-1 font-normal">
+					<Badge variant="default" class="w-fit shrink-0 gap-1 self-start font-normal sm:self-auto">
 						<CheckCircle2 class="h-3 w-3" />
 						Connected
 					</Badge>
@@ -378,6 +389,141 @@
 							</Button>
 						</form>
 					</div>
+				{:else if selected.id === 'apify'}
+					{#if selected.connected}
+						{#if editingCredentials}
+							<form
+								method="POST"
+								action="?/connectApify"
+								use:enhance={() => async ({ result }) => {
+									toastFromActionResult('Apify', result, 'Apify API key saved.');
+									if (result.type === 'success' && (result.data as { success?: boolean })?.success) {
+										editingCredentials = false;
+										showConnectedKeys = false;
+										invalidateAll();
+									}
+								}}
+								class="flex flex-col gap-4"
+							>
+								<div class="space-y-2">
+									<Label for="apify-apiKey-edit">API key</Label>
+									<div class="flex gap-1">
+										<input
+											id="apify-apiKey-edit"
+											name="apiKey"
+											type={showConnectedKeys ? 'text' : 'password'}
+											bind:value={editValues.apiKey}
+											class="border-input bg-background flex h-9 min-w-0 flex-1 rounded-md border px-3 py-1 font-mono text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+										/>
+										<button
+											type="button"
+											onclick={() => (showConnectedKeys = !showConnectedKeys)}
+											aria-label={showConnectedKeys ? 'Hide API key' : 'Show API key'}
+											class="inline-flex size-9 shrink-0 items-center justify-center rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground"
+										>
+											{#if showConnectedKeys}
+												<EyeOff class="h-4 w-4" />
+											{:else}
+												<Eye class="h-4 w-4" />
+											{/if}
+										</button>
+									</div>
+								</div>
+								<div class="mt-auto flex flex-wrap gap-2 pt-2">
+									<Button type="submit" size="sm">Save</Button>
+									<Button type="button" variant="ghost" size="sm" onclick={cancelEditingCredentials}>
+										Cancel
+									</Button>
+								</div>
+							</form>
+						{:else}
+							<div class="space-y-4">
+								<div class="space-y-2">
+									<Label for="apify-apiKey-connected">API key</Label>
+									<div class="flex gap-1">
+										<input
+											id="apify-apiKey-connected"
+											type={showConnectedKeys ? 'text' : 'password'}
+											value="••••••••••••••••••••"
+											disabled
+											readonly
+											class="border-input bg-background flex h-9 min-w-0 flex-1 rounded-md border px-3 py-1 font-mono text-sm outline-none disabled:cursor-not-allowed disabled:opacity-50"
+										/>
+										<button
+											type="button"
+											onclick={() => (showConnectedKeys = !showConnectedKeys)}
+											aria-label={showConnectedKeys ? 'Hide API key' : 'Show API key'}
+											class="inline-flex size-9 shrink-0 items-center justify-center rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground"
+										>
+											{#if showConnectedKeys}
+												<EyeOff class="h-4 w-4" />
+											{:else}
+												<Eye class="h-4 w-4" />
+											{/if}
+										</button>
+									</div>
+								</div>
+							</div>
+							<div class="mt-auto flex flex-wrap gap-2 pt-2">
+								<Button
+									type="button"
+									variant="outline"
+									size="sm"
+									disabled={loadingCredentials}
+									onclick={startEditingCredentials}
+								>
+									{#if loadingCredentials}
+										<LoaderCircle class="mr-2 h-4 w-4 animate-spin" />
+									{:else}
+										<Pencil class="mr-2 h-4 w-4" />
+									{/if}
+									Edit key
+								</Button>
+								<form
+									method="POST"
+									action="?/disconnectApify"
+									use:enhance={() => async ({ result }) => {
+										if (result.type === 'success' && (result.data as { success?: boolean })?.success) {
+											await invalidateAll();
+											toastSuccess('Apify disconnected', 'You can reconnect from this page.');
+										} else if (result.type === 'failure') {
+											toastError('Disconnect Apify', (result.data as { message?: string })?.message);
+										}
+									}}
+									class="inline"
+								>
+									<Button type="submit" variant="ghost" size="sm">Disconnect</Button>
+								</form>
+							</div>
+						{/if}
+					{:else}
+						<form
+							method="POST"
+							action="?/connectApify"
+							use:enhance={() => async ({ result }) => {
+								toastFromActionResult('Connect Apify', result, 'Apify API key saved.');
+								if (result.type === 'success' && (result.data as { success?: boolean })?.success) {
+									invalidateAll();
+								}
+							}}
+							class="flex flex-col gap-4"
+						>
+							<div class="space-y-2">
+								<Label for="apify-apiKey">API key</Label>
+								<Input
+									id="apify-apiKey"
+									name="apiKey"
+									type="password"
+									placeholder="apify_api_..."
+									autocomplete="off"
+									class="font-mono text-sm"
+								/>
+							</div>
+							<div class="mt-auto flex flex-wrap gap-2 pt-2">
+								<Button type="submit">Save API key</Button>
+							</div>
+						</form>
+					{/if}
 				{:else if selected.id === 'notion'}
 					{#if selected.connected}
 						<div class="flex flex-col gap-4">
@@ -540,13 +686,16 @@
 										{/if}
 									</div>
 								</div>
+								<div
+									class="mt-4 flex w-full flex-col gap-2 sm:mt-6 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center"
+								>
 									<Button
 										type="button"
 										variant="outline"
 										size="sm"
 										disabled={loadingCredentials}
 										onclick={startEditingCredentials}
-										class="mt-auto"
+										class="w-full sm:w-auto"
 									>
 										{#if loadingCredentials}
 											<LoaderCircle class="mr-2 h-4 w-4 animate-spin" />
@@ -559,7 +708,7 @@
 										type="button"
 										size="sm"
 										onclick={openMapHeadersDialog}
-										class="inline-flex"
+										class="inline-flex w-full sm:w-auto"
 									>
 										{#if syncing === 'notion'}
 											<LoaderCircle class="mr-2 h-4 w-4 animate-spin" />
@@ -575,10 +724,10 @@
 										} else if (result.type === 'failure') {
 											toastError('Disconnect Notion', (result.data as { message?: string })?.message);
 										}
-									}} class="inline">
+									}} class="w-full sm:inline sm:w-auto">
 										<AlertDialog.Root bind:open={disconnectNotionOpen}>
 											<AlertDialog.Trigger>
-												<Button variant="ghost" size="sm">Disconnect</Button>
+												<Button variant="ghost" size="sm" class="w-full sm:w-auto">Disconnect</Button>
 											</AlertDialog.Trigger>
 											<AlertDialog.Content>
 												<AlertDialog.Header>
@@ -596,10 +745,11 @@
 										</AlertDialog.Content>
 									</AlertDialog.Root>
 								</form>
+								</div>
 
 								<!-- Map headers dialog -->
 								<Dialog.Root bind:open={mapHeadersOpen}>
-									<Dialog.Content class="max-h-[90vh] overflow-y-auto">
+									<Dialog.Content class="max-h-[90vh] overflow-y-auto sm:max-w-lg">
 										<Dialog.Header>
 											<Dialog.Title>Map headers</Dialog.Title>
 											<Dialog.Description>
@@ -758,7 +908,7 @@
 				<div class="flex min-w-0 flex-col border-t border-border/50 pt-4 lg:col-span-3 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
 					<h3 class="mb-3 shrink-0 text-sm font-semibold text-foreground">Setup guide</h3>
 					{#if helpContent}
-						<div class="help-doc-content min-h-0 flex-1 overflow-y-auto font-sans text-sm leading-relaxed [&_a]:underline [&_a:hover]:no-underline [&_h1]:mb-1.5 [&_h1]:mt-2 [&_h1]:text-base [&_h1]:font-semibold [&_h1:first-child]:mt-0 [&_h2]:mb-1 [&_h2]:mt-2 [&_h2]:text-sm [&_h2]:font-semibold [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:mb-0.5 [&_p]:text-xs">
+						<div class="help-doc-content min-h-0 flex-1 overflow-y-auto font-sans text-sm leading-relaxed [&_a]:underline [&_a:hover]:no-underline [&_h1]:mb-1.5 [&_h1]:mt-2 [&_h1]:text-base [&_h1]:font-semibold [&_h1:first-child]:mt-0 [&_h2]:mb-1 [&_h2]:mt-2 [&_h2]:text-sm [&_h2]:font-semibold [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:mb-0.5 [&_p]:text-sm">
 							{@html helpContent}
 						</div>
 					{:else}

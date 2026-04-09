@@ -93,18 +93,18 @@
 
 <div class="lr-dash-page max-w-[1200px] mx-auto w-full space-y-8">
 	<section class="space-y-4">
-		<div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-			<div class="space-y-1">
+		<div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+			<div class="min-w-0 space-y-1">
 				<div class="flex flex-wrap items-center gap-2">
 					<h1 class="text-2xl font-semibold tracking-tight text-foreground">Dashboard</h1>
 				</div>
-				<p class="text-muted-foreground text-sm max-w-xl">
+				<p class="hidden text-muted-foreground text-sm max-w-xl md:block">
 					Usage and pipeline overview · this month
 					{#if greetName}
 						<span class="text-foreground/80"> · Hi, {greetName}</span>
 					{/if}
 				</p>
-				<p class="text-xs text-muted-foreground">
+				<p class="hidden text-xs text-muted-foreground md:block">
 					{prospectTotal} prospect{prospectTotal === 1 ? '' : 's'} in CRM
 					{#if prospectsNeedingAttention > 0}
 						<span class="text-foreground/90">
@@ -113,7 +113,7 @@
 					{/if}
 				</p>
 			</div>
-			<div class="flex flex-wrap gap-2">
+			<div class="flex w-full flex-wrap gap-2 md:w-auto md:shrink-0">
 				<Button href="/dashboard/prospects" variant="outline" size="sm">
 					<Users class="size-4" aria-hidden="true" />
 					Prospects

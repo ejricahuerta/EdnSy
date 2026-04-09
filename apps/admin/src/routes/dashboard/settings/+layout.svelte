@@ -26,6 +26,9 @@
 </svelte:head>
 
 <div class="lr-dashboard-settings-layout">
+	<p class="border-b border-border/60 px-3 py-2 text-xs text-muted-foreground md:hidden">
+		Swipe sideways for more sections
+	</p>
 	<nav class="lr-dashboard-settings-nav" aria-label="Settings sections">
 		{#each navItems as { href, label, icon: Icon }}
 			<a
