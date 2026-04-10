@@ -1,6 +1,10 @@
 import { env } from '$env/dynamic/private';
 import type { Prospect } from '$lib/server/prospects';
-import { getResolvedContent } from '$lib/server/agentContent';
+import {
+	getResolvedContent,
+	EMAIL_AI_AGENT_ID,
+	EMAIL_AI_COPY_PROMPT_KEY
+} from '$lib/server/agentContent';
 import { serverError, serverInfo } from '$lib/server/logger';
 import { getScrapedDataForProspectForUser } from '$lib/server/supabase';
 import { auditFromScrapedData, type DemoAudit } from '$lib/types/demo';
@@ -9,7 +13,7 @@ const GEMINI_API_KEY = env.GEMINI_API_KEY;
 const GEMINI_MODEL = 'gemini-2.5-flash';
 
 /**
- * Optional AI-written opening paragraph for the fixed upgrade-pitch email template in send.ts.
+ * Optional AI-written opening (greeting + hook) for the upgrade-pitch email template in send.ts.
  * Subject line and the rest of the body are assembled server-side.
  */
 export type EmailCopy = { openingHook?: string; bodyIntro?: string; subjectLine?: string };
@@ -24,11 +28,11 @@ const EMAIL_COPY_JSON_SCHEMA_INLINE = `
 Return ONLY a single JSON object (no markdown, no explanation) with these keys:
 {
   "subjectLine": "string, max 9 words, no quotes. Add a hook beyond the company name: tie to {{industry}}, a moment (after hours, first scroll, mobile), or a light question. Use lowercase except Title Case for the business name as given. Do NOT start with: idea for, thought about, something for, quick idea for, note for (those read as lazy). Include the company name or its main distinct words (never one generic industry word alone). Good examples: 'after-hours calls, Riverdale Dental', 'Riverdale Dental and the booking flow', 'first scroll on Riverdale Dental's site', 'worth a peek, Riverdale Dental'. Never use: prototype, upgrade, demo, redesign, mockup, audit, proposal, performance, solutions. No em dash (U+2014).",
-  "openingHook": "string, plain text only. One or two short sentences (max ~40 words total). Casual, human tone, like a colleague, not sales copy. Reference {{company}} by name once. Ground it in their industry ({{industry}}): a believable observation (e.g. after-hours calls, mobile booking, local search, front-desk load), not a generic audit. When prospect insight below is available (not all 'not on file'), weave one or two specific weaknesses from that insight naturally; do not quote numbers or list bullets. No greeting, no bullets, no links, no signature, no markdown, no product names (Voice AI, SEO Core, etc.). Do NOT use phrases like: performance gaps, high-performance, tech stack, bounce rates, integrated upgrades. Do not use em dashes (U+2014) or en dashes (U+2013); use commas or periods."
+  "openingHook": "string, plain text only. Start with a brief natural greeting (e.g. Hi, Hey, Hello, optionally with a name if you can infer one from {{company}}). Then one or two short sentences (max ~45 words total including the greeting). Casual, human tone, like a colleague, not sales copy. Reference {{company}} by name once outside the greeting if it fits. Ground it in their industry ({{industry}}): a believable observation (e.g. after-hours calls, mobile booking, local search, front-desk load), not a generic audit. When prospect insight below is available (not all 'not on file'), weave one or two specific weaknesses from that insight naturally; do not quote numbers or list bullets. No bullets, no links, no signature, no markdown, no product names (Voice AI, SEO Core, etc.). Do NOT use phrases like: performance gaps, high-performance, tech stack, bounce rates, integrated upgrades. Avoid the exact phrase 'Hi there,'. Do not use em dashes (U+2014) or en dashes (U+2013); use commas or periods."
 }`.trim();
 
 /** Default prompt for subject line + opening lines before the fixed demo-email template in send.ts. Placeholders: {{company}}, {{industry}}, {{senderName}}, {{gbp_score_line}}, {{gbp_interpretation}}, {{website_critique}}. */
-export const DEFAULT_EMAIL_COPY_PROMPT = `You write two things for a short cold email: a subject line and the first 1-2 sentences. A fixed template below your text will mention a link and a soft ask. The reader already gets "Hi there," from the template.
+export const DEFAULT_EMAIL_COPY_PROMPT = `You write two things for a short cold email: a subject line and the opening lines of the body. A fixed template after your opening will mention a link and a soft ask. The openingHook must include the greeting and your hook in one flow (no separate fixed salutation is added for you).
 
 Context:
 - Business/company name: {{company}}
@@ -54,11 +58,12 @@ subjectLine rules:
 - Banned words in subject: prototype, upgrade, demo, redesign, mockup, audit, proposal, performance, solutions.
 
 openingHook rules:
-- One or two sentences, max ~40 words, plain text.
+- Start with a short greeting, then your hook: two or three short sentences total, max ~45 words, plain text.
 - Sound specific to this business and industry, not templated. Prefer concrete situations local businesses in this industry care about (missed calls, booking friction, mobile, visibility). Avoid vague "I noticed your site" with no substance.
 - Tone: warm, brief, conversational. Not corporate, not consultative, not a feature list.
-- Forbidden: Hi/Hello/Hey, bullets, URLs, signatures, markdown, emoji, and buzzwords like "performance gaps", "high-performance", "leverage", "cutting-edge", "solutions".
-- Do not write metadata lines (no "title:", "subject:", "subject line:", or any key: value lines). openingHook is only the sentences that appear in the email body after "Hi there,".
+- Avoid the stale phrase "Hi there,"; vary the greeting (Hi, Hey, Hello, or a name if natural from {{company}}).
+- Forbidden: bullets, URLs, signatures, markdown, emoji, and buzzwords like "performance gaps", "high-performance", "leverage", "cutting-edge", "solutions".
+- Do not write metadata lines (no "title:", "subject:", "subject line:", or any key: value lines). openingHook is exactly what appears at the top of the email body before the fixed template lines.
 - Do not describe the prototype, link, or "interactive draft" in openingHook; the template adds that in the next sentence.
 
 ${EMAIL_COPY_JSON_SCHEMA_INLINE}`;
@@ -157,12 +162,25 @@ function repairJsonNewlines(raw: string): string {
 }
 
 /**
- * When JSON is truncated or malformed, try to pull subjectLine / openingHook with regex.
+ * When JSON is truncated or malformed, try to pull subject / body fields with regex.
  */
 function extractEmailCopyFieldsLoose(raw: string): { openingHook?: string; subjectLine?: string } {
 	const out: { openingHook?: string; subjectLine?: string } = {};
-	const pick = (key: 'subjectLine' | 'openingHook') => {
-		const re = new RegExp(`"${key}"\\s*:\\s*"((?:[^"\\\\]|\\\\.)*)`, 's');
+	const pickOpeningKey = (jsonKey: string): string | undefined => {
+		const re = new RegExp(`"${jsonKey}"\\s*:\\s*"((?:[^"\\\\]|\\\\.)*)`, 's');
+		const m = raw.match(re);
+		if (!m?.[1]) return undefined;
+		const unescaped = m[1]
+			.replace(/\\n/g, '\n')
+			.replace(/\\r/g, '\r')
+			.replace(/\\"/g, '"')
+			.replace(/\\\\/g, '\\');
+		const t = unescaped.trim();
+		return t || undefined;
+	};
+	const pickSubject = (jsonKey: string) => {
+		if (out.subjectLine) return;
+		const re = new RegExp(`"${jsonKey}"\\s*:\\s*"((?:[^"\\\\]|\\\\.)*)`, 's');
 		const m = raw.match(re);
 		if (!m?.[1]) return;
 		const unescaped = m[1]
@@ -171,10 +189,15 @@ function extractEmailCopyFieldsLoose(raw: string): { openingHook?: string; subje
 			.replace(/\\"/g, '"')
 			.replace(/\\\\/g, '\\');
 		const t = unescaped.trim();
-		if (t) out[key] = t;
+		if (t) out.subjectLine = t;
 	};
-	pick('subjectLine');
-	pick('openingHook');
+	pickSubject('subjectLine');
+	pickSubject('subject');
+	/** Prefer bodyIntro (long-form prompts) over openingHook when both appear in broken JSON. */
+	const hookFromBodyIntro = pickOpeningKey('bodyIntro') ?? pickOpeningKey('body_intro');
+	const hookFromOpening = pickOpeningKey('openingHook');
+	if (hookFromBodyIntro) out.openingHook = hookFromBodyIntro;
+	else if (hookFromOpening) out.openingHook = hookFromOpening;
 	return out;
 }
 
@@ -193,13 +216,13 @@ function normalizeEmailCopyShape(input: unknown): { openingHook?: string; subjec
 	const subjectLine = (subjectCandidates.find((v) => typeof v === 'string' && v.trim().length > 0) as string | undefined)?.trim();
 
 	const hookCandidates: unknown[] = [
+		obj.bodyIntro,
+		obj.body_intro,
 		obj.personalizedOpener,
 		obj.personalized_opener,
 		obj.openingHook,
 		obj.opening_hook,
 		obj.hook,
-		obj.bodyIntro,
-		obj.body_intro,
 		obj.body,
 		obj.intro,
 		obj.message,
@@ -244,8 +267,9 @@ function sanitizeSubjectLine(raw: string | undefined): string {
 	if (text.length > 100) text = text.slice(0, 100).trim();
 	const words = text.split(/\s+/).filter(Boolean);
 	if (words.length < 2) return '';
-	const banned = /\b(prototype|upgrade|demo|redesign|mockup|audit|proposal|performance|solutions)\b/i;
-	if (banned.test(text)) return '';
+	/** Allow audit, demo, prototype, etc.; custom Email AI prompts need those words. */
+	const spammy = /\b(performance gaps|high-performance)\b/i;
+	if (spammy.test(text)) return '';
 	if (/[{}]/.test(text)) return '';
 	if (/^(title|subject)\s*:/i.test(text)) return '';
 	text = text.replace(/\s*[—–]\s*/g, ', ').replace(/,\s*,+/g, ',').trim();
@@ -255,29 +279,29 @@ function sanitizeSubjectLine(raw: string | undefined): string {
 const METADATA_LINE =
 	/^(title|subject|subject\s*line|email\s*subject|headline)\s*:\s*/i;
 
+const URL_IN_BODY = /https?:\/\/[^\s]+/gi;
+
 function sanitizeOpeningHook(raw: string): string {
 	let text = raw.replace(/\r/g, '').trim();
 	if (/^\s*[\[{]/.test(text) || /"subjectLine"\s*:/i.test(text)) return '';
-	/** Match CTA-ish lines only; avoid stripping hooks that use "take a look" in natural prose. */
-	const bannedLine =
-		/(view your demo|view the \S+ upgrade|take a look at (the|your) (demo|draft|link|prototype)|ednsy\.com|^-\s|https?:\/\/|performance gaps|high-performance|tech stack|bounce rates)/i;
-	const kept = text
-		.split('\n')
-		.map((line) => line.trim())
-		.filter(
-			(line) =>
-				line.length > 0 &&
-				!bannedLine.test(line) &&
-				!METADATA_LINE.test(line) &&
-				!/^(hi|hey|hello)[,!\s]*$/i.test(line)
-		);
+	/** Paragraphs (double newline); strip URLs instead of dropping whole blocks (critique context often has https). */
+	const blocks = text
+		.split(/\n\s*\n/)
+		.map((b) => b.trim().replace(/\n/g, ' ').replace(/\s+/g, ' '))
+		.filter(Boolean);
+	/** Match spammy CTAs; do not match bare "https" (handled by stripping URLs). */
+	const bannedBlock =
+		/(view your demo|view the \S+ upgrade|take a look at (the|your) (demo|draft|link|prototype)|ednsy\.com|^-\s|performance gaps|high-performance|tech stack|bounce rates)/i;
+	const kept = blocks
+		.map((b) => b.replace(URL_IN_BODY, '').trim())
+		.filter((b) => b.length > 0 && !bannedBlock.test(b) && !METADATA_LINE.test(b));
 	text = kept
-		.join(' ')
+		.join('\n\n')
 		.replace(/\s*[—–]\s*/g, ', ')
 		.replace(/,\s*,+/g, ',')
-		.replace(/\s{2,}/g, ' ')
 		.trim();
-	if (text.length > 350) text = text.slice(0, 350).trim();
+	const maxLen = 12000;
+	if (text.length > maxLen) text = text.slice(0, maxLen).trim();
 	return text;
 }
 
@@ -293,13 +317,11 @@ function looksLikeBrokenModelOpening(opening: string): boolean {
 	}
 	if (/\btitle\s*:/i.test(opening) || /\bsubject\s*line\s*:/i.test(opening)) return true;
 	if (/^\s*[{[]/.test(opening)) return true;
-	const braceCount = (combined.match(/[{}]/g) ?? []).length;
-	if (braceCount >= 2) return true;
 	return false;
 }
 
 /**
- * Optional AI opening paragraph for the upgrade-pitch template. Returns copy: null on hard failure;
+ * Optional AI opening (greeting + hook) for the upgrade-pitch template. Returns copy: null on hard failure;
  * copy: {} when generation succeeded but the hook is omitted or stripped (use default opening in send.ts).
  */
 export async function generateEmailCopy(
@@ -307,10 +329,6 @@ export async function generateEmailCopy(
 	senderName: string,
 	userId: string
 ): Promise<GenerateEmailCopyResult> {
-	if (!GEMINI_API_KEY) {
-		return { copy: null, promptSource: 'default', error: 'GEMINI_API_KEY is not configured' };
-	}
-
 	const company = prospect.companyName || 'the business';
 	const industry = prospect.industry || 'your business';
 
@@ -318,12 +336,22 @@ export async function generateEmailCopy(
 	const audit = auditFromScrapedData(scraped);
 	const { gbpScoreLine, gbpInterpretation, websiteCritique } = buildEmailCopyContext(audit);
 
+	/** Same row as Dashboard → Agents → Email AI Agent → Email copy prompt (`agent_content_versions`). */
 	const resolved = await getResolvedContent(
-		'email',
+		EMAIL_AI_AGENT_ID,
 		'prompt',
-		'email_copy_prompt',
+		EMAIL_AI_COPY_PROMPT_KEY,
 		DEFAULT_EMAIL_COPY_PROMPT
 	);
+
+	if (!GEMINI_API_KEY) {
+		return {
+			copy: null,
+			promptSource: resolved.source,
+			error: 'GEMINI_API_KEY is not configured'
+		};
+	}
+
 	const prompt = resolved.body
 		.replace(/\{\{company\}\}/g, company)
 		.replace(/\{\{industry\}\}/g, industry)
@@ -341,13 +369,17 @@ export async function generateEmailCopy(
 			body: JSON.stringify({
 				contents: [{ role: 'user', parts: [{ text: prompt }] }],
 				generationConfig: {
-					/** Short JSON; 1024 avoids rare MAX_TOKENS truncation mid-object ("Unexpected end of JSON input"). */
-					maxOutputTokens: 1024,
+					/**
+					 * Long multi-paragraph bodyIntro + JSON wrapper needs a high ceiling. 2048 often
+					 * hits MAX_TOKENS mid-string (looks like random truncation, e.g. "your 90" with no "/100").
+					 */
+					maxOutputTokens: 8192,
 					temperature: 0.7,
 					responseMimeType: 'application/json'
 				}
 			}),
-			signal: AbortSignal.timeout(10000)
+			/** Long prompts + 2k tokens often exceed 10s; avoid spurious TimeoutError on preview / draft. */
+			signal: AbortSignal.timeout(60_000)
 		});
 
 		if (!res.ok) {
@@ -427,6 +459,12 @@ export async function generateEmailCopy(
 		let clean = sanitizeOpeningHook(openingHook);
 		if (!clean || looksLikeBrokenModelOpening(clean)) {
 			return { copy: { subjectLine: subjectLine || undefined }, promptSource: resolved.source };
+		}
+
+		if (finishReason === 'MAX_TOKENS') {
+			serverInfo('generateEmailCopy', 'Gemini MAX_TOKENS; email body may be cut off mid-sentence', {
+				bodyIntroChars: clean.length
+			});
 		}
 
 		return {
