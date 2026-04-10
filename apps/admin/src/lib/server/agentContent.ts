@@ -8,6 +8,11 @@ import { getSupabaseAdmin } from '$lib/server/supabase';
 export type AgentId = 'design' | 'demo-chat' | 'demo-creation' | 'email' | 'gbp';
 export type ContentType = 'prompt' | 'knowledge_base';
 
+/** Dashboard Email AI Agent; must match `agent_content_versions` rows and `generateEmailCopy`. */
+export const EMAIL_AI_AGENT_ID: AgentId = 'email';
+/** Prompt key saved on Agents → Email AI; same key `getResolvedContent` uses for outreach copy. */
+export const EMAIL_AI_COPY_PROMPT_KEY = 'email_copy_prompt';
+
 export type AgentContentRow = {
 	id: string;
 	agent_id: string;
@@ -145,7 +150,7 @@ export const AGENT_CONTENT_KEYS = {
 		knowledge_base: ['demo_kb']
 	},
 	email: {
-		prompt: ['email_copy_prompt'],
+		prompt: [EMAIL_AI_COPY_PROMPT_KEY],
 		knowledge_base: []
 	},
 	gbp: {

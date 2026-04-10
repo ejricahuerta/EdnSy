@@ -131,6 +131,27 @@ export function getAlternateOfferSubject(companyName: string): string {
 	return `Quick idea for ${companyName}`;
 }
 
+/** Escape plain text and turn newlines into `<br />` (no `<p>` wrappers). */
+function plainToBrHtml(plain: string): string {
+	return escapeHtml(plain.trim().replace(/\r/g, '')).replace(/\n/g, '<br />');
+}
+
+/**
+ * Gmail-friendly typography for CRM outreach bodies. System UI stack (no web fonts; clients vary).
+ * max-width keeps line length readable on wide screens; many clients honor it.
+ */
+const OUTREACH_EMAIL_BODY_STYLE =
+	"font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 1.55; color: #171717; max-width: 34em;";
+
+const OUTREACH_EMAIL_LINK_STYLE = 'color: #1d4ed8; font-weight: 500; text-decoration: underline;';
+
+function wrapOutreachEmailHtml(inner: string): string {
+	const t = inner.trim();
+	if (!t) return '';
+	if (/^\s*<!DOCTYPE/i.test(t) || /<html[\s>]/i.test(t)) return t;
+	return `<div style="${OUTREACH_EMAIL_BODY_STYLE}">${t}</div>`;
+}
+
 /**
  * Build email HTML for alternate offer (AI agent, voice AI, SEO) when we're not sending a website demo.
  * No demo link; short outcome-focused pitch and soft CTA.
@@ -140,18 +161,16 @@ export function buildEmailBodyAlternateOffer(
 	senderName: string,
 	_origin: string
 ): string {
-	const company = escapeHtml(prospect.companyName || 'your business');
-	const safeSender = escapeHtml(senderName);
-	const html = `
-<p>Hi there,</p>
-<p>I had a quick look at how ${company} shows up online. A lot of local businesses like yours leave calls and bookings on the table after hours or when the desk is slammed, and it&apos;s hard to stay visible in local search without constant attention.</p>
-<p>We help with 24/7 phone coverage (AI answers and books) and tightening local SEO / Google Business so more people find you when they search. If that sounds worth a short chat, reply here and we can figure out what would actually help ${company}.</p>
-<p>Best,</p>
-<p>${safeSender}</p>
-<hr style="margin-top:1.5em; border:none; border-top:1px solid #eee;" />
-<p style="font-size:0.85em; color:#666;">${LEGAL_COMPANY_NAME} | ${LEGAL_COMPANY_ADDRESS}</p>
-`.trim();
-	return html;
+	const company = prospect.companyName || 'your business';
+	const block1 = `Hi. I had a quick look at how ${company} shows up online. A lot of local businesses like yours leave calls and bookings on the table after hours or when the desk is slammed, and it's hard to stay visible in local search without constant attention.`;
+	const block2 = `We help with 24/7 phone coverage (AI answers and books) and tightening local SEO / Google Business so more people find you when they search. If that sounds worth a short chat, reply here and we can figure out what would actually help ${company}.`;
+	const inner =
+		[plainToBrHtml(block1), plainToBrHtml(block2), plainToBrHtml('Best,'), escapeHtml(senderName)].join(
+			'<br /><br />'
+		) +
+		`<hr style="margin-top:1.5em; border:none; border-top:1px solid #eee;" />` +
+		`<div style="font-size:0.85em; color:#666;">${LEGAL_COMPANY_NAME} | ${LEGAL_COMPANY_ADDRESS}</div>`;
+	return wrapOutreachEmailHtml(inner);
 }
 
 /**
@@ -178,11 +197,20 @@ function getEmailClosingSignatureLine(senderName: string, signatureOverride: str
 
 function defaultUpgradeOpeningParagraph(company: string): string {
 	const c = company.trim() || 'your business';
-	return `I was thinking about how ${c} reads to a first-time visitor who is still deciding if they're in the right place. I noticed a few spots where the next step could feel clearer.`;
+	return `Hi, I was thinking about how ${c} reads to a first-time visitor who is still deciding if they're in the right place. I noticed a few spots where the next step could feel clearer.`;
 }
 
 /**
- * Short demo outreach HTML: AI opener + prototype CTA + soft close. No feature bullet list.
+ * Long multi-paragraph Email AI copy already includes offer + CTA; append only the tracked link and signature.
+ */
+function isFullLetterOpeningPlain(plain: string): boolean {
+	const t = plain.trim();
+	if (t.length >= 500) return true;
+	return t.split(/\n\s*\n/).filter((b) => b.trim().length > 0).length >= 3;
+}
+
+/**
+ * Short demo outreach HTML: opening (AI or default greeting + hook) + prototype CTA + soft close.
  * Tracking: link = /api/demo/click, pixel = /api/demo/open.
  */
 export function buildEmailBodyUpgradePitch(
@@ -197,20 +225,26 @@ export function buildEmailBodyUpgradePitch(
 	const trackableLink = `${origin}/api/demo/click?p=${encodeURIComponent(prospect.id)}`;
 	const pixelUrl = `${origin}/api/demo/open?p=${encodeURIComponent(prospect.id)}`;
 	const openingPlain = (options?.openingHook ?? '').trim() || defaultUpgradeOpeningParagraph(company);
-	const openingHtml = `<p>${escapeHtml(openingPlain).replace(/\n/g, '<br />\n')}</p>`;
 	const closingSig = escapeHtml(getEmailClosingSignatureLine(senderName, signatureOverride ?? null));
 	const linkLabel = `See the ${companySafe} prototype`;
-	const html = `
-<p>Hi there,</p>
-${openingHtml}
-<p>I mocked that up as a simple interactive draft for ${companySafe}. Easier to skim than a long write-up. If you have two minutes:</p>
-<p><a href="${trackableLink}">${linkLabel}</a></p>
-<p>No strings attached. Just curious what you think.</p>
-<p>Best,</p>
-<p>${closingSig}</p>
-<img src="${pixelUrl}" width="1" height="1" alt="" style="display:block;width:1px;height:1px;border:0;" />
-`.trim();
-	return html;
+	const fullLetter = isFullLetterOpeningPlain(openingPlain);
+	const segments: string[] = [plainToBrHtml(openingPlain)];
+	if (!fullLetter) {
+		segments.push(
+			plainToBrHtml(
+				`I mocked that up as a simple interactive draft for ${company}. Easier to skim than a long write-up. If you have two minutes:`
+			)
+		);
+	}
+	segments.push(`<a href="${trackableLink}" style="${OUTREACH_EMAIL_LINK_STYLE}">${linkLabel}</a>`);
+	if (!fullLetter) {
+		segments.push(plainToBrHtml('No strings attached. Just curious what you think.'));
+	}
+	segments.push(plainToBrHtml('Best,'), closingSig);
+	const inner =
+		segments.join('<br /><br />') +
+		`<img src="${pixelUrl}" width="1" height="1" alt="" style="display:block;width:1px;height:1px;border:0;" />`;
+	return wrapOutreachEmailHtml(inner);
 }
 
 /**
@@ -232,6 +266,11 @@ export type EmailTemplateVars = {
 	trackableLink: string;
 	senderName: string;
 	pixelUrl: string;
+	/**
+	 * Plain-text opening from Email AI Agent (saved prompt + Gemini). Injected via
+	 * `{{openingHook}}` (escaped, newlines to `<br />`) or prepended when the placeholder is absent.
+	 */
+	openingHookPlain?: string | null;
 };
 
 /**
@@ -242,13 +281,21 @@ export function buildEmailBodyFromTemplate(
 	templateHtml: string,
 	vars: EmailTemplateVars
 ): string {
-	let body = templateHtml
+	const hookPlain = (vars.openingHookPlain ?? '').trim();
+	const hookHtml = hookPlain ? plainToBrHtml(hookPlain) : '';
+	let body = templateHtml;
+	if (body.includes('{{openingHook}}')) {
+		body = body.replace(/\{\{openingHook\}\}/g, hookHtml);
+	} else if (hookHtml) {
+		body = `${hookHtml}\n${body}`;
+	}
+	body = body
 		.replace(/\{\{companyName\}\}/g, escapeHtml(vars.companyName))
 		.replace(/\{\{demoLink\}\}/g, vars.demoLink)
 		.replace(/\{\{trackableLink\}\}/g, vars.trackableLink)
 		.replace(/\{\{senderName\}\}/g, escapeHtml(vars.senderName));
 	const footer = `<img src="${vars.pixelUrl}" width="1" height="1" alt="" style="display:block;width:1px;height:1px;border:0;" />`;
-	return body.trim() + footer;
+	return wrapOutreachEmailHtml(body.trim() + footer);
 }
 
 export function escapeHtml(s: string): string {
@@ -261,13 +308,15 @@ export function escapeHtml(s: string): string {
 
 /**
  * Build email body for sending: uses custom template when provided, otherwise default.
+ * When `openingHook` is set, it is merged into a custom template (see {@link EmailTemplateVars.openingHookPlain}).
  */
 export function buildEmailBodyForUser(
 	prospect: Prospect,
 	demoLink: string,
 	senderName: string,
 	origin: string,
-	customEmailHtml: string | null
+	customEmailHtml: string | null,
+	options?: { openingHook?: string | null }
 ): string {
 	const company = prospect.companyName || 'your business';
 	const trackableLink = `${origin}/api/demo/click?p=${encodeURIComponent(prospect.id)}`;
@@ -277,12 +326,15 @@ export function buildEmailBodyForUser(
 		demoLink,
 		trackableLink,
 		senderName,
-		pixelUrl
+		pixelUrl,
+		openingHookPlain: options?.openingHook ?? null
 	};
 	if (customEmailHtml?.trim()) {
 		return buildEmailBodyFromTemplate(customEmailHtml.trim(), vars);
 	}
-	return buildEmailBody(prospect, demoLink, senderName, origin);
+	return buildEmailBodyUpgradePitch(prospect, senderName, origin, null, {
+		openingHook: options?.openingHook ?? null
+	});
 }
 
 /** Banned openings that read as empty "name-only" subjects. */
@@ -328,7 +380,7 @@ function isAcceptableAiOutreachSubject(subject: string, companyName: string): bo
 	return significant.some((tok) => s.includes(tok));
 }
 
-/** Optional AI paragraph for the upgrade-pitch template (see {@link buildEmailBodyUpgradePitch}). */
+/** Optional AI opening (greeting + hook) for the upgrade-pitch template (see {@link buildEmailBodyUpgradePitch}). */
 export type DemoEmailAiCopy = { openingHook?: string; bodyIntro?: string; subjectLine?: string };
 
 export type DemoEmailGenerationResult = {
@@ -339,7 +391,7 @@ export type DemoEmailGenerationResult = {
 
 /**
  * Subject + HTML for “send demo” email: upgrade-pitch template, optional custom user HTML template,
- * optional AI opening paragraph. Fails when a custom Email AI prompt is active but generation returned no copy.
+ * optional AI opening (greeting + hook). Fails when a custom Email AI prompt is active but generation returned no copy.
  */
 export function resolveDemoOutreachEmail(
 	prospect: Prospect,
@@ -372,7 +424,8 @@ export function resolveDemoOutreachEmail(
 				prospect.demoLink ?? '',
 				senderName,
 				linkOrigin,
-				emailHtmlTemplate
+				emailHtmlTemplate,
+				{ openingHook }
 			)
 		};
 	}

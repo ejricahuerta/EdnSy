@@ -6,6 +6,7 @@ import {
 	getResolvedContent,
 	saveAgentContent,
 	AGENT_CONTENT_KEYS,
+	EMAIL_AI_COPY_PROMPT_KEY,
 	type AgentId
 } from '$lib/server/agentContent';
 import { DEFAULT_TONE_PROMPT_TEMPLATE } from '$lib/server/generateTone';
@@ -34,7 +35,7 @@ const DEFAULTS: Record<AgentId, Record<string, Record<string, string>>> = {
 		knowledge_base: { demo_kb: '' }
 	},
 	email: {
-		prompt: { email_copy_prompt: DEFAULT_EMAIL_COPY_PROMPT },
+		prompt: { [EMAIL_AI_COPY_PROMPT_KEY]: DEFAULT_EMAIL_COPY_PROMPT },
 		knowledge_base: {}
 	},
 	gbp: {
@@ -50,7 +51,7 @@ const KEY_LABELS: Record<string, string> = {
 	audit: 'Audit prompt',
 	audit_modal_copy: 'Audit modal copy',
 	demo_kb: 'Demo knowledge base',
-	email_copy_prompt: 'Email copy prompt',
+	[EMAIL_AI_COPY_PROMPT_KEY]: 'Email copy prompt',
 	grade_prompt: 'GBP grade prompt'
 };
 
@@ -127,7 +128,8 @@ export const actions: Actions = {
 			return { success: false, error: 'Invalid request' };
 		}
 		const keys = AGENT_CONTENT_KEYS[agentId as AgentId];
-		if (!keys?.[contentType as 'prompt' | 'knowledge_base']?.includes(key)) {
+		const allowedKeys = keys?.[contentType as 'prompt' | 'knowledge_base'] as readonly string[] | undefined;
+		if (!allowedKeys?.includes(key)) {
 			return { success: false, error: 'Invalid key' };
 		}
 		const result = await saveAgentContent(

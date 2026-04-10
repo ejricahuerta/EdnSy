@@ -897,7 +897,7 @@
 
 	<Dialog.Root bind:open={outreachDialogOpen}>
 		<Dialog.Content
-			class="max-w-[calc(100vw-2rem)] max-h-[min(90dvh,900px)] w-[min(100%,48rem)] flex min-h-0 flex-col gap-0 sm:max-w-3xl"
+			class="flex max-h-[min(96dvh,1400px)] w-[min(100%,48rem)] min-h-0 max-w-[calc(100vw-2rem)] flex-col gap-0 sm:max-w-3xl"
 		>
 			<Dialog.Header class="shrink-0 pr-6">
 				<Dialog.Title>Review outreach email</Dialog.Title>
@@ -931,7 +931,7 @@
 							class="w-full"
 						/>
 					</div>
-					<div class="flex min-h-0 flex-col gap-2">
+					<div class="flex min-h-[min(52dvh,32rem)] flex-1 flex-col gap-2">
 						<div class="flex shrink-0 items-center justify-between gap-3">
 							<Label for="outreach-html-{prospect.id}" class="mb-0">Body</Label>
 							<div
@@ -968,13 +968,13 @@
 									name="outreachHtml"
 									form={createGmailDraftFormId}
 									bind:value={previewHtml}
-									class="field-sizing-fixed box-border w-full min-h-[12rem] max-h-[min(42dvh,20rem)] font-mono text-xs leading-relaxed sm:min-h-[14rem] sm:max-h-[min(48dvh,24rem)] sm:text-sm md:max-h-[min(52dvh,28rem)] pb-4"
+									class="field-sizing-fixed box-border w-full min-h-[min(52dvh,22rem)] max-h-[min(72dvh,46rem)] font-mono text-xs leading-relaxed sm:min-h-[min(56dvh,24rem)] sm:max-h-[min(76dvh,50rem)] sm:text-sm md:max-h-[min(80dvh,54rem)] pb-4"
 									spellcheck={false}
 								/>
 							{:else}
 								<input type="hidden" name="outreachHtml" form={createGmailDraftFormId} value={previewHtml} />
 								<iframe
-									class="box-border block w-full min-h-[12rem] max-h-[min(42dvh,20rem)] rounded-md border border-border bg-background sm:min-h-[14rem] sm:max-h-[min(48dvh,24rem)] md:max-h-[min(52dvh,28rem)]"
+									class="box-border block w-full min-h-[min(52dvh,22rem)] max-h-[min(72dvh,46rem)] rounded-md border border-border bg-background sm:min-h-[min(56dvh,24rem)] sm:max-h-[min(76dvh,50rem)] md:max-h-[min(80dvh,54rem)]"
 									title="Email preview"
 									srcdoc={previewHtml}
 									sandbox="allow-same-origin"
