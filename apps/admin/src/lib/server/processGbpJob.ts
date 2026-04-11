@@ -8,7 +8,7 @@
 
 import { getProspectByIdForUser, updateProspectFromGbp, updateProspectStatus, setProspectFlagged } from '$lib/server/prospects';
 import {
-	getDemoTrackingForProspect,
+	getDemoTrackingForProspectLatest,
 	claimNextPendingGbpJob,
 	updateGbpJob,
 	upsertDemoTrackingForProspect,
@@ -106,14 +106,15 @@ export async function processOneGbpJob(): Promise<ProcessGbpJobResult> {
 			...(gbpGradeResult.ok ? { gbpGrade: gbpGradeResult.data } : {})
 		} as Record<string, unknown>;
 
-		const existingRow = await getDemoTrackingForProspect(userId, prospectId);
+		const trackingOwnerId = prospect.userId ?? userId;
+		const existingRow = await getDemoTrackingForProspectLatest(prospectId);
 		const status: DemoTrackingStatus =
 			existingRow?.status && isValidDemoTrackingStatus(existingRow.status)
 				? (existingRow.status as DemoTrackingStatus)
 				: 'draft';
 		if (!existingRow) {
 			await upsertDemoTrackingForProspect(
-				userId,
+				trackingOwnerId,
 				prospectId,
 				prospect.provider ?? 'manual',
 				prospect.provider_row_id ?? prospectId,
@@ -121,7 +122,7 @@ export async function processOneGbpJob(): Promise<ProcessGbpJobResult> {
 				'draft'
 			);
 		}
-		const updateResult = await updateDemoTrackingStatus(userId, prospectId, {
+		const updateResult = await updateDemoTrackingStatus(prospectId, {
 			status,
 			scrapedData
 		});

@@ -120,7 +120,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
 				demoLink,
 				'draft'
 			);
-			await updateDemoTrackingStatus(userId, prospectId, { status: 'draft' });
+			await updateDemoTrackingStatus(prospectId, { status: 'draft' });
 		}
 	}
 

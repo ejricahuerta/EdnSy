@@ -160,7 +160,7 @@ export const actions: Actions = {
 		if (!status || typeof status !== 'string' || !isValidDemoTrackingStatus(status)) {
 			return fail(400, { message: 'Invalid status' });
 		}
-		const result = await updateDemoTrackingStatus(user.id, prospectId, { status });
+		const result = await updateDemoTrackingStatus(prospectId, { status });
 		if (!result.ok) return fail(502, { message: result.error ?? 'Failed to update demo status' });
 		return { success: true, prospectId, status };
 	},
@@ -183,8 +183,9 @@ export const actions: Actions = {
 		let demoTracking = await getDemoTrackingForProspectLatest(prospectId);
 		if (!demoTracking) {
 			// Legacy: prospect has demo link but no demo_tracking row; create one as approved so Send is available
+			const trackingOwnerId = prospect.userId ?? user.id;
 			await upsertDemoTrackingForProspect(
-				user.id,
+				trackingOwnerId,
 				prospectId,
 				prospect.provider ?? 'manual',
 				prospect.provider_row_id ?? prospectId,
@@ -196,7 +197,7 @@ export const actions: Actions = {
 		if (demoTracking.status !== 'draft') {
 			return fail(400, { message: 'Demo is already approved or sent. No need to approve again.' });
 		}
-		const result = await updateDemoTrackingStatus(user.id, prospectId, { status: 'approved' });
+		const result = await updateDemoTrackingStatus(prospectId, { status: 'approved' });
 		if (!result.ok) return fail(502, { message: result.error ?? 'Failed to approve demo' });
 		return { success: true, prospectId };
 	},
@@ -225,7 +226,7 @@ export const actions: Actions = {
 			return fail(503, { message: 'Could not queue regeneration. Try again.' });
 		}
 		// Regenerating always resets tracking to draft (was approved or draft); callback also sets draft on completion.
-		await updateDemoTrackingStatus(user.id, prospectId, { status: 'draft' });
+		await updateDemoTrackingStatus(prospectId, { status: 'draft' });
 		return { success: true, prospectId, queued: true, jobId: result.jobId, alreadyQueued: !result.created };
 	},
 
@@ -318,8 +319,9 @@ export const actions: Actions = {
 				return fail(400, { message: 'No demo link or prospect out of scope.' });
 			}
 			if (!demoTracking && (prospect.demoLink ?? '').trim()) {
+				const trackingOwnerId = prospect.userId ?? user.id;
 				await upsertDemoTrackingForProspect(
-					user.id,
+					trackingOwnerId,
 					prospectId,
 					prospect.provider ?? 'manual',
 					prospect.provider_row_id ?? prospectId,

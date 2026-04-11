@@ -11,7 +11,7 @@ import {
 	GMAIL_OUTREACH_EVENT_DRAFT_CREATED,
 	GMAIL_OUTREACH_EVENT_SENT,
 	GMAIL_OUTREACH_EVENT_DRAFT_EXPIRED,
-	getDemoTrackingForProspect
+	getDemoTrackingForProspectLatest
 } from '$lib/server/supabase';
 import { getEffectiveEmailSenderName } from '$lib/server/userSettings';
 import { prepareCrmOutreachEmail, type CrmOutreachKind } from '$lib/server/crmOutreachEmail';
@@ -111,7 +111,7 @@ export async function executeCreateGmailOutreachDraft(params: {
 	if (!persist.ok) return { ok: false, error: persist.error ?? 'Failed to save draft id' };
 
 	if (setDemoTrackingEmailDraft && kind === 'demo') {
-		await updateDemoTrackingStatus(userId, prospectId, { status: 'email_draft' });
+		await updateDemoTrackingStatus(prospectId, { status: 'email_draft' });
 	}
 
 	await recordDemoEvent(prospectId, GMAIL_OUTREACH_EVENT_DRAFT_CREATED, {
@@ -146,9 +146,9 @@ export async function executeSendGmailOutreachDraft(params: {
 
 	const kind = prospect.gmailOutreachDraftKind;
 	if (kind === 'demo') {
-		const demoTracking = await getDemoTrackingForProspect(userId, prospectId);
+		const demoTracking = await getDemoTrackingForProspectLatest(prospectId);
 		if (demoTracking) {
-			await updateDemoTrackingStatus(userId, prospectId, { status: 'sent' });
+			await updateDemoTrackingStatus(prospectId, { status: 'sent' });
 		}
 	}
 
@@ -172,9 +172,9 @@ async function revertStaleDraft(
 ): Promise<void> {
 	await updateProspectGmailOutreachDraft(prospectId, { clear: true });
 	if (kind === 'demo') {
-		const demoTracking = await getDemoTrackingForProspect(userId, prospectId);
+		const demoTracking = await getDemoTrackingForProspectLatest(prospectId);
 		if (demoTracking?.status === 'email_draft') {
-			await updateDemoTrackingStatus(userId, prospectId, { status: 'approved' });
+			await updateDemoTrackingStatus(prospectId, { status: 'approved' });
 		}
 	}
 	await recordDemoEvent(prospectId, GMAIL_OUTREACH_EVENT_DRAFT_EXPIRED, {
