@@ -11,7 +11,7 @@ import {
 import {
 	getSupabaseAdmin,
 	getDemoTrackingMapGlobal,
-	getDemoTrackingForProspect,
+	getDemoTrackingForProspectLatest,
 	getDemoCountThisMonth,
 	updateDemoTrackingStatus,
 	upsertDemoTrackingForProspect,
@@ -301,16 +301,17 @@ export const actions: Actions = {
 			return fail(502, { message: result.error ?? 'Failed to update prospect' });
 		}
 		const supabase = getSupabaseAdmin();
+		const trackingOwnerId = prospect.userId ?? user.id;
 		if (supabase) {
 			await upsertDemoTrackingForProspect(
-				user.id,
+				trackingOwnerId,
 				prospectId,
 				prospect.provider ?? 'manual',
 				prospect.provider_row_id ?? prospectId,
 				demoUrl,
 				'draft'
 			);
-			await updateDemoTrackingStatus(user.id, prospectId, {
+			await updateDemoTrackingStatus(prospectId, {
 				status: 'draft',
 				scrapedData
 			});
@@ -336,7 +337,7 @@ export const actions: Actions = {
 		if (!status || typeof status !== 'string' || !isValidDemoTrackingStatus(status)) {
 			return fail(400, { message: 'Invalid status' });
 		}
-		const result = await updateDemoTrackingStatus(user.id, prospectId, { status });
+		const result = await updateDemoTrackingStatus(prospectId, { status });
 		if (!result.ok) {
 			return fail(502, { message: result.error ?? 'Failed to update demo status' });
 		}
@@ -369,7 +370,7 @@ export const actions: Actions = {
 			return fail(503, { message: 'Could not queue regeneration. Try again.' });
 		}
 		// Regenerating always resets tracking to draft (was approved or draft); callback also sets draft on completion.
-		await updateDemoTrackingStatus(user.id, prospectId, { status: 'draft' });
+		await updateDemoTrackingStatus(prospectId, { status: 'draft' });
 		return { success: true, prospectId, queued: true, jobId: result.jobId, alreadyQueued: !result.created };
 	},
 	bulkApproveDemos: async (event) => {
@@ -389,7 +390,7 @@ export const actions: Actions = {
 		}
 		for (const id of prospectIds) {
 			if (typeof id !== 'string') continue;
-			await updateDemoTrackingStatus(user.id, id, {
+			await updateDemoTrackingStatus(id, {
 				status: 'approved'
 			});
 		}
@@ -468,17 +469,18 @@ export const actions: Actions = {
 			if (typeof id !== 'string') continue;
 			const prospect = await getProspectById(id);
 			if (!prospect?.demoLink || prospect.flagged) continue;
-			let demoTracking = await getDemoTrackingForProspect(user.id, id);
+			let demoTracking = await getDemoTrackingForProspectLatest(id);
 			if (!demoTracking && (prospect.demoLink ?? '').trim()) {
+				const trackingOwnerId = prospect.userId ?? user.id;
 				await upsertDemoTrackingForProspect(
-					user.id,
+					trackingOwnerId,
 					id,
 					prospect.provider ?? 'manual',
 					prospect.provider_row_id ?? id,
 					(prospect.demoLink ?? '').trim(),
 					'approved'
 				);
-				demoTracking = await getDemoTrackingForProspect(user.id, id);
+				demoTracking = await getDemoTrackingForProspectLatest(id);
 			}
 			if (
 				!demoTracking ||

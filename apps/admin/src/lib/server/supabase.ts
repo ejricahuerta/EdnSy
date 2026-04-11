@@ -121,16 +121,26 @@ export type UpdateDemoTrackingOptions = {
 };
 
 /**
- * Update status (and optionally send_time, scraped_data) for a demo_tracking row by prospect_id.
+ * Update status (and optionally send_time, scraped_data) for the latest demo_tracking row for this prospect.
+ * Matches shared-dashboard reads (`getDemoTrackingForProspectLatest`): any teammate can update the same row.
  * When status is 'sent' and sendTime is omitted, sets send_time to now().
  */
 export async function updateDemoTrackingStatus(
-	userId: string,
 	prospectId: string,
 	options: UpdateDemoTrackingOptions
 ): Promise<{ ok: boolean; error?: string }> {
 	const supabase = getSupabaseAdmin();
 	if (!supabase) return { ok: false, error: 'Supabase not configured' };
+	const { data: row, error: selErr } = await supabase
+		.from('demo_tracking')
+		.select('id')
+		.eq('prospect_id', prospectId)
+		.order('updated_at', { ascending: false })
+		.limit(1)
+		.maybeSingle();
+	if (selErr) return { ok: false, error: selErr.message };
+	if (!row?.id) return { ok: false, error: 'No demo tracking row for this prospect' };
+
 	const sendTime =
 		options.status === 'sent' && options.sendTime === undefined
 			? new Date().toISOString()
@@ -141,12 +151,13 @@ export async function updateDemoTrackingStatus(
 	};
 	if (sendTime !== undefined) updates.send_time = sendTime;
 	if (options.scrapedData !== undefined) updates.scraped_data = options.scrapedData;
-	const { error } = await supabase
+	const { data: updated, error } = await supabase
 		.from('demo_tracking')
 		.update(updates)
-		.eq('user_id', userId)
-		.eq('prospect_id', prospectId);
+		.eq('id', row.id)
+		.select('id');
 	if (error) return { ok: false, error: error.message };
+	if (!updated?.length) return { ok: false, error: 'Demo tracking row could not be updated' };
 	return { ok: true };
 }
 

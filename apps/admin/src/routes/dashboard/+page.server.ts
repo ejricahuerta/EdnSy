@@ -15,8 +15,7 @@ import {
 	getPlacesMonthlyLimit,
 	updateDemoTrackingStatus,
 	upsertDemoTrackingForProspect,
-	enqueueDemoJob,
-	getDemoTrackingForProspect
+	enqueueDemoJob
 } from '$lib/server/supabase';
 import { getScrapedDataForDemo, formatScrapedDataErrorMessage } from '$lib/server/gbp';
 import type { PageServerLoad, Actions } from './$types';
@@ -124,11 +123,12 @@ export const actions: Actions = {
 			return fail(502, { message: result.error ?? 'Failed to update prospect' });
 		}
 		const supabase = getSupabaseAdmin();
+		const trackingOwnerId = prospect.userId ?? user.id;
 		if (supabase) {
 			const crmSource = prospect.provider ?? 'manual';
 			const crmProspectId = prospect.provider_row_id ?? prospectId;
 			await upsertDemoTrackingForProspect(
-				user.id,
+				trackingOwnerId,
 				prospectId,
 				crmSource,
 				crmProspectId,
@@ -137,7 +137,7 @@ export const actions: Actions = {
 			);
 		}
 		if (supabase) {
-			await updateDemoTrackingStatus(user.id, prospectId, {
+			await updateDemoTrackingStatus(prospectId, {
 				status: 'draft',
 				scrapedData
 			});
@@ -162,7 +162,7 @@ export const actions: Actions = {
 		if (!status || typeof status !== 'string' || !isValidDemoTrackingStatus(status)) {
 			return fail(400, { message: 'Invalid status' });
 		}
-		const result = await updateDemoTrackingStatus(user.id, prospectId, { status });
+		const result = await updateDemoTrackingStatus(prospectId, { status });
 		if (!result.ok) {
 			return fail(502, { message: result.error ?? 'Failed to update demo status' });
 		}
@@ -185,7 +185,7 @@ export const actions: Actions = {
 		}
 		for (const id of prospectIds) {
 			if (typeof id !== 'string') continue;
-			await updateDemoTrackingStatus(user.id, id, {
+			await updateDemoTrackingStatus(id, {
 				status: 'approved'
 			});
 		}
@@ -227,8 +227,9 @@ export const actions: Actions = {
 			const demoUrl = `${demoPublicOrigin}/demo/${prospectId}`;
 			const crmSource = prospect.provider ?? 'manual';
 			const crmProspectId = prospect.provider_row_id ?? prospectId;
-			await upsertDemoTrackingForProspect(user.id, prospectId, crmSource, crmProspectId, demoUrl, 'draft');
-			await updateDemoTrackingStatus(user.id, prospectId, { status: 'draft', scrapedData });
+			const trackingOwnerId = prospect.userId ?? user.id;
+			await upsertDemoTrackingForProspect(trackingOwnerId, prospectId, crmSource, crmProspectId, demoUrl, 'draft');
+			await updateDemoTrackingStatus(prospectId, { status: 'draft', scrapedData });
 			if (scrapedData?.gbpRaw && typeof scrapedData.gbpRaw === 'object') {
 				await updateProspectFromGbp(prospectId, scrapedData.gbpRaw as { phone?: string; website?: string; address?: string; industry?: string });
 			}
