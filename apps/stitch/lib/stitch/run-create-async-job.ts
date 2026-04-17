@@ -1,4 +1,4 @@
-import { Stitch, StitchError, StitchToolClient, stitch } from "@google/stitch-sdk";
+import { Stitch, StitchError, StitchToolClient } from "@google/stitch-sdk";
 import { buildLandingPagePrompt } from "@/lib/prompts/landing-page";
 import {
   stripAsyncDemoMeta,
@@ -66,15 +66,24 @@ export async function runCreateAsyncJob(
   const { jobId, prospectId, userId, callbackUrl, callbackToken } = meta;
 
   const sendError = async (err: unknown) => {
+    const message = errorMessage(err);
+    console.error("[stitch] create-async job failed", {
+      jobId,
+      prospectId,
+      userId,
+      error: message,
+      err,
+    });
     await postCallback(callbackUrl, callbackToken, {
       jobId,
       prospectId,
       ...(userId !== undefined ? { userId } : {}),
-      error: errorMessage(err),
+      error: message,
     });
   };
 
-  let userStitchClient: StitchToolClient | undefined;
+  /** One MCP client per job so concurrent create-async runs do not share a transport (singleton `stitch` is not safe in parallel). */
+  let stitchToolClient: StitchToolClient | undefined;
   try {
     const stripped = stripAsyncDemoMeta(rawPayload);
     const context = websiteTemplatePayloadToLandingPageContext(stripped);
@@ -101,29 +110,26 @@ export async function runCreateAsyncJob(
         ? rawPayload.stitchProjectId.trim()
         : "";
 
-    let project;
     if (userToken && gcpProject) {
-      userStitchClient = new StitchToolClient({
+      stitchToolClient = new StitchToolClient({
         accessToken: userToken,
         projectId: gcpProject,
         timeout: 180_000,
       });
-      const userStitch = new Stitch(userStitchClient);
-      project = await getOrCreateProspectProject(
-        userStitch,
-        companyName,
-        prospectId,
-        existingStitchProjectId || undefined,
-      );
     } else {
       assertStitchCredentials();
-      project = await getOrCreateProspectProject(
-        stitch,
-        companyName,
-        prospectId,
-        existingStitchProjectId || undefined,
-      );
+      stitchToolClient = new StitchToolClient({
+        timeout: 180_000,
+      });
     }
+
+    const stitchSdk = new Stitch(stitchToolClient);
+    const project = await getOrCreateProspectProject(
+      stitchSdk,
+      companyName,
+      prospectId,
+      existingStitchProjectId || undefined,
+    );
 
     const result = await withDailyGenerationQuota(() =>
       generateScreenHtml(project, prompt),
@@ -165,8 +171,8 @@ export async function runCreateAsyncJob(
   } catch (err) {
     await sendError(err);
   } finally {
-    if (userStitchClient) {
-      await userStitchClient.close().catch(() => undefined);
+    if (stitchToolClient) {
+      await stitchToolClient.close().catch(() => undefined);
     }
   }
 }
