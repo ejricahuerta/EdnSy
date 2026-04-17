@@ -25,9 +25,9 @@ The payload includes:
 - **theme** — style, primaryColor, accentColor
 - **seo** — title, description, keywords
 
-Callback meta (stripped by Stitch / Website Template before generation): `id`, `jobId`, `prospectId`, `userId`, `callbackUrl`, `callbackToken`, `stitchAccessToken`, `stitchGcpProject`, `stitchProjectId`, `prospectCompanyName`.
+Callback meta (stripped by Stitch / Website Template before generation): `id`, `jobId`, `prospectId`, `userId`, `callbackUrl`, `callbackToken`, `stitchProjectId`, `prospectCompanyName`. Legacy keys `stitchAccessToken` / `stitchGcpProject` are ignored by **`apps/stitch`** (Stitch uses server **`STITCH_API_KEY`** only).
 
-**Stitch-only (optional):** `stitchProjectId` — reuse an existing Stitch project for this prospect when regenerating. `prospectCompanyName` — label for `createProject` when no id yet. Per-user OAuth: `stitchAccessToken` + `stitchGcpProject` when configured in Admin.
+**Stitch-only (optional):** `stitchProjectId` — reuse an existing Stitch project for this prospect when regenerating. `prospectCompanyName` — label for `createProject` when no id yet.
 
 ## Reference files
 

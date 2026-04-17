@@ -89,15 +89,6 @@ export async function runCreateAsyncJob(
     const context = websiteTemplatePayloadToLandingPageContext(stripped);
     const prompt = buildLandingPagePrompt(context, { prospectId });
 
-    const userToken =
-      typeof rawPayload.stitchAccessToken === "string"
-        ? rawPayload.stitchAccessToken.trim()
-        : "";
-    const gcpProject =
-      typeof rawPayload.stitchGcpProject === "string"
-        ? rawPayload.stitchGcpProject.trim()
-        : "";
-
     const companyNameRaw =
       typeof rawPayload.prospectCompanyName === "string"
         ? rawPayload.prospectCompanyName.trim()
@@ -110,18 +101,10 @@ export async function runCreateAsyncJob(
         ? rawPayload.stitchProjectId.trim()
         : "";
 
-    if (userToken && gcpProject) {
-      stitchToolClient = new StitchToolClient({
-        accessToken: userToken,
-        projectId: gcpProject,
-        timeout: 180_000,
-      });
-    } else {
-      assertStitchCredentials();
-      stitchToolClient = new StitchToolClient({
-        timeout: 180_000,
-      });
-    }
+    assertStitchCredentials();
+    stitchToolClient = new StitchToolClient({
+      timeout: 180_000,
+    });
 
     const stitchSdk = new Stitch(stitchToolClient);
     const project = await getOrCreateProspectProject(

@@ -20,20 +20,13 @@ export function loadStitchAppEnv(): void {
 }
 
 export function hasStitchCredentials(): boolean {
-  if (process.env.STITCH_API_KEY?.trim()) return true;
-  if (
-    process.env.STITCH_ACCESS_TOKEN?.trim() &&
-    process.env.GOOGLE_CLOUD_PROJECT?.trim()
-  ) {
-    return true;
-  }
-  return false;
+  return Boolean(process.env.STITCH_API_KEY?.trim());
 }
 
 export class StitchConfigError extends Error {
   constructor() {
     super(
-      "Stitch is not configured: set STITCH_API_KEY in apps/stitch/.env.local or apps/stitch/app/.env.",
+      "Stitch is not configured: set STITCH_API_KEY (Google Stitch API key only; OAuth is not used) in apps/stitch/.env.local or apps/stitch/app/.env.",
     );
     this.name = "StitchConfigError";
   }

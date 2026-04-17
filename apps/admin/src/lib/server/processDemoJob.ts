@@ -260,10 +260,6 @@ export async function processOneDemoJob(origin: string): Promise<ProcessJobResul
 		} catch {
 			// Stitch app will create a new project on first run
 		}
-		const stitchApiKey = (env.STITCH_API_KEY ?? '').trim();
-		if (stitchApiKey) {
-			payload.stitchApiKey = stitchApiKey;
-		}
 		payload.callbackUrl = `${origin.replace(/\/$/, '')}/api/demo/generation-callback`;
 		payload.callbackToken = demoCallbackSecret;
 
