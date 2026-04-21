@@ -15,7 +15,12 @@ import {
 	getPlacesMonthlyLimit,
 	updateDemoTrackingStatus,
 	upsertDemoTrackingForProspect,
-	enqueueDemoJob
+	enqueueDemoJob,
+	getDemoTrackingMapGlobal,
+	getGbpJobsMapGlobal,
+	getInsightsJobsMapGlobal,
+	getDemoJobsMapGlobal,
+	getScrapedDataMapGlobal
 } from '$lib/server/supabase';
 import { getScrapedDataForDemo, formatScrapedDataErrorMessage } from '$lib/server/gbp';
 import type { PageServerLoad, Actions } from './$types';
@@ -25,42 +30,45 @@ import { getGbpDefaultLocation } from '$lib/server/userSettings';
 import { isValidDemoTrackingStatus } from '$lib/demo';
 import { getOriginForOutgoingLinks, getDemoPublicOrigin } from '$lib/server/send';
 import { PROSPECT_STATUS } from '$lib/prospectStatus';
+import { buildDashboardPipelineChartData } from '$lib/dashboardPipeline';
 export const load: PageServerLoad = async (event) => {
 	const user = await getDashboardSessionUser(event);
 	if (!user) {
 		throw redirect(303, '/auth/login');
 	}
-	const [demoCountThisMonth, gbpCountThisMonth, insightsCountThisMonth, placesCountThisMonth, prospectsResult] =
-		await Promise.all([
-			getDemoCountThisMonth(user.id),
-			getGbpCountThisMonth(user.id),
-			getInsightsCountThisMonth(user.id),
-			getPlacesCountThisMonth(),
-			listProspects()
-		]);
+	const [
+		demoCountThisMonth,
+		gbpCountThisMonth,
+		insightsCountThisMonth,
+		placesCountThisMonth,
+		prospectsResult,
+		demoTrackingByProspectId,
+		scrapedDataByProspectId,
+		demoJobsByProspectId,
+		gbpJobsByProspectId,
+		insightsJobsByProspectId
+	] = await Promise.all([
+		getDemoCountThisMonth(user.id),
+		getGbpCountThisMonth(user.id),
+		getInsightsCountThisMonth(user.id),
+		getPlacesCountThisMonth(),
+		listProspects(),
+		getDemoTrackingMapGlobal(),
+		getScrapedDataMapGlobal(),
+		getDemoJobsMapGlobal(),
+		getGbpJobsMapGlobal(),
+		getInsightsJobsMapGlobal()
+	]);
 	const placesMonthlyLimit = getPlacesMonthlyLimit();
 	const prospects = prospectsResult.prospects ?? [];
-	const statusOrder: Array<{ key: string; label: string }> = [
-		{ key: PROSPECT_STATUS.NEW, label: 'New' },
-		{ key: PROSPECT_STATUS.GBP_QUEUED, label: 'GBP Queued' },
-		{ key: PROSPECT_STATUS.DEMO_PENDING, label: 'Pending Demo' },
-		{ key: PROSPECT_STATUS.DEMO_QUEUED, label: 'Demo Queued' },
-		{ key: PROSPECT_STATUS.REVIEW, label: 'Review' },
-		{ key: PROSPECT_STATUS.READY_TO_SEND, label: 'Ready to Send' },
-		{ key: PROSPECT_STATUS.EMAIL_SENT, label: 'Demo Sent' },
-		{ key: PROSPECT_STATUS.DEMO_OPENED, label: 'Demo Opened' },
-		{ key: PROSPECT_STATUS.FOLLOW_UP, label: 'Follow-up' }
-	];
-	const statusCounts = new Map<string, number>();
-	for (const p of prospects) {
-		const key = (p.status ?? '').trim().toLowerCase();
-		if (!key) continue;
-		statusCounts.set(key, (statusCounts.get(key) ?? 0) + 1);
-	}
-	const statusChartData = statusOrder.map((s) => ({
-		status: s.label,
-		count: statusCounts.get(s.key.toLowerCase()) ?? 0
-	}));
+	const statusChartData = buildDashboardPipelineChartData(
+		prospects,
+		demoTrackingByProspectId,
+		gbpJobsByProspectId,
+		insightsJobsByProspectId,
+		demoJobsByProspectId,
+		scrapedDataByProspectId
+	);
 
 	const attentionStatusKeys = new Set(
 		[
