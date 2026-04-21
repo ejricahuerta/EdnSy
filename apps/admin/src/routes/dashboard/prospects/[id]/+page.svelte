@@ -215,10 +215,10 @@
 			pushEvent('sent', 'Demo sent', demoTracking.send_time);
 		}
 		if (demoTracking?.opened_at) {
-			pushEvent('opened', 'Demo opened (email)', demoTracking.opened_at);
+			pushEvent('opened', 'Email Opened', demoTracking.opened_at);
 		}
 		if (demoTracking?.clicked_at) {
-			pushEvent('clicked', 'Demo opened (link click)', demoTracking.clicked_at);
+			pushEvent('clicked', 'Demo Link Opened', demoTracking.clicked_at);
 		}
 		if (demoTracking?.status === 'replied') {
 			pushEvent('follow_up', 'Follow-up / replied', demoTracking.updated_at ?? null);

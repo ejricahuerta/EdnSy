@@ -24,7 +24,7 @@ export interface ProspectNextStepInput {
 
 /**
  * Automation + outreach labels shown in the Status column.
- * Lifecycle labels: New → GBP Queued → Processing GBP → Pending Demo → Demo Queued → Processing Demo → Ready to send → Demo Sent → Demo Opened → Follow-up (see getStatusDisplay + jobs).
+ * Lifecycle labels: New → GBP Queued → Processing GBP → Pending Demo → Demo Queued → Processing Demo → Ready to send → Demo Sent → Email Opened / Demo Link Opened → Follow-up (see getStatusDisplay + jobs).
  */
 export type SimplifiedStatusLabel = string;
 
@@ -112,8 +112,11 @@ export function getSimplifiedStatus(
 	if (trackingStatus === 'sent') {
 		return { label: 'Demo Sent', variant: 'muted' };
 	}
-	if (trackingStatus === 'opened' || trackingStatus === 'clicked') {
-		return { label: 'Demo Opened', variant: 'success' };
+	if (trackingStatus === 'opened') {
+		return { label: 'Email Opened', variant: 'success' };
+	}
+	if (trackingStatus === 'clicked') {
+		return { label: 'Demo Link Opened', variant: 'success' };
 	}
 	if (trackingStatus === 'replied') {
 		return { label: 'Follow-up', variant: 'success' };
@@ -218,10 +221,10 @@ export function getNextStep(
 		return { label: 'Demo Sent', variant: 'muted', filterValue: 'sent' };
 	}
 	if (trackingStatus === 'opened') {
-		return { label: 'Demo Opened', variant: 'success', filterValue: 'engaged' };
+		return { label: 'Email Opened', variant: 'success', filterValue: 'engaged' };
 	}
 	if (trackingStatus === 'clicked') {
-		return { label: 'Demo Opened', variant: 'success', filterValue: 'engaged' };
+		return { label: 'Demo Link Opened', variant: 'success', filterValue: 'engaged' };
 	}
 	if (trackingStatus === 'replied') {
 		return { label: 'Follow-up', variant: 'success', filterValue: 'replied' };

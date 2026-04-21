@@ -279,8 +279,8 @@
 				<div>
 					<h2 class="text-lg font-semibold tracking-tight">Pipeline</h2>
 					<p class="text-sm text-muted-foreground">
-						Prospects grouped by CRM status, in workflow order. Bar length is relative to the busiest stage on
-						this list.
+						Prospects grouped the same way as the Status column on Prospects (workflow state, including demo
+						tracking and jobs). Bar length is relative to the busiest stage on this list.
 					</p>
 				</div>
 				<Card.Root class="border-border/80 shadow-sm">

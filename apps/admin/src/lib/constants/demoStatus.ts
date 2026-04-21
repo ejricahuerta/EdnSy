@@ -40,8 +40,8 @@ export const DEMO_TRACKING_OPTIONS: { value: DemoTrackingStatus; label: string }
 	{ value: 'approved', label: 'Ready' },
 	{ value: 'email_draft', label: 'Outreach draft · Gmail' },
 	{ value: 'sent', label: 'Demo Sent' },
-	{ value: 'opened', label: 'Demo Opened · Email' },
-	{ value: 'clicked', label: 'Demo Opened · Link' },
+	{ value: 'opened', label: 'Email Opened' },
+	{ value: 'clicked', label: 'Demo Link Opened' },
 	{ value: 'replied', label: 'Follow-up' }
 ];
 
